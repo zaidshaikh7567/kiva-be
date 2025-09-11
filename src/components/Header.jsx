@@ -5,7 +5,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-16 lg:px-24 py-4 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-16 lg:px-32 xl:px-64 py-4 bg-white shadow-sm ">
       {/* Logo */}
       <div className="text-xl font-serif text-[#c39d8f]">Aurora</div>
 
