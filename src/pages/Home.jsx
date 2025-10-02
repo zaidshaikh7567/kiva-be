@@ -3,6 +3,7 @@ import HeroSection from '../components/home/HeroSection'
 import SubHeroSection from '../components/home/SubHeroSection'
 import TrendingSection from '../components/home/TrendingSection'
 import Collection from '../components/home/Collection'
+import FavoriteSection from '../components/home/FavoriteSection'
 
 const Home = () => {
   return (
@@ -11,6 +12,7 @@ const Home = () => {
         <SubHeroSection/>
         <TrendingSection/>
         <Collection/>
+        <FavoriteSection/>
     </div>
   )
 }
