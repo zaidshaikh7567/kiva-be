@@ -14,22 +14,22 @@ const Footer = () => {
 
   // Quick Links
   const quickLinks = [
-    { href: "#about", text: "About Us" },
-    { href: "#collections", text: "Collections" },
-    { href: "#rings", text: "Rings" },
-    { href: "#necklaces", text: "Necklaces" },
-    { href: "#earrings", text: "Earrings" },
-    { href: "#bracelets", text: "Bracelets" },
+    { href: "/about", text: "About Us" },
+    { href: "/rings", text: "Rings" },
+    { href: "/earrings", text: "Earrings" },
+    { href: "/bracelets", text: "Bracelets" },
+    { href: "/necklaces", text: "Necklaces" },
+    { href: "/contact", text: "Contact Us" },
   ];
 
   // Customer Service Links
   const customerLinks = [
-    { href: "#contact", text: "Contact Us" },
     { href: "#shipping", text: "Shipping Info" },
     { href: "#returns", text: "Returns & Exchanges" },
     { href: "#size-guide", text: "Size Guide" },
     { href: "#care", text: "Jewelry Care" },
     { href: "#faq", text: "FAQ" },
+    { href: "#privacy", text: "Privacy Policy" },
   ];
 
   // Contact Info
@@ -151,6 +151,18 @@ const Footer = () => {
             </div>
 
             <div className="flex items-center space-x-6">
+              <a
+                href="/about"
+                className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-[14px]"
+              >
+                About Us
+              </a>
+              <a
+                href="/contact"
+                className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-[14px]"
+              >
+                Contact
+              </a>
               <a
                 href="#privacy"
                 className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-[14px]"

@@ -1,17 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Necklaces from "../../assets/images/category-2.png";
+import Bracelets from "../../assets/images/category-3.png";
 import Rings from "../../assets/images/category-1.png";
 import Earrings from "../../assets/images/category-4.png";
 import Summar from "../../assets/images/summar.webp";
 
 const FavoriteSection = () => {
   const categories = [
-    {
-      title: "Necklaces",
-      image: Necklaces, // replace with real image
-      link: "/necklaces",
-    },
+  
     {
       title: "Rings",
       image: Rings, // replace with real image
@@ -22,9 +19,19 @@ const FavoriteSection = () => {
       image: Earrings, // replace with real image
       link: "/earrings",
     },
+    {
+      title: "Bracelets",
+      image: Bracelets, // replace with real image
+      link: "/bracelets",
+    },
+    {
+      title: "Necklaces",
+      image: Necklaces, // replace with real image
+      link: "/necklaces",
+    },
   ];
   return (
-    <div className="px-6 md:px-16 lg:px-32 xl:px-64 py-8 md:py-16 w-full">
+    <div className="px-6 md:px-16  xl:px-32  py-8 md:py-16 w-full">
       <div className="flex-1 flex flex-col justify-center text-center w-full">
         <p className="text-sm uppercase tracking-widest text-primary-dark font-montserrat-medium-500 mb-3">
           CATEGORIES
@@ -37,7 +44,7 @@ const FavoriteSection = () => {
         </p>
       </div>
       {/* Category Cards */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {categories.map((item, idx) => (
          <div
          key={idx}

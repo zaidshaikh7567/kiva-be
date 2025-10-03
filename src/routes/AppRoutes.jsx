@@ -5,6 +5,9 @@ import Home from "../pages/Home";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
 import Rings from "../pages/Rings";
+import Earrings from "../pages/Earrings";
+import Bracelets from "../pages/Bracelets";
+import Necklaces from "../pages/Necklaces";
 
 const AppRoutes = () => {
   return (
@@ -16,6 +19,9 @@ const AppRoutes = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/rings" element={<Rings />} />
+          <Route path="/earrings" element={<Earrings />} />
+          <Route path="/bracelets" element={<Bracelets />} />
+          <Route path="/necklaces" element={<Necklaces />} />
         </Route>
 
         <Route element={<AuthLayout />}>

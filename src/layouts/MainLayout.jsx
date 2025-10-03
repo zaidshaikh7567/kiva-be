@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Cart from "../components/Cart";
 
 
 const MainLayout = () => {
@@ -11,6 +12,7 @@ const MainLayout = () => {
         <Outlet /> {/* Render child routes here */}
       </main>
       <Footer />
+      <Cart />
     </div>
   );
 };

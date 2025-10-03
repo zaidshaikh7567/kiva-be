@@ -5,7 +5,8 @@ import ringImg3 from "../assets/images/product-3.jpg";
 import ringImg4 from "../assets/images/product-4.jpg";
 import ringImg5 from "../assets/images/product-5.png";
 import ringImg6 from "../assets/images/product-6.png";
-import { Heart, Star, ShoppingBag, Filter, Grid, List, ChevronDown } from "lucide-react";
+import { Grid, List } from "lucide-react";
+import ProductCard from "../components/ProductCard";
 
 const Rings = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -118,7 +119,7 @@ const Rings = () => {
       </section>
 
       {/* Category Tabs */}
-      <section className="py-8 md:py-16 bg-secondary">
+      <section className="py-4 md:py-8 bg-secondary">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="text-center mb-6 md:mb-12">
             <h2 className="text-xl md:text-3xl lg:text-4xl font-sorts-mill-gloudy text-black mb-2 md:mb-4">
@@ -137,7 +138,7 @@ const Rings = () => {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`relative px-4 py-3 font-montserrat-medium-500 text-base transition-all duration-300 ${
+                  className={`relative py-3 font-montserrat-medium-500 text-base transition-all duration-300 ${
                     selectedCategory === category.id
                       ? "text-black rounded-lg bg-primary-light/10"
                       : "text-black-light hover:text-black"
@@ -158,7 +159,7 @@ const Rings = () => {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`relative px-3 py-2 font-montserrat-medium-500 text-sm transition-all duration-300 ${
+                    className={`relative  py-2 font-montserrat-medium-500 text-sm transition-all duration-300 ${
                       selectedCategory === category.id
                         ? "text-black rounded-lg bg-primary-light/10"
                         : "text-black-light hover:text-black"
@@ -199,7 +200,7 @@ const Rings = () => {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`relative px-3 py-2 font-montserrat-medium-500 text-xs transition-all duration-300 ${
+                    className={`relative py-2 font-montserrat-medium-500 text-xs transition-all duration-300 ${
                       selectedCategory === category.id
                         ? "text-black rounded-lg bg-primary-light/10"
                         : "text-black-light hover:text-black"
@@ -207,7 +208,7 @@ const Rings = () => {
                   >
                     {category.name}
                     {selectedCategory === category.id && (
-                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-primary"></div>
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary"></div>
                     )}
                   </button>
                 ))}
@@ -227,7 +228,7 @@ const Rings = () => {
                   >
                     {category.name}
                     {selectedCategory === category.id && (
-                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-primary"></div>
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary"></div>
                     )}
                   </button>
                 ))}
@@ -238,77 +239,14 @@ const Rings = () => {
       </section>
 
       {/* Products Grid */}
-      <section className="py-8 md:py-16 bg-secondary">
+      <section className="py-2 md:py-8 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="grid gap-4 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {filteredRings.map((ring) => (
-              <div
+              <ProductCard
                 key={ring.id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
-              >
-                {/* Product Image */}
-                <div className="relative overflow-hidden h-64 sm:h-72 md:h-80">
-                  <img
-                    src={ring.image}
-                    alt={ring.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  {ring.featured && (
-                    <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-primary text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-montserrat-medium-500">
-                      Featured
-                    </div>
-                  )}
-                  <button className="absolute top-3 right-3 md:top-4 md:right-4 p-2 bg-white/80 rounded-full hover:bg-white transition-colors duration-300">
-                    <Heart className="w-4 h-4 md:w-5 md:h-5 text-black-light" />
-                  </button>
-                  {ring.originalPrice && (
-                    <div className="absolute bottom-3 left-3 md:bottom-4 md:left-4 bg-red-500 text-white px-2 py-1 rounded text-xs md:text-sm font-montserrat-medium-500">
-                      Sale
-                    </div>
-                  )}
-                </div>
-
-                {/* Product Info */}
-                <div className="p-4 md:p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-montserrat-medium-500 text-primary-dark uppercase tracking-wide">
-                      {ring.category}
-                    </span>
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-montserrat-regular-400 text-black-light">
-                        {ring.rating} ({ring.reviews})
-                      </span>
-                    </div>
-                  </div>
-
-                  <h3 className="text-lg md:text-xl font-montserrat-semibold-600 text-black mb-2">
-                    {ring.name}
-                  </h3>
-
-                  <p className="text-black-light font-montserrat-regular-400 text-xs md:text-sm mb-4">
-                    {ring.description}
-                  </p>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xl md:text-2xl font-montserrat-bold-700 text-primary">
-                        ${ring.price}
-                      </span>
-                      {ring.originalPrice && (
-                        <span className="text-base md:text-lg font-montserrat-regular-400 text-black-light line-through">
-                          ${ring.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <button className="w-full bg-primary text-white font-montserrat-medium-500 py-2 md:py-3 px-4 md:px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-sm md:text-base">
-                    <ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />
-                    <span>Add to Cart</span>
-                  </button>
-                </div>
-              </div>
+                product={ring}
+              />
             ))}
           </div>
         </div>

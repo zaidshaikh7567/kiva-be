@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { ShoppingBag, Menu, X } from "lucide-react"; // lucide-react icons
+import { useSelector, useDispatch } from "react-redux";
+import { openCart } from "../store/slices/cartSlice";
 import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useDispatch();
+  const { totalQuantity } = useSelector(state => state.cart);
 
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-16 lg:px-32 xl:px-64 py-4 bg-white shadow-sm ">
@@ -12,19 +16,7 @@ const Header = () => {
       <div className="text-xl font-serif text-primary">Aurora</div>
       </Link>
       {/* Desktop Nav */}
-      <nav className="hidden md:flex space-x-8 text-[#1e2b38] font-medium">
-        <a
-          href="/about"
-          className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
-        >
-          About
-        </a>{" "}
-        <a
-          href="#trending"
-          className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
-        >
-          Trending
-        </a>{" "}
+      <nav className="hidden lg:flex space-x-8 text-[#1e2b38] font-medium">       
         <a
           href="/rings"
           className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
@@ -32,11 +24,29 @@ const Header = () => {
           Rings
         </a>{" "}
         <a
-          href="#testimonials"
+          href="/earrings"
           className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
         >
-          Testimonials
+          Earrings
         </a>{" "}
+        <a
+          href="/bracelets"
+          className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+        >
+          Bracelets
+        </a>{" "}
+        <a
+          href="/necklaces"
+          className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+        >
+          Necklaces
+        </a>{" "}   
+        <a
+          href="/about"
+          className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+        >
+          About
+        </a>{" "}    
         <a
           href="/contact"
           className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
@@ -44,21 +54,31 @@ const Header = () => {
           Contact Us
         </a>
       </nav>
-      <div className="relative hidden md:flex">
+      <button 
+        onClick={() => dispatch(openCart())}
+        className="relative hidden md:flex hover:opacity-80 transition-opacity duration-300"
+      >
         <ShoppingBag className="w-6 h-6 text-[#1e2b38]" />
-        <span className="absolute -top-2 -right-2 bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-          6
-        </span>
-      </div>
+        {totalQuantity > 0 && (
+          <span className="absolute -top-2 -right-2 bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+            {totalQuantity}
+          </span>
+        )}
+      </button>
       {/* Mobile Menu Button + Cart */}
       <div className="flex items-center gap-4 md:hidden">
         {/* Cart */}
-        <div className="relative">
+        <button 
+          onClick={() => dispatch(openCart())}
+          className="relative hover:opacity-80 transition-opacity duration-300"
+        >
           <ShoppingBag className="w-6 h-6 text-[#1e2b38]" />
-          <span className="absolute -top-2 -right-2 bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-            6
-          </span>
-        </div>
+          {totalQuantity > 0 && (
+            <span className="absolute -top-2 -right-2 bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+              {totalQuantity}
+            </span>
+          )}
+        </button>
         {/* Sidebar toggle */}
         <button onClick={() => setIsOpen(true)} className="p-2">
           <Menu className="w-7 h-7 text-[#1e2b38]" />
@@ -68,7 +88,7 @@ const Header = () => {
 
       {/* Mobile Sidebar */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 md:hidden">
+        <div className="fixed inset-0 bg-black/50 z-50 lg:hidden">
           <div className="absolute top-0 left-0 w-3/4 max-w-xs h-full bg-white shadow-lg p-6">
             {/* Close Button */}
             <button
@@ -81,21 +101,7 @@ const Header = () => {
             {/* Sidebar Links */}
             <div className="text-xl font-serif text-primary">Aurora</div>
 
-            <nav className="mt-10 flex flex-col space-y-6 text-lg text-[#1e2b38]">
-              <a
-                href="/about"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
-              >
-                About
-              </a>
-              <a
-                href="#trending"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
-              >
-                Trending
-              </a>
+            <nav className="mt-10 flex flex-col space-y-6 text-lg text-[#1e2b38]">                         
               <a
                 href="/rings"
                 onClick={() => setIsOpen(false)}
@@ -104,12 +110,33 @@ const Header = () => {
                 Rings
               </a>
               <a
-                href="#testimonials"
+                href="/earrings"
                 onClick={() => setIsOpen(false)}
                 className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
               >
-                Testimonials
+                Earrings
               </a>
+              <a
+                href="/bracelets"
+                onClick={() => setIsOpen(false)}
+                className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+              >
+                Bracelets
+              </a>
+              <a
+                href="/necklaces"
+                onClick={() => setIsOpen(false)}
+                className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+              >
+                Necklaces
+              </a>   
+              <a
+                href="/about"
+                onClick={() => setIsOpen(false)}
+                className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+              >
+                About
+              </a>          
               <a
                 href="/contact"
                 onClick={() => setIsOpen(false)}
