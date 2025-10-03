@@ -22,20 +22,20 @@ const About = () => {
             <h1 className="text-6xl md:text-8xl font-sorts-mill-gloudy leading-tight mb-8">
               About Aurora<span className="text-primary">.</span>
             </h1>
-            <p className="text-2xl md:text-3xl font-montserrat-regular-400 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-2xl md:text-3xl font-montserrat-regular-400 sm:mb-12 mb-6 max-w-3xl mx-auto leading-relaxed">
               Crafting timeless jewelry pieces that celebrate life's most precious moments since 1985
             </p>
-            <div className="flex items-center justify-center space-x-4 text-lg font-montserrat-medium-500">
+            <div className="sm:flex block  items-center justify-center sm:space-x-4 text-lg font-montserrat-medium-500">
               <div className="flex items-center space-x-2">
                 <Clock className="w-5 h-5" />
                 <span>40+ Years</span>
               </div>
-              <div className="w-1 h-6 bg-primary"></div>
+              <div className="w-1 h-6 bg-primary sm:flex hidden"></div>
               <div className="flex items-center space-x-2">
                 <Users className="w-5 h-5" />
                 <span>50+ Artisans</span>
               </div>
-              <div className="w-1 h-6 bg-primary"></div>
+              <div className="w-1 h-6 bg-primary sm:flex hidden"></div>
               <div className="flex items-center space-x-2">
                 <Award className="w-5 h-5" />
                 <span>Premium Quality</span>
