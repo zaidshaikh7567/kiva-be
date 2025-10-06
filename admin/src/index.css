@@ -1,0 +1,98 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@font-face {
+  font-family: sorts-mill-gloudy;
+  src: url("./assets/fonts/SortsMillGoudy-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face{
+  font-family: montserrat-black-900;
+  src: url("./assets/fonts/Montserrat-Black.ttf");
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: montserrat-bold-700;
+  src: url("./assets/fonts/Montserrat-Bold.ttf");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: montserrat-regular-400;
+  font-weight: 400;  
+  font-style: normal;
+  src: url("./assets/fonts/Montserrat-Regular.ttf");
+}
+@font-face{
+  font-family: montserrat-medium-500;
+  font-weight: 500;  
+  font-style: normal;
+  src: url("./assets/fonts/Montserrat-Medium.ttf");
+}
+@font-face{
+  font-family: montserrat-semibold-600;
+  font-weight: 600;  
+  font-style: normal;
+  src: url("./assets/fonts/Montserrat-SemiBold.ttf");
+}
+@font-face{
+  font-family: montserrat-light-300;
+  font-weight: 300;  
+  font-style: normal;
+  src: url("./assets/fonts/Montserrat-Light.ttf");
+}
+@font-face{
+  font-family: montserrat-thin-100;
+  font-weight: 100;  
+  font-style: normal;
+  src: url("./assets/fonts/Montserrat-Thin.ttf");
+}
+@font-face{
+  font-family: montserrat-extralight-200;
+  font-weight: 200;  
+  font-style: normal;
+  src: url("./assets/fonts/Montserrat-ExtraLight.ttf");
+}
+
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
