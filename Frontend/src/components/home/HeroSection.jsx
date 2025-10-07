@@ -3,7 +3,7 @@ import heroImage from "../../assets/images/hero.jpg";
 
 const HeroSection = () => {
   return (
-    <section className="relative flex flex-col md:flex-row items-center justify-between  md:pl-16 lg:pl-32 xl:pl-64  h-[90vh] overflow-hidden">
+    <section className="relative flex flex-col md:flex-row items-center justify-between  md:pl-16 lg:pl-32   h-[90vh] overflow-hidden">
       {/* Background Image on Mobile */}
       <div className="absolute inset-0 md:hidden">
         <img
@@ -30,9 +30,9 @@ const HeroSection = () => {
           — Shop
         </button>
 
-        
+
       </div>
-    
+
 
       {/* Right Image (only visible on desktop split layout) */}
       <div className="hidden md:flex flex-1 relative justify-center md:justify-end w-full md:w-1/2 h-full">
@@ -50,7 +50,7 @@ const HeroSection = () => {
         </div>
       </div>
 
-      
+
     </section>
   );
 };

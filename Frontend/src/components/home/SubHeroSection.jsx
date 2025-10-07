@@ -30,7 +30,7 @@ const SubHeroSection = () => {
   ];
 
   return (
-    <div className="px-6 md:px-16 lg:px-32 xl:px-64 py-8 md:py-16">
+    <div className="px-6 md:px-16 xl:px-32 py-8 md:py-16">
       <div className="grid md:grid-cols-3  lg:gap-32 gap-8">
         {features.map((item) => (
           <div key={item.id} className="flex flex-col items-center text-center">

@@ -10,49 +10,49 @@ const Header = () => {
   const { totalQuantity } = useSelector(state => state.cart);
 
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-16 lg:px-32 xl:px-64 py-4 bg-white shadow-sm ">
+    <header className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-16 xl:px-32 py-4 bg-white shadow-sm ">
       {/* Logo */}
       <Link to="/">
       <div className="text-xl font-serif text-primary">Aurora</div>
       </Link>
       {/* Desktop Nav */}
       <nav className="hidden lg:flex space-x-8 text-[#1e2b38] font-medium">       
-        <a
-          href="/rings"
+        <Link
+          to="/rings"
           className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
         >
           Rings
-        </a>{" "}
-        <a
-          href="/earrings"
+        </Link>{" "}
+        <Link
+          to="/earrings"
           className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
         >
           Earrings
-        </a>{" "}
-        <a
-          href="/bracelets"
+        </Link>{" "}
+        <Link
+          to="/bracelets"
           className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
         >
           Bracelets
-        </a>{" "}
-        <a
-          href="/necklaces"
+        </Link>{" "}
+        <Link
+          to="/necklaces"
           className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
         >
           Necklaces
-        </a>{" "}   
-        <a
-          href="/about"
+        </Link>{" "}   
+        <Link
+          to="/about"
           className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
         >
           About
-        </a>{" "}    
-        <a
-          href="/contact"
+        </Link>{" "}    
+        <Link
+          to="/contact"
           className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
         >
           Contact Us
-        </a>
+        </Link>
       </nav>
       <button 
         onClick={() => dispatch(openCart())}
@@ -102,48 +102,48 @@ const Header = () => {
             <div className="text-xl font-serif text-primary">Aurora</div>
 
             <nav className="mt-10 flex flex-col space-y-6 text-lg text-[#1e2b38]">                         
-              <a
-                href="/rings"
+              <Link
+                to="/rings"
                 onClick={() => setIsOpen(false)}
                 className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
               >
                 Rings
-              </a>
-              <a
-                href="/earrings"
+              </Link>
+              <Link
+                to="/earrings"
                 onClick={() => setIsOpen(false)}
                 className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
               >
                 Earrings
-              </a>
-              <a
-                href="/bracelets"
+              </Link>
+              <Link
+                to="/bracelets"
                 onClick={() => setIsOpen(false)}
                 className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
               >
                 Bracelets
-              </a>
-              <a
-                href="/necklaces"
+              </Link>
+              <Link
+                to="/necklaces"
                 onClick={() => setIsOpen(false)}
                 className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
               >
                 Necklaces
-              </a>   
-              <a
-                href="/about"
+              </Link>   
+              <Link
+                to="/about"
                 onClick={() => setIsOpen(false)}
                 className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
               >
                 About
-              </a>          
-              <a
-                href="/contact"
+              </Link>          
+              <Link
+                to="/contact"
                 onClick={() => setIsOpen(false)}
                 className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
               >
                 Contact Us
-              </a>
+              </Link>
             </nav>
           </div>
         </div>

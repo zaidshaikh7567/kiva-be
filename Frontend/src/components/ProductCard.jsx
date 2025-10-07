@@ -112,14 +112,14 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           <div className="flex space-x-2">
             <button 
               onClick={handleViewDetails}
-              className="flex-1 border border-gray-200 bg-gray-100 text-black font-montserrat-medium-500 py-2 md:py-3 px-2 md:px-2 rounded-lg hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center space-x-2 text-sm md:text-base"
+              className="flex-1 border border-gray-200 bg-gray-100 text-black font-montserrat-medium-500 py-2 md:py-3  rounded-lg hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center space-x-2 text-sm md:text-base"
             >
               <Eye className="w-4 h-4 md:w-5 md:h-5" />
               <span>View</span>
             </button>
             <button 
               onClick={handleAddToCart}
-              className="flex-1 bg-primary text-white font-montserrat-medium-500 py-2 md:py-3 px-4 md:px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-sm md:text-base"
+              className="flex-1 bg-primary text-white font-montserrat-medium-500 py-2 md:py-3  rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-sm md:text-base"
             >
               <ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />
               <span>Add to Cart</span>

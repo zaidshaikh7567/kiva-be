@@ -3,6 +3,7 @@ import { Mail, Phone, MapPin, Heart } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import Container from "./Container";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   // Social Media Links
@@ -53,7 +54,7 @@ const Footer = () => {
 
   return (
     <footer className="text-white">
-      <div className="px-6 md:px-16 lg:px-32 xl:px-64">
+      <div className="px-6 md:px-16 xl:px-32">
         {/* Main Footer Content */}
         <div className="pt-16 pb-8 ">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -89,12 +90,12 @@ const Footer = () => {
               <ul className="space-y-3">
                 {quickLinks.map((link, index) => (
                   <li key={index}>
-                    <a
-                      href={link.href}
+                    <Link
+                      to={link.href}
                       className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-[14px]"
                     >
                       {link.text}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -108,12 +109,12 @@ const Footer = () => {
               <ul className="space-y-3">
                 {customerLinks.map((link, index) => (
                   <li key={index}>
-                    <a
-                      href={link.href}
+                    <Link
+                      to={link.href}
                       className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-[14px]"
                     >
                       {link.text}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -150,32 +151,7 @@ const Footer = () => {
               reserved.
             </div>
 
-            <div className="flex items-center space-x-6">
-              <a
-                href="/about"
-                className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-[14px]"
-              >
-                About Us
-              </a>
-              <a
-                href="/contact"
-                className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-[14px]"
-              >
-                Contact
-              </a>
-              <a
-                href="#privacy"
-                className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-[14px]"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="#terms"
-                className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-[14px]"
-              >
-                Terms of Service
-              </a>
-            </div>
+          
 
             <div className="flex items-center space-x-1 text-black-light font-montserrat-regular-400 text-[14px]">
               <span>Made with</span>

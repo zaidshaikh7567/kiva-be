@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Heart, Star, ShoppingBag, Minus, Plus } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
-console.log('product :', product);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
   const dispatch = useDispatch();
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
 
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
   if (!isOpen || !product) return null;
 
   const handleAddToCart = () => {
@@ -31,6 +40,8 @@ console.log('product :', product);
     setIsFavorite(!isFavorite);
   };
 
+
+  
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
@@ -38,7 +49,7 @@ console.log('product :', product);
       
       {/* Modal */}
       <div className="relative min-h-screen flex items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+        <div className="relative bg-white rounded-2xl max-w-6xl w-full  overflow-hidden">
           {/* Close Button */}
           <button
             onClick={onClose}
