@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { closeCart, updateQuantity, removeFromCart, clearCart } from '../store/slices/cartSlice';
+import PriceDisplay from './PriceDisplay';
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -98,9 +99,10 @@ const Cart = () => {
                         <h3 className="font-montserrat-semibold-600 text-black text-sm truncate">
                           {item.name}
                         </h3>
-                        <p className="text-primary font-montserrat-bold-700 text-sm">
-                          ${item.price}
-                        </p>
+                        <PriceDisplay 
+                          price={item.price}
+                          className="text-primary font-montserrat-bold-700 text-sm"
+                        />
                         
                         {/* Quantity Controls */}
                         <div className="flex items-center space-x-2 mt-2">
@@ -144,9 +146,10 @@ const Cart = () => {
                 <span className="text-lg font-montserrat-semibold-600 text-black">
                   Total ({totalQuantity} items)
                 </span>
-                <span className="text-xl font-montserrat-bold-700 text-primary">
-                  ${totalPrice.toFixed(2)}
-                </span>
+                <PriceDisplay 
+                  price={totalPrice}
+                  className="text-xl font-montserrat-bold-700 text-primary"
+                />
               </div>
 
               {/* Checkout Button */}

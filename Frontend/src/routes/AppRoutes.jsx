@@ -4,10 +4,12 @@ import AuthLayout from "../layouts/AuthLayout";
 import Home from "../pages/Home";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
+import Shop from "../pages/Shop";
 import Rings from "../pages/Rings";
 import Earrings from "../pages/Earrings";
 import Bracelets from "../pages/Bracelets";
 import Necklaces from "../pages/Necklaces";
+import ScrollToTop from "../helpers/ScrollToTop";
 
 const AppRoutes = () => {
   return (
@@ -16,6 +18,7 @@ const AppRoutes = () => {
      
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/shop" element={<Shop />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/rings" element={<Rings />} />
@@ -33,6 +36,7 @@ const AppRoutes = () => {
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
         </Route>
       </Routes>
+          <ScrollToTop/>
     </Router>
   );
 };

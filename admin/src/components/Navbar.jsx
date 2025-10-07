@@ -23,7 +23,10 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
     { label: 'Profile', icon: User },
     { label: 'Settings', icon: Settings },
   ];
-
+  const handleLogout = () => {
+    localStorage.removeItem('adminAuthenticated');
+    window.location.reload();
+  };
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
       <div className="flex items-center justify-between px-4 py-3 lg:px-6 h-20">
@@ -63,7 +66,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
         {/* Right Section */}
         <div className="flex items-center space-x-3">
           {/* Dark Mode Toggle */}
-          <button
+          {/* <button
             onClick={toggleDarkMode}
             className="p-2 rounded-md hover:bg-gray-100 transition-colors"
             title="Toggle dark mode"
@@ -73,18 +76,18 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
             ) : (
               <Moon className="w-5 h-5 text-black-light" />
             )}
-          </button>
+          </button> */}
 
           {/* Notifications */}
-          <div className="relative">
+          {/* <div className="relative">
             <button className="p-2 rounded-md hover:bg-gray-100 transition-colors relative">
               <Bell className="w-5 h-5 text-black-light" />
-              {/* Notification Badge */}
+             
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-montserrat-medium-500">
                 3
               </span>
             </button>
-          </div>
+          </div> */}
 
           {/* Profile Menu */}
           <div className="relative">
@@ -118,7 +121,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
                   );
                 })}
                 <div className="border-t border-gray-200 my-2"></div>
-                <button className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 transition-colors text-red-600">
+                <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 transition-colors text-red-600">
                   <span className="font-montserrat-medium-500">Logout</span>
                 </button>
               </div>

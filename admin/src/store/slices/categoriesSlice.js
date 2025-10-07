@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { API_METHOD } from '../../services/apiMethod';
+import axios from 'axios';
 
 // Async thunks for API calls
 export const fetchCategories = createAsyncThunk(
@@ -32,7 +33,7 @@ export const createCategory = createAsyncThunk(
   'categories/createCategory',
   async (categoryData, { rejectWithValue }) => {
     try {
-      const response = await api.post(`${API_METHOD.categories}`, categoryData);
+      const response = await api.post(API_METHOD.categories, categoryData);
       
       toast.success('Category created successfully!');
       return response.data;

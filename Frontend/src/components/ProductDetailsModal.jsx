@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { X, Heart, Star, ShoppingBag, Minus, Plus } from 'lucide-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
+import PriceDisplay from './PriceDisplay';
+import { selectCurrentCurrency, selectCurrencySymbol, selectExchangeRate, convertPrice, formatPrice } from '../store/slices/currencySlice';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
   const dispatch = useDispatch();
+  
+  // Currency selectors
+  const currentCurrency = useSelector(selectCurrentCurrency);
+  const currencySymbol = useSelector(selectCurrencySymbol);
+  const exchangeRate = useSelector(selectExchangeRate);
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -127,19 +134,13 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
 
                 {/* Price */}
                 <div className="flex items-center space-x-3 mb-6">
-                  <span className="text-3xl lg:text-4xl font-montserrat-bold-700 text-primary">
-                    ${product.price}
-                  </span>
-                  {product.originalPrice && (
-                    <span className="text-xl lg:text-2xl font-montserrat-regular-400 text-black-light line-through">
-                      ${product.originalPrice}
-                    </span>
-                  )}
-                  {product.originalPrice && (
-                    <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-montserrat-medium-500">
-                      Save ${product.originalPrice - product.price}
-                    </span>
-                  )}
+                  <PriceDisplay 
+                    price={product.price}
+                    originalPrice={product.originalPrice}
+                    showOriginalPrice={true}
+                    showSavings={true}
+                    className="text-3xl lg:text-4xl font-montserrat-bold-700 text-primary"
+                  />
                 </div>
 
                 {/* Product Details */}
@@ -200,7 +201,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                   className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
                 >
                   <ShoppingBag className="w-5 h-5" />
-                  <span>Add to Cart - ${(product.price * quantity).toFixed(2)}</span>
+                  <span>Add to Cart - {formatPrice(convertPrice(product.price * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span>
                 </button>
 
                 {/* Additional Info */}

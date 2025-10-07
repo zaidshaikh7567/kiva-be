@@ -29,6 +29,7 @@ const AppRoutes = () => {
       
       {/* Catch all route - redirect to dashboard */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
+     
     </Routes>
   );
 };

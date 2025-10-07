@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X, Package, DollarSign, Hash, Tag, Calendar, Image as ImageIcon, Eye, Edit } from 'lucide-react';
 
 const ProductViewModal = ({ isOpen, onClose, product, onEdit }) => {
@@ -12,8 +13,8 @@ const ProductViewModal = ({ isOpen, onClose, product, onEdit }) => {
     });
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -160,7 +161,8 @@ const ProductViewModal = ({ isOpen, onClose, product, onEdit }) => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

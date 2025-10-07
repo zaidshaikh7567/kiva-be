@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon } from 'lucide-react';
 
 const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, mode = 'add', categories = [] }) => {
@@ -182,8 +183,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
   const buttonText = isEditMode ? 'Update Product' : 'Create Product';
   const iconColor = isEditMode ? 'from-blue-500 to-blue-600' : 'from-primary to-primary-dark';
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" style={{ zIndex: 9999 }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -428,7 +429,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

@@ -3,6 +3,7 @@ import { Heart, Star, ShoppingBag, Eye } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 import ProductDetailsModal from './ProductDetailsModal';
+import PriceDisplay from './PriceDisplay';
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -97,16 +98,11 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           </p>
 
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-xl md:text-2xl font-montserrat-bold-700 text-primary">
-                ${product.price}
-              </span>
-              {product.originalPrice && (
-                <span className="text-base md:text-lg font-montserrat-regular-400 text-black-light line-through">
-                  ${product.originalPrice}
-                </span>
-              )}
-            </div>
+            <PriceDisplay 
+              price={product.price}
+              originalPrice={product.originalPrice}
+              showOriginalPrice={true}
+            />
           </div>
 
           <div className="flex space-x-2">

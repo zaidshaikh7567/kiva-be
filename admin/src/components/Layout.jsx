@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import AppRoutes from '../routes/AppRoutes';
+import ScrollToTop from '../helpers/ScrollToTop';
 
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -57,6 +58,7 @@ const Layout = () => {
         <main className="p-4 lg:p-6 min-h-[calc(100vh-80px)] bg-secondary">
           <div className=" mx-auto">
             <AppRoutes />
+            <ScrollToTop/>
           </div>
         </main>
       </div>

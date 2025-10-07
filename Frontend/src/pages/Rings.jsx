@@ -119,7 +119,7 @@ const Rings = () => {
       </section>
 
       {/* Category Tabs */}
-      <section className="py-4 md:py-8 bg-secondary">
+      <section className="py-4 md:py-8 bg-white">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="text-center mb-6 md:mb-12">
             <h2 className="text-xl md:text-3xl lg:text-4xl font-sorts-mill-gloudy text-black mb-2 md:mb-4">

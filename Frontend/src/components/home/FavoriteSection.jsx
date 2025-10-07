@@ -1,35 +1,56 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Necklaces from "../../assets/images/category-2.png";
 import Bracelets from "../../assets/images/category-3.png";
 import Rings from "../../assets/images/category-1.png";
 import Earrings from "../../assets/images/category-4.png";
 import Summar from "../../assets/images/summar.webp";
+import { fetchCategories } from "../../store/slices/categoriesSlice";
+import { mockCategories } from "../../data/mockProducts";
+import { useDispatch, useSelector } from 'react-redux';
 
 const FavoriteSection = () => {
-  const categories = [
+  const { categories, loading, error } = useSelector(state => state.categories);
+  const dispatch = useDispatch();
+  const [useMockData, setUseMockData] = useState(true); // Force mock data since API is not working
   
-    {
-      title: "Rings",
-      image: Rings, // replace with real image
-      link: "/rings",
-    },
-    {
-      title: "Earrings",
-      image: Earrings, // replace with real image
-      link: "/earrings",
-    },
-    {
-      title: "Bracelets",
-      image: Bracelets, // replace with real image
-      link: "/bracelets",
-    },
-    {
-      title: "Necklaces",
-      image: Necklaces, // replace with real image
-      link: "/necklaces",
-    },
-  ];
+  useEffect(() => {
+    dispatch(fetchCategories()).catch(() => {
+      console.log('API failed, using mock data for categories');
+      setUseMockData(true);
+    });
+  }, [dispatch]);
+
+  // Use mock data if API fails, otherwise use Redux state
+  const displayCategories = useMockData ? mockCategories : (categories?.filter(category => !category.parent) || []);
+  
+  console.log('All categories:', categories);
+  console.log('Main categories (filtered):', displayCategories);
+  
+  // Map categories to display format with images
+  const getCategoryImage = (categoryName) => {
+    const name = categoryName.toLowerCase();
+    if (name.includes('ring')) return Rings;
+    if (name.includes('earring')) return Earrings;
+    if (name.includes('bracelet')) return Bracelets;
+    if (name.includes('necklace') || name.includes('neckless')) return Necklaces;
+    return Rings; // default fallback
+  };
+
+  const getCategoryLink = (categoryName) => {
+    const name = categoryName.toLowerCase();
+    if (name.includes('ring')) return '/shop?category=rings';
+    if (name.includes('earring')) return '/shop?category=earrings';
+    if (name.includes('bracelet')) return '/shop?category=bracelets';
+    if (name.includes('necklace') || name.includes('neckless')) return '/shop?category=necklaces';
+    return '/shop'; // default fallback
+  };
+
+  const displayCategoriesFormatted = displayCategories.map(category => ({
+    title: category.name,
+    image: getCategoryImage(category.name),
+    link: getCategoryLink(category.name),
+  }));
   return (
     <div className="px-6 md:px-16  xl:px-32  py-8 md:py-16 w-full">
       <div className="flex-1 flex flex-col justify-center text-center w-full">
@@ -45,7 +66,9 @@ const FavoriteSection = () => {
       </div>
       {/* Category Cards */}
       <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {categories.map((item, idx) => (
+        {loading && <div className="col-span-full text-center">Loading categories...</div>}
+        {error && <div className="col-span-full text-center text-red-500">Error loading categories: {error}</div>}
+        {displayCategoriesFormatted.map((item, idx) => (
          <div
          key={idx}
          className="relative group overflow-hidden cursor-pointer"
@@ -63,7 +86,7 @@ const FavoriteSection = () => {
                       transition-opacity duration-500 
                       pointer-events-none group-hover:pointer-events-auto"
          >
-           <h3 className="text-white text-[54px] mb-2">{item.title}</h3>
+           <h3 className="text-white text-[54px] mb-2 capitalize">{item.title}</h3>
            <Link
              to={item.link}
              className="mt-2 px-6 py-3 bg-primary-dark text-white font-medium rounded-md hover:bg-primary transition"
@@ -77,7 +100,7 @@ const FavoriteSection = () => {
            className="absolute inset-0 font-sorts-mill-gloudy flex items-center justify-center 
                       text-white text-[54px] font-medium 
                       group-hover:opacity-0 transition-opacity duration-500 
-                      pointer-events-none"
+                      pointer-events-none capitalize"
          >
            {item.title}
          </h3>
