@@ -8,11 +8,11 @@ router.get('/', categoryController.getAllCategories);
 // GET /api/categories/:id - Get single category
 router.get('/:id', categoryController.getCategoryById);
 
-// POST /api/categories - Create new category
-router.post('/', categoryController.createCategory);
+// POST /api/categories - Create new category with optional image upload
+router.post('/', categoryController.uploadCategoryImage, categoryController.createCategory);
 
-// PUT /api/categories/:id - Update category
-router.put('/:id', categoryController.updateCategory);
+// PUT /api/categories/:id - Update category with optional image upload
+router.put('/:id', categoryController.uploadCategoryImage, categoryController.updateCategory);
 
 // DELETE /api/categories/:id - Delete category
 router.delete('/:id', categoryController.deleteCategory);

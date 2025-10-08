@@ -1,5 +1,53 @@
-const Category = require('../models/Category');
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
 const Product = require('../models/Product');
+const Category = require('../models/Category');
+
+// Configure multer for category image upload
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename with timestamp for category
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'category-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+// File filter to allow only images
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|gif|webp/;
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedTypes.test(file.mimetype);
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed!'), false);
+  }
+};
+
+const uploadCategoryImage = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit per file
+  }
+});
+
+// Helper function to delete category image file
+const deleteCategoryImage = (imagePath) => {
+  if (imagePath) {
+    const fullPath = path.join(__dirname, '..', imagePath);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  }
+};
+
+exports.uploadCategoryImage = uploadCategoryImage.single('image');
 
 exports.createCategory = async (req, res) => {
   try {
@@ -21,8 +69,12 @@ exports.createCategory = async (req, res) => {
       }
     }
 
+    // Get uploaded file path if exists
+    const imagePath = req.file ? req.file.path : null;
+
     const category = new Category({
       name: name.trim(),
+      image: imagePath,
       parent: parentId || null
     });
 
@@ -37,6 +89,12 @@ exports.createCategory = async (req, res) => {
     });
   } catch (error) {
     console.error('Create category error:', error);
+
+    // Clean up uploaded file if category creation fails
+    if (req.file) {
+      deleteCategoryImage(req.file.path);
+    }
+
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -102,6 +160,16 @@ exports.updateCategory = async (req, res) => {
       category.parent = parentId || null;
     }
 
+    // Handle image update
+    if (req.file) {
+      // Delete existing image if present
+      if (category.image) {
+        deleteCategoryImage(category.image);
+      }
+      // Set new image
+      category.image = req.file.path;
+    }
+
     await category.save();
 
     // Populate parent if exists
@@ -113,6 +181,12 @@ exports.updateCategory = async (req, res) => {
     });
   } catch (error) {
     console.error('Update category error:', error);
+
+    // Clean up uploaded file if update fails
+    if (req.file) {
+      deleteCategoryImage(req.file.path);
+    }
+
     if (error.kind === 'ObjectId') {
       return res.status(400).json({ error: 'Invalid category ID' });
     }
@@ -143,6 +217,11 @@ exports.deleteCategory = async (req, res) => {
       return res.status(400).json({
         error: 'Cannot delete category with products. Move or delete products first.'
       });
+    }
+
+    // Delete associated image file
+    if (category.image) {
+      deleteCategoryImage(category.image);
     }
 
     await Category.findByIdAndDelete(id);

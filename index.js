@@ -15,7 +15,7 @@ const productRoutes = require('./routes/productRoutes');
 const app = express();
 
 // Middleware
-app.use(cors({ orgigin: '*' })); // Enable CORS for all origins
+app.use(cors({ origin: '*' })); // Enable CORS for all origins
 app.use(express.json({ limit: '10mb' })); // Increased limit for JSON bodies
 app.use(express.urlencoded({ extended: true }));
 
