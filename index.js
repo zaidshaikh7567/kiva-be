@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
+const cors = require('cors');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 // Load environment variables
@@ -14,6 +15,7 @@ const productRoutes = require('./routes/productRoutes');
 const app = express();
 
 // Middleware
+app.use(cors({ orgigin: '*' })); // Enable CORS for all origins
 app.use(express.json({ limit: '10mb' })); // Increased limit for JSON bodies
 app.use(express.urlencoded({ extended: true }));
 
