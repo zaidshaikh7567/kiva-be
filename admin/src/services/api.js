@@ -1,17 +1,18 @@
 import axios from 'axios';
 
 // Create axios instance with base configuration
+const URL =import.meta.env.VITE_API_BASE_URL
+console.log(URL,'URL');
+
 const api = axios.create({
-  // Use empty baseURL for development - Vite proxy will handle the routing
-  baseURL: import.meta.env.DEV ? '' : 'https://kiva-be.onrender.com',
-  // timeout: 30000,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  // withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': "application/json",
+    'Accept':'*/*'
   },
-  // Add CORS configuration
-  withCredentials: false,
 });
+
 
 // Request interceptor
 api.interceptors.request.use(
