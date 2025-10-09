@@ -33,7 +33,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
                 value={shippingInfo.firstName}
                 onChange={onShippingChange}
                 required
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                 placeholder="John"
               />
             </div>
@@ -50,7 +50,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
                 value={shippingInfo.lastName}
                 onChange={onShippingChange}
                 required
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                 placeholder="Doe"
               />
             </div>
@@ -71,7 +71,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
                 value={shippingInfo.email}
                 onChange={onShippingChange}
                 required
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                 placeholder="john@example.com"
               />
             </div>
@@ -88,7 +88,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
                 value={shippingInfo.phone}
                 onChange={onShippingChange}
                 required
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                 placeholder="+1 (555) 000-0000"
               />
             </div>
@@ -106,7 +106,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
             value={shippingInfo.address}
             onChange={onShippingChange}
             required
-            className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+            className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
             placeholder="123 Main Street, Apt 4B"
           />
         </div>
@@ -123,7 +123,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
               value={shippingInfo.city}
               onChange={onShippingChange}
               required
-              className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+              className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
               placeholder="New York"
             />
           </div>
@@ -137,7 +137,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
               value={shippingInfo.state}
               onChange={onShippingChange}
               required
-              className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+              className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
               placeholder="NY"
             />
           </div>
@@ -151,7 +151,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
               value={shippingInfo.zipCode}
               onChange={onShippingChange}
               required
-              className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+              className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
               placeholder="10001"
             />
           </div>
@@ -167,7 +167,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
             value={shippingInfo.country}
             onChange={onShippingChange}
             required
-            className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+            className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
           >
             <option value="">Select Country</option>
             <option value="US">United States</option>

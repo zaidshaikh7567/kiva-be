@@ -113,7 +113,7 @@ const PaymentStep = ({ paymentInfo, onPaymentChange, onSubmit, onBack, loading }
                 onChange={onPaymentChange}
                 required
                 maxLength="19"
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                 placeholder="1234 5678 9012 3456"
               />
             </div>
@@ -132,7 +132,7 @@ const PaymentStep = ({ paymentInfo, onPaymentChange, onSubmit, onBack, loading }
                 value={paymentInfo.cardName}
                 onChange={onPaymentChange}
                 required
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                 placeholder="John Doe"
               />
             </div>
@@ -151,7 +151,7 @@ const PaymentStep = ({ paymentInfo, onPaymentChange, onSubmit, onBack, loading }
                 onChange={onPaymentChange}
                 required
                 maxLength="5"
-                className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                 placeholder="MM/YY"
               />
             </div>
@@ -168,7 +168,7 @@ const PaymentStep = ({ paymentInfo, onPaymentChange, onSubmit, onBack, loading }
                   onChange={onPaymentChange}
                   required
                   maxLength="3"
-                  className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                  className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                   placeholder="123"
                 />
               </div>

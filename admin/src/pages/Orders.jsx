@@ -465,7 +465,7 @@ const Orders = () => {
                 placeholder="Search orders by ID, customer name, or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-2 !focus:ring-primary outline-none !focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary outline-none !focus:border-primary font-montserrat-regular-400 text-black"
               />
             </div>
           </div>

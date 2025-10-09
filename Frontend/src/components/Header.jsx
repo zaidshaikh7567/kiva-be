@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import CurrencyDropdown from "./CurrencyDropdown";
 import UserProfile from "./UserProfile";
 import { useAuth } from "../contexts/AuthContext";
-
+import Logo from '../assets/images/kiva-diamond-logo.png'
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
@@ -17,8 +17,9 @@ const Header = () => {
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="flex items-center justify-between px-4 sm:px-6 md:px-16 xl:px-32 py-4">
         {/* Logo */}
-        <Link to="/" className="flex-shrink-0">
-          <div className="text-xl font-serif text-primary">Aurora</div>
+        <Link   to="/" className="flex-shrink-0 ">
+        {/* <img src={Logo} alt="logo" className="h-[50px] w-auto"/> */}
+          <div className="text-xl font-serif text-primary">Kiva</div>
         </Link>
         
         {/* Desktop Navigation */}

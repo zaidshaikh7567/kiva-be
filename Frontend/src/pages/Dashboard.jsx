@@ -249,7 +249,7 @@ const Dashboard = () => {
                     <input
                       type="text"
                       value={user.firstName}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                       readOnly
                     />
                   </div>
@@ -261,7 +261,7 @@ const Dashboard = () => {
                     <input
                       type="text"
                       value={user.lastName}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                       readOnly
                     />
                   </div>
@@ -273,7 +273,7 @@ const Dashboard = () => {
                     <input
                       type="email"
                       value={user.email}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                       readOnly
                     />
                   </div>
@@ -285,7 +285,7 @@ const Dashboard = () => {
                     <input
                       type="tel"
                       value={user.phone}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                       readOnly
                     />
                   </div>
@@ -297,7 +297,7 @@ const Dashboard = () => {
                     <textarea
                       value={user.address}
                       rows={3}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                       readOnly
                     />
                   </div>

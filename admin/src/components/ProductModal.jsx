@@ -26,7 +26,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         categoryId: productData.category?._id || productData.categoryId || '',
         images: []
       });
-      
+
       // Set image previews for existing images
       if (productData.images && productData.images.length > 0) {
         setImagePreviews(productData.images.map(img => ({
@@ -66,7 +66,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
   const addImages = (files) => {
     // Filter only image files
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
-    
+
     if (imageFiles.length === 0) {
       alert('Please select only image files');
       return;
@@ -109,7 +109,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const files = Array.from(e.dataTransfer.files);
       addImages(files);
@@ -125,7 +125,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
 
     const newImages = formData.images.filter((_, i) => i !== index);
     const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    
+
     setFormData(prev => ({
       ...prev,
       images: newImages
@@ -236,7 +236,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
               value={formData.title}
               onChange={handleInputChange}
               placeholder="Enter product title"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none
+               focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
               required
               disabled={loading}
             />
@@ -253,7 +254,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
               onChange={handleInputChange}
               placeholder="Enter product description"
               rows={3}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400 resize-none"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400 resize-none"
               required
               disabled={loading}
             />
@@ -273,7 +274,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
                 required
                 disabled={loading}
               />
@@ -289,7 +290,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                 onChange={handleInputChange}
                 placeholder="0"
                 min="0"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
                 required
                 disabled={loading}
               />
@@ -297,40 +298,52 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
           </div>
 
           {/* Category */}
-          <div className="space-y-2">
-            <label className="block text-sm font-montserrat-medium-500 text-black">
-              Category *
-            </label>
-            <select
-              name="categoryId"
-              value={formData.categoryId}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
-              required
-              disabled={loading}
-            >
-              <option value="">Select a category</option>
-              {categories
-                .filter(cat => !cat.parent) // Only show main categories
-                .map(category => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                ))}
-            </select>
-          </div>
+         <div className="space-y-2">
+  <label className="block text-sm font-montserrat-medium-500 text-black">
+    Category *
+  </label>
+  <select
+    name="categoryId"
+    value={formData.categoryId}
+    onChange={handleInputChange}
+    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
+    required
+    disabled={loading}
+  >
+    <option value="">Select a category</option>
+
+    {/* Group by parent category */}
+    {categories
+      .filter(cat => !cat.parent) // main categories
+      .map(parentCat => (
+        <optgroup key={parentCat._id} label={parentCat.name}>
+          {/* Parent option itself */}
+          <option value={parentCat._id}>{parentCat.name}</option>
+
+          {/* Its subcategories */}
+          {categories
+            .filter(sub => sub.parent?._id === parentCat._id)
+            .map(subCat => (
+              <option key={subCat._id} value={subCat._id}>
+                &nbsp;&nbsp;- {subCat.name}
+              </option>
+            ))}
+        </optgroup>
+      ))}
+  </select>
+</div>
+
 
           {/* Image Upload */}
           <div className="space-y-2">
             <label className="block text-sm font-montserrat-medium-500 text-black">
               Product Images ({imagePreviews.length} uploaded)
             </label>
-            <div 
-              className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${
-                dragActive 
-                  ? 'border-primary bg-primary-light/10' 
+            <div
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${dragActive
+                  ? 'border-primary bg-primary-light/10'
                   : 'border-gray-200 hover:border-primary'
-              }`}
+                }`}
               onDragEnter={handleDragIn}
               onDragLeave={handleDragOut}
               onDragOver={handleDrag}
@@ -346,12 +359,10 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                 disabled={loading}
               />
               <label htmlFor="image-upload" className="cursor-pointer">
-                <Upload className={`w-8 h-8 mx-auto mb-2 transition-colors ${
-                  dragActive ? 'text-primary' : 'text-gray-400'
-                }`} />
-                <p className={`text-sm mb-1 transition-colors ${
-                  dragActive ? 'text-primary font-medium' : 'text-gray-600'
-                }`}>
+                <Upload className={`w-8 h-8 mx-auto mb-2 transition-colors ${dragActive ? 'text-primary' : 'text-gray-400'
+                  }`} />
+                <p className={`text-sm mb-1 transition-colors ${dragActive ? 'text-primary font-medium' : 'text-gray-600'
+                  }`}>
                   {dragActive ? 'Drop images here' : 'Click to upload images or drag and drop'}
                 </p>
                 <p className="text-xs text-gray-500">

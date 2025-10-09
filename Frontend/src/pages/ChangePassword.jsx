@@ -138,7 +138,7 @@ const ChangePassword = () => {
                   value={formData.currentPassword}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-12 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                  className="w-full pl-11 pr-12 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                   placeholder="Enter your current password"
                 />
                 <button
@@ -146,7 +146,7 @@ const ChangePassword = () => {
                   onClick={() => togglePasswordVisibility('current')}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
                 >
-                  {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPasswords.current ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -165,7 +165,7 @@ const ChangePassword = () => {
                   onChange={handleChange}
                   required
                   minLength="8"
-                  className="w-full pl-11 pr-12 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                  className="w-full pl-11 pr-12 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                   placeholder="Enter your new password"
                 />
                 <button
@@ -173,7 +173,7 @@ const ChangePassword = () => {
                   onClick={() => togglePasswordVisibility('new')}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
                 >
-                  {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPasswords.new ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -192,7 +192,7 @@ const ChangePassword = () => {
                   onChange={handleChange}
                   required
                   minLength="8"
-                  className="w-full pl-11 pr-12 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                  className="w-full pl-11 pr-12 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
                   placeholder="Confirm your new password"
                 />
                 <button
@@ -200,7 +200,7 @@ const ChangePassword = () => {
                   onClick={() => togglePasswordVisibility('confirm')}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
                 >
-                  {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPasswords.confirm ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                 </button>
               </div>
             </div>

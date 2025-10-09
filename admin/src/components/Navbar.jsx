@@ -58,7 +58,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
             <input
               type="text"
               placeholder="Search products, orders, customers..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
             />
           </div>
         </div>

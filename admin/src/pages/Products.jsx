@@ -11,6 +11,8 @@ const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
   const categories = useSelector(selectCategories);
+  console.log(categories,'-----');
+  
   const loading = useSelector(selectProductsLoading);
   
   // Modal state
