@@ -4,11 +4,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { openCart } from "../store/slices/cartSlice";
 import { Link } from "react-router-dom";
 import CurrencyDropdown from "./CurrencyDropdown";
+import UserProfile from "./UserProfile";
+import { useAuth } from "../contexts/AuthContext";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const { totalQuantity } = useSelector(state => state.cart);
+  const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
@@ -68,6 +71,28 @@ const Header = () => {
         <div className="flex items-center space-x-2 sm:space-x-4">
           {/* Currency Dropdown - Single instance for all screen sizes */}
           <CurrencyDropdown />
+          
+          {/* Auth Links - Desktop */}
+          <div className="hidden lg:flex items-center space-x-4">
+            {user ? (
+              <UserProfile user={user} onLogout={logout} />
+            ) : (
+              <>
+                <Link
+                  to="/sign-in"
+                  className="text-black-light hover:text-black font-montserrat-medium-500 text-sm transition-colors duration-300"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/sign-up"
+                  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark font-montserrat-medium-500 text-sm transition-colors duration-300"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
           
           {/* Cart Button */}
           <button 
@@ -162,10 +187,71 @@ const Header = () => {
               <Link
                 to="/contact"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2"
+                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-gray-100 border-b border-gray-100"
               >
                 Contact Us
               </Link>
+              
+              {/* Auth Links - Mobile */}
+              {user ? (
+                <div className="pt-4 border-t border-gray-200 mt-4">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-montserrat-semibold-600">
+                        {user.firstName?.charAt(0)}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-montserrat-semibold-600 text-black">
+                        {user.firstName} {user.lastName}
+                      </p>
+                      <p className="text-xs font-montserrat-regular-400 text-black-light">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setIsOpen(false)}
+                    className="block hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    to="/change-password"
+                    onClick={() => setIsOpen(false)}
+                    className="block hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                  >
+                    Change Password
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsOpen(false);
+                    }}
+                    className="block hover:text-red-600 text-red-600 font-montserrat-medium-500 text-base py-2"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="pt-4 border-t border-gray-200 mt-4">
+                  <Link
+                    to="/sign-in"
+                    onClick={() => setIsOpen(false)}
+                    className="block hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/sign-up"
+                    onClick={() => setIsOpen(false)}
+                    className="block bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark font-montserrat-medium-500 text-sm transition-colors duration-300 mt-4 text-center"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </nav>
           </div>
         </div>

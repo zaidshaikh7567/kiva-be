@@ -3,7 +3,9 @@ import  Img1 from "../../assets/images/ring-shape.jpeg";
 import  Img2 from "../../assets/images/necklace-shape.jpeg";
 import  Img3 from "../../assets/images/earrings-shape.jpeg";
 import  Img4 from "../../assets/images/bracelet-shape.jpeg";
+import { useNavigate } from 'react-router-dom';
 const TrendingSection = () => {
+  const navigate = useNavigate();
   // 🔹 Dynamic products data
   const products = [
     {
@@ -11,24 +13,28 @@ const TrendingSection = () => {
       image: Img1,
       name: "Diamond Ring",
       price: "$1,200",
+      path: "/rings",
     },
     {
       id: 2,
       image: Img2,
       name: "Necklace",
       price: "$980",
+      path: "/necklaces",
     },
     {
       id: 3,
       image: Img3,
       name: "Emerald Earrings",
       price: "$450",
+      path: "/earrings",
     },
     {
       id: 4,
       image: Img4,
       name: "Sapphire Bracelet",
       price: "$670",
+      path: "/bracelets",
     },
   ];
 
@@ -66,8 +72,8 @@ const TrendingSection = () => {
             <div className="mt-2 text-lg font-montserrat-bold-700 text-primary">
               {product.price}
             </div>
-            <button className="mt-6 px-6 py-3 bg-primary-dark text-white font-medium rounded-md hover:bg-primary transition">
-              — Add to cart
+            <button onClick={() => navigate(product.path)} className="mt-6 px-6 py-3 bg-primary-dark text-white font-medium rounded-md hover:bg-primary transition">
+              — Discover
             </button>
           </div>
         ))}

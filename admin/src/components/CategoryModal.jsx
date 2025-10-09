@@ -1,26 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Package, Save, AlertCircle, Plus } from 'lucide-react';
+import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon } from 'lucide-react';
 
 const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData, mode = 'add', categories = [] }) => {
   const [formData, setFormData] = useState({
     name: '',
-    parentId: null
+    parentId: null,
+    image: null
   });
+  const [imagePreview, setImagePreview] = useState(null);
 
   // Update form data when categoryData changes (for edit mode)
   useEffect(() => {
     if (mode === 'edit' && categoryData) {
       setFormData({
         name: categoryData.name || '',
-        parentId: categoryData.parent?._id || categoryData.parentId || null
+        parentId: categoryData.parent?._id || categoryData.parentId || null,
+        image: null
       });
+      // Set existing image preview if available
+      if (categoryData.image) {
+        setImagePreview(categoryData.image);
+      }
     } else {
       // Reset form for add mode
       setFormData({
         name: '',
-        parentId: null
+        parentId: null,
+        image: null
       });
+      setImagePreview(null);
     }
   }, [categoryData, mode]);
 
@@ -30,6 +39,43 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      image: null
+    }));
+    setImagePreview(mode === 'edit' && categoryData?.image ? categoryData.image : null);
   };
 
   const handleSubmit = (e) => {
@@ -51,8 +97,10 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
   const handleClose = () => {
     setFormData({
       name: '',
-      parentId: null
+      parentId: null,
+      image: null
     });
+    setImagePreview(null);
     onClose();
   };
 
@@ -145,6 +193,82 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
                   </option>
                 ))}
             </select>
+          </div>
+
+          {/* Category Image */}
+          <div className="space-y-2">
+            <label className="block text-sm font-montserrat-medium-500 text-black">
+              Category Image (Optional)
+            </label>
+            
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative w-full h-48 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                <img 
+                  src={imagePreview} 
+                  alt="Category preview" 
+                  className="w-full h-full object-cover"
+                />
+                {!loading && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Upload Button */}
+            {!imagePreview && (
+              <div className="relative">
+                <input
+                  type="file"
+                  id="categoryImage"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  disabled={loading}
+                />
+                <label
+                  htmlFor="categoryImage"
+                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                  <span className="text-sm font-montserrat-medium-500 text-black-light">
+                    Click to upload image
+                  </span>
+                  <span className="text-xs font-montserrat-regular-400 text-gray-400 mt-1">
+                    PNG, JPG, JPEG (Max 5MB)
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {/* Change Image Button */}
+            {imagePreview && formData.image && (
+              <div className="relative">
+                <input
+                  type="file"
+                  id="categoryImageChange"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  disabled={loading}
+                />
+                <label
+                  htmlFor="categoryImageChange"
+                  className={`flex items-center justify-center space-x-2 w-full px-4 py-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <ImageIcon className="w-4 h-4 text-gray-600" />
+                  <span className="text-sm font-montserrat-medium-500 text-gray-600">
+                    Change Image
+                  </span>
+                </label>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}

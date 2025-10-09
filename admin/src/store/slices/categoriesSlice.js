@@ -33,7 +33,15 @@ export const createCategory = createAsyncThunk(
   'categories/createCategory',
   async (categoryData, { rejectWithValue }) => {
     try {
-      const response = await api.post(API_METHOD.categories, categoryData);
+      // Check if categoryData is FormData to set proper headers
+      const isFormData = categoryData instanceof FormData;
+      const config = isFormData ? {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      } : {};
+
+      const response = await api.post(API_METHOD.categories, categoryData, config);
       
       toast.success('Category created successfully!');
       return response.data;
@@ -53,18 +61,35 @@ export const updateCategory = createAsyncThunk(
   'categories/updateCategory',
   async ({ id, data }, { rejectWithValue }) => { 
     try {
-      // Transform the data to match your API format
-      const apiData = {
-        name: data.name,
-        parentId: data.parentId
-      };
+      // Check if data is FormData
+      const isFormData = data instanceof FormData;
+      
+      let apiData;
+      let config;
+      
+      if (isFormData) {
+        // If FormData, use it directly with multipart headers
+        apiData = data;
+        config = {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        };
+      } else {
+        // Otherwise, transform to JSON
+        apiData = {
+          name: data.name,
+          parentId: data.parentId
+        };
+        config = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          }
+        };
+      }
   
-      const response = await api.put(`${API_METHOD.categories}/${id}`, apiData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
+      const response = await api.put(`${API_METHOD.categories}/${id}`, apiData, config);
       
       toast.success('Category updated successfully!');
       return response.data;

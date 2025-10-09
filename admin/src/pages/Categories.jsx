@@ -80,14 +80,18 @@ const Categories = () => {
   const handleSubmitCategory = async (data) => {
     if (modalMode === 'add') {
       // Add mode
-      // Transform the data to match your API format
-      const apiData = {
-        name: data.name,
-        parentId: data.parentId || null
-      };
+      // Create FormData to handle file upload
+      const formData = new FormData();
+      formData.append('name', data.name);
+      if (data.parentId) {
+        formData.append('parentId', data.parentId);
+      }
+      if (data.image) {
+        formData.append('image', data.image);
+      }
       
       try {
-        const result = await dispatch(createCategory(apiData));
+        const result = await dispatch(createCategory(formData));
         if (createCategory.fulfilled.match(result)) {
           setIsModalOpen(false);
           setSelectedCategory(null);
@@ -99,9 +103,18 @@ const Categories = () => {
       }
     } else {
       // Edit mode
+      // Create FormData for update as well
+      const formData = new FormData();
+      formData.append('name', data.data.name);
+      if (data.data.parentId) {
+        formData.append('parentId', data.data.parentId);
+      }
+      if (data.data.image) {
+        formData.append('image', data.data.image);
+      }
       
       try {
-        const result = await dispatch(updateCategory(data));
+        const result = await dispatch(updateCategory({ id: data.id, data: formData }));
         if (updateCategory.fulfilled.match(result)) {
           setIsModalOpen(false);
           setSelectedCategory(null);
@@ -208,8 +221,16 @@ const Categories = () => {
                   <div className="p-6 border-b border-gray-100">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center">
-                          <Package className="w-6 h-6 text-white" />
+                        <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center overflow-hidden">
+                          {mainCategory.image ? (
+                            <img 
+                              src={mainCategory.image} 
+                              alt={mainCategory.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Package className="w-8 h-8 text-white" />
+                          )}
                         </div>
                         <div>
                           <h3 className="text-xl font-sorts-mill-gloudy font-bold text-black capitalize">
@@ -249,6 +270,17 @@ const Categories = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {subCategories.map((subCategory) => (
                           <div key={subCategory._id} className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-sm transition-shadow">
+                            {/* Category Image */}
+                            {subCategory.image && (
+                              <div className="w-full h-32 mb-3 rounded-lg overflow-hidden bg-gray-50">
+                                <img 
+                                  src={subCategory.image} 
+                                  alt={subCategory.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                            
                             <div className="flex items-center justify-between mb-3">
                               <h5 className="font-sorts-mill-gloudy font-bold text-black capitalize">
                                 {subCategory.name}

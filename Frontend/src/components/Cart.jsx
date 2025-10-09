@@ -1,11 +1,13 @@
 import React from 'react';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { closeCart, updateQuantity, removeFromCart, clearCart } from '../store/slices/cartSlice';
 import PriceDisplay from './PriceDisplay';
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { items, totalQuantity, totalPrice, isOpen } = useSelector(state => state.cart);
 
   if (!isOpen) return null;
@@ -23,8 +25,8 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
-    // Here you would typically redirect to checkout page
-    alert('Checkout functionality would be implemented here');
+    dispatch(closeCart());
+    navigate('/checkout');
   };
 
   return (
