@@ -17,15 +17,15 @@ export default {
         "montserrat-extralight-200": ["montserrat-extralight-200"],
         "montserrat-thin-100": ["montserrat-thin-100"],
       },
-    },
-    colors: {
-      "primary": "#E0C0B0",
-      "primary-dark": "#D9B5A1",
-      "primary-light": "#EBDCD3",
-      "secondary": "#F6F4F2",
-      "black":"#051F34",
-      "black-light":"#445665",
-      "white":"#FFFFFF"
+      colors: {
+        "primary": "#E0C0B0",
+        "primary-dark": "#D9B5A1",
+        "primary-light": "#EBDCD3",
+        "secondary": "#F6F4F2",
+        "black":"#051F34",
+        "black-light":"#445665",
+        "white":"#FFFFFF"
+      }
     }
   },
   plugins: [],

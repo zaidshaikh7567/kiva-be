@@ -8,6 +8,7 @@ import PriceDisplay from './PriceDisplay';
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  console.log('showDetails :', showDetails);
   const dispatch = useDispatch();
 
   const handleAddToCart = () => {

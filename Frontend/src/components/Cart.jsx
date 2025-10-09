@@ -1,14 +1,17 @@
-import React from 'react';
-import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Minus, Plus, Trash2, ShoppingBag, Eye } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { closeCart, updateQuantity, removeFromCart, clearCart } from '../store/slices/cartSlice';
 import PriceDisplay from './PriceDisplay';
+import ProductDetailsModal from './ProductDetailsModal';
 
 const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalQuantity, totalPrice, isOpen } = useSelector(state => state.cart);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -27,6 +30,16 @@ const Cart = () => {
   const handleCheckout = () => {
     dispatch(closeCart());
     navigate('/checkout');
+  };
+
+  const handleViewProduct = (item) => {
+    setSelectedProduct(item);
+    setIsProductModalOpen(true);
+  };
+
+  const handleCloseProductModal = () => {
+    setIsProductModalOpen(false);
+    setSelectedProduct(null);
   };
 
   return (
@@ -86,9 +99,12 @@ const Cart = () => {
                 {/* Cart Items */}
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4 py-4 bg-gray-50 rounded-lg">
-                      {/* Product Image */}
-                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                    <div key={item.id} className="flex items-center space-x-4 py-4 px-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-300">
+                      {/* Product Image - Clickable */}
+                      <div 
+                        className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity duration-300"
+                        onClick={() => handleViewProduct(item)}
+                      >
                         <img
                           src={item.image}
                           alt={item.name}
@@ -96,9 +112,12 @@ const Cart = () => {
                         />
                       </div>
 
-                      {/* Product Details */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-montserrat-semibold-600 text-black text-sm truncate">
+                      {/* Product Details - Clickable */}
+                      <div 
+                        className="flex-1 min-w-0 cursor-pointer"
+                        onClick={() => handleViewProduct(item)}
+                      >
+                        <h3 className="font-montserrat-semibold-600 text-black text-sm truncate hover:text-primary transition-colors duration-300">
                           {item.name}
                         </h3>
                         <PriceDisplay 
@@ -106,19 +125,32 @@ const Cart = () => {
                           className="text-primary font-montserrat-bold-700 text-sm"
                         />
                         
+                        {/* Show selected metal if available */}
+                        {item.selectedMetal && (
+                          <div className="text-xs text-black-light font-montserrat-regular-400 mt-1">
+                            {item.selectedMetal.karat} {item.selectedMetal.color}
+                          </div>
+                        )}
+                        
                         {/* Quantity Controls */}
                         <div className="flex items-center space-x-2 mt-2">
                           <button
-                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleQuantityChange(item.id, item.quantity - 1);
+                            }}
                             className="w-6 h-6 bg-primary-light hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
-                          <span className="text-sm  font-montserrat-medium-500 text-black min-w-[20px] text-center">
+                          <span className="text-sm font-montserrat-medium-500 text-black min-w-[20px] text-center">
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleQuantityChange(item.id, item.quantity + 1);
+                            }}
                             className="w-6 h-6 bg-primary-light hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
                           >
                             <Plus className="w-3 h-3" />
@@ -126,13 +158,29 @@ const Cart = () => {
                         </div>
                       </div>
 
-                      {/* Remove Button */}
-                      <button
-                        onClick={() => handleRemoveItem(item.id)}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors duration-300"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {/* Action Buttons */}
+                      <div className="flex items-center space-x-2">
+                        {/* View Details Button */}
+                        <button
+                          onClick={() => handleViewProduct(item)}
+                          className="p-2 text-primary hover:text-primary-dark hover:bg-primary-light rounded-full transition-colors duration-300"
+                          title="View Details"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        
+                        {/* Remove Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveItem(item.id);
+                          }}
+                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors duration-300"
+                          title="Remove Item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -174,6 +222,15 @@ const Cart = () => {
           )}
         </div>
       </div>
+
+      {/* Product Details Modal */}
+      {selectedProduct && (
+        <ProductDetailsModal
+          product={selectedProduct}
+          isOpen={isProductModalOpen}
+          onClose={handleCloseProductModal}
+        />
+      )}
     </div>
   );
 };

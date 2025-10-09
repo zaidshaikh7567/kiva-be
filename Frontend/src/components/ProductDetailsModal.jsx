@@ -3,12 +3,15 @@ import { X, Heart, Star, ShoppingBag, Minus, Plus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 import PriceDisplay from './PriceDisplay';
+import MetalSelector from './MetalSelector';
 import { selectCurrentCurrency, selectCurrencySymbol, selectExchangeRate, convertPrice, formatPrice } from '../store/slices/currencySlice';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [selectedMetal, setSelectedMetal] = useState(null);
+  console.log('selectedMetal :', selectedMetal);
   const dispatch = useDispatch();
   
   // Currency selectors
@@ -29,8 +32,13 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   if (!isOpen || !product) return null;
 
   const handleAddToCart = () => {
+    const productWithMetal = {
+      ...product,
+      selectedMetal: selectedMetal
+    };
+    
     for (let i = 0; i < quantity; i++) {
-      dispatch(addToCart(product));
+      dispatch(addToCart(productWithMetal));
     }
     onClose();
   };
@@ -45,6 +53,17 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
 
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
+  };
+
+  const handleMetalChange = (metal) => {
+    setSelectedMetal(metal);
+  };
+
+  // Calculate final price with metal multiplier
+  const getFinalPrice = () => {
+    const basePrice = product.price;
+    const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
+    return basePrice * metalMultiplier;
   };
 
 
@@ -135,11 +154,24 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                 {/* Price */}
                 <div className="flex items-center space-x-3 mb-6">
                   <PriceDisplay 
-                    price={product.price}
+                    price={getFinalPrice()}
                     originalPrice={product.originalPrice}
                     showOriginalPrice={true}
                     showSavings={true}
                     className="text-3xl lg:text-4xl font-montserrat-bold-700 text-primary"
+                  />
+                  {selectedMetal && (
+                    <div className="text-sm font-montserrat-regular-400 text-black-light">
+                      ({selectedMetal.karat} {selectedMetal.color})
+                    </div>
+                  )}
+                </div>
+
+                {/* Metal Selection */}
+                <div className="mb-6">
+                  <MetalSelector
+                    selectedMetal={selectedMetal}
+                    onMetalChange={handleMetalChange}
                   />
                 </div>
 
@@ -151,7 +183,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                   <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
                     <div className="flex justify-between">
                       <span>Material:</span>
-                      <span>Premium Gold/Silver</span>
+                      <span>{selectedMetal ? `${selectedMetal.karat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Stone:</span>
@@ -201,7 +233,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                   className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
                 >
                   <ShoppingBag className="w-5 h-5" />
-                  <span>Add to Cart - {formatPrice(convertPrice(product.price * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span>
+                  <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span>
                 </button>
 
                 {/* Additional Info */}
