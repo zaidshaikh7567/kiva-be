@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { API_METHOD } from '../../services/apiMethod';
-import axios from 'axios';
 
 // Async thunks for API calls
 export const fetchCategories = createAsyncThunk(
