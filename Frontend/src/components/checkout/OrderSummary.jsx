@@ -1,7 +1,7 @@
 import React from 'react';
 import PriceDisplay from '../PriceDisplay';
 
-const OrderSummary = ({ items, totalPrice, shippingCost, tax, finalTotal }) => {
+const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-8">
       <h3 className="text-xl font-sorts-mill-gloudy text-black mb-6">
@@ -55,16 +55,7 @@ const OrderSummary = ({ items, totalPrice, shippingCost, tax, finalTotal }) => {
             className="text-sm font-montserrat-semibold-600 text-black"
           />
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-montserrat-regular-400 text-black-light">
-            Tax (8%)
-          </span>
-          <PriceDisplay 
-            price={tax}
-            className="text-sm font-montserrat-semibold-600 text-black"
-          />
-        </div>
-        <div className="border-t border-primary-light pt-3">
+        <div className="border-t border-primary-light pt-3 mt-3">
           <div className="flex justify-between items-center">
             <span className="text-lg font-montserrat-bold-700 text-black">
               Total

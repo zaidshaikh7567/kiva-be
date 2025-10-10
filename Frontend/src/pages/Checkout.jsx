@@ -38,8 +38,7 @@ const Checkout = () => {
 
   // Shipping cost calculation
   const shippingCost = totalPrice > 500 ? 0 : 15;
-  const tax = totalPrice * 0.08; // 8% tax
-  const finalTotal = totalPrice + shippingCost + tax;
+  const finalTotal = totalPrice + shippingCost;
 
   const handleShippingChange = (e) => {
     const { name, value } = e.target;
@@ -83,7 +82,6 @@ const Checkout = () => {
       items,
       totalPrice,
       shippingCost,
-      tax,
       finalTotal
     };
     
@@ -240,7 +238,6 @@ const Checkout = () => {
                 items={items}
                 totalPrice={totalPrice}
                 shippingCost={shippingCost}
-                tax={tax}
                 finalTotal={finalTotal}
               />
             </div>

@@ -1,23 +1,83 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { MapPin, User, Mail, Phone } from 'lucide-react';
 import CustomDropdown from '../CustomDropdown';
-
-const COUNTRY_OPTIONS = [
-  { value: 'US', label: '🇺🇸 United States' },
-  { value: 'CA', label: '🇨🇦 Canada' },
-  { value: 'UK', label: '🇬🇧 United Kingdom' },
-  { value: 'AU', label: '🇦🇺 Australia' },
-  { value: 'DE', label: '🇩🇪 Germany' },
-  { value: 'FR', label: '🇫🇷 France' },
-  { value: 'IT', label: '🇮🇹 Italy' },
-  { value: 'ES', label: '🇪🇸 Spain' },
-  { value: 'JP', label: '🇯🇵 Japan' },
-  { value: 'AE', label: '🇦🇪 United Arab Emirates' },
-];
+import { Country, State, City } from 'country-state-city';
 
 const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => {
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedState, setSelectedState] = useState(null);
+
+  // Get all countries
+  const countryOptions = useMemo(() => {
+    return Country.getAllCountries().map(country => ({
+      value: country.isoCode,
+      label: `${country.flag} ${country.name}`,
+      data: country
+    }));
+  }, []);
+
+  // Get states for selected country
+  const stateOptions = useMemo(() => {
+    if (!selectedCountry) return [];
+    return State.getStatesOfCountry(selectedCountry.isoCode).map(state => ({
+      value: state.isoCode,
+      label: state.name,
+      data: state
+    }));
+  }, [selectedCountry]);
+
+  // Get cities for selected state
+  const cityOptions = useMemo(() => {
+    if (!selectedCountry || !selectedState) return [];
+    return City.getCitiesOfState(selectedCountry.isoCode, selectedState.isoCode).map(city => ({
+      value: city.name,
+      label: city.name,
+      data: city
+    }));
+  }, [selectedCountry, selectedState]);
+
+  // Initialize selected country and state from shippingInfo
+  useEffect(() => {
+    if (shippingInfo.country && !selectedCountry) {
+      const country = Country.getAllCountries().find(c => c.isoCode === shippingInfo.country);
+      if (country) {
+        setSelectedCountry(country);
+      }
+    }
+  }, [shippingInfo.country, selectedCountry]);
+
+  useEffect(() => {
+    if (shippingInfo.state && selectedCountry && !selectedState) {
+      const state = State.getStatesOfCountry(selectedCountry.isoCode).find(s => s.isoCode === shippingInfo.state);
+      if (state) {
+        setSelectedState(state);
+      }
+    }
+  }, [shippingInfo.state, selectedCountry, selectedState]);
+
   const handleCountryChange = (value) => {
+    const country = Country.getAllCountries().find(c => c.isoCode === value);
+    setSelectedCountry(country);
+    setSelectedState(null); // Reset state when country changes
+    
+    // Update form data and clear state and city
     onShippingChange({ target: { name: 'country', value } });
+    onShippingChange({ target: { name: 'state', value: '' } });
+    onShippingChange({ target: { name: 'city', value: '' } });
+  };
+
+  const handleStateChange = (value) => {
+    if (!selectedCountry) return;
+    const state = State.getStatesOfCountry(selectedCountry.isoCode).find(s => s.isoCode === value);
+    setSelectedState(state);
+    
+    // Update form data and clear city
+    onShippingChange({ target: { name: 'state', value } });
+    onShippingChange({ target: { name: 'city', value: '' } });
+  };
+
+  const handleCityChange = (value) => {
+    onShippingChange({ target: { name: 'city', value } });
   };
 
   return (
@@ -129,39 +189,42 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
           />
         </div>
 
-        {/* City, State, Zip */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Country */}
+        <div>
+          <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+            Country *
+          </label>
+          <CustomDropdown
+            options={countryOptions}
+            value={shippingInfo.country}
+            onChange={handleCountryChange}
+            placeholder="Select Country"
+            disabled={loading}
+          />
+        </div>
+
+        {/* State and ZIP Code */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              City *
+              State / Province *
             </label>
-            <input
-              type="text"
-              name="city"
-              value={shippingInfo.city}
-              onChange={onShippingChange}
-              required
-              className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-              placeholder="New York"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              State *
-            </label>
-            <input
-              type="text"
-              name="state"
+            <CustomDropdown
+              options={stateOptions}
               value={shippingInfo.state}
-              onChange={onShippingChange}
-              required
-              className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-              placeholder="NY"
+              onChange={handleStateChange}
+              placeholder={selectedCountry ? "Select State/Province" : "Select Country First"}
+              disabled={loading || !selectedCountry || stateOptions.length === 0}
             />
+            {selectedCountry && stateOptions.length === 0 && (
+              <p className="text-xs text-black-light mt-1 font-montserrat-regular-400">
+                No states/provinces available for this country
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              ZIP Code *
+              ZIP / Postal Code *
             </label>
             <input
               type="text"
@@ -175,18 +238,23 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
           </div>
         </div>
 
-        {/* Country */}
+        {/* City */}
         <div>
           <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-            Country *
+            City *
           </label>
           <CustomDropdown
-            options={COUNTRY_OPTIONS}
-            value={shippingInfo.country}
-            onChange={handleCountryChange}
-            placeholder="Select Country"
-            disabled={loading}
+            options={cityOptions}
+            value={shippingInfo.city}
+            onChange={handleCityChange}
+            placeholder={selectedState ? "Select City" : "Select State/Province First"}
+            disabled={loading || !selectedState || cityOptions.length === 0}
           />
+          {selectedState && cityOptions.length === 0 && (
+            <p className="text-xs text-black-light mt-1 font-montserrat-regular-400">
+              No cities available. You can enter manually if needed.
+            </p>
+          )}
         </div>
 
         {/* Submit Button */}

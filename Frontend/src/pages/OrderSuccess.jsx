@@ -56,7 +56,7 @@ const OrderSuccess = () => {
     );
   }
 
-  const { shippingInfo, paymentInfo, items, totalPrice, shippingCost, tax, finalTotal } = orderData;
+  const { shippingInfo, paymentInfo, items, totalPrice, shippingCost, finalTotal } = orderData;
 
   return (
     <div className="min-h-screen bg-secondary">
@@ -218,16 +218,7 @@ const OrderSuccess = () => {
                       className="text-sm font-montserrat-semibold-600 text-black"
                     />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-montserrat-regular-400 text-black-light">
-                      Tax (8%)
-                    </span>
-                    <PriceDisplay 
-                      price={tax}
-                      className="text-sm font-montserrat-semibold-600 text-black"
-                    />
-                  </div>
-                  <div className="border-t border-primary-light pt-3">
+                  <div className="border-t border-primary-light pt-3 mt-3">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-montserrat-bold-700 text-black">
                         Total
