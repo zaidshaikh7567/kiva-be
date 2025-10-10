@@ -1,29 +1,106 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon, ChevronDown, Check } from 'lucide-react';
+import RichTextEditor from './RichTextEditor';
+
+// Stone options for multi-select
+const STONE_OPTIONS = [
+  { id: 'natural-diamond', label: 'Natural Diamond' },
+  { id: 'natural-gemstone', label: 'Natural Gemstone' },
+  { id: 'lab-grown-diamond', label: 'Lab Grown Diamond' },
+  { id: 'lab-grown-gemstone', label: 'Lab Grown Gemstone' },
+];
+
+// Care instructions options
+const CARE_OPTIONS = [
+  'Professional Cleaning',
+  'Clean with Soft Cloth',
+  'Avoid Chemicals',
+  'Store Separately',
+  'Remove Before Swimming',
+  'Ultrasonic Cleaning Safe',
+];
+
+const EMPTY_LEXICAL_STATE = JSON.stringify({
+  root: {
+    children: [
+      {
+        children: [],
+        direction: "ltr",
+        format: "",
+        indent: 0,
+        type: "paragraph",
+        version: 1,
+      },
+    ],
+    direction: "ltr",
+    format: "",
+    indent: 0,
+    type: "root",
+    version: 1,
+  },
+});
+
+function getSafeLexicalState(val) {
+  // If it's already an object, convert it to string first
+  if (typeof val === "object" && val !== null) {
+    val = JSON.stringify(val);
+  }
+
+  if (typeof val === "string" && val.trim() && val !== "null") {
+    try {
+      const parsed = JSON.parse(val);
+      if (
+        parsed &&
+        typeof parsed === "object" &&
+        parsed.root &&
+        parsed.root.type === "root" &&
+        Array.isArray(parsed.root.children) &&
+        parsed.root.children.length > 0
+      ) {
+        return val;
+      }
+    } catch {
+      // Invalid JSON, fall through to return empty
+    }
+  }
+  return EMPTY_LEXICAL_STATE;
+}
 
 const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, mode = 'add', categories = [] }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    subDescription: '',
     price: '',
     quantity: '',
     categoryId: '',
+    stone: [],
+    care: '',
     images: []
   });
 
   const [imagePreviews, setImagePreviews] = useState([]);
   const [dragActive, setDragActive] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [stoneDropdownOpen, setStoneDropdownOpen] = useState(false);
+  const [careDropdownOpen, setCareDropdownOpen] = useState(false);
 
-  // Update form data when productData changes (for edit mode)
+  // Update form data when modal opens or productData changes
   useEffect(() => {
-    if (mode === 'edit' && productData) {
+    if (isOpen && mode === 'edit' && productData) {
+      // Process description once during initialization
+      const processedDescription = getSafeLexicalState(productData.description);
+      
       setFormData({
         title: productData.title || '',
-        description: productData.description || '',
+        description: processedDescription,
+        subDescription: productData.subDescription || '',
         price: productData.price?.toString() || '',
         quantity: productData.quantity?.toString() || '',
         categoryId: productData.category?._id || productData.categoryId || '',
+        stone: productData.stone || [],
+        care: productData.care || '',
         images: []
       });
 
@@ -36,19 +113,42 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
       } else {
         setImagePreviews([]);
       }
-    } else {
-      // Reset form for add mode
+    } else if (isOpen && mode === 'add') {
+      // Reset form for add mode when modal opens
       setFormData({
         title: '',
         description: '',
+        subDescription: '',
         price: '',
         quantity: '',
         categoryId: '',
+        stone: [],
+        care: '',
         images: []
       });
       setImagePreviews([]);
     }
-  }, [productData, mode]);
+  }, [isOpen, productData, mode]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (categoryDropdownOpen && !event.target.closest('.category-dropdown-container')) {
+        setCategoryDropdownOpen(false);
+      }
+      if (stoneDropdownOpen && !event.target.closest('.stone-dropdown-container')) {
+        setStoneDropdownOpen(false);
+      }
+      if (careDropdownOpen && !event.target.closest('.care-dropdown-container')) {
+        setCareDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [categoryDropdownOpen, stoneDropdownOpen, careDropdownOpen]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -56,6 +156,20 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
       ...prev,
       [name]: value
     }));
+  };
+
+  const toggleStone = (stoneId) => {
+    setFormData(prev => ({
+      ...prev,
+      stone: prev.stone.includes(stoneId)
+        ? prev.stone.filter(s => s !== stoneId)
+        : [...prev.stone, stoneId]
+    }));
+  };
+
+  const handleCareSelect = (care) => {
+    setFormData(prev => ({ ...prev, care }));
+    setCareDropdownOpen(false);
   };
 
   const handleImageChange = (e) => {
@@ -166,9 +280,12 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     setFormData({
       title: '',
       description: '',
+      subDescription: '',
       price: '',
       quantity: '',
       categoryId: '',
+      stone: [],
+      care: '',
       images: []
     });
     setImagePreviews([]);
@@ -182,6 +299,9 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
   const subtitle = isEditMode ? 'Update product information' : 'Create a new jewelry product';
   const buttonText = isEditMode ? 'Update Product' : 'Create Product';
   const iconColor = isEditMode ? 'from-blue-500 to-blue-600' : 'from-primary to-primary-dark';
+
+
+
 
   return createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" style={{ zIndex: 9999 }}>
@@ -243,21 +363,42 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
             />
           </div>
 
-          {/* Description */}
+          {/* Description - Rich Text Editor */}
           <div className="space-y-2">
             <label className="block text-sm font-montserrat-medium-500 text-black">
-              Description *
+              Product Description *
+            </label>
+            {(mode === 'add' || (mode === 'edit' && formData.description)) && (
+              <RichTextEditor
+                key={`${mode}-${productData?._id || 'new'}`}
+                value={formData.description}
+                onChange={(contentJson) => setFormData(prev => ({ ...prev, description: contentJson }))}
+                placeholder="Enter a detailed product description... (Use the toolbar to format text)"
+                disabled={loading}
+              />
+            )}
+            <p className="text-xs text-black-light font-montserrat-regular-400 mt-1">
+              Use the toolbar above to format your text with bold, italic, lists, and more.
+            </p>
+          </div>
+
+          {/* Sub Description */}
+          <div className="space-y-2">
+            <label className="block text-sm font-montserrat-medium-500 text-black">
+              Sub Description
             </label>
             <textarea
-              name="description"
-              value={formData.description}
+              name="subDescription"
+              value={formData.subDescription}
               onChange={handleInputChange}
-              placeholder="Enter product description"
-              rows={3}
+              placeholder="Enter a brief sub description or tagline..."
+              rows="3"
               className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400 resize-none"
-              required
               disabled={loading}
             />
+            <p className="text-xs text-black-light font-montserrat-regular-400">
+              A short summary or tagline for the product (optional)
+            </p>
           </div>
 
           {/* Price and Quantity */}
@@ -297,42 +438,257 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
             </div>
           </div>
 
-          {/* Category */}
-         <div className="space-y-2">
-  <label className="block text-sm font-montserrat-medium-500 text-black">
-    Category *
-  </label>
-  <select
-    name="categoryId"
-    value={formData.categoryId}
-    onChange={handleInputChange}
-    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
-    required
-    disabled={loading}
-  >
-    <option value="">Select a category</option>
+          {/* Category - Beautiful Custom Dropdown */}
+          <div className="space-y-2">
+            <label className="block text-sm font-montserrat-medium-500 text-black">
+              Category *
+            </label>
+            <div className="relative category-dropdown-container">
+              {/* Dropdown Button */}
+              <button
+                type="button"
+                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                className={`w-full px-4 py-3 border-2 rounded-lg text-left flex items-center justify-between transition-all duration-300 font-montserrat-regular-400
+                  ${formData.categoryId 
+                    ? 'border-primary bg-primary-light/10 text-black' 
+                    : 'border-gray-200 text-black-light'
+                  }
+                  ${categoryDropdownOpen ? 'ring-2 ring-primary ring-opacity-20' : ''}
+                  hover:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
+                  disabled:opacity-50 disabled:cursor-not-allowed`}
+                disabled={loading}
+              >
+                <span className={formData.categoryId ? 'text-black font-montserrat-medium-500' : 'text-black-light'}>
+                  {formData.categoryId 
+                    ? (() => {
+                        const selected = categories.find(cat => cat._id === formData.categoryId);
+                        if (!selected) return 'Select a category';
+                        const parent = selected.parent 
+                          ? categories.find(cat => cat._id === selected.parent._id)
+                          : null;
+                        return parent 
+                          ? `${parent.name} → ${selected.name}`
+                          : selected.name;
+                      })()
+                    : 'Select a category'
+                  }
+                </span>
+                <ChevronDown 
+                  className={`w-5 h-5 text-primary transition-transform duration-300 ${
+                    categoryDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
 
-    {/* Group by parent category */}
-    {categories
-      .filter(cat => !cat.parent) // main categories
-      .map(parentCat => (
-        <optgroup key={parentCat._id} label={parentCat.name}>
-          {/* Parent option itself */}
-          <option value={parentCat._id}>{parentCat.name}</option>
+              {/* Dropdown Menu */}
+              {categoryDropdownOpen && (
+                <div className="absolute z-50 w-full mt-2 bg-white border-2 border-primary-light rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                  <div className="py-2">
+                    {/* Main Categories with Subcategories */}
+                    {categories
+                      .filter(cat => !cat.parent)
+                      .map(parentCat => {
+                        const subCategories = categories.filter(
+                          sub => sub.parent?._id === parentCat._id
+                        );
+                        
+                        return (
+                          <div key={parentCat._id} className="mb-2 last:mb-0">
+                            {/* Parent Category */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({ ...prev, categoryId: parentCat._id }));
+                                setCategoryDropdownOpen(false);
+                              }}
+                              className={`w-full px-4 py-3 text-left transition-all duration-200 flex items-center justify-between group
+                                ${formData.categoryId === parentCat._id
+                                  ? 'bg-primary text-white font-montserrat-semibold-600'
+                                  : 'hover:bg-primary-light text-black font-montserrat-medium-500'
+                                }`}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <div className={`w-2 h-2 rounded-full transition-all duration-200
+                                  ${formData.categoryId === parentCat._id
+                                    ? 'bg-white'
+                                    : 'bg-primary group-hover:bg-primary-dark'
+                                  }`}
+                                />
+                                <span>{parentCat.name}</span>
+                              </div>
+                              {subCategories.length > 0 && (
+                                <span className={`text-xs px-2 py-1 rounded-full
+                                  ${formData.categoryId === parentCat._id
+                                    ? 'bg-white/20 text-white'
+                                    : 'bg-primary-light text-primary group-hover:bg-primary group-hover:text-white'
+                                  }`}>
+                                  {subCategories.length}
+                                </span>
+                              )}
+                            </button>
 
-          {/* Its subcategories */}
-          {categories
-            .filter(sub => sub.parent?._id === parentCat._id)
-            .map(subCat => (
-              <option key={subCat._id} value={subCat._id}>
-                &nbsp;&nbsp;- {subCat.name}
-              </option>
-            ))}
-        </optgroup>
-      ))}
-  </select>
-</div>
+                            {/* Subcategories */}
+                            {subCategories.length > 0 && (
+                              <div className="bg-secondary">
+                                {subCategories.map(subCat => (
+                                  <button
+                                    key={subCat._id}
+                                    type="button"
+                                    onClick={() => {
+                                      setFormData(prev => ({ ...prev, categoryId: subCat._id }));
+                                      setCategoryDropdownOpen(false);
+                                    }}
+                                    className={`w-full px-4 py-2.5 pl-10 text-left transition-all duration-200 flex items-center space-x-2 group
+                                      ${formData.categoryId === subCat._id
+                                        ? 'bg-primary-dark text-white font-montserrat-medium-500'
+                                        : 'hover:bg-primary-light text-black-light font-montserrat-regular-400 hover:text-black'
+                                      }`}
+                                  >
+                                    <div className="flex items-center space-x-2 flex-1">
+                                      <div className={`w-1.5 h-1.5 rounded-full transition-all duration-200
+                                        ${formData.categoryId === subCat._id
+                                          ? 'bg-white'
+                                          : 'bg-primary-dark group-hover:bg-primary'
+                                        }`}
+                                      />
+                                      <span>→</span>
+                                      <span>{subCat.name}</span>
+                                    </div>
+                                    {formData.categoryId === subCat._id && (
+                                      <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                                        <div className="w-2.5 h-2.5 bg-primary-dark rounded-full"></div>
+                                      </div>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    
+                    {/* No Categories Message */}
+                    {categories.length === 0 && (
+                      <div className="px-4 py-3 text-center text-black-light font-montserrat-regular-400 text-sm">
+                        No categories available
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
+          {/* Stone - Multi-select Dropdown */}
+          <div className="space-y-2">
+            <label className="block text-sm font-montserrat-medium-500 text-black">
+              Stone Type
+            </label>
+            <div className="relative stone-dropdown-container">
+              <button
+                type="button"
+                onClick={() => setStoneDropdownOpen(!stoneDropdownOpen)}
+                className={`w-full px-4 py-3 border-2 rounded-lg text-left flex items-center justify-between transition-all duration-300 font-montserrat-regular-400
+                  ${formData.stone.length > 0
+                    ? 'border-primary bg-primary-light/10 text-black' 
+                    : 'border-gray-200 text-black-light'
+                  }
+                  ${stoneDropdownOpen ? 'ring-2 ring-primary ring-opacity-20' : ''}
+                  hover:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
+                  disabled:opacity-50 disabled:cursor-not-allowed`}
+                disabled={loading}
+              >
+                <span className={formData.stone.length > 0 ? 'text-black font-montserrat-medium-500' : 'text-black-light'}>
+                  {formData.stone.length > 0
+                    ? STONE_OPTIONS.filter(opt => formData.stone.includes(opt.id))
+                        .map(opt => opt.label)
+                        .join(', ')
+                    : 'Select stone types'
+                  }
+                </span>
+                <ChevronDown 
+                  className={`w-5 h-5 text-primary transition-transform duration-300 ${
+                    stoneDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {stoneDropdownOpen && (
+                <div className="absolute z-50 w-full mt-2 bg-white border-2 border-primary-light rounded-xl shadow-2xl max-h-60 overflow-y-auto">
+                  <div className="py-2">
+                    {STONE_OPTIONS.map((stone) => (
+                      <button
+                        key={stone.id}
+                        type="button"
+                        onClick={() => toggleStone(stone.id)}
+                        className={`w-full px-4 py-3 text-left transition-all duration-200 flex items-center justify-between group hover:bg-primary-light`}
+                      >
+                        <span className="text-black font-montserrat-regular-400">{stone.label}</span>
+                        {formData.stone.includes(stone.id) && (
+                          <Check className="w-5 h-5 text-primary" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Care Instructions - Single Select Dropdown */}
+          <div className="space-y-2">
+            <label className="block text-sm font-montserrat-medium-500 text-black">
+              Care Instructions
+            </label>
+            <div className="relative care-dropdown-container">
+              <button
+                type="button"
+                onClick={() => setCareDropdownOpen(!careDropdownOpen)}
+                className={`w-full px-4 py-3 border-2 rounded-lg text-left flex items-center justify-between transition-all duration-300 font-montserrat-regular-400
+                  ${formData.care
+                    ? 'border-primary bg-primary-light/10 text-black' 
+                    : 'border-gray-200 text-black-light'
+                  }
+                  ${careDropdownOpen ? 'ring-2 ring-primary ring-opacity-20' : ''}
+                  hover:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
+                  disabled:opacity-50 disabled:cursor-not-allowed`}
+                disabled={loading}
+              >
+                <span className={formData.care ? 'text-black font-montserrat-medium-500' : 'text-black-light'}>
+                  {formData.care || 'Select care instructions'}
+                </span>
+                <ChevronDown 
+                  className={`w-5 h-5 text-primary transition-transform duration-300 ${
+                    careDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {careDropdownOpen && (
+                <div className="absolute z-50 w-full mt-2 bg-white border-2 border-primary-light rounded-xl shadow-2xl max-h-60 overflow-y-auto">
+                  <div className="py-2">
+                    {CARE_OPTIONS.map((care) => (
+                      <button
+                        key={care}
+                        type="button"
+                        onClick={() => handleCareSelect(care)}
+                        className={`w-full px-4 py-3 text-left transition-all duration-200 flex items-center justify-between group
+                          ${formData.care === care
+                            ? 'bg-primary text-white font-montserrat-medium-500'
+                            : 'hover:bg-primary-light text-black font-montserrat-regular-400'
+                          }`}
+                      >
+                        <span>{care}</span>
+                        {formData.care === care && (
+                          <Check className="w-5 h-5 text-white" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Image Upload */}
           <div className="space-y-2">

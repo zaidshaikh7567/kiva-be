@@ -24,9 +24,6 @@ const FavoriteSection = () => {
   // Use mock data if API fails, otherwise use Redux state
   const displayCategories = useMockData ? mockCategories : (categories?.filter(category => !category.parent) || []);
   
-  console.log('All categories:', categories);
-  console.log('Main categories (filtered):', displayCategories);
-  
   // Map categories to display format with images
   const getCategoryImage = (categoryName) => {
     const name = categoryName.toLowerCase();

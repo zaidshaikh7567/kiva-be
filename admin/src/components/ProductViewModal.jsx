@@ -13,6 +13,40 @@ const ProductViewModal = ({ isOpen, onClose, product, onEdit }) => {
     });
   };
 
+  // Function to parse Lexical JSON and convert to HTML
+  const parseLexicalDescription = (description) => {
+    if (!description) return 'No description available';
+    
+    try {
+      // If it's already HTML, return as is
+      if (typeof description === 'string' && description.includes('<')) {
+        return description;
+      }
+      
+      // If it's a Lexical JSON string, parse it
+      if (typeof description === 'string') {
+        const parsed = JSON.parse(description);
+        if (parsed.root && parsed.root.children) {
+          // Convert Lexical nodes to HTML
+          const textContent = parsed.root.children
+            .map(child => {
+              if (child.children) {
+                return child.children.map(c => c.text || '').join('');
+              }
+              return child.text || '';
+            })
+            .join('\n');
+          return textContent.replace(/\n/g, '<br>');
+        }
+      }
+      
+      return description;
+    } catch (error) {
+      console.error('Error parsing description:', error);
+      return description || 'No description available';
+    }
+  };
+
   return createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -47,9 +81,12 @@ const ProductViewModal = ({ isOpen, onClose, product, onEdit }) => {
             <h1 className="text-2xl font-bold text-black capitalize mb-2">
               {product.title || 'Untitled Product'}
             </h1>
-            <p className="text-gray-600">
-              {product.description || 'No description available'}
-            </p>
+            <div 
+              className="text-gray-600 prose prose-sm max-w-none" 
+              dangerouslySetInnerHTML={{ __html: parseLexicalDescription(product.description) }} 
+            />
+              {/* {product.description || 'No description available'} */}
+            {/* </p> */}
           </div>
 
           {/* Images */}

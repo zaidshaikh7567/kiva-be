@@ -109,9 +109,9 @@ const Pagination = ({
                 <button
                   key={page}
                   onClick={() => goToPage(page)}
-                  className={`relative inline-flex items-center sm:px-4 px-2  py-2 border text-xs sm:text-sm font-medium ${
+                  className={`relative inline-flex items-center sm:px-4 px-2 py-2 border text-xs sm:text-sm font-medium transition-colors ${
                     currentPage === page
-                      ? "z-10 bg-primary- border-primary-dark text-primary-dark"
+                      ? "z-10 bg-primary border-primary text-white hover:bg-primary-dark"
                       : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                   }`}
                 >

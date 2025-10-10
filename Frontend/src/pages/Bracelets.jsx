@@ -7,6 +7,14 @@ import braceletImg5 from "../assets/images/product-5.png";
 import braceletImg6 from "../assets/images/product-6.png";
 import { Grid, List } from "lucide-react";
 import ProductCard from "../components/ProductCard";
+import CustomDropdown from "../components/CustomDropdown";
+
+const SORT_OPTIONS = [
+  { value: 'featured', label: 'Featured' },
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'rating', label: 'Highest Rated' },
+];
 
 const Bracelets = () => {
   const [sortBy, setSortBy] = useState("featured");
@@ -127,16 +135,13 @@ const Bracelets = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <select
+              <CustomDropdown
+                options={SORT_OPTIONS}
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-              >
-                <option value="featured">Featured</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
-              </select>
+                onChange={setSortBy}
+                placeholder="Sort by"
+                className="min-w-[200px]"
+              />
 
               <div className="flex items-center border border-gray-200 rounded-lg">
                 <button

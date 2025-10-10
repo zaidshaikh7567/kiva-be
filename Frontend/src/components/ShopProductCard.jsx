@@ -4,22 +4,32 @@ import { Heart, ShoppingBag, Eye } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 import PriceDisplay from './PriceDisplay';
+import ProductDetailsModal from './ProductDetailsModal';
+import toast from 'react-hot-toast';
 
 const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [showQuickView, setShowQuickView] = useState(false);
   const dispatch = useDispatch();
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
     dispatch(addToCart(product));
+    toast.success(`${product.title} added to cart!`, {
+      duration: 2000,
+      position: 'top-right',
+    });
   };
 
   const handleQuickView = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    // TODO: Implement quick view functionality
-    console.log('Quick view:', product);
+    setShowQuickView(true);
+  };
+
+  const handleCloseQuickView = () => {
+    setShowQuickView(false);
   };
 
   const handleToggleFavorite = (e) => {
@@ -30,58 +40,77 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
 
   if (viewMode === 'list') {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-        <div className="flex gap-6">
-          <div className="w-32 h-32 bg-primary-light rounded-lg overflow-hidden flex-shrink-0">
-            {product.images && product.images.length > 0 ? (
-              <img
-                src={product.images[0]}
-                alt={product.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-black-light">
-                No Image
-              </div>
-            )}
-          </div>
-          <div className="flex-1">
-            <h3 className="text-xl font-montserrat-semibold-600 text-black mb-2">{product.title}</h3>
-            <p className="text-black-light font-montserrat-regular-400 mb-4 line-clamp-2">{product.description}</p>
-            <div className="flex items-center justify-between">
-              <div>
-                <PriceDisplay 
-                  price={product.price}
-                  className="text-2xl font-montserrat-bold-700 text-primary-dark"
+      <>
+        <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div className="flex gap-6">
+            <div className="w-32 h-32 bg-primary-light rounded-lg overflow-hidden flex-shrink-0">
+              {product.images && product.images.length > 0 ? (
+                <img
+                  src={product.images[0]?.url || product.images[0]}
+                  alt={product.title}
+                  className="w-full h-full object-cover"
                 />
-                <span className="text-sm text-black-light font-montserrat-regular-400 ml-2">({product.quantity} in stock)</span>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleToggleFavorite}
-                  className={`p-2 rounded-lg transition-colors ${
-                    isFavorite ? 'text-primary bg-primary-light' : 'text-black-light hover:text-primary'
-                  }`}
-                >
-                  <Heart className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={handleAddToCart}
-                  className="px-6 py-2 bg-primary-dark text-white rounded-lg hover:bg-primary transition-colors flex items-center gap-2 font-montserrat-medium-500"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-              Add to Cart
-                </button>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-black-light">
+                  No Image
+                </div>
+              )}
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-montserrat-semibold-600 text-black mb-2">{product.title}</h3>
+              <p className="text-black-light font-montserrat-regular-400 mb-4 line-clamp-2">{product.description}</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <PriceDisplay 
+                    price={product.price}
+                    className="text-2xl font-montserrat-bold-700 text-primary-dark"
+                  />
+                  <span className="text-sm text-black-light font-montserrat-regular-400 ml-2">({product.quantity} in stock)</span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleToggleFavorite}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isFavorite ? 'text-primary bg-primary-light' : 'text-black-light hover:text-primary'
+                    }`}
+                  >
+                    <Heart className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={handleQuickView}
+                    className="px-4 py-2 bg-white text-primary border-2 border-primary rounded-lg hover:bg-primary hover:text-white transition-colors flex items-center gap-2 font-montserrat-medium-500"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Quick View
+                  </button>
+                  <button
+                    onClick={handleAddToCart}
+                    className="px-6 py-2 bg-primary-dark text-white rounded-lg hover:bg-primary transition-colors flex items-center gap-2 font-montserrat-medium-500"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    Add to Cart
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+
+        {/* Quick View Modal */}
+        {showQuickView && (
+          <ProductDetailsModal
+            product={product}
+            isOpen={showQuickView}
+            onClose={handleCloseQuickView}
+          />
+        )}
+      </>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group">
+    <>
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group">
       <div className="relative overflow-hidden">
         <div className="aspect-square bg-primary-light">
           {product.images && product.images.length > 0 ? (
@@ -133,20 +162,30 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
         )}
       </div>
       
-      <div className="p-4">
-        <Link to={`/product/${product._id || product.id}`} className="block">
-          <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2 line-clamp-1 hover:text-primary-dark transition-colors">{product.title}</h3>
-        </Link>
-        <p className="text-black-light text-sm mb-3 line-clamp-2 font-montserrat-regular-400">{product.description}</p>
-        <div className="flex items-center justify-between">
-          <PriceDisplay 
-            price={product.price}
-            className="text-xl font-montserrat-bold-700 text-primary-dark"
-          />
-          <span className="text-sm text-black-light font-montserrat-regular-400">{product.quantity} in stock</span>
+        <div className="p-4">
+          <Link to={`/product/${product._id || product.id}`} className="block">
+            <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2 line-clamp-1 hover:text-primary-dark transition-colors">{product.title}</h3>
+          </Link>
+          <p className="text-black-light text-sm mb-3 line-clamp-2 font-montserrat-regular-400">{product.description}</p>
+          <div className="flex items-center justify-between">
+            <PriceDisplay 
+              price={product.price}
+              className="text-xl font-montserrat-bold-700 text-primary-dark"
+            />
+            <span className="text-sm text-black-light font-montserrat-regular-400">{product.quantity} in stock</span>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Quick View Modal */}
+      {showQuickView && (
+        <ProductDetailsModal
+          product={product}
+          isOpen={showQuickView}
+          onClose={handleCloseQuickView}
+        />
+      )}
+    </>
   );
 };
 

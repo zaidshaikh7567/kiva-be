@@ -4,15 +4,19 @@ import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 import ProductDetailsModal from './ProductDetailsModal';
 import PriceDisplay from './PriceDisplay';
+import toast from 'react-hot-toast';
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  console.log('showDetails :', showDetails);
   const dispatch = useDispatch();
 
   const handleAddToCart = () => {
     dispatch(addToCart(product));
+    toast.success(`${product.name} added to cart!`, {
+      duration: 2000,
+      position: 'top-right',
+    });
   };
 
   const toggleFavorite = () => {

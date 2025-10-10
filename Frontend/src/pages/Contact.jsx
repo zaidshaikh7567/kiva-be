@@ -1,6 +1,16 @@
 import React, { useState } from "react";
 import contactBg from "../assets/images/contact-bg.jpg";
 import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Calendar, User, Globe } from "lucide-react";
+import CustomDropdown from "../components/CustomDropdown";
+
+const SERVICE_OPTIONS = [
+  { value: 'general', label: 'General Inquiry' },
+  { value: 'custom', label: 'Custom Design' },
+  { value: 'repair', label: 'Jewelry Repair' },
+  { value: 'appraisal', label: 'Jewelry Appraisal' },
+  { value: 'consultation', label: 'Personal Consultation' },
+  { value: 'wholesale', label: 'Wholesale Inquiry' },
+];
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -19,10 +29,16 @@ const Contact = () => {
     });
   };
 
+  const handleServiceChange = (value) => {
+    setFormData({
+      ...formData,
+      service: value
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission here
-    console.log('Form submitted:', formData);
     // Reset form
     setFormData({
       name: '',
@@ -210,23 +226,12 @@ const Contact = () => {
                   <label htmlFor="service" className="block text-sm font-montserrat-medium-500 text-black mb-2">
                     Service Interest
                   </label>
-                  <div className="relative">
-                    <MessageCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                    <select
-                      id="service"
-                      name="service"
-                      value={formData.service}
-                      onChange={handleInputChange}
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-montserrat-regular-400 appearance-none bg-white"
-                    >
-                      <option value="general">General Inquiry</option>
-                      <option value="custom">Custom Design</option>
-                      <option value="repair">Jewelry Repair</option>
-                      <option value="appraisal">Jewelry Appraisal</option>
-                      <option value="consultation">Personal Consultation</option>
-                      <option value="wholesale">Wholesale Inquiry</option>
-                    </select>
-                  </div>
+                  <CustomDropdown
+                    options={SERVICE_OPTIONS}
+                    value={formData.service}
+                    onChange={handleServiceChange}
+                    placeholder="Select a service"
+                  />
                 </div>
 
                 <div>

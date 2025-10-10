@@ -12,24 +12,40 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      const product = action.payload;
+      const productId = product._id || product.id;
+      const existingItem = state.items.find(item => item.id === productId);
       
       if (existingItem) {
         existingItem.quantity += 1;
       } else {
-        state.items.push({
-          ...action.payload,
+        // Normalize product data structure
+        const normalizedProduct = {
+          id: productId,
+          name: product.title || product.name,
+          title: product.title || product.name,
+          price: product.price,
+          image: product.images?.[0]?.url || product.images?.[0] || product.image,
+          images: product.images,
+          description: product.description,
           quantity: 1,
-        });
+          selectedMetal: product.selectedMetal,
+          _id: product._id,
+        };
+        state.items.push(normalizedProduct);
       }
       
       // Update totals
       state.totalQuantity = state.items.reduce((total, item) => total + item.quantity, 0);
       state.totalPrice = state.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+      
+      // Auto-open cart when item is added
+      state.isOpen = true;
     },
     
     removeFromCart: (state, action) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
+      const itemId = action.payload._id || action.payload.id || action.payload;
+      state.items = state.items.filter(item => item.id !== itemId);
       
       // Update totals
       state.totalQuantity = state.items.reduce((total, item) => total + item.quantity, 0);
@@ -38,11 +54,12 @@ const cartSlice = createSlice({
     
     updateQuantity: (state, action) => {
       const { id, quantity } = action.payload;
-      const existingItem = state.items.find(item => item.id === id);
+      const itemId = typeof id === 'object' ? (id._id || id.id) : id;
+      const existingItem = state.items.find(item => item.id === itemId);
       
       if (existingItem) {
         if (quantity <= 0) {
-          state.items = state.items.filter(item => item.id !== id);
+          state.items = state.items.filter(item => item.id !== itemId);
         } else {
           existingItem.quantity = quantity;
         }

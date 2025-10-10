@@ -1,7 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Filter, Grid, List, SlidersHorizontal, X } from 'lucide-react';
 import ShopProductCard from '../components/ShopProductCard';
+import CustomDropdown from '../components/CustomDropdown';
 import { mockProducts, mockCategories } from '../data/mockProducts';
+
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest First' },
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'name', label: 'Name A-Z' },
+];
 
 const Shop = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -287,16 +295,13 @@ const Shop = () => {
               
               <div className="flex items-center gap-4">
                 {/* Sort Dropdown */}
-                <select
+                <CustomDropdown
+                  options={SORT_OPTIONS}
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3 py-2 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="name">Name A-Z</option>
-                </select>
+                  onChange={setSortBy}
+                  placeholder="Sort by"
+                  className="min-w-[200px]"
+                />
 
                 {/* View Mode Toggle */}
                 <div className="flex border border-primary-light rounded-lg overflow-hidden">

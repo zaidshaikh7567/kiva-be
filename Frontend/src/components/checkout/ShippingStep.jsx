@@ -1,7 +1,25 @@
 import React from 'react';
 import { MapPin, User, Mail, Phone } from 'lucide-react';
+import CustomDropdown from '../CustomDropdown';
+
+const COUNTRY_OPTIONS = [
+  { value: 'US', label: '🇺🇸 United States' },
+  { value: 'CA', label: '🇨🇦 Canada' },
+  { value: 'UK', label: '🇬🇧 United Kingdom' },
+  { value: 'AU', label: '🇦🇺 Australia' },
+  { value: 'DE', label: '🇩🇪 Germany' },
+  { value: 'FR', label: '🇫🇷 France' },
+  { value: 'IT', label: '🇮🇹 Italy' },
+  { value: 'ES', label: '🇪🇸 Spain' },
+  { value: 'JP', label: '🇯🇵 Japan' },
+  { value: 'AE', label: '🇦🇪 United Arab Emirates' },
+];
 
 const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => {
+  const handleCountryChange = (value) => {
+    onShippingChange({ target: { name: 'country', value } });
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
       <div className="flex items-center space-x-3 mb-6">
@@ -162,19 +180,13 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
           <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
             Country *
           </label>
-          <select
-            name="country"
+          <CustomDropdown
+            options={COUNTRY_OPTIONS}
             value={shippingInfo.country}
-            onChange={onShippingChange}
-            required
-            className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-          >
-            <option value="">Select Country</option>
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="UK">United Kingdom</option>
-            <option value="AU">Australia</option>
-          </select>
+            onChange={handleCountryChange}
+            placeholder="Select Country"
+            disabled={loading}
+          />
         </div>
 
         {/* Submit Button */}

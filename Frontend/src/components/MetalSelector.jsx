@@ -2,16 +2,16 @@ import React from 'react';
 
 const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
   const metalOptions = [
-    {
-      id: '10k-white',
-      karat: '10K',
-      color: 'White Gold',
-      priceMultiplier: 1.0,
-      gradient: 'from-gray-300 to-gray-400',
-      borderColor: 'border-gray-300',
-      textColor: 'text-gray-800',
-      backgroundColor: 'linear-gradient(to right, #d1d5db, #9ca3af)'
-    },
+    // {
+    //   id: '10k-white',
+    //   karat: '10K',
+    //   color: 'White Gold',
+    //   priceMultiplier: 1.0,
+    //   gradient: 'from-gray-300 to-gray-400',
+    //   borderColor: 'border-gray-300',
+    //   textColor: 'text-gray-800',
+    //   backgroundColor: 'linear-gradient(to right, #d1d5db, #9ca3af)'
+    // },
     {
       id: '14k-white',
       karat: '14K',
@@ -32,16 +32,16 @@ const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
       textColor: 'text-gray-600',
       backgroundColor: 'linear-gradient(to right, #f3f4f6, #e5e7eb)'
     },
-    {
-      id: '10k-yellow',
-      karat: '10K',
-      color: 'Yellow Gold',
-      priceMultiplier: 1.0,
-      gradient: 'from-yellow-100 to-yellow-200',
-      borderColor: 'border-yellow-200',
-      textColor: 'text-yellow-700',
-      backgroundColor: 'linear-gradient(to right, #fefce8, #fef08a)'
-    },
+    // {
+    //   id: '10k-yellow',
+    //   karat: '10K',
+    //   color: 'Yellow Gold',
+    //   priceMultiplier: 1.0,
+    //   gradient: 'from-yellow-100 to-yellow-200',
+    //   borderColor: 'border-yellow-200',
+    //   textColor: 'text-yellow-700',
+    //   backgroundColor: 'linear-gradient(to right, #fefce8, #fef08a)'
+    // },
     {
       id: '14k-yellow',
       karat: '14K',
@@ -62,16 +62,16 @@ const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
       textColor: 'text-yellow-500',
       backgroundColor: 'linear-gradient(to right, #fffbeb, #fffbeb)'
     },
-    {
-      id: '10k-rose',
-      karat: '10K',
-      color: 'Rose Gold',
-      priceMultiplier: 1.0,
-      gradient: 'from-pink-100 to-pink-200',
-      borderColor: 'border-pink-200',
-      textColor: 'text-pink-700',
-      backgroundColor: 'linear-gradient(to right, #fdf2f8, #fce7f3)'
-    },
+    // {
+    //   id: '10k-rose',
+    //   karat: '10K',
+    //   color: 'Rose Gold',
+    //   priceMultiplier: 1.0,
+    //   gradient: 'from-pink-100 to-pink-200',
+    //   borderColor: 'border-pink-200',
+    //   textColor: 'text-pink-700',
+    //   backgroundColor: 'linear-gradient(to right, #fdf2f8, #fce7f3)'
+    // },
     {
       id: '14k-rose',
       karat: '14K',

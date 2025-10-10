@@ -4,6 +4,8 @@ import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import Container from "./Container";
 import { Link } from "react-router-dom";
+import giaLogo from "../assets/icon/gia.svg";
+import igiLogo from "../assets/icon/igi.svg";
 
 const Footer = () => {
   // Social Media Links
@@ -25,12 +27,12 @@ const Footer = () => {
 
   // Customer Service Links
   const customerLinks = [
-    { href: "#shipping", text: "Shipping Info" },
-    { href: "#returns", text: "Returns & Exchanges" },
-    { href: "#size-guide", text: "Size Guide" },
-    { href: "#care", text: "Jewelry Care" },
-    { href: "#faq", text: "FAQ" },
-    { href: "#privacy", text: "Privacy Policy" },
+    { href: "/shipping-info", text: "Shipping Info" },
+    { href: "/returns-exchanges", text: "Returns & Exchanges" },
+    { href: "/size-guide", text: "Size Guide" },
+    { href: "/jewelry-care", text: "Jewelry Care" },
+    { href: "/faq", text: "FAQ" },
+    { href: "/privacy-policy", text: "Privacy Policy" },
   ];
 
   // Contact Info
@@ -53,7 +55,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="text-white">
+    <footer className="text-white bg-primary-light">
       <div className="px-6 md:px-16 xl:px-32">
         {/* Main Footer Content */}
         <div className="pt-16 pb-8 ">
@@ -139,6 +141,34 @@ const Footer = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Certifications */}
+          <div className="mt-12 pt-8 border-t border-black-light">
+            <div className="text-center mb-4">
+              <h3 className="text-sm font-montserrat-semibold-600 text-black-light mb-4">
+                Certified & Trusted
+              </h3>
+              <div className="flex items-center justify-center gap-8">
+                <div className="group">
+                  <img 
+                    src={giaLogo} 
+                    alt="GIA Certified" 
+                    className="h-12 md:h-16 w-auto opacity-70 hover:opacity-100 transition-opacity duration-300 filter  hover:grayscale-0"
+                  />
+                </div>
+                <div className="group">
+                  <img 
+                    src={igiLogo} 
+                    alt="IGI Certified" 
+                    className="h-12 md:h-16 w-auto opacity-70 hover:opacity-100 transition-opacity duration-300 filter  hover:grayscale-0"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-black-light font-montserrat-regular-400 mt-3">
+                Our diamonds and gemstones are certified by leading gemological institutes
+              </p>
             </div>
           </div>
         </div>

@@ -19,7 +19,7 @@ const Header = () => {
         {/* Logo */}
         <Link   to="/" className="flex-shrink-0 ">
         {/* <img src={Logo} alt="logo" className="h-[50px] w-auto"/> */}
-          <div className="text-xl font-serif text-primary">Kiva</div>
+          <div className="text-xl font-serif text-primary">Aurora</div>
         </Link>
         
         {/* Desktop Navigation */}
@@ -188,7 +188,7 @@ const Header = () => {
               <Link
                 to="/contact"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-gray-100 border-b border-gray-100"
+                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
               >
                 Contact Us
               </Link>

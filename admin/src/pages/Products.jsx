@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Package, Plus, Edit, Trash2, RefreshCw, Eye } from 'lucide-react';
-import { clearError, deleteProduct, fetchProducts, createProduct, updateProduct, selectProducts, selectProductsLoading } from '../store/slices/productsSlice';
+import { clearError, deleteProduct, fetchProducts, createProduct, updateProduct, selectProducts, selectProductsLoading, selectProductsPagination } from '../store/slices/productsSlice';
 import { fetchCategories, selectCategories } from '../store/slices/categoriesSlice';
 import ProductModal from '../components/ProductModal';
 import ProductViewModal from '../components/ProductViewModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import Pagination from '../components/Pagination';
 
 const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
+  const productsPagination = useSelector(selectProductsPagination);
   const categories = useSelector(selectCategories);
-  console.log(categories,'-----');
   
   const loading = useSelector(selectProductsLoading);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit] = useState(10);
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,12 +35,16 @@ const Products = () => {
 
   // Fetch products and categories on component mount
   useEffect(() => {
-    dispatch(fetchProducts({ page: 1, limit: 50 }));
+    dispatch(fetchProducts({ page: currentPage, limit }));
     dispatch(fetchCategories());
-  }, [dispatch]);
+  }, [dispatch, currentPage, limit]);
 
   const handleRefresh = () => {
-    dispatch(fetchProducts({ page: 1, limit: 50 }));
+    dispatch(fetchProducts({ page: currentPage, limit }));
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   const handleDeleteProduct = (product) => {
@@ -50,7 +59,12 @@ const Products = () => {
         if (deleteProduct.fulfilled.match(result)) {
           setIsDeleteModalOpen(false);
           setProductToDelete(null);
-          dispatch(fetchProducts({ page: 1, limit: 50 }));
+          // If deleting the last item on a page (and not on page 1), go to previous page
+          if (products.length === 1 && currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+          } else {
+            dispatch(fetchProducts({ page: currentPage, limit }));
+          }
         }
       } catch (error) {
         console.error('Error deleting product:', error);
@@ -111,7 +125,8 @@ const Products = () => {
           setIsModalOpen(false);
           setSelectedProduct(null);
           setModalMode('add');
-          dispatch(fetchProducts({ page: 1, limit: 50 }));
+          // Go to first page to see the newly added product
+          setCurrentPage(1);
         }
       } catch (error) {
         console.error('Error creating product:', error);
@@ -124,7 +139,8 @@ const Products = () => {
           setIsModalOpen(false);
           setSelectedProduct(null);
           setModalMode('add');
-          dispatch(fetchProducts({ page: 1, limit: 50 }));
+          // Refresh current page to see the updated product
+          dispatch(fetchProducts({ page: currentPage, limit }));
         }
       } catch (error) {
         console.error('Error updating product:', error);
@@ -316,7 +332,17 @@ const Products = () => {
         )}
       </div>
 
-      
+      {/* Pagination */}
+      {productsPagination && productsPagination.pages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={productsPagination.pages}
+          totalItems={productsPagination.total}
+          itemsPerPage={limit}
+          onPageChange={handlePageChange}
+          className="mt-4"
+        />
+      )}
 
       {/* Unified Product Modal */}
       <ProductModal
