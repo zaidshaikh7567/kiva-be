@@ -231,6 +231,7 @@ const Contact = () => {
                     value={formData.service}
                     onChange={handleServiceChange}
                     placeholder="Select a service"
+                      searchable={false}
                   />
                 </div>
 

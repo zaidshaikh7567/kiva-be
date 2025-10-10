@@ -8,22 +8,25 @@ const CustomDropdown = ({
   placeholder = "Select an option",
   className = "",
   disabled = false,
-  searchable = true
+  searchable = true,
 }) => {
+  console.log(value,'value');
+  
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
 
-  // Filter options based on search query
-  const filteredOptions = searchable && searchQuery
-    ? options.filter(option =>
-        option.label.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : options;
+  // --- Filter options only if searchable and query is entered ---
+  const filteredOptions =
+    searchable && searchQuery
+      ? options.filter((option) =>
+          option.label.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : options;
 
-  // Focus search input when dropdown opens
+  // --- Focus search input when dropdown opens ---
   useEffect(() => {
     if (isOpen && searchable && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -34,34 +37,31 @@ const CustomDropdown = ({
     }
   }, [isOpen, searchable]);
 
-  // Handle outside click to close dropdown
+  // --- Close dropdown when clicking outside ---
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Handle keyboard navigation
+  // --- Keyboard navigation ---
   const handleKeyDown = (e) => {
     if (!isOpen) return;
 
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setHighlightedIndex(prev =>
+        setHighlightedIndex((prev) =>
           prev < filteredOptions.length - 1 ? prev + 1 : prev
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setHighlightedIndex(prev => (prev > 0 ? prev - 1 : 0));
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : 0));
         break;
       case 'Enter':
         e.preventDefault();
@@ -78,22 +78,26 @@ const CustomDropdown = ({
     }
   };
 
-  // Handle option selection
+  // --- Handle option click ---
   const handleOptionClick = (option) => {
     onChange(option.value);
     setIsOpen(false);
-    setSearchQuery('');
+    if (searchable) setSearchQuery('');
   };
 
-  // Get display text for selected option
+  // --- Get display text for selected option ---
   const getDisplayText = () => {
-    const selectedOption = options.find(option => option.value === value);
+    const selectedOption = options.find((option) => option.value === value);
     return selectedOption ? selectedOption.label : placeholder;
   };
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef} onKeyDown={handleKeyDown}>
-      {/* Dropdown Button */}
+    <div
+      className={`relative ${className}`}
+      ref={dropdownRef}
+      onKeyDown={handleKeyDown}
+    >
+      {/* --- Dropdown Button --- */}
       <button
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
@@ -105,22 +109,26 @@ const CustomDropdown = ({
           ${isOpen ? 'ring-2 ring-primary border-primary' : ''}
         `}
       >
-        <span className={`block truncate font-montserrat-regular-400 ${!value ? 'text-black-light' : 'text-black'}`}>
+        <span
+          className={`block truncate font-montserrat-regular-400 ${
+            !value ? 'text-black-light' : 'text-black'
+          }`}
+        >
           {getDisplayText()}
         </span>
         <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-          <ChevronDown 
+          <ChevronDown
             className={`h-5 w-5 text-black-light transition-transform duration-300 ${
               isOpen ? 'transform rotate-180' : ''
-            }`} 
+            }`}
           />
         </span>
       </button>
 
-      {/* Dropdown Menu */}
+      {/* --- Dropdown Menu --- */}
       {isOpen && (
         <div className="absolute z-50 w-full mt-2 bg-white border border-primary-light rounded-lg shadow-lg overflow-hidden">
-          {/* Search Input */}
+          {/* --- Search Input (optional) --- */}
           {searchable && options.length > 0 && (
             <div className="p-2 border-b border-primary-light bg-gray-50">
               <div className="relative">
@@ -141,11 +149,13 @@ const CustomDropdown = ({
             </div>
           )}
 
-          {/* Options List */}
+          {/* --- Options List --- */}
           <div className="max-h-60 overflow-auto">
             {filteredOptions.length === 0 ? (
               <div className="px-4 py-3 text-sm font-montserrat-regular-400 text-black-light">
-                {searchQuery ? 'No results found' : 'No options available'}
+                {searchable && searchQuery
+                  ? 'No results found'
+                  : 'No options available'}
               </div>
             ) : (
               filteredOptions.map((option, index) => (
@@ -156,8 +166,16 @@ const CustomDropdown = ({
                   onMouseEnter={() => setHighlightedIndex(index)}
                   className={`
                     w-full px-4 py-3 text-left text-sm font-montserrat-regular-400 focus:outline-none transition-colors duration-150
-                    ${value === option.value ? 'bg-primary-light text-black font-montserrat-medium-500' : 'text-black'}
-                    ${highlightedIndex === index ? 'bg-primary-light' : 'hover:bg-gray-50'}
+                    ${
+                      value === option.value
+                        ? 'bg-primary-light text-black font-montserrat-medium-500'
+                        : 'text-black'
+                    }
+                    ${
+                      highlightedIndex === index
+                        ? 'bg-primary-light'
+                        : 'hover:bg-gray-50'
+                    }
                   `}
                 >
                   {option.label}

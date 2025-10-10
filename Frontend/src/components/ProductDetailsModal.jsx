@@ -89,7 +89,7 @@ console.log('product :', product);
             <div className="relative bg-gray-50 p-4 lg:p-8">
               <div className="aspect-square relative overflow-hidden rounded-2xl mb-4">
                 <img
-                  src={product.images}
+                  src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -112,7 +112,7 @@ console.log('product :', product);
 
               {/* Additional Images (if available) */}
               <div className="grid grid-cols-4 gap-2">
-                {[product.images, product.images, product.images, product.images].map((img, index) => (
+                {[product.image, product.image, product.image, product.image].map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}

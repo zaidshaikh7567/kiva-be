@@ -23,7 +23,7 @@ const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
               <h4 className="font-montserrat-semibold-600 text-sm text-black truncate">
                 {item.name}
               </h4>
-              <p className="text-xs text-black-light font-montserrat-regular-400">
+              <p className="text-sm text-black-light font-montserrat-regular-400">
                 Qty: {item.quantity}
               </p>
               <PriceDisplay 

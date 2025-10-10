@@ -8,13 +8,18 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
   const [selectedState, setSelectedState] = useState(null);
 
   // Get all countries
-  const countryOptions = useMemo(() => {
-    return Country.getAllCountries().map(country => ({
+// Get only selected countries
+const countryOptions = useMemo(() => {
+  const allowedCountries = ['CA', 'AU', 'US', 'GB', 'IN']; // Canada, Australia, USA, UK, India
+  return Country.getAllCountries()
+    .filter(country => allowedCountries.includes(country.isoCode))
+    .map(country => ({
       value: country.isoCode,
       label: `${country.flag} ${country.name}`,
       data: country
     }));
-  }, []);
+}, []);
+
 
   // Get states for selected country
   const stateOptions = useMemo(() => {
@@ -112,7 +117,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
                 onChange={onShippingChange}
                 required
                 className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-                placeholder="John"
+                placeholder="Enter first name"
               />
             </div>
           </div>
@@ -129,7 +134,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
                 onChange={onShippingChange}
                 required
                 className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-                placeholder="Doe"
+                placeholder="Enter last name"
               />
             </div>
           </div>
@@ -150,7 +155,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
                 onChange={onShippingChange}
                 required
                 className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-                placeholder="john@example.com"
+                placeholder="Enter email"
               />
             </div>
           </div>
@@ -185,7 +190,7 @@ const ShippingStep = ({ shippingInfo, onShippingChange, onSubmit, loading }) => 
             onChange={onShippingChange}
             required
             className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-            placeholder="123 Main Street, Apt 4B"
+            placeholder="Enter street address"
           />
         </div>
 

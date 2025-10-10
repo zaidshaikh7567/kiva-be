@@ -141,6 +141,7 @@ const Bracelets = () => {
                 onChange={setSortBy}
                 placeholder="Sort by"
                 className="min-w-[200px]"
+                searchable={false}
               />
 
               <div className="flex items-center border border-gray-200 rounded-lg">

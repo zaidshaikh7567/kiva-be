@@ -113,9 +113,9 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
       <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group">
       <div className="relative overflow-hidden">
         <div className="aspect-square bg-primary-light">
-          {product.images && product.images.length > 0 ? (
+          {product.image && product.image.length > 0 ? (
             <img
-              src={product.images[0]}
+              src={product.image[0]}
               alt={product.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />

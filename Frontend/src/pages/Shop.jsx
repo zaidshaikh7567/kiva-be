@@ -301,6 +301,7 @@ const Shop = () => {
                   onChange={setSortBy}
                   placeholder="Sort by"
                   className="min-w-[200px]"
+                    searchable={false}
                 />
 
                 {/* View Mode Toggle */}

@@ -8,6 +8,8 @@ import toast from 'react-hot-toast';
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  console.log(product,'productproductproduct');
+  
   const [showDetails, setShowDetails] = useState(false);
   const dispatch = useDispatch();
 
