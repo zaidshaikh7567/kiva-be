@@ -1,75 +1,86 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Eye, EyeOff, Lock, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [formData, setFormData] = useState({
     password: '',
     confirmPassword: ''
   });
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
+
+  // password regex: 8+ chars, upper, lower, number, special
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=?<>]).{8,}$/;
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.password.trim()) {
+      newErrors.password = 'Password is required';
+    } else if (!passwordRegex.test(formData.password)) {
+      newErrors.password =
+        'Password must include uppercase, lowercase, number, and special character';
+    }
+
+    if (!formData.confirmPassword.trim()) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    setErrors({ ...errors, [e.target.name]: '' });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
-      return;
-    }
-    
-    if (formData.password.length < 8) {
-      alert('Password must be at least 8 characters long');
-      return;
-    }
-    
+
+    if (!validate()) return;
+
     setLoading(true);
-    
-    // Simulate API call
+
+    // Simulated API call
     setTimeout(() => {
       setLoading(false);
       setPasswordReset(true);
-    }, 2000);
+    }, 1500);
   };
 
   if (passwordReset) {
     return (
       <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
-          {/* Success Header */}
           <div className="text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            
             <h2 className="text-3xl font-sorts-mill-gloudy text-black">
               Password Reset Successfully!
             </h2>
             <p className="mt-2 text-sm font-montserrat-regular-400 text-black-light">
-              Your password has been updated successfully. You can now sign in with your new password.
+              You can now sign in with your new password.
             </p>
           </div>
 
-          {/* Success Message */}
-          <div className="bg-white rounded-2xl shadow-sm p-8">
+          <div className="bg-white rounded-2xl shadow-sm sm:p-8 p-4">
             <div className="text-center space-y-4">
-              <p className="text-sm font-montserrat-regular-400 text-black-light">
-                You can now sign in to your account with your new password.
-              </p>
-              
               <Link
                 to="/sign-in"
                 className="block w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-center"
@@ -86,33 +97,24 @@ const ResetPassword = () => {
   if (!token) {
     return (
       <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-red-600" />
-            </div>
-            
-            <h2 className="text-3xl font-sorts-mill-gloudy text-black">
-              Invalid Reset Link
-            </h2>
-            <p className="mt-2 text-sm font-montserrat-regular-400 text-black-light">
-              This password reset link is invalid or has expired.
-            </p>
+        <div className="max-w-md w-full space-y-8 text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-red-600" />
           </div>
+          <h2 className="text-3xl font-sorts-mill-gloudy text-black">
+            Invalid Reset Link
+          </h2>
+          <p className="mt-2 text-sm font-montserrat-regular-400 text-black-light">
+            This password reset link is invalid or has expired.
+          </p>
 
-          <div className="bg-white rounded-2xl shadow-sm p-8">
-            <div className="text-center space-y-4">
-              <p className="text-sm font-montserrat-regular-400 text-black-light">
-                Please request a new password reset link.
-              </p>
-              
-              <Link
-                to="/forgot-password"
-                className="block w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-center"
-              >
-                Request New Reset Link
-              </Link>
-            </div>
+          <div className="bg-white rounded-2xl shadow-sm sm:p-8 p-4 mt-4">
+            <Link
+              to="/forgot-password"
+              className="block w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-center"
+            >
+              Request New Reset Link
+            </Link>
           </div>
         </div>
       </div>
@@ -122,20 +124,10 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        {/* Header */}
         <div className="text-center">
-          {/* <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center text-black-light hover:text-black transition-colors duration-300 mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </button> */}
-          
           <div className="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-primary" />
           </div>
-          
           <h2 className="text-3xl font-sorts-mill-gloudy text-black">
             Reset Password
           </h2>
@@ -144,10 +136,9 @@ const ResetPassword = () => {
           </p>
         </div>
 
-        {/* Reset Password Form */}
-        <div className="bg-white rounded-2xl shadow-sm p-8">
+        <div className="bg-white rounded-2xl shadow-sm sm:p-8 p-4">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* New Password */}
+            {/* Password */}
             <div>
               <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
                 New Password *
@@ -159,22 +150,24 @@ const ResetPassword = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  required
-                  minLength="8"
-                  className="w-full pl-11 pr-12 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                  className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
+                    errors.password
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-primary-light focus:ring-primary'
+                  }`}
                   placeholder="Enter your new password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                 </button>
               </div>
-              <p className="text-xs font-montserrat-regular-400 text-black-light mt-1">
-                Password must be at least 8 characters long
-              </p>
+              {errors.password && (
+                <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+              )}
             </div>
 
             {/* Confirm Password */}
@@ -189,50 +182,42 @@ const ResetPassword = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  required
-                  minLength="8"
-                  className="w-full pl-11 pr-12 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
+                  className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
+                    errors.confirmPassword
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-primary-light focus:ring-primary'
+                  }`}
                   placeholder="Confirm your new password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                 </button>
               </div>
+              {errors.confirmPassword && (
+                <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>
+              )}
             </div>
 
-            {/* Password Requirements */}
-            <div className="bg-primary-light rounded-lg p-4">
-              <h4 className="text-sm font-montserrat-semibold-600 text-black mb-2">
-                Password Requirements:
-              </h4>
-              <ul className="text-xs font-montserrat-regular-400 text-black-light space-y-1">
-                <li>• At least 8 characters long</li>
-                <li>• Mix of letters and numbers</li>
-                <li>• Avoid common passwords</li>
-              </ul>
-            </div>
-
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Updating Password...' : 'Update Password'}
             </button>
           </form>
 
-          {/* Sign In Link */}
           <div className="mt-6 text-center">
             <p className="text-sm font-montserrat-regular-400 text-black-light">
               Remember your password?{' '}
               <Link
                 to="/sign-in"
-                className="font-montserrat-medium-500 text-primary hover:text-primary-dark transition-colors duration-300"
+                className="font-montserrat-medium-500 text-primary hover:text-primary-dark"
               >
                 Sign in here
               </Link>
