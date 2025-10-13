@@ -1,211 +1,209 @@
 import React, { useState } from 'react';
-import { HelpCircle, ChevronDown, Package, CreditCard, RefreshCw, Shield, Truck, Heart } from 'lucide-react';
+import { HelpCircle, ChevronDown, Plus, Minus } from 'lucide-react';
 import Container from '../components/Container';
+import faq1 from '../assets/images/product-10.png';
+import faq2 from '../assets/images/product-6.png';
 
 const FAQ = () => {
-  const [openIndex, setOpenIndex] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-
-  const categories = [
-    { id: 'all', label: 'All Questions', icon: HelpCircle },
-    { id: 'ordering', label: 'Ordering', icon: Package },
-    { id: 'shipping', label: 'Shipping', icon: Truck },
-    { id: 'returns', label: 'Returns', icon: RefreshCw },
-    { id: 'payment', label: 'Payment', icon: CreditCard },
-    { id: 'care', label: 'Care', icon: Heart },
-  ];
+  const [openIndex, setOpenIndex] = useState(0); // First FAQ open by default
 
   const faqs = [
     {
-      category: 'ordering',
-      question: 'How do I place an order?',
-      answer: 'Simply browse our collection, select your desired items, choose your size and quantity, and add them to your cart. When ready, proceed to checkout, fill in your shipping information, and complete the payment process. You\'ll receive a confirmation email once your order is placed.'
+      question: 'Where do you ship to?',
+      answer: 'We ship worldwide. To get info about shipping methods and delivery price and time, please contact our support.'
     },
     {
-      category: 'ordering',
-      question: 'Can I customize or personalize my jewelry?',
-      answer: 'Yes! We offer customization services for many of our pieces. You can add engravings, choose different gemstones, or request specific metal types. Contact our customer service team to discuss your customization needs and we\'ll create a unique piece just for you.'
+      question: 'How can I make the order?',
+      answer: 'Simply browse our collection, select your desired items, choose your size and quantity, and add them to your cart. When ready, proceed to checkout, fill in your shipping information, and complete the payment process.'
     },
     {
-      category: 'ordering',
-      question: 'What if an item is out of stock?',
-      answer: 'If an item is out of stock, you can sign up for email notifications to be alerted when it becomes available again. Many pieces can also be custom-made with a 2-4 week lead time. Contact us for more information about availability and custom orders.'
+      question: 'Can I change my order after it is placed?',
+      answer: 'You can modify your order within 24 hours of placement by contacting our customer service team. After that, changes may not be possible as production begins.'
     },
     {
-      category: 'shipping',
-      question: 'What are your shipping options?',
-      answer: 'We offer Standard Shipping (5-7 business days), Express Shipping (2-3 business days), and Overnight Shipping. All orders are fully insured and tracked. Free standard shipping is available on orders over $200.'
+      question: 'Do you have offline stores?',
+      answer: 'We currently operate as an online-only jewelry store, but we offer virtual consultations and can arrange private viewings for special pieces.'
     },
     {
-      category: 'shipping',
-      question: 'Do you ship internationally?',
-      answer: 'Yes, we ship to most countries worldwide. International shipping times vary by location (typically 7-14 business days). Customs duties and taxes may apply depending on your country. All international orders are fully insured and trackable.'
-    },
-    {
-      category: 'shipping',
-      question: 'How can I track my order?',
-      answer: 'Once your order ships, you\'ll receive a tracking number via email. You can use this number to track your package on our website or the carrier\'s website. You can also check your order status by logging into your account dashboard.'
-    },
-    {
-      category: 'payment',
-      question: 'What payment methods do you accept?',
-      answer: 'We accept all major credit cards (Visa, MasterCard, American Express, Discover), PayPal, Apple Pay, and Google Pay. All transactions are processed through secure, encrypted payment gateways to protect your information.'
-    },
-    {
-      category: 'payment',
-      question: 'Is it safe to use my credit card on your website?',
-      answer: 'Absolutely! We use industry-standard SSL encryption to protect all transactions. We never store your complete credit card information on our servers. All payment processing is handled securely through certified payment processors.'
-    },
-    {
-      category: 'payment',
-      question: 'Do you offer payment plans or financing?',
-      answer: 'Yes, we partner with financing providers to offer flexible payment plans for purchases over $500. You can choose from 3, 6, or 12-month payment options with competitive rates. The financing option will be available at checkout for eligible orders.'
-    },
-    {
-      category: 'returns',
-      question: 'What is your return policy?',
-      answer: 'We offer a 30-day return policy for unworn, undamaged items in original packaging. Custom-made and personalized items cannot be returned unless defective. To initiate a return, contact our customer service team, and we\'ll provide a return shipping label.'
-    },
-    {
-      category: 'returns',
-      question: 'How do I exchange an item?',
-      answer: 'To exchange an item, contact our customer service within 30 days of delivery. We\'ll arrange for the return of the original item and ship the replacement. If there\'s a price difference, we\'ll either refund or charge the difference accordingly.'
-    },
-    {
-      category: 'returns',
-      question: 'When will I receive my refund?',
-      answer: 'Refunds are processed within 5-7 business days after we receive and inspect the returned item. The refund will be issued to your original payment method. Depending on your bank, it may take an additional 3-5 business days to appear in your account.'
-    },
-    {
-      category: 'care',
-      question: 'How should I clean my jewelry?',
-      answer: 'For most jewelry, use warm water with mild soap and a soft cloth or brush. Rinse thoroughly and pat dry. For specific materials like pearls or opals, use only a damp cloth. We recommend professional cleaning every 6-12 months for valuable pieces.'
-    },
-    {
-      category: 'care',
-      question: 'How should I store my jewelry?',
-      answer: 'Store each piece separately in soft pouches or lined jewelry boxes to prevent scratching. Keep jewelry in a cool, dry place away from direct sunlight. Silver pieces should be stored in anti-tarnish bags to prevent oxidation.'
-    },
-    {
-      category: 'care',
-      question: 'Do you offer repair services?',
-      answer: 'Yes! We offer comprehensive repair services including resizing, stone replacement, chain repair, and restoration. Contact us with details about the repair needed, and we\'ll provide a quote. Most repairs are completed within 1-2 weeks.'
-    },
-    {
-      category: 'ordering',
-      question: 'Do you offer gift wrapping?',
-      answer: 'Yes! All our jewelry comes in elegant gift boxes at no extra charge. We also offer premium gift wrapping with personalized messages for a small fee. Select the gift wrapping option during checkout.'
-    },
-    {
-      category: 'ordering',
-      question: 'Can I buy a gift certificate?',
-      answer: 'Absolutely! Gift certificates are available in any denomination and can be purchased on our website. They\'re delivered via email and never expire, making them the perfect gift for any jewelry lover.'
-    },
-    {
-      category: 'care',
-      question: 'How often should I get my jewelry professionally inspected?',
-      answer: 'We recommend having valuable pieces professionally inspected annually. This helps catch issues like loose stones, worn prongs, or damaged clasps before they become serious problems. We offer complimentary inspections for all jewelry purchased from us.'
-    },
-    {
-      category: 'shipping',
-      question: 'Is my shipment insured?',
-      answer: 'Yes, all shipments are fully insured against loss, theft, or damage during transit at no additional cost to you. In the unlikely event of an issue, we\'ll work with you to resolve it quickly, either with a replacement or full refund.'
-    },
-    {
-      category: 'payment',
-      question: 'Can I use multiple payment methods for one order?',
-      answer: 'Currently, each order can only be paid with one payment method. However, if you\'re using a gift certificate, you can apply it first and then pay the remaining balance with your preferred payment method.'
-    },
+      question: 'Can I cancel my order?',
+      answer: 'Yes, you can cancel your order within 24 hours of placement. For custom-made pieces, cancellation may not be possible once production has begun.'
+    }
   ];
-
-  const filteredFaqs = selectedCategory === 'all' 
-    ? faqs 
-    : faqs.filter(faq => faq.category === selectedCategory);
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <div className="min-h-screen bg-secondary">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary to-primary-dark text-white py-16">
-        <Container>
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <HelpCircle className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-white">
+      <Container>
+        <div className="py-16 lg:py-24">
+          {/* Desktop Layout */}
+          <div className="grid lg:grid-cols-12 lg:gap-12 xl:gap-16">
+            {/* Left Column - FAQ Content */}
+            <div className="lg:col-span-7 xl:col-span-8">
+              <div className="max-w-2xl">
+                {/* Header */}
+                <div className="mb-12">
+                  <span className="text-sm font-montserrat-medium-500 text-primary uppercase tracking-wider">
+                    FAQ
+                  </span>
+                  <h1 className="text-4xl xl:text-5xl font-sorts-mill-gloudy font-bold text-black mt-2 mb-4">
+                    Need Help<span className="text-primary">?</span>
+                  </h1>
+                  <p className="text-lg text-black/70 font-montserrat-regular-400 italic">
+                    If you have any questions, feel free to contact us in any convenient way.
+                  </p>
+                </div>
+
+                {/* FAQ Accordion */}
+                <div className="space-y-0">
+                  {faqs.map((faq, index) => (
+                    <div key={index} className="border-b border-gray-200 last:border-b-0">
+                      <button
+                        onClick={() => toggleFAQ(index)}
+                        className="w-full py-6 text-left flex items-center justify-between hover:bg-gray-50/50 transition-colors duration-200"
+                      >
+                        <span className="text-lg font-montserrat-semibold-600 text-black pr-4">
+                          {faq.question}
+                        </span>
+                        <div className="relative w-5 h-5 flex-shrink-0">
+                          <Plus 
+                            className={`absolute inset-0 w-5 h-5 text-black transition-all duration-300 ease-in-out ${
+                              openIndex === index 
+                                ? 'opacity-0 rotate-90 scale-0' 
+                                : 'opacity-100 rotate-0 scale-100'
+                            }`}
+                          />
+                          <Minus 
+                            className={`absolute inset-0 w-5 h-5 text-black transition-all duration-300 ease-in-out ${
+                              openIndex === index 
+                                ? 'opacity-100 rotate-0 scale-100' 
+                                : 'opacity-0 -rotate-90 scale-0'
+                            }`}
+                          />
+                        </div>
+                      </button>
+                      <div 
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          openIndex === index 
+                            ? 'max-h-96 opacity-100' 
+                            : 'max-h-0 opacity-0'
+                        }`}
+                      >
+                        <div className="pb-6">
+                          <p className="text-black/80 font-montserrat-regular-400 leading-relaxed">
+                            {faq.answer}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-sorts-mill-gloudy font-bold mb-4">
-              Frequently Asked Questions
-            </h1>
-            <p className="text-xl font-montserrat-regular-400 text-white/90 max-w-2xl mx-auto">
-              Find answers to common questions about our jewelry and services
-            </p>
-          </div>
-        </Container>
-      </div>
 
-      <Container>
-        <div className="py-12">
-          {/* Category Filter */}
-          <div className="mb-8">
-            <h2 className="text-lg font-montserrat-semibold-600 text-black mb-4">Filter by Category</h2>
-            <div className="flex flex-wrap gap-3">
-              {categories.map((cat) => {
-                const Icon = cat.icon;
-                return (
+            {/* Right Column - Images */}
+            <div className="lg:col-span-5 xl:col-span-4 relative">
+              <div className="relative h-[600px] xl:h-[700px]">
+                {/* Background W Logo */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-[200px] xl:text-[250px] font-bold text-white/20 select-none">
+                    W
+                  </div>
+                </div>
+
+                {/* Top Image */}
+                <div className="absolute top-0 right-0 w-64 xl:w-72 h-80 xl:h-96 transform rotate-3 border border-gray-200 shadow-lg">
+                  <img
+                    src={faq1}
+                    alt="Jewelry Collection"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Bottom Image */}
+                <div className="absolute bottom-0 left-0 w-72 xl:w-80 h-96 xl:h-[400px] transform -rotate-2 border border-gray-200 shadow-lg">
+                  <img
+                    src={faq2}
+                    alt="Jewelry Details"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Layout */}
+          <div className="lg:hidden">
+            {/* FAQ Accordion */}
+            {/* <div className="space-y-0 mb-8">
+              {faqs.slice(2, 5).map((faq, index) => (
+                <div key={index} className="border-b border-gray-200 last:border-b-0">
                   <button
-                    key={cat.id}
-                    onClick={() => {
-                      setSelectedCategory(cat.id);
-                      setOpenIndex(null);
-                    }}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-montserrat-medium-500 transition-all ${
-                      selectedCategory === cat.id
-                        ? 'bg-primary text-white shadow-md'
-                        : 'bg-white text-black-light border border-gray-200 hover:border-primary hover:text-primary'
+                    onClick={() => toggleFAQ(index + 2)}
+                    className="w-full py-4 text-left flex items-center justify-between hover:bg-gray-50/50 transition-colors duration-200"
+                  >
+                    <span className="text-base font-montserrat-semibold-600 text-black pr-4">
+                      {faq.question}
+                    </span>
+                    <div className="relative w-4 h-4 flex-shrink-0">
+                      <Plus 
+                        className={`absolute inset-0 w-4 h-4 text-black transition-all duration-300 ease-in-out ${
+                          openIndex === index + 2 
+                            ? 'opacity-0 rotate-90 scale-0' 
+                            : 'opacity-100 rotate-0 scale-100'
+                        }`}
+                      />
+                      <Minus 
+                        className={`absolute inset-0 w-4 h-4 text-black transition-all duration-300 ease-in-out ${
+                          openIndex === index + 2 
+                            ? 'opacity-100 rotate-0 scale-100' 
+                            : 'opacity-0 -rotate-90 scale-0'
+                        }`}
+                      />
+                    </div>
+                  </button>
+                  <div 
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      openIndex === index + 2 
+                        ? 'max-h-96 opacity-100' 
+                        : 'max-h-0 opacity-0'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span>{cat.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* FAQ Accordion */}
-          <div className="space-y-3">
-            {filteredFaqs.map((faq, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <button
-                  onClick={() => toggleFAQ(index)}
-                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-montserrat-semibold-600 text-black pr-4">
-                    {faq.question}
-                  </span>
-                  <ChevronDown 
-                    className={`w-5 h-5 text-primary flex-shrink-0 transition-transform duration-300 ${
-                      openIndex === index ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-                {openIndex === index && (
-                  <div className="px-6 pb-4 pt-2">
-                    <p className="text-black-light font-montserrat-regular-400 leading-relaxed">
-                      {faq.answer}
-                    </p>
+                    <div className="pb-4">
+                      <p className="text-black/80 font-montserrat-regular-400 leading-relaxed text-sm">
+                        {faq.answer}
+                      </p>
+                    </div>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div> */}
 
-          {/* Still Have Questions */}
-          <div className="mt-12 text-center">
+            {/* Mobile Images */}
+            {/* <div className="relative h-64">
+              Top Left Image
+              <div className="absolute top-0 right-0 w-64 xl:w-72 h-80 xl:h-96 transform rotate-3 border border-gray-200 shadow-lg">
+                  <img
+                    src={faq1}
+                    alt="Jewelry Collection"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                Bottom Image
+                <div className="absolute bottom-0 left-0 w-72 xl:w-80 h-96 xl:h-[400px] transform -rotate-2 border border-gray-200 shadow-lg">
+                  <img
+                    src={faq2}
+                    alt="Jewelry Details"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+            </div> */}
+          </div>
+        </div>
+        <div className="my-12 text-center">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
               <HelpCircle className="w-12 h-12 text-primary mx-auto mb-4" />
               <h2 className="text-2xl font-sorts-mill-gloudy font-bold text-black mb-3">
@@ -230,7 +228,6 @@ const FAQ = () => {
               </div>
             </div>
           </div>
-        </div>
       </Container>
     </div>
   );

@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Cart from "../components/Cart";
+import StickyCartButton from "../components/StickyCartButton";
 
 
 const MainLayout = () => {
@@ -13,6 +14,7 @@ const MainLayout = () => {
       </main>
       <Footer />
       <Cart />
+      <StickyCartButton />
     </div>
   );
 };

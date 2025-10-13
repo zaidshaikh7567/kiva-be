@@ -31,7 +31,7 @@ const Collection = () => {
         </div>
 
         {/* Right section */}
-        <div className="hidden flex-1 h-full relative md:flex items-center justify-center mt-10 md:mt-0">
+        <div className="hidden flex-1 h-full relative lg:flex items-center justify-center mt-10 md:mt-0">
           {/* Oval Background behind the image */}
           <div className="absolute w-full h-[250px] sm:w-full sm:h-[300px] md:w-full md:h-[350px] lg:w-full lg:h-[400px] bg-primary-light "></div>
 

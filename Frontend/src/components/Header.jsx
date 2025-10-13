@@ -96,7 +96,7 @@ const Header = () => {
           </div>
           
           {/* Cart Button */}
-          <button 
+          {/* <button 
             onClick={() => dispatch(openCart())}
             className="relative hover:opacity-80 transition-opacity duration-300 p-2"
           >
@@ -106,7 +106,7 @@ const Header = () => {
                 {totalQuantity}
               </span>
             )}
-          </button>
+          </button> */}
           
           {/* Mobile Menu Button */}
           <button 

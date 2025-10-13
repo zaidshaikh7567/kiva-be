@@ -76,12 +76,12 @@ const FavoriteSection = () => {
            style={{ backgroundImage: `url(${item.image})` }}
          ></div>
        
-         {/* Overlay */}
+         {/* Overlay - Always visible on mobile, hover on desktop */}
          <div
            className="absolute font-sorts-mill-gloudy inset-0 flex flex-col items-center justify-center 
-                      bg-black/40 opacity-0 group-hover:opacity-100 
+                      bg-black/40 opacity-100 md:opacity-0 md:group-hover:opacity-100
                       transition-opacity duration-500 
-                      pointer-events-none group-hover:pointer-events-auto"
+                      pointer-events-auto"
          >
            <h3 className="text-white text-[54px] mb-2 capitalize">{item.title}</h3>
            <Link
@@ -92,12 +92,12 @@ const FavoriteSection = () => {
            </Link>
          </div>
        
-         {/* Title before hover */}
+         {/* Title - Only visible on desktop until hover */}
          <h3
            className="absolute inset-0 font-sorts-mill-gloudy flex items-center justify-center 
                       text-white text-[54px] font-medium 
-                      group-hover:opacity-0 transition-opacity duration-500 
-                      pointer-events-none capitalize"
+                      pointer-events-none capitalize
+                      hidden md:flex md:group-hover:opacity-0 transition-opacity duration-500"
          >
            {item.title}
          </h3>

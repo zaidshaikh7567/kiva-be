@@ -6,15 +6,16 @@ import { API_METHOD } from '../../services/apiMethod';
 // Async thunks for API calls
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
-  async (params = { page: 1, limit: 10, category: '' }, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
+      // For now, fetch all products since backend doesn't support filtering
+      // We'll apply filters on the client side
       const queryParams = new URLSearchParams();
-      if (params.page) queryParams.append('page', params.page);
-      if (params.limit) queryParams.append('limit', params.limit);
-      if (params.category) queryParams.append('category', params.category);
+      queryParams.append('limit', 1000); // Fetch more products to filter client-side
       
       const url = `${API_METHOD.products}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
       
+      console.log('API URL being called:', url); // Debug log
       const response = await api.get(url);
       return response.data;
     } catch (error) {
@@ -128,6 +129,8 @@ const productsSlice = createSlice({
   name: 'products',
   initialState: {
     items: [],
+    allItems: [], // Store all products for filtering
+    filteredItems: [], // Store filtered products
     pagination: {
       page: 1,
       limit: 10,
@@ -137,6 +140,14 @@ const productsSlice = createSlice({
     loading: false,
     error: null,
     success: null,
+    filters: {
+      search: '',
+      category: 'all',
+      minPrice: '',
+      maxPrice: '',
+      stockFilter: 'all',
+      sortBy: 'newest'
+    }
   },
   reducers: {
     clearError: (state) => {
@@ -148,6 +159,99 @@ const productsSlice = createSlice({
     setPagination: (state, action) => {
       state.pagination = { ...state.pagination, ...action.payload };
     },
+    setFilters: (state, action) => {
+      state.filters = { ...state.filters, ...action.payload };
+    },
+    applyFilters: (state) => {
+      let filtered = [...state.allItems];
+      console.log('All products:', filtered);
+      console.log('Current filters:', state.filters);
+
+      // Apply search filter
+      if (state.filters.search) {
+        const searchTerm = state.filters.search.toLowerCase();
+        filtered = filtered.filter(product => 
+          product.title.toLowerCase().includes(searchTerm) ||
+          product.description.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      // Apply category filter
+      if (state.filters.category && state.filters.category !== 'all') {
+        console.log('Filtering by category:', state.filters.category);
+        // Products have a category object with _id and name
+        filtered = filtered.filter(product => {
+          const categoryId = product.category?._id || product.categoryId;
+          const matches = categoryId === state.filters.category;
+          console.log('Product:', product.title, 'Category ID:', categoryId, 'Filter:', state.filters.category, 'Matches:', matches);
+          return matches;
+        });
+      }
+
+      // Apply price range filter
+      if (state.filters.minPrice) {
+        filtered = filtered.filter(product => 
+          product.price >= parseFloat(state.filters.minPrice)
+        );
+      }
+      if (state.filters.maxPrice) {
+        filtered = filtered.filter(product => 
+          product.price <= parseFloat(state.filters.maxPrice)
+        );
+      }
+
+      // Apply stock filter
+      if (state.filters.stockFilter && state.filters.stockFilter !== 'all') {
+        if (state.filters.stockFilter === 'in-stock') {
+          filtered = filtered.filter(product => product.quantity > 0);
+        } else if (state.filters.stockFilter === 'out-of-stock') {
+          filtered = filtered.filter(product => product.quantity === 0);
+        } else if (state.filters.stockFilter === 'low-stock') {
+          filtered = filtered.filter(product => product.quantity > 0 && product.quantity <= 10);
+        }
+      }
+
+      // Apply sorting
+      if (state.filters.sortBy) {
+        switch (state.filters.sortBy) {
+          case 'newest':
+            filtered.sort((a, b) => new Date(b.createdAt || b.updatedAt) - new Date(a.createdAt || a.updatedAt));
+            break;
+          case 'oldest':
+            filtered.sort((a, b) => new Date(a.createdAt || a.updatedAt) - new Date(b.createdAt || b.updatedAt));
+            break;
+          case 'price-low':
+            filtered.sort((a, b) => a.price - b.price);
+            break;
+          case 'price-high':
+            filtered.sort((a, b) => b.price - a.price);
+            break;
+          case 'name-a-z':
+            filtered.sort((a, b) => a.title.localeCompare(b.title));
+            break;
+          case 'name-z-a':
+            filtered.sort((a, b) => b.title.localeCompare(a.title));
+            break;
+          default:
+            break;
+        }
+      }
+
+      state.filteredItems = filtered;
+      state.items = filtered;
+    },
+    clearFilters: (state) => {
+      state.filters = {
+        search: '',
+        category: 'all',
+        minPrice: '',
+        maxPrice: '',
+        stockFilter: 'all',
+        sortBy: 'newest'
+      };
+      state.filteredItems = [...state.allItems];
+      state.items = [...state.allItems];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -158,8 +262,80 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.products || action.payload;
+        state.allItems = action.payload.products || action.payload;
         state.success = 'Products fetched successfully!';
+        
+        // Apply current filters to the new data
+        let filtered = [...state.allItems];
+
+        // Apply search filter
+        if (state.filters.search) {
+          const searchTerm = state.filters.search.toLowerCase();
+          filtered = filtered.filter(product => 
+            product.title.toLowerCase().includes(searchTerm) ||
+            product.description.toLowerCase().includes(searchTerm)
+          );
+        }
+
+        // Apply category filter
+        if (state.filters.category && state.filters.category !== 'all') {
+          filtered = filtered.filter(product => {
+            const categoryId = product.category?._id || product.categoryId;
+            return categoryId === state.filters.category;
+          });
+        }
+
+        // Apply price range filter
+        if (state.filters.minPrice) {
+          filtered = filtered.filter(product => 
+            product.price >= parseFloat(state.filters.minPrice)
+          );
+        }
+        if (state.filters.maxPrice) {
+          filtered = filtered.filter(product => 
+            product.price <= parseFloat(state.filters.maxPrice)
+          );
+        }
+
+        // Apply stock filter
+        if (state.filters.stockFilter && state.filters.stockFilter !== 'all') {
+          if (state.filters.stockFilter === 'in-stock') {
+            filtered = filtered.filter(product => product.quantity > 0);
+          } else if (state.filters.stockFilter === 'out-of-stock') {
+            filtered = filtered.filter(product => product.quantity === 0);
+          } else if (state.filters.stockFilter === 'low-stock') {
+            filtered = filtered.filter(product => product.quantity > 0 && product.quantity <= 10);
+          }
+        }
+
+        // Apply sorting
+        if (state.filters.sortBy) {
+          switch (state.filters.sortBy) {
+            case 'newest':
+              filtered.sort((a, b) => new Date(b.createdAt || b.updatedAt) - new Date(a.createdAt || a.updatedAt));
+              break;
+            case 'oldest':
+              filtered.sort((a, b) => new Date(a.createdAt || a.updatedAt) - new Date(b.createdAt || b.updatedAt));
+              break;
+            case 'price-low':
+              filtered.sort((a, b) => a.price - b.price);
+              break;
+            case 'price-high':
+              filtered.sort((a, b) => b.price - a.price);
+              break;
+            case 'name-a-z':
+              filtered.sort((a, b) => a.title.localeCompare(b.title));
+              break;
+            case 'name-z-a':
+              filtered.sort((a, b) => b.title.localeCompare(a.title));
+              break;
+            default:
+              break;
+          }
+        }
+
+        state.filteredItems = filtered;
+        state.items = filtered;
         
         // Update pagination if provided
         if (action.payload.pagination) {
@@ -218,12 +394,14 @@ const productsSlice = createSlice({
   },
 });
 
-export const { clearError, clearSuccess, setPagination } = productsSlice.actions;
+export const { clearError, clearSuccess, setPagination, setFilters, applyFilters, clearFilters } = productsSlice.actions;
 
 export const selectProducts = (state) => state.products.items;
 export const selectProductsLoading = (state) => state.products.loading;
 export const selectProductsError = (state) => state.products.error;
 export const selectProductsSuccess = (state) => state.products.success;
 export const selectProductsPagination = (state) => state.products.pagination;
+export const selectProductsFilters = (state) => state.products.filters;
+export const selectAllProducts = (state) => state.products.allItems;
 
 export default productsSlice.reducer;
