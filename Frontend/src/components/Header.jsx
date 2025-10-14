@@ -17,11 +17,12 @@ const Header = () => {
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="flex items-center justify-between px-4 sm:px-6 md:px-16 xl:px-32 py-4">
         {/* Logo */}
+        <div className=" bg-black shadow-md rounded-md">
         <Link   to="/" className="flex-shrink-0 ">
         {/* <img src={Logo} alt="logo" className="h-[50px] w-auto"/> */}
-          <div className="text-xl font-serif text-primary">Aurora</div>
+          <div div className="text-xl font-serif text-primary">Aurora</div>
         </Link>
-        
+        </div>
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex space-x-8 text-[#1e2b38] font-medium">       
           <Link

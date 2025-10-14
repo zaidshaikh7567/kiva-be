@@ -183,7 +183,7 @@ console.log('product :', product);
                   <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
                     <div className="flex justify-between">
                       <span>Material:</span>
-                      <span>{selectedMetal ? `${selectedMetal.karat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
+                      <span>{selectedMetal ? `${selectedMetal.carat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Stone:</span>
@@ -193,10 +193,10 @@ console.log('product :', product);
                       <span>Care:</span>
                       <span>Professional Cleaning</span>
                     </div>
-                    <div className="flex justify-between">
+                    {/* <div className="flex justify-between">
                       <span>Warranty:</span>
                       <span>2 Years</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

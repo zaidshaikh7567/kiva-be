@@ -310,7 +310,7 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
               </div>
               <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                 formData.isActive 
-                  ? 'bg-primary text-primary-dark' 
+                  ? 'bg-primary text-white' 
                   : 'bg-gray-100 text-gray-600'
               }`}>
                 {formData.isActive ? 'ON' : 'OFF'}

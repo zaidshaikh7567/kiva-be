@@ -14,14 +14,14 @@ export const fetchMetals = createAsyncThunk(
           priceMultiplier: 1,
           gradient: 'from-gray-200 to-gray-300',
           backgroundColor: 'linear-gradient(to right, #e5e7eb, #d1d5db)',
-          isActive: false,
+          isActive: true,
           createdAt: new Date().toISOString()
         },
         {
           _id: '0002',
           carat: '18k',
           color: 'yellow',
-          priceMultiplier: 1.5,
+          priceMultiplier: 1.15,
           gradient: 'from-yellow-50 to-yellow-100',
           backgroundColor: 'linear-gradient(to right, #fffbeb, #fefce8)',
           isActive: true,
@@ -29,9 +29,9 @@ export const fetchMetals = createAsyncThunk(
         },
         {
           _id: '0003',
-          carat: '14k',
+          carat: '22k',
           color: 'rose',
-          priceMultiplier: 1.3,
+          priceMultiplier: 1.30,
           gradient: 'from-pink-50 to-pink-100',
           backgroundColor: 'linear-gradient(to right, #fdf2f8, #fdf2f8)',
           isActive: true,

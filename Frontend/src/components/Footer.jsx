@@ -6,7 +6,7 @@ import Container from "./Container";
 import { Link } from "react-router-dom";
 import giaLogo from "../assets/icon/gia.svg";
 import igiLogo from "../assets/icon/igi.svg";
-
+import Logo from '../assets/images/kiva-diamond-logo.png'
 const Footer = () => {
   // Social Media Links
   const socialLinks = [
@@ -28,7 +28,7 @@ const Footer = () => {
   // Customer Service Links
   const customerLinks = [
     { href: "/shipping-info", text: "Shipping Info" },
-    { href: "/returns-exchanges", text: "Returns & Exchanges" },
+    // { href: "/returns-exchanges", text: "Returns & Exchanges" },
     { href: "/size-guide", text: "Size Guide" },
     { href: "/jewelry-care", text: "Jewelry Care" },
     { href: "/faq", text: "FAQ" },
@@ -62,7 +62,8 @@ const Footer = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {/* Company Info */}
             <div className="sm:col-span-2 lg:col-span-2">
-              <div className="text-xl font-serif text-primary mb-4">Aurora</div>
+               <img src={Logo} alt="logo" className="h-[50px] w-auto"/>
+              {/* <div className="text-xl font-serif text-primary mb-4">Aurora</div> */}
               <p className="text-black-light font-montserrat-regular-400 text-sm sm:text-base leading-relaxed mb-6 max-w-md">
                 Crafting exquisite jewelry pieces that tell your unique story.
                 From timeless classics to contemporary designs, we create pieces

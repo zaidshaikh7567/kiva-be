@@ -80,7 +80,7 @@ const Metals = () => {
 
 
   return (
-    <div className="sm:p-6 p-2 bg-secondary min-h-screen">
+    <div className=" bg-secondary min-h-screen">
       {/* Header */}
  
 
@@ -211,7 +211,7 @@ const Metals = () => {
       </div>
 
       {/* Pagination */}
-      {metals.length > 0 && (
+      {metals.length >=1 && (
         <div className="mt-6">
           <Pagination
             currentPage={currentPage}

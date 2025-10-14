@@ -47,7 +47,7 @@ const ShippingInfo = () => {
     },
     {
       title: 'Made-to-Order Items',
-      time: '2-4 Weeks',
+      time: '1-2 Weeks',
       description: 'Custom and personalized pieces require additional production time. We\'ll keep you updated throughout the process.'
     },
     {
