@@ -90,7 +90,7 @@ const Metals = () => {
           Metal Management
           </h1>
           <p className="font-montserrat-regular-400 text-black-light">
-            MManage jewelry metal options and pricing
+            Manage jewelry metal options and pricing
           </p>
         </div>
         <div className="flex items-center space-x-3">
