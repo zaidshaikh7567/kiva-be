@@ -9,6 +9,7 @@ import Analytics from '../pages/Analytics';
 import Reviews from '../pages/Reviews';
 import Favorites from '../pages/Favorites';
 import Settings from '../pages/Settings';
+import NotFound from '../pages/NotFound';
 
 const AppRoutes = () => {
   return (
@@ -27,8 +28,8 @@ const AppRoutes = () => {
       <Route path="/favorites" element={<Favorites />} />
       <Route path="/settings" element={<Settings />} />
       
-      {/* Catch all route - redirect to dashboard */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* 404 Route - Must be last */}
+      <Route path="*" element={<NotFound />} />
      
     </Routes>
   );

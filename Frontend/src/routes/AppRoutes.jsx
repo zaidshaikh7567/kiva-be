@@ -23,6 +23,7 @@ import FAQ from "../pages/FAQ";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import ShippingInfo from "../pages/ShippingInfo";
 import ReturnsExchanges from "../pages/ReturnsExchanges";
+import NotFound from "../pages/NotFound";
 import ScrollToTop from "../helpers/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 
@@ -62,6 +63,9 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
         </Route>
+
+        {/* 404 Route - Must be last */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
           <ScrollToTop/>
           <Toaster
