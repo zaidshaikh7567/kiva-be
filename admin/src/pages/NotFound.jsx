@@ -7,19 +7,19 @@ const NotFound = () => {
     <div className="min-h-screen bg-secondary flex items-center justify-center px-4">
       <div className="max-w-2xl mx-auto text-center">
         {/* 404 Number */}
-        <div className="mb-8">
-          <h1 className="text-8xl md:text-9xl font-bold text-gray-300 leading-none">
+        <div className="my-8">
+          <h1 className="text-8xl md:text-9xl font-sorts-mill-gloudy text-primary-dark font-thin leading-none">
             404
           </h1>
-          <div className="w-24 h-1 bg-blue-500 mx-auto mt-4"></div>
+          <div className="w-24 h-1 bg-primary mx-auto mt-4"></div>
         </div>
 
         {/* Error Message */}
         <div className="mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+        <h2 className="text-2xl md:text-3xl font-sorts-mill-gloudy text-black mb-4 font-light">
             Page Not Found
           </h2>
-          <p className="text-lg text-gray-600 leading-relaxed">
+          <p className="text-lg font-montserrat-regular-400 text-black-light leading-relaxed">
             The admin page you're looking for doesn't exist or has been moved. 
             Let's get you back to managing your jewelry store.
           </p>

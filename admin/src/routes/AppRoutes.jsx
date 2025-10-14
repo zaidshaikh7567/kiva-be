@@ -9,6 +9,7 @@ import Analytics from '../pages/Analytics';
 import Reviews from '../pages/Reviews';
 import Favorites from '../pages/Favorites';
 import Settings from '../pages/Settings';
+import Metals from '../pages/Metals';
 import NotFound from '../pages/NotFound';
 
 const AppRoutes = () => {
@@ -26,6 +27,7 @@ const AppRoutes = () => {
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/reviews" element={<Reviews />} />
       <Route path="/favorites" element={<Favorites />} />
+      <Route path="/metals" element={<Metals />} />
       <Route path="/settings" element={<Settings />} />
       
       {/* 404 Route - Must be last */}

@@ -13,7 +13,8 @@ import {
   Gem,
   Heart,
   Crown,
-  Star
+  Star,
+  Zap
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -38,6 +39,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       label: 'Categories',
       icon: Package,
       path: '/categories'
+    },
+    {
+      id: 'metals',
+      label: 'Metals',
+      icon: Zap,
+      path: '/metals'
     },
     {
       id: 'orders',

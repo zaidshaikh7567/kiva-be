@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon, ChevronDown, Check } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
 import RichTextEditor from './RichTextEditor';
 
 // Stone options for multi-select
@@ -20,6 +22,7 @@ const CARE_OPTIONS = [
   'Remove Before Swimming',
   'Ultrasonic Cleaning Safe',
 ];
+
 
 const EMPTY_LEXICAL_STATE = JSON.stringify({
   root: {
@@ -68,6 +71,9 @@ function getSafeLexicalState(val) {
 }
 
 const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, mode = 'add', categories = [] }) => {
+  const dispatch = useDispatch();
+  const metals = useSelector(selectMetals);
+  console.log('metals--- :', metals);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -77,14 +83,24 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     categoryId: '',
     stone: [],
     care: '',
-    images: []
+    images: [],
+    metalOptions: []
   });
+  console.log('formData---PRODUCT MODAL :', formData  );
 
   const [imagePreviews, setImagePreviews] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [stoneDropdownOpen, setStoneDropdownOpen] = useState(false);
   const [careDropdownOpen, setCareDropdownOpen] = useState(false);
+  const [metalOptionsOpen, setMetalOptionsOpen] = useState(false);
+
+  // Fetch metals when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchMetals());
+    }
+  }, [isOpen, dispatch]);
 
   // Update form data when modal opens or productData changes
   useEffect(() => {
@@ -101,7 +117,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         categoryId: productData.category?._id || productData.categoryId || '',
         stone: productData.stone || [],
         care: productData.care || '',
-        images: []
+        images: [],
+        metalOptions: productData.metalOptions || []
       });
 
       // Set image previews for existing images
@@ -124,7 +141,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         categoryId: '',
         stone: [],
         care: '',
-        images: []
+        images: [],
+        metalOptions: []
       });
       setImagePreviews([]);
     }
@@ -142,13 +160,16 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
       if (careDropdownOpen && !event.target.closest('.care-dropdown-container')) {
         setCareDropdownOpen(false);
       }
+      if (metalOptionsOpen && !event.target.closest('.metal-options-container') && !event.target.closest('.metal-options-section')) {
+        setMetalOptionsOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [categoryDropdownOpen, stoneDropdownOpen, careDropdownOpen]);
+  }, [categoryDropdownOpen, stoneDropdownOpen, careDropdownOpen, metalOptionsOpen]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -170,6 +191,25 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
   const handleCareSelect = (care) => {
     setFormData(prev => ({ ...prev, care }));
     setCareDropdownOpen(false);
+  };
+
+  const toggleMetalOption = (metalId) => {
+    // Only allow toggling active metals
+    const metal = metals.find(m => m._id === metalId);
+    if (!metal || !metal.isActive) return;
+    
+    setFormData(prev => ({
+      ...prev,
+      metalOptions: prev.metalOptions.includes(metalId)
+        ? prev.metalOptions.filter(id => id !== metalId)
+        : [...prev.metalOptions, metalId]
+    }));
+  };
+
+  const calculateMetalPrice = (metalId) => {
+    const metal = metals.find(m => m._id === metalId);
+    if (!metal || !formData.price) return 0;
+    return (parseFloat(formData.price) * metal.priceMultiplier).toFixed(2);
   };
 
   const handleImageChange = (e) => {
@@ -286,7 +326,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
       categoryId: '',
       stone: [],
       care: '',
-      images: []
+      images: [],
+      metalOptions: []
     });
     setImagePreviews([]);
     onClose();
@@ -762,6 +803,144 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Metal Options Section */}
+          <div className="space-y-4 metal-options-section">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-montserrat-semibold-600 text-black">
+                Metal Options & Pricing
+              </h3>
+              <button
+                type="button"
+                onClick={() => setMetalOptionsOpen(!metalOptionsOpen)}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300"
+              >
+                <span className="text-sm font-montserrat-medium-500">
+                  {metalOptionsOpen ? 'Hide Options' : 'Configure Metals'}
+                </span>
+                <ChevronDown 
+                  className={`w-4 h-4 transition-transform duration-300 ${
+                    metalOptionsOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+            </div>
+
+            {metalOptionsOpen && (
+              <div className="space-y-6 p-4 bg-gray-50 rounded-xl border border-gray-200 metal-options-container">
+
+                {/* Metal Options Grid */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-montserrat-medium-500 text-black">
+                    Available Metal Options
+                  </h4>
+                  {metals.filter(metal => metal.isActive).length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <div className="text-lg font-medium mb-2">No Active Metals Available</div>
+                      <div className="text-sm">Please add or activate metal options in the Metals section</div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {metals.filter(metal => metal.isActive).map((metal) => (
+                      <div
+                        key={metal._id}
+                        className={`relative p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:shadow-lg group
+                          ${formData.metalOptions.includes(metal._id)
+                            ? 'border-primary bg-primary-light ring-2 ring-primary ring-opacity-30'
+                            : 'border-gray-200 bg-white hover:border-primary-light'
+                          }`}
+                        onClick={() => toggleMetalOption(metal._id)}
+                      >
+                        {/* Metal Color Preview */}
+                        <div 
+                          className={`w-full h-12 rounded-lg mb-3 bg-gradient-to-r ${metal.gradient} border border-gray-200 relative flex items-center justify-center shadow-md`}
+                          style={{ background: metal.backgroundColor }}
+                        >
+                          <div className="font-montserrat-bold-700 text-lg text-black drop-shadow-sm">
+                            {metal.carat.toUpperCase()}
+                          </div>
+                        </div>
+                        
+                        {/* Metal Info */}
+                        <div className="text-center mb-3">
+                          <div className="font-montserrat-semibold-600 text-black text-sm leading-tight">
+                            {metal.name}
+                          </div>
+                          <div className="text-xs font-montserrat-medium-500 text-primary mt-1">
+                            +{((metal.priceMultiplier - 1) * 100).toFixed(0)}% price
+                          </div>
+                        </div>
+
+                        {/* Price Display */}
+                        {formData.price && (
+                          <div className="text-center">
+                            <div className="text-xs font-montserrat-regular-400 text-black-light">
+                              Calculated Price:
+                            </div>
+                            <div className="text-sm font-montserrat-semibold-600 text-primary">
+                              ${calculateMetalPrice(metal._id)}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Selected Indicator */}
+                        {formData.metalOptions.includes(metal._id) && (
+                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                            <div className="w-3 h-3 bg-white rounded-full"></div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Selected Metals Summary */}
+                {formData.metalOptions.length > 0 && (
+                  <div className="bg-primary-light rounded-lg p-4 border border-primary border-opacity-20">
+                    <h4 className="text-sm font-montserrat-semibold-600 text-black mb-3">
+                      Selected Metal Options ({formData.metalOptions.filter(metalId => {
+                        const metal = metals.find(m => m._id === metalId);
+                        return metal && metal.isActive;
+                      }).length})
+                    </h4>
+                    <div className="space-y-2">
+                      {formData.metalOptions.map(metalId => {
+                        const metal = metals.find(m => m._id === metalId);
+                        // Only show active metals in the summary
+                        if (!metal || !metal.isActive) return null;
+                        return (
+                          <div key={metalId} className="flex items-center justify-between bg-white rounded-lg p-3">
+                            <div className="flex items-center space-x-3">
+                              <div 
+                                className={`w-8 h-8 rounded-lg bg-gradient-to-r ${metal.gradient}`}
+                                style={{ background: metal.backgroundColor }}
+                              ></div>
+                              <div>
+                                <div className="font-montserrat-medium-500 text-black text-sm">
+                                  {metal.name}
+                                </div>
+                                <div className="text-xs font-montserrat-regular-400 text-black-light">
+                                  +{((metal.priceMultiplier - 1) * 100).toFixed(0)}% markup
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              {formData.price && (
+                                <div className="text-sm font-montserrat-semibold-600 text-primary">
+                              ${calculateMetalPrice(metalId)}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
