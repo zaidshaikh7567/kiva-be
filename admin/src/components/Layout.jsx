@@ -32,7 +32,9 @@ const Layout = () => {
       '/analytics': 'Analytics',
       '/reviews': 'Reviews',
       '/favorites': 'Favorites',
-      '/settings': 'Settings'
+      '/settings': 'Settings',
+      '/metals': 'Metals',
+      '/center-stones': 'Center Stones'
     };
     return titles[path] || 'Dashboard';
   };

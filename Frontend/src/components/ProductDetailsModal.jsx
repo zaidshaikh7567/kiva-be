@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { X, Heart, Star, ShoppingBag, Minus, Plus } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { X, Heart, Star, ShoppingBag, Minus, Plus, Gem, Shield, Truck, RotateCcw, Award, Info, ListChevronsDownUp, HelpCircle, FileText } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 import PriceDisplay from './PriceDisplay';
 import MetalSelector from './MetalSelector';
+import CustomDropdown from './CustomDropdown';
+import Accordion from './Accordion';
 import { selectCurrentCurrency, selectCurrencySymbol, selectExchangeRate, convertPrice, formatPrice } from '../store/slices/currencySlice';
+import centerStonesApi, { RING_SIZES, CENTER_STONE_CARATS } from '../services/centerStonesApi';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
 console.log('product :', product);
@@ -12,15 +15,47 @@ console.log('product :', product);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedMetal, setSelectedMetal] = useState(null);
+  console.log('selectedMetal :', selectedMetal);
+  const [selectedRingSize, setSelectedRingSize] = useState('');
+  const [selectedCenterStone, setSelectedCenterStone] = useState(null);
+  const [selectedCarat, setSelectedCarat] = useState('');
+  const [centerStones, setCenterStones] = useState([]);
+  console.log('centerStones :', centerStones);
   const dispatch = useDispatch();
   
   // Currency selectors
   const currentCurrency = useSelector(selectCurrentCurrency);
   const currencySymbol = useSelector(selectCurrencySymbol);
   const exchangeRate = useSelector(selectExchangeRate);
-  useEffect(() => {
+
+
+  // Fetch center stones based on product category
+  const fetchCenterStones = useCallback(async () => {
+    if (!product?.category) return;
+    
+    try {
+      // If product has a center stone category, filter by that
+      // Otherwise, fetch all center stones
+      let response;
+      if (product.centerStoneCategory) {
+        response = await centerStonesApi.getCenterStonesByCategory(product.centerStoneCategory);
+        console.log('response :', response);
+      } else {
+        response = await centerStonesApi.getCenterStones();
+      }
+      
+      setCenterStones(response.centerStones || []);
+    } catch (error) {
+      console.error('Error fetching center stones:', error);
+      setCenterStones([]);
+    }
+  }, [product?.category, product?.centerStoneCategory]);
+
+   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      // Fetch center stones when modal opens
+      fetchCenterStones();
     } else {
       document.body.style.overflow = "auto";
     }
@@ -28,17 +63,21 @@ console.log('product :', product);
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [isOpen]);
+  }, [isOpen, fetchCenterStones]);
   if (!isOpen || !product) return null;
 
   const handleAddToCart = () => {
-    const productWithMetal = {
+    const productWithOptions = {
       ...product,
-      selectedMetal: selectedMetal
+      selectedMetal: selectedMetal,
+      selectedRingSize: selectedRingSize,
+      selectedCenterStone: selectedCenterStone,
+      selectedCarat: selectedCarat,
+      finalPrice: getFinalPrice()
     };
     
     for (let i = 0; i < quantity; i++) {
-      dispatch(addToCart(productWithMetal));
+      dispatch(addToCart(productWithOptions));
     }
     onClose();
   };
@@ -59,11 +98,27 @@ console.log('product :', product);
     setSelectedMetal(metal);
   };
 
-  // Calculate final price with metal multiplier
+  const handleRingSizeChange = (size) => {
+    setSelectedRingSize(size);
+  };
+
+  const handleCaratChange = (carat) => {
+    setSelectedCarat(carat);
+    // Find center stone by carat - use the first available stone for this carat
+    const stone = centerStones.find(stone => 
+      stone.name.toLowerCase().includes(carat.toLowerCase())
+    );
+    if (stone) {
+      setSelectedCenterStone(stone);
+    }
+  };
+
+  // Calculate final price with metal multiplier and center stone
   const getFinalPrice = () => {
     const basePrice = product.price;
     const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
-    return basePrice * metalMultiplier;
+    const centerStonePrice = selectedCenterStone ? selectedCenterStone.price : 0;
+    return (basePrice + centerStonePrice) * metalMultiplier;
   };
 
 
@@ -152,7 +207,8 @@ console.log('product :', product);
                 </p>
 
                 {/* Price */}
-                <div className="flex items-center space-x-3 mb-6">
+                <div className="sm:flex block items-center justify-between mb-6">
+                <div className="flex items-center space-x-3 ">
                   <PriceDisplay 
                     price={getFinalPrice()}
                     originalPrice={product.originalPrice}
@@ -162,9 +218,15 @@ console.log('product :', product);
                   />
                   {selectedMetal && (
                     <div className="text-sm font-montserrat-regular-400 text-black-light">
-                      ({selectedMetal.karat} {selectedMetal.color})
+                      ({selectedMetal.carat} {selectedMetal.color})
                     </div>
                   )}
+                  </div>
+                  <div>
+                  <div className="text-lg font-montserrat-semibold-600 text-black">
+                  Made to order
+                </div>
+                </div>
                 </div>
 
                 {/* Metal Selection */}
@@ -175,11 +237,82 @@ console.log('product :', product);
                   />
                 </div>
 
-                {/* Product Details */}
+                {/* Center Stone Selection */}
+                {centerStones.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3 flex items-center gap-2">
+                      <Gem className="w-5 h-5 text-primary" />
+                      Center Stone
+                    </h3>
+                    
+                    {/* Carat Selection */}
+                    <div className="mb-4">
+                      {/* <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                        Carat Weight
+                      </label> */}
+                      <div className="flex flex-wrap gap-2">
+                        {CENTER_STONE_CARATS.map((carat) => (
+                          <button
+                            key={carat.value}
+                            onClick={() => handleCaratChange(carat.value)}
+                            className={`px-4 py-2 rounded-full border-2 transition-all duration-200 font-montserrat-medium-500 ${
+                              selectedCarat === carat.value
+                                ? 'border-primary bg-primary text-white'
+                                : 'border-gray-200 bg-white text-black hover:border-primary hover:bg-primary-light'
+                            }`}
+                          >
+                            {carat.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+
+                    {/* Selected Center Stone Info */}
+                    {/* {selectedCenterStone && (
+                      <div className="bg-primary-light/10 border border-primary-light rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-montserrat-semibold-600 text-black">
+                              {selectedCenterStone.name}
+                            </h4>
+                            <p className="text-sm font-montserrat-regular-400 text-black-light capitalize">
+                              {selectedCenterStone.categoryId} cut
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <PriceDisplay 
+                              price={selectedCenterStone.price}
+                              className="text-lg font-montserrat-semibold-600 text-primary"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )} */}
+                  </div>
+                )}
+
+                {/* Ring Size Selection */}
                 <div className="mb-6">
+                  <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                    Ring Size
+                  </label>
+                  <CustomDropdown
+                    options={RING_SIZES}
+                    value={selectedRingSize}
+                    onChange={handleRingSizeChange}
+                    placeholder="Select Ring Size"
+                    searchable={false}
+                  />
+                </div>
+
+                {/* Product Details Accordion */}
+                <div className="mb-6 space-y-3">
                   <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">
                     Product Details
                   </h3>
+                  
+
                   <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
                     <div className="flex justify-between">
                       <span>Material:</span>
@@ -189,6 +322,18 @@ console.log('product :', product);
                       <span>Stone:</span>
                       <span>Natural Diamond/Gemstone</span>
                     </div>
+                    {selectedCarat && (
+                      <div className="flex justify-between">
+                        <span>Center Stone:</span>
+                        <span>{selectedCarat} CT</span>
+                      </div>
+                    )}
+                    {selectedRingSize && (
+                      <div className="flex justify-between">
+                        <span>Ring Size:</span>
+                        <span>{selectedRingSize}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span>Care:</span>
                       <span>Professional Cleaning</span>
@@ -197,6 +342,23 @@ console.log('product :', product);
                       <span>Warranty:</span>
                       <span>2 Years</span>
                     </div> */}
+                  </div>
+           
+
+                  {/* FAQ Style Accordions */}
+                  <div className="space-y-3">
+                    <Accordion 
+                      title="More Details" 
+                      icon={<ListChevronsDownUp className="w-4 h-4 text-primary" />}
+                    >
+                      <div className="space-y-3">
+                        <p><strong>Daily Care:</strong> Gently clean with a soft, dry cloth. Avoid contact with harsh chemicals, perfumes, and lotions.</p>
+                        <p><strong>Storage:</strong> Store in a soft pouch or jewelry box to prevent scratches and tarnishing. Keep pieces separate to avoid tangling.</p>
+                        <p><strong>Professional Cleaning:</strong> We recommend professional cleaning every 6 months to maintain brilliance and check for any needed repairs.</p>
+                      </div>
+                    </Accordion>
+
+                
                   </div>
                 </div>
               </div>

@@ -14,7 +14,8 @@ import {
   Heart,
   Crown,
   Star,
-  Zap
+  Zap,
+  Diamond
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -45,6 +46,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       label: 'Metals',
       icon: Zap,
       path: '/metals'
+    },
+    {
+      id: 'center-stones',
+      label: 'Center Stones',
+      icon: Diamond,
+      path: '/center-stones'
     },
     {
       id: 'orders',

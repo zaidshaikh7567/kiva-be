@@ -84,15 +84,15 @@ const Metals = () => {
       {/* Header */}
  
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
+      <div className="flex flex-row items-center justify-end gap-4 mb-8">
+        {/* <div>
           <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">
           Metal Management
           </h1>
           <p className="font-montserrat-regular-400 text-black-light">
             Manage jewelry metal options and pricing
           </p>
-        </div>
+        </div> */}
         <div className="flex items-center space-x-3">
         <button
             onClick={handleAddMetal}

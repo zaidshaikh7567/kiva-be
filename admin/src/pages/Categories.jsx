@@ -156,15 +156,15 @@ const Categories = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
+      <div className="flex flex-row items-center justify-end gap-2">
+        {/* <div>
           <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">
             Categories
           </h1>
           <p className="font-montserrat-regular-400 text-black-light">
             Organize your jewelry products
           </p>
-        </div>
+        </div> */}
         <div className="flex items-center space-x-3">
           <button
             onClick={handleRefresh}

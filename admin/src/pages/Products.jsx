@@ -246,16 +246,16 @@ const Products = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-row items-center justify-end gap-4">
+        {/* <div>
           <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">
             Products
           </h1>
           <p className="font-montserrat-regular-400 text-black-light">
             Manage your jewelry products
           </p>
-        </div>
-        <div className="flex items-center space-x-3">
+        </div> */}
+        <div className="sm:flex block items-center  gap-2 ">
           <button 
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center space-x-2 px-4 py-2 border rounded-lg transition-colors font-montserrat-medium-500 ${

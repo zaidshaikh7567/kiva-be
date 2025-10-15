@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import categoriesReducer from './slices/categoriesSlice';
 import productsReducer from './slices/productsSlice';
 import metalsReducer from './slices/metalsSlice';
+import centerStonesReducer from './slices/centerStonesSlice';
 
 export const store = configureStore({
   reducer: {
     categories: categoriesReducer,
     products: productsReducer,
     metals: metalsReducer,
+    centerStones: centerStonesReducer,
     // Add other reducers here as needed
     // orders: ordersReducer,
     // etc.
