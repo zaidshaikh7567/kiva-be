@@ -5,6 +5,7 @@ import { addToCart } from '../store/slices/cartSlice';
 import ProductDetailsModal from './ProductDetailsModal';
 import PriceDisplay from './PriceDisplay';
 import toast from 'react-hot-toast';
+import { extractPlainText } from '../helpers/lexicalToHTML';
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -101,7 +102,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           </h3>
 
           <p className="text-black-light font-montserrat-regular-400 text-xs md:text-sm mb-4 line-clamp-1">
-            {product.description}
+            {extractPlainText(product.description)}
           </p>
 
           <div className="flex items-center justify-between mb-4">

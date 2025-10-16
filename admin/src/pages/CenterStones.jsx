@@ -182,15 +182,15 @@ const CenterStones = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-row items-center justify-end gap-4">
+        {/* <div>
           <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">
             Center Stones
           </h1>
           <p className="font-montserrat-regular-400 text-black-light">
             Manage your center stone inventory
           </p>
-        </div>
+        </div> */}
         <div className="flex items-center space-x-3">
           <button 
             onClick={handleRefresh}

@@ -161,7 +161,7 @@ const Metals = () => {
                         ></div>
                         <div>
                           {/* <div className="text-sm font-medium text-gray-900">{metal.name}</div> */}
-                          <div className="text-sm text-gray-500">{metal.color}</div>
+                          <div className="text-sm text-gray-500 capitalize">{metal.color}</div>
                         </div>
                       </div>
                     </td>
@@ -170,12 +170,12 @@ const Metals = () => {
                         {metal.carat}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
                       {metal.color}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className="font-medium">{(metal.priceMultiplier * 100).toFixed(0)}%</span>
-                      <span className="text-gray-500 ml-1">({metal.priceMultiplier}x)</span>
+                      <span className="font-medium">{((metal.priceMultiplier - 1) * 100).toFixed(0)}%</span>
+                      <span className="text-gray-500 ml-1">({(metal.priceMultiplier).toFixed(2)}x)</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -216,6 +216,8 @@ const Metals = () => {
           <Pagination
             currentPage={currentPage}
             totalPages={Math.ceil(metals.length / limit)}
+            totalItems={metals.length}
+            itemsPerPage={limit}
             onPageChange={setCurrentPage}
           />
         </div>

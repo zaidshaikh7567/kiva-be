@@ -6,6 +6,7 @@ import { addToCart } from '../store/slices/cartSlice';
 import PriceDisplay from './PriceDisplay';
 import ProductDetailsModal from './ProductDetailsModal';
 import toast from 'react-hot-toast';
+import { extractPlainText } from '../helpers/lexicalToHTML';
 
 const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }) => {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -58,7 +59,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-montserrat-semibold-600 text-black mb-2">{product.title}</h3>
-              <p className="text-black-light font-montserrat-regular-400 mb-4 line-clamp-2">{product.description}</p>
+              <p className="text-black-light font-montserrat-regular-400 mb-4 line-clamp-2">{extractPlainText(product.description)}</p>
               <div className="flex items-center justify-between">
                 <div>
                   <PriceDisplay 
@@ -166,7 +167,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
           <Link to={`/product/${product._id || product.id}`} className="block">
             <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2 line-clamp-1 hover:text-primary-dark transition-colors">{product.title}</h3>
           </Link>
-          <p className="text-black-light text-sm mb-3 line-clamp-2 font-montserrat-regular-400">{product.description}</p>
+          <p className="text-black-light text-sm mb-3 line-clamp-2 font-montserrat-regular-400">{extractPlainText(product.description)}</p>
           <div className="flex items-center justify-between">
             <PriceDisplay 
               price={product.price}

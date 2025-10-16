@@ -1,8 +1,10 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { X, Package, DollarSign, Hash, Tag, Calendar, Image as ImageIcon, Eye, Edit } from 'lucide-react';
+import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 
 const ProductViewModal = ({ isOpen, onClose, product, onEdit }) => {
+console.log('product :', product);
   if (!isOpen || !product) return null;
 
   const formatDate = (dateString) => {
@@ -13,39 +15,6 @@ const ProductViewModal = ({ isOpen, onClose, product, onEdit }) => {
     });
   };
 
-  // Function to parse Lexical JSON and convert to HTML
-  const parseLexicalDescription = (description) => {
-    if (!description) return 'No description available';
-    
-    try {
-      // If it's already HTML, return as is
-      if (typeof description === 'string' && description.includes('<')) {
-        return description;
-      }
-      
-      // If it's a Lexical JSON string, parse it
-      if (typeof description === 'string') {
-        const parsed = JSON.parse(description);
-        if (parsed.root && parsed.root.children) {
-          // Convert Lexical nodes to HTML
-          const textContent = parsed.root.children
-            .map(child => {
-              if (child.children) {
-                return child.children.map(c => c.text || '').join('');
-              }
-              return child.text || '';
-            })
-            .join('\n');
-          return textContent.replace(/\n/g, '<br>');
-        }
-      }
-      
-      return description;
-    } catch (error) {
-      console.error('Error parsing description:', error);
-      return description || 'No description available';
-    }
-  };
 
   return createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>

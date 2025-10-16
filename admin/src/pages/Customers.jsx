@@ -253,7 +253,7 @@ const Customers = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">Customers</h1>
+        {/* <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">Customers</h1> */}
         <p className="font-montserrat-regular-400 text-black-light">Manage your customer database and track customer activity</p>
       </div>
 

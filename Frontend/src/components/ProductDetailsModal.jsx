@@ -8,6 +8,7 @@ import CustomDropdown from './CustomDropdown';
 import Accordion from './Accordion';
 import { selectCurrentCurrency, selectCurrencySymbol, selectExchangeRate, convertPrice, formatPrice } from '../store/slices/currencySlice';
 import centerStonesApi, { RING_SIZES, CENTER_STONE_CARATS } from '../services/centerStonesApi';
+import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
 console.log('product :', product);
@@ -202,9 +203,10 @@ console.log('product :', product);
                 </h1>
 
                 {/* Description */}
-                <p className="text-black-light font-montserrat-regular-400 text-base mb-6 leading-relaxed">
-                  {product.description}
-                </p>
+                <div 
+                  className="text-black-light font-montserrat-regular-400 text-base mb-6 leading-relaxed prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: parseLexicalDescription(product.description) }}
+                />
 
                 {/* Price */}
                 <div className="sm:flex block items-center justify-between mb-6">

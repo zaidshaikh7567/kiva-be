@@ -218,7 +218,7 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                 disabled={loading}
               />
               <div className="text-sm text-gray-500">
-                {(formData.priceMultiplier * 100).toFixed(0)}% markup
+              {((formData.priceMultiplier - 1) * 100).toFixed(0)}% markup
               </div>
             </div>
             <p className="text-xs text-gray-500">
@@ -246,7 +246,7 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                     {formData.carat && formData.color ? `${formData.carat} ${colorOptions.find(c => c.value === formData.color)?.label || formData.color}` : 'Select carat and color'}
                   </div>
                   <div className="text-sm text-primary font-medium">
-                    +{((formData.priceMultiplier - 1) * 100).toFixed(0)}% price
+                  +{((formData.priceMultiplier - 1) * 100).toFixed(0)}% Price
                   </div>
                 </div>
               </div>
