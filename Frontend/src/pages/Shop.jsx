@@ -115,32 +115,66 @@ const Shop = () => {
 
               {/* Category Filter */}
               <div className="mb-6">
-                <label className="block text-sm font-montserrat-medium-500 text-black-light mb-2">
+                <label className="block text-sm font-montserrat-medium-500 text-black-light mb-4">
                   Category
                 </label>
-                <div className="space-y-3">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="category"
-                      value="all"
-                      checked={selectedCategory === 'all'}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="mr-3 text-primary focus:ring-primary accent-primary"
-                    />
-                    <span className="text-sm font-montserrat-regular-400 text-black-light">All Products</span>
-                  </label>
-                  {mockCategories.map((category) => (
-                    <label key={category._id} className="flex items-center cursor-pointer">
+                <div className="space-y-2">
+                  <label className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+                    <div className="relative">
                       <input
                         type="radio"
                         name="category"
-                        value={category.name}
-                        checked={selectedCategory === category.name}
+                        value="all"
+                        checked={selectedCategory === 'all'}
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="mr-3 text-primary focus:ring-primary accent-primary"
+                        className="sr-only"
                       />
-                      <span className="text-sm font-montserrat-regular-400 text-black-light">{category.name}</span>
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                        selectedCategory === 'all' 
+                          ? 'border-primary bg-white' 
+                          : 'border-gray-300 group-hover:border-primary'
+                      }`}>
+                        {selectedCategory === 'all' && (
+                          <div className="w-2 h-2 rounded-full bg-primary"></div>
+                        )}
+                      </div>
+                    </div>
+                    <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
+                      selectedCategory === 'all' 
+                        ? 'text-primary font-montserrat-medium-500' 
+                        : 'text-black-light group-hover:text-black'
+                    }`}>
+                      All Products
+                    </span>
+                  </label>
+                  {mockCategories.map((category) => (
+                    <label key={category._id} className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+                      <div className="relative">
+                        <input
+                          type="radio"
+                          name="category"
+                          value={category.name}
+                          checked={selectedCategory === category.name}
+                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          className="sr-only"
+                        />
+                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                          selectedCategory === category.name 
+                            ? 'border-primary bg-white' 
+                            : 'border-gray-300 group-hover:border-primary'
+                        }`}>
+                          {selectedCategory === category.name && (
+                            <div className="w-2 h-2 rounded-full bg-primary"></div>
+                          )}
+                        </div>
+                      </div>
+                      <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
+                        selectedCategory === category.name 
+                          ? 'text-primary font-montserrat-medium-500' 
+                          : 'text-black-light group-hover:text-black'
+                      }`}>
+                        {category.name}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -219,32 +253,66 @@ const Shop = () => {
 
                   {/* Mobile Category Filter */}
                   <div className="mb-6">
-                    <label className="block text-sm font-montserrat-medium-500 text-black-light mb-2">
+                    <label className="block text-sm font-montserrat-medium-500 text-black-light mb-4">
                       Category
                     </label>
-                    <div className="space-y-3">
-                      <label className="flex items-center cursor-pointer">
-                        <input
-                          type="radio"
-                          name="category"
-                          value="all"
-                          checked={selectedCategory === 'all'}
-                          onChange={(e) => setSelectedCategory(e.target.value)}
-                          className="mr-3 text-primary focus:ring-primary accent-primary"
-                        />
-                        <span className="text-sm font-montserrat-regular-400 text-black-light">All Products</span>
-                      </label>
-                      {mockCategories.map((category) => (
-                        <label key={category._id} className="flex items-center cursor-pointer">
+                    <div className="space-y-4">
+                      <label className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+                        <div className="relative">
                           <input
                             type="radio"
                             name="category"
-                            value={category.name}
-                            checked={selectedCategory === category.name}
+                            value="all"
+                            checked={selectedCategory === 'all'}
                             onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="mr-3 text-primary focus:ring-primary accent-primary"
+                            className="sr-only"
                           />
-                          <span className="text-sm font-montserrat-regular-400 text-black-light">{category.name}</span>
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                            selectedCategory === 'all' 
+                              ? 'border-primary bg-white' 
+                              : 'border-gray-300 group-hover:border-primary'
+                          }`}>
+                            {selectedCategory === 'all' && (
+                              <div className="w-2 h-2 rounded-full bg-primary"></div>
+                            )}
+                          </div>
+                        </div>
+                        <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
+                          selectedCategory === 'all' 
+                            ? 'text-primary font-montserrat-medium-500' 
+                            : 'text-black-light group-hover:text-black'
+                        }`}>
+                          All Products
+                        </span>
+                      </label>
+                      {mockCategories.map((category) => (
+                        <label key={category._id} className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+                          <div className="relative">
+                            <input
+                              type="radio"
+                              name="category"
+                              value={category.name}
+                              checked={selectedCategory === category.name}
+                              onChange={(e) => setSelectedCategory(e.target.value)}
+                              className="sr-only"
+                            />
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                              selectedCategory === category.name 
+                                ? 'border-primary bg-white' 
+                                : 'border-gray-300 group-hover:border-primary'
+                            }`}>
+                              {selectedCategory === category.name && (
+                                <div className="w-2 h-2 rounded-full bg-primary"></div>
+                              )}
+                            </div>
+                          </div>
+                          <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
+                            selectedCategory === category.name 
+                              ? 'text-primary font-montserrat-medium-500' 
+                              : 'text-black-light group-hover:text-black'
+                          }`}>
+                            {category.name}
+                          </span>
                         </label>
                       ))}
                     </div>
@@ -326,8 +394,8 @@ const Shop = () => {
             {filteredProducts.length > 0 ? (
               <div className={
                 viewMode === 'grid' 
-                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-                  : 'space-y-6'
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
+                  : 'space-y-4 sm:space-y-6'
               }>
                 {filteredProducts.map((product) => (
                   <ShopProductCard

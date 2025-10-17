@@ -5,6 +5,7 @@ import Home from "../pages/Home";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
 import Shop from "../pages/Shop";
+import Favorites from "../pages/Favorites";
 import Rings from "../pages/Rings";
 import Earrings from "../pages/Earrings";
 import Bracelets from "../pages/Bracelets";
@@ -35,6 +36,7 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/rings" element={<Rings />} />

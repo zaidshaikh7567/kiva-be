@@ -11,7 +11,9 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { $isLinkNode, TOGGLE_LINK_COMMAND as TOGGLE_LINK } from '@lexical/link';
-import { $getSelection, $isRangeSelection, $createParagraphNode, $createTextNode, $setBlocksType } from 'lexical';
+import { $getSelection, $isRangeSelection, $createParagraphNode, $createTextNode } from 'lexical';
+import { $setBlocksType } from '@lexical/selection';
+
 import { $isListNode, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, REMOVE_LIST_COMMAND } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ListNode, ListItemNode } from '@lexical/list';

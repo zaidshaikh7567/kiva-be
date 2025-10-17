@@ -1,30 +1,42 @@
 import React, { useState } from "react";
-import { ShoppingBag, Menu, X } from "lucide-react"; // lucide-react icons
-import { useSelector, useDispatch } from "react-redux";
-import { openCart } from "../store/slices/cartSlice";
+import { ShoppingBag, Menu, X, Heart } from "lucide-react"; // lucide-react icons
+import { useSelector } from "react-redux";
+import { selectFavoritesCount } from "../store/slices/favoritesSlice";
 import { Link } from "react-router-dom";
 import CurrencyDropdown from "./CurrencyDropdown";
 import UserProfile from "./UserProfile";
 import { useAuth } from "../contexts/AuthContext";
-import Logo from '../assets/images/kiva-diamond-logo.png'
+import Logo from "../assets/images/kiva-diamond-logo.png";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const dispatch = useDispatch();
-  const { totalQuantity } = useSelector(state => state.cart);
+  const favoritesCount = useSelector(selectFavoritesCount);
   const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
-      <div className="flex items-center justify-between px-4 sm:px-6 md:px-16 xl:px-32 py-4">
+      <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 xl:px-32 py-4">
         {/* Logo */}
-        <div className=" bg-black shadow-md rounded-md">
-        <Link   to="/" className="flex-shrink-0 ">
-        {/* <img src={Logo} alt="logo" className="h-[50px] w-auto"/> */}
-          <div div className="text-xl font-serif text-primary">Aurora</div>
+        <div className="  rounded-md">
+          <Link to="/" className="flex-shrink-0 ">
+            {/* <div className="inline-block bg-gray-600 rounded-lg p-1 shadow-2xl">
+              <img
+                src={Logo}
+                alt="KIVA Diamond Logo"
+                className="h-[45px] w-auto"
+                style={{
+                  filter: "brightness(1.1) contrast(1.1)",
+                }}
+              />
+            </div> */}
+              <div div className="text-xl font-serif text-primary">Aurora</div>
+          </Link>
+        </div>
+        {/* <
+        
         </Link>
         </div>
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex space-x-8 text-[#1e2b38] font-medium">       
+        <nav className="hidden xl:flex space-x-8 text-[#1e2b38] font-medium">
           <Link
             to="/shop"
             className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
@@ -56,6 +68,18 @@ const Header = () => {
             Necklaces
           </Link>
           <Link
+            to="/favorites"
+            className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px] flex items-center gap-1"
+          >
+            <Heart className="w-4 h-4" />
+            Favorites
+            {favoritesCount > 0 && (
+              <span className="bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                {favoritesCount}
+              </span>
+            )}
+          </Link>
+          <Link
             to="/about"
             className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
           >
@@ -68,14 +92,14 @@ const Header = () => {
             Contact Us
           </Link>
         </nav>
-        
+
         {/* Right side controls */}
         <div className="flex items-center space-x-2 sm:space-x-4">
           {/* Currency Dropdown - Single instance for all screen sizes */}
           <CurrencyDropdown />
-          
+
           {/* Auth Links - Desktop */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden xl:flex items-center space-x-4">
             {user ? (
               <UserProfile user={user} onLogout={logout} />
             ) : (
@@ -95,7 +119,7 @@ const Header = () => {
               </>
             )}
           </div>
-          
+
           {/* Cart Button */}
           {/* <button 
             onClick={() => dispatch(openCart())}
@@ -108,11 +132,11 @@ const Header = () => {
               </span>
             )}
           </button> */}
-          
+
           {/* Mobile Menu Button */}
-          <button 
-            onClick={() => setIsOpen(true)} 
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+          <button
+            onClick={() => setIsOpen(true)}
+            className="xl:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
           >
             <Menu className="w-6 h-6 text-[#1e2b38]" />
           </button>
@@ -121,7 +145,7 @@ const Header = () => {
 
       {/* Mobile Sidebar */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 lg:hidden">
+        <div className="fixed inset-0 bg-black/50 z-50 xl:hidden">
           <div className="absolute top-0 left-0 w-3/4 max-w-xs h-full bg-white shadow-lg p-6">
             {/* Close Button */}
             <button
@@ -143,7 +167,7 @@ const Header = () => {
             </div>
 
             {/* Navigation Links */}
-            <nav className="flex flex-col space-y-4">                                      
+            <nav className="flex flex-col space-y-4">
               <Link
                 to="/shop"
                 onClick={() => setIsOpen(false)}
@@ -178,14 +202,27 @@ const Header = () => {
                 className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
               >
                 Necklaces
-              </Link>   
+              </Link>
+              <Link
+                to="/favorites"
+                onClick={() => setIsOpen(false)}
+                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100 flex items-center gap-2"
+              >
+                <Heart className="w-4 h-4" />
+                Favorites
+                {favoritesCount > 0 && (
+                  <span className="bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Link>
               <Link
                 to="/about"
                 onClick={() => setIsOpen(false)}
                 className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
               >
                 About
-              </Link>          
+              </Link>
               <Link
                 to="/contact"
                 onClick={() => setIsOpen(false)}
@@ -193,7 +230,7 @@ const Header = () => {
               >
                 Contact Us
               </Link>
-              
+
               {/* Auth Links - Mobile */}
               {user ? (
                 <div className="pt-4 border-t border-gray-200 mt-4">

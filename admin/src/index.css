@@ -3,6 +3,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent double-click zoom */
+* {
+  touch-action: manipulation;
+}
+
+html {
+  touch-action: manipulation;
+}
+
+body {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection in input fields and text areas */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Prevent zoom on double tap for mobile */
+@media (max-width: 768px) {
+  * {
+    touch-action: manipulation;
+  }
+  
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
 
 @font-face {
   font-family: sorts-mill-gloudy;
