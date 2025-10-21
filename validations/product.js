@@ -14,6 +14,16 @@ const createProductSchema = zod.object({
   price: zod.coerce.number().min(0, 'Price must be non-negative'),
   quantity: zod.coerce.number().int().min(0, 'Quantity must be non-negative integer'),
   categoryId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid category ObjectId'),
+  metalIds: zod.string().optional().transform((val) => {
+    if (!val) return undefined;
+    try {
+      const parsed = JSON.parse(val);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      throw new Error('metalIds must be a valid JSON array');
+    }
+  }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
 });
 
 const updateProductSchema = zod.object({
@@ -30,6 +40,16 @@ const updateProductSchema = zod.object({
   price: zod.coerce.number().min(0, 'Price must be non-negative').optional(),
   quantity: zod.coerce.number().int().min(0, 'Quantity must be non-negative integer').optional(),
   categoryId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid category ObjectId').optional(),
+  metalIds: zod.string().optional().transform((val) => {
+    if (!val) return undefined;
+    try {
+      const parsed = JSON.parse(val);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      throw new Error('metalIds must be a valid JSON array');
+    }
+  }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
 });
 
 const productIdSchema = zod.object({

@@ -11,12 +11,12 @@ const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'pn
 const router = express.Router();
 
 router.get('/', asyncHandler(async (req, res) => {
-  const products = await Product.find().populate('category');
+  const products = await Product.find().populate(['category', 'metals']);
   res.json({ success: true, message: 'Products retrieved successfully', data: products });
 }));
 
 router.post('/', upload.array('images', 10), validate(createProductSchema), asyncHandler(async (req, res) => {
-  const { title, description, subDescription, price, quantity, categoryId } = req.body;
+  const { title, description, subDescription, price, quantity, categoryId, metalIds } = req.body;
   const images = req.files ? req.files.map(file => file.path) : [];
 
   if (images.length === 0) {
@@ -32,25 +32,26 @@ router.post('/', upload.array('images', 10), validate(createProductSchema), asyn
     price,
     quantity,
     category: categoryId,
-    images
+    images,
+    metals: metalIds || []
   });
 
   await product.save();
-  await product.populate('category');
+  await product.populate(['category', 'metals']);
 
   res.status(201).json({ success: true, message: 'Product created successfully', data: product });
 }));
 
 router.get('/:id', validate(productIdSchema, 'params'), asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const product = await Product.findById(id).populate('category');
+  const product = await Product.findById(id).populate(['category', 'metals']);
   if (!product) throw new Error('Product not found');
   res.json({ success: true, message: 'Product retrieved successfully', data: product });
 }));
 
 router.put('/:id', upload.array('images', 10), validate(productIdSchema, 'params'), validate(updateProductSchema), asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { categoryId, description, ...updateData } = req.body;
+  const { categoryId, description, metalIds, ...updateData } = req.body;
 
   if (categoryId !== undefined) {
     updateData.category = categoryId;
@@ -60,11 +61,15 @@ router.put('/:id', upload.array('images', 10), validate(productIdSchema, 'params
     updateData.description = JSON.parse(description);
   }
 
+  if (metalIds !== undefined) {
+    updateData.metals = metalIds;
+  }
+
   if (req.files && req.files.length > 0) {
     updateData.images = req.files.map(file => file.path);
   }
 
-  const product = await Product.findByIdAndUpdate(id, updateData, { new: true }).populate('category');
+  const product = await Product.findByIdAndUpdate(id, updateData, { new: true }).populate(['category', 'metals']);
   if (!product) throw new Error('Product not found');
 
   res.json({ success: true, message: 'Product updated successfully', data: product });

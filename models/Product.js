@@ -32,7 +32,11 @@ const productSchema = new mongoose.Schema({
   images: {
     type: [String],
     required: true
-  }
+  },
+  metals: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Metal'
+  }]
 }, {
   timestamps: true
 });
