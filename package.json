@@ -5,7 +5,8 @@
   "license": "ISC",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon server.js",
-    "start": "cross-env NODE_ENV=production node server.js"
+    "start": "cross-env NODE_ENV=production node server.js",
+    "seed": "cross-env NODE_ENV=development node seeders/seed.js"
   },
   "dependencies": {
     "cloudinary": "^1.41.3",
