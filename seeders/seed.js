@@ -1,6 +1,7 @@
 const connectDB = require('../config/database');
 const seedCategories = require('./categories');
 const seedMetals = require('./metals');
+const seedStones = require('./stones');
 const seedProducts = require('./products');
 
 const seedData = async () => {
@@ -9,7 +10,8 @@ const seedData = async () => {
 
     const categories = await seedCategories();
     const metals = await seedMetals();
-    const products = await seedProducts(categories, metals);
+    const stones = await seedStones();
+    const products = await seedProducts(categories, metals, stones);
 
     console.log('Seeding completed successfully');
 

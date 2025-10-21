@@ -36,7 +36,11 @@ const productSchema = new mongoose.Schema({
   metals: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Metal'
-  }]
+  }],
+  stoneType: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Stone'
+  }
 }, {
   timestamps: true
 });

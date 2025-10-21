@@ -24,6 +24,7 @@ const createProductSchema = zod.object({
       throw new Error('metalIds must be a valid JSON array');
     }
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
+  stoneTypeId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid stone ObjectId').optional(),
 });
 
 const updateProductSchema = zod.object({
@@ -50,6 +51,7 @@ const updateProductSchema = zod.object({
       throw new Error('metalIds must be a valid JSON array');
     }
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
+  stoneTypeId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid stone ObjectId').optional(),
 });
 
 const productIdSchema = zod.object({

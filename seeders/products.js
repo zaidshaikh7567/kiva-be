@@ -1,6 +1,6 @@
 const Product = require('../models/Product');
 
-const seedProducts = async (categories, metals) => {
+const seedProducts = async (categories, metals, stones) => {
   await Product.deleteMany({});
 
   const productsData = [
@@ -19,7 +19,8 @@ const seedProducts = async (categories, metals) => {
         'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop',
         'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop&crop=center'
       ],
-      metals: [metals[0]._id]
+      metals: [metals[0]._id],
+      stoneType: stones[0]._id
     },
     {
       title: 'Pearl Necklace',
@@ -67,7 +68,8 @@ const seedProducts = async (categories, metals) => {
       images: [
         'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop'
       ],
-      metals: [metals[2]._id]
+      metals: [metals[2]._id],
+      stoneType: stones[0]._id
     }
   ];
 

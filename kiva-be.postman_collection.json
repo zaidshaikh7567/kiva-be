@@ -298,6 +298,140 @@
 			]
 		},
 		{
+			"name": "Stones",
+			"item": [
+				{
+					"name": "Get All Stones",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/stones",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Stone",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Diamond\",\n    \"price\": 5000,\n    \"shape\": \"Round\",\n    \"active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/stones",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Stone",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/stones/:stoneId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones",
+								":stoneId"
+							],
+							"variable": [
+								{
+									"key": "stoneId",
+									"value": "68f7ed51d3cfe837524edc3d"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Stone",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Diamond\",\n    \"price\": 5500,\n    \"shape\": \"Princess\",\n    \"active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/stones/:stoneId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones",
+								":stoneId"
+							],
+							"variable": [
+								{
+									"key": "stoneId",
+									"value": "68f7ed51d3cfe837524edc3d"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Stone",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/stones/:stoneId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones",
+								":stoneId"
+							],
+							"variable": [
+								{
+									"key": "stoneId",
+									"value": "68f7ed51d3cfe837524edc3d"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Products",
 			"item": [
 				{
@@ -359,6 +493,11 @@
 								{
 									"key": "metalIds",
 									"value": "[\"68f7ce5d5104a252c50523b4\"]",
+									"type": "text"
+								},
+								{
+									"key": "stoneTypeId",
+									"value": "68f7ed51d3cfe837524edc3d",
 									"type": "text"
 								},
 								{
@@ -437,6 +576,11 @@
 								{
 									"key": "metalIds",
 									"value": "[\"68f7ce5d5104a252c50523b4\"]",
+									"type": "text"
+								},
+								{
+									"key": "stoneTypeId",
+									"value": "68f7ed51d3cfe837524edc3d",
 									"type": "text"
 								},
 								{
