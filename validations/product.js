@@ -25,6 +25,7 @@ const createProductSchema = zod.object({
     }
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
   stoneTypeId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid stone ObjectId').optional(),
+  careInstruction: zod.string().optional(),
 });
 
 const updateProductSchema = zod.object({
@@ -52,6 +53,7 @@ const updateProductSchema = zod.object({
     }
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
   stoneTypeId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid stone ObjectId').optional(),
+  careInstruction: zod.string().optional(),
 });
 
 const productIdSchema = zod.object({

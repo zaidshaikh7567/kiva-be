@@ -501,6 +501,11 @@
 									"type": "text"
 								},
 								{
+									"key": "careInstruction",
+									"value": "Clean with mild soap and water. Avoid harsh chemicals.",
+									"type": "text"
+								},
+								{
 									"key": "images",
 									"type": "file",
 									"src": []
@@ -581,6 +586,11 @@
 								{
 									"key": "stoneTypeId",
 									"value": "68f7ed51d3cfe837524edc3d",
+									"type": "text"
+								},
+								{
+									"key": "careInstruction",
+									"value": "Store in a cool, dry place. Avoid direct sunlight.",
 									"type": "text"
 								},
 								{

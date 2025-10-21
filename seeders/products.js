@@ -20,7 +20,8 @@ const seedProducts = async (categories, metals, stones) => {
         'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop&crop=center'
       ],
       metals: [metals[0]._id],
-      stoneType: stones[0]._id
+      stoneType: stones[0]._id,
+      careInstruction: 'Clean with mild soap and warm water. Avoid ultrasonic cleaners. Store in a soft cloth pouch.'
     },
     {
       title: 'Pearl Necklace',
@@ -36,7 +37,8 @@ const seedProducts = async (categories, metals, stones) => {
       images: [
         'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&h=600&fit=crop'
       ],
-      metals: [metals[1]._id]
+      metals: [metals[1]._id],
+      careInstruction: 'Avoid exposure to perfumes, hairsprays, and lotions. Wipe gently with a soft cloth after wearing.'
     },
     {
       title: 'Gold Bracelet',
@@ -52,7 +54,8 @@ const seedProducts = async (categories, metals, stones) => {
       images: [
         'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop'
       ],
-      metals: [metals[0]._id]
+      metals: [metals[0]._id],
+      careInstruction: 'Polish with a soft cloth. Avoid contact with chemicals. Store in a jewelry box to prevent scratches.'
     },
     {
       title: 'Diamond Stud Earrings',
@@ -69,7 +72,8 @@ const seedProducts = async (categories, metals, stones) => {
         'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop'
       ],
       metals: [metals[2]._id],
-      stoneType: stones[0]._id
+      stoneType: stones[0]._id,
+      careInstruction: 'Clean gently with a soft brush and mild detergent. Avoid harsh chemicals. Store in individual compartments.'
     }
   ];
 

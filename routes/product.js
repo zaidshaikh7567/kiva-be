@@ -16,7 +16,7 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 router.post('/', upload.array('images', 10), validate(createProductSchema), asyncHandler(async (req, res) => {
-  const { title, description, subDescription, price, quantity, categoryId, metalIds, stoneTypeId } = req.body;
+  const { title, description, subDescription, price, quantity, categoryId, metalIds, stoneTypeId, careInstruction } = req.body;
   const images = req.files ? req.files.map(file => file.path) : [];
 
   if (images.length === 0) {
@@ -34,7 +34,8 @@ router.post('/', upload.array('images', 10), validate(createProductSchema), asyn
     category: categoryId,
     images,
     metals: metalIds || [],
-    stoneType: stoneTypeId
+    stoneType: stoneTypeId,
+    careInstruction
   });
 
   await product.save();
@@ -52,7 +53,7 @@ router.get('/:id', validate(productIdSchema, 'params'), asyncHandler(async (req,
 
 router.put('/:id', upload.array('images', 10), validate(productIdSchema, 'params'), validate(updateProductSchema), asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { categoryId, description, metalIds, stoneTypeId, ...updateData } = req.body;
+  const { categoryId, description, metalIds, stoneTypeId, careInstruction, ...updateData } = req.body;
 
   if (categoryId !== undefined) {
     updateData.category = categoryId;
@@ -68,6 +69,10 @@ router.put('/:id', upload.array('images', 10), validate(productIdSchema, 'params
 
   if (stoneTypeId !== undefined) {
     updateData.stoneType = stoneTypeId;
+  }
+
+  if (careInstruction !== undefined) {
+    updateData.careInstruction = careInstruction;
   }
 
   if (req.files && req.files.length > 0) {

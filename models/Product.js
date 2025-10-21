@@ -40,6 +40,10 @@ const productSchema = new mongoose.Schema({
   stoneType: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Stone'
+  },
+  careInstruction: {
+    type: String,
+    trim: true
   }
 }, {
   timestamps: true
