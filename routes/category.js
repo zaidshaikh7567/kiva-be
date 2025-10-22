@@ -11,8 +11,25 @@ const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'pn
 const router = express.Router();
 
 router.get('/', asyncHandler(async (req, res) => {
-  const categories = await Category.find().populate('parent');
-  res.json({ success: true, message: 'Categories retrieved successfully', data: categories });
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const totalRecords = await Category.countDocuments();
+  const categories = await Category.find().populate('parent').skip(skip).limit(limit);
+  const totalPages = Math.ceil(totalRecords / limit);
+
+  res.json({
+    success: true,
+    message: 'Categories retrieved successfully',
+    data: categories,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalRecords,
+      limit
+    }
+  });
 }));
 
 router.post('/', upload.single('image'), validate(createCategorySchema), asyncHandler(async (req, res) => {

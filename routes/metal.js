@@ -8,8 +8,25 @@ const validate = require('../middleware/validate');
 const router = express.Router();
 
 router.get('/', asyncHandler(async (req, res) => {
-  const metals = await Metal.find();
-  res.json({ success: true, message: 'Metals retrieved successfully', data: metals });
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const totalRecords = await Metal.countDocuments();
+  const metals = await Metal.find().skip(skip).limit(limit);
+  const totalPages = Math.ceil(totalRecords / limit);
+
+  res.json({
+    success: true,
+    message: 'Metals retrieved successfully',
+    data: metals,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalRecords,
+      limit
+    }
+  });
 }));
 
 router.post('/', validate(createMetalSchema), asyncHandler(async (req, res) => {

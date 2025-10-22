@@ -15,14 +15,27 @@
 					"request": {
 						"method": "GET",
 						"header": [],
+						"description": "Retrieve all categories with pagination support.\n\n**Query Parameters:**\n- page (optional): Page number (default: 1)\n- limit (optional): Number of items per page (default: 10)\n\n**Response:** Returns paginated list of categories with metadata.",
 						"url": {
-							"raw": "{{baseUrl}}/api/categories",
+							"raw": "{{baseUrl}}/api/categories?page=1&limit=10",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"categories"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								}
 							]
 						}
 					},
@@ -33,23 +46,27 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"description": "Create a new category.\n\n**Request Body (Form Data):**\n- name (required): Category name\n- parentId (optional): Parent category ID for hierarchical categories\n- image (required): Category image file (jpg, png, jpeg, max 2MB)\n\n**Response:** Returns the created category object.",
 						"body": {
 							"mode": "formdata",
 							"formdata": [
 								{
 									"key": "name",
 									"value": "Electronics",
-									"type": "text"
+									"type": "text",
+									"description": "Category name"
 								},
 								{
 									"key": "parentId",
 									"value": "",
-									"type": "text"
+									"type": "text",
+									"description": "Parent category ID (optional)"
 								},
 								{
 									"key": "image",
 									"type": "file",
-									"src": []
+									"src": [],
+									"description": "Category image file (jpg, png, jpeg, max 2MB)"
 								}
 							]
 						},
@@ -71,6 +88,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
+						"description": "Retrieve a single category by its ID.\n\n**Path Parameters:**\n- categoryId (required): The unique identifier of the category\n\n**Response:** Returns the category object with populated parent information.",
 						"url": {
 							"raw": "{{baseUrl}}/api/categories/:categoryId",
 							"host": [
@@ -84,7 +102,8 @@
 							"variable": [
 								{
 									"key": "categoryId",
-									"value": "68f373145f144c3aa2c9c9bd"
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the category"
 								}
 							]
 						}
@@ -96,23 +115,27 @@
 					"request": {
 						"method": "PUT",
 						"header": [],
+						"description": "Update an existing category by its ID.\n\n**Path Parameters:**\n- categoryId (required): The unique identifier of the category to update\n\n**Request Body (Form Data - all fields optional):**\n- name: Updated category name\n- parentId: Updated parent category ID\n- image: New category image file (jpg, png, jpeg, max 2MB)\n\n**Response:** Returns the updated category object.",
 						"body": {
 							"mode": "formdata",
 							"formdata": [
 								{
 									"key": "name",
 									"value": "Electronics",
-									"type": "text"
+									"type": "text",
+									"description": "Updated category name"
 								},
 								{
 									"key": "parentId",
 									"value": "",
-									"type": "text"
+									"type": "text",
+									"description": "Updated parent category ID"
 								},
 								{
 									"key": "image",
 									"type": "file",
-									"src": []
+									"src": [],
+									"description": "New category image file (jpg, png, jpeg, max 2MB)"
 								}
 							]
 						},
@@ -129,7 +152,8 @@
 							"variable": [
 								{
 									"key": "categoryId",
-									"value": "68f373145f144c3aa2c9c9bd"
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the category to update"
 								}
 							]
 						}
@@ -141,6 +165,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
+						"description": "Delete a category by its ID.\n\n**Path Parameters:**\n- categoryId (required): The unique identifier of the category to delete\n\n**Response:** Returns success message upon deletion.",
 						"url": {
 							"raw": "{{baseUrl}}/api/categories/:categoryId",
 							"host": [
@@ -154,7 +179,8 @@
 							"variable": [
 								{
 									"key": "categoryId",
-									"value": "68f373145f144c3aa2c9c9bd"
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the category to delete"
 								}
 							]
 						}
@@ -172,13 +198,25 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/metals",
+							"raw": "{{baseUrl}}/api/metals?page=1&limit=10",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"metals"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								}
 							]
 						}
 					},
@@ -189,6 +227,7 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"description": "Create a new metal type.\n\n**Request Body (JSON):**\n- name (required): Metal name\n- color (required): Hex color code for the metal\n- purityLevels (required): Array of purity level objects with karat and priceMultiplier\n- active (optional): Whether the metal is active (default: true)\n\n**Response:** Returns the created metal object.",
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"Gold\",\n    \"color\": \"#FFD700\",\n    \"purityLevels\": [\n        {\"karat\": 18, \"priceMultiplier\": 1.2},\n        {\"karat\": 22, \"priceMultiplier\": 1.5},\n        {\"karat\": 24, \"priceMultiplier\": 1.8}\n    ],\n    \"active\": true\n}",
@@ -216,6 +255,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
+						"description": "Retrieve a single metal by its ID.\n\n**Path Parameters:**\n- metalId (required): The unique identifier of the metal\n\n**Response:** Returns the metal object.",
 						"url": {
 							"raw": "{{baseUrl}}/api/metals/:metalId",
 							"host": [
@@ -229,7 +269,8 @@
 							"variable": [
 								{
 									"key": "metalId",
-									"value": "68f7ce5d5104a252c50523b4"
+									"value": "68f7ce5d5104a252c50523b4",
+									"description": "Unique identifier of the metal"
 								}
 							]
 						}
@@ -241,6 +282,7 @@
 					"request": {
 						"method": "PUT",
 						"header": [],
+						"description": "Update an existing metal by its ID.\n\n**Path Parameters:**\n- metalId (required): The unique identifier of the metal to update\n\n**Request Body (JSON - all fields optional):**\n- name: Updated metal name\n- color: Updated hex color code\n- purityLevels: Updated array of purity levels\n- active: Updated active status\n\n**Response:** Returns the updated metal object.",
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"Gold\",\n    \"color\": \"#FFD700CC\",\n    \"purityLevels\": [\n        {\"karat\": 22, \"priceMultiplier\": 1.3},\n        {\"karat\": 24, \"priceMultiplier\": 1.6}\n    ],\n    \"active\": true\n}",
@@ -263,7 +305,8 @@
 							"variable": [
 								{
 									"key": "metalId",
-									"value": "68f7ce5d5104a252c50523b4"
+									"value": "68f7ce5d5104a252c50523b4",
+									"description": "Unique identifier of the metal to update"
 								}
 							]
 						}
@@ -275,6 +318,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
+						"description": "Delete a metal by its ID.\n\n**Path Parameters:**\n- metalId (required): The unique identifier of the metal to delete\n\n**Response:** Returns success message upon deletion.",
 						"url": {
 							"raw": "{{baseUrl}}/api/metals/:metalId",
 							"host": [
@@ -288,7 +332,8 @@
 							"variable": [
 								{
 									"key": "metalId",
-									"value": "68f7ce5d5104a252c50523b4"
+									"value": "68f7ce5d5104a252c50523b4",
+									"description": "Unique identifier of the metal to delete"
 								}
 							]
 						}
@@ -306,13 +351,25 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/stones",
+							"raw": "{{baseUrl}}/api/stones?page=1&limit=10",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"stones"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								}
 							]
 						}
 					},
@@ -323,6 +380,7 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"description": "Create a new stone type.\n\n**Request Body (JSON):**\n- name (required): Stone name\n- price (required): Base price of the stone\n- shape (required): Shape of the stone\n- active (optional): Whether the stone is active (default: true)\n\n**Response:** Returns the created stone object.",
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"Diamond\",\n    \"price\": 5000,\n    \"shape\": \"Round\",\n    \"active\": true\n}",
@@ -350,6 +408,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
+						"description": "Retrieve a single stone by its ID.\n\n**Path Parameters:**\n- stoneId (required): The unique identifier of the stone\n\n**Response:** Returns the stone object.",
 						"url": {
 							"raw": "{{baseUrl}}/api/stones/:stoneId",
 							"host": [
@@ -363,7 +422,8 @@
 							"variable": [
 								{
 									"key": "stoneId",
-									"value": "68f7ed51d3cfe837524edc3d"
+									"value": "68f7ed51d3cfe837524edc3d",
+									"description": "Unique identifier of the stone"
 								}
 							]
 						}
@@ -375,6 +435,7 @@
 					"request": {
 						"method": "PUT",
 						"header": [],
+						"description": "Update an existing stone by its ID.\n\n**Path Parameters:**\n- stoneId (required): The unique identifier of the stone to update\n\n**Request Body (JSON - all fields optional):**\n- name: Updated stone name\n- price: Updated base price\n- shape: Updated stone shape\n- active: Updated active status\n\n**Response:** Returns the updated stone object.",
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"Diamond\",\n    \"price\": 5500,\n    \"shape\": \"Princess\",\n    \"active\": true\n}",
@@ -397,7 +458,8 @@
 							"variable": [
 								{
 									"key": "stoneId",
-									"value": "68f7ed51d3cfe837524edc3d"
+									"value": "68f7ed51d3cfe837524edc3d",
+									"description": "Unique identifier of the stone to update"
 								}
 							]
 						}
@@ -409,6 +471,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
+						"description": "Delete a stone by its ID.\n\n**Path Parameters:**\n- stoneId (required): The unique identifier of the stone to delete\n\n**Response:** Returns success message upon deletion.",
 						"url": {
 							"raw": "{{baseUrl}}/api/stones/:stoneId",
 							"host": [
@@ -422,7 +485,8 @@
 							"variable": [
 								{
 									"key": "stoneId",
-									"value": "68f7ed51d3cfe837524edc3d"
+									"value": "68f7ed51d3cfe837524edc3d",
+									"description": "Unique identifier of the stone to delete"
 								}
 							]
 						}
@@ -440,13 +504,25 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/products",
+							"raw": "{{baseUrl}}/api/products?page=1&limit=10",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"products"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								}
 							]
 						}
 					},
@@ -457,58 +533,69 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"description": "Create a new product.\n\n**Request Body (Form Data):**\n- title (required): Product title\n- description (required): Product description (Lexical JSON format)\n- subDescription (optional): Short product description\n- price (required): Product price\n- quantity (required): Available quantity\n- categoryId (required): Category ID\n- metalIds (optional): Array of metal IDs as JSON string\n- stoneTypeId (optional): Stone type ID\n- careInstruction (optional): Care instructions\n- images (required): Product images (up to 10 files, jpg/png/jpeg)\n\n**Response:** Returns the created product object with populated references.",
 						"body": {
 							"mode": "formdata",
 							"formdata": [
 								{
 									"key": "title",
 									"value": "Sample Product",
-									"type": "text"
+									"type": "text",
+									"description": "Product title"
 								},
 								{
 									"key": "description",
 									"value": "{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"This is a sample description.\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-									"type": "text"
+									"type": "text",
+									"description": "Product description (Lexical JSON format)"
 								},
 								{
 									"key": "subDescription",
 									"value": "Short description",
-									"type": "text"
+									"type": "text",
+									"description": "Short product description"
 								},
 								{
 									"key": "price",
 									"value": "99.99",
-									"type": "text"
+									"type": "text",
+									"description": "Product price"
 								},
 								{
 									"key": "quantity",
 									"value": "10",
-									"type": "text"
+									"type": "text",
+									"description": "Available quantity"
 								},
 								{
 									"key": "categoryId",
 									"value": "68f373145f144c3aa2c9c9bd",
-									"type": "text"
+									"type": "text",
+									"description": "Category ID"
 								},
 								{
 									"key": "metalIds",
 									"value": "[\"68f7ce5d5104a252c50523b4\"]",
-									"type": "text"
+									"type": "text",
+									"description": "Array of metal IDs as JSON string"
 								},
 								{
 									"key": "stoneTypeId",
 									"value": "68f7ed51d3cfe837524edc3d",
-									"type": "text"
+									"type": "text",
+									"description": "Stone type ID"
 								},
 								{
 									"key": "careInstruction",
 									"value": "Clean with mild soap and water. Avoid harsh chemicals.",
-									"type": "text"
+									"type": "text",
+									"description": "Care instructions"
 								},
 								{
 									"key": "images",
 									"type": "file",
-									"src": []
+									"src": [],
+									"description": "Product images (up to 10 files, jpg/png/jpeg)"
 								}
 							]
 						},
@@ -530,6 +617,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
+						"description": "Retrieve a single product by its ID.\n\n**Path Parameters:**\n- productId (required): The unique identifier of the product\n\n**Response:** Returns the product object with populated category, metals, and stone type information.",
 						"url": {
 							"raw": "{{baseUrl}}/api/products/:productId",
 							"host": [
@@ -543,7 +631,8 @@
 							"variable": [
 								{
 									"key": "productId",
-									"value": "68f373145f144c3aa2c9c9bd"
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the product"
 								}
 							]
 						}
@@ -555,48 +644,57 @@
 					"request": {
 						"method": "PUT",
 						"header": [],
+						"description": "Update an existing product by its ID.\n\n**Path Parameters:**\n- productId (required): The unique identifier of the product to update\n\n**Request Body (Form Data - all fields optional):**\n- title: Updated product title\n- description: Updated description (Lexical JSON format)\n- subDescription: Updated short description\n- price: Updated price\n- quantity: Updated quantity\n- categoryId: Updated category ID\n- metalIds: Updated array of metal IDs as JSON string\n- stoneTypeId: Updated stone type ID\n- careInstruction: Updated care instructions\n- images: New product images (up to 10 files)\n\n**Response:** Returns the updated product object with populated references.",
 						"body": {
 							"mode": "formdata",
 							"formdata": [
 								{
 									"key": "title",
 									"value": "Updated Product",
-									"type": "text"
+									"type": "text",
+									"description": "Updated product title"
 								},
 								{
 									"key": "price",
 									"value": "149.99",
-									"type": "text"
+									"type": "text",
+									"description": "Updated price"
 								},
 								{
 									"key": "quantity",
 									"value": "5",
-									"type": "text"
+									"type": "text",
+									"description": "Updated quantity"
 								},
 								{
 									"key": "categoryId",
 									"value": "68f373145f144c3aa2c9c9bd",
-									"type": "text"
+									"type": "text",
+									"description": "Updated category ID"
 								},
 								{
 									"key": "metalIds",
 									"value": "[\"68f7ce5d5104a252c50523b4\"]",
-									"type": "text"
+									"type": "text",
+									"description": "Updated array of metal IDs as JSON string"
 								},
 								{
 									"key": "stoneTypeId",
 									"value": "68f7ed51d3cfe837524edc3d",
-									"type": "text"
+									"type": "text",
+									"description": "Updated stone type ID"
 								},
 								{
 									"key": "careInstruction",
 									"value": "Store in a cool, dry place. Avoid direct sunlight.",
-									"type": "text"
+									"type": "text",
+									"description": "Updated care instructions"
 								},
 								{
 									"key": "images",
 									"type": "file",
-									"src": []
+									"src": [],
+									"description": "New product images (up to 10 files)"
 								}
 							]
 						},
@@ -613,7 +711,8 @@
 							"variable": [
 								{
 									"key": "productId",
-									"value": "68f373145f144c3aa2c9c9bd"
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the product to update"
 								}
 							]
 						}
@@ -625,6 +724,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
+						"description": "Delete a product by its ID.\n\n**Path Parameters:**\n- productId (required): The unique identifier of the product to delete\n\n**Response:** Returns success message upon deletion.",
 						"url": {
 							"raw": "{{baseUrl}}/api/products/:productId",
 							"host": [
@@ -638,7 +738,8 @@
 							"variable": [
 								{
 									"key": "productId",
-									"value": "68f373145f144c3aa2c9c9bd"
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the product to delete"
 								}
 							]
 						}

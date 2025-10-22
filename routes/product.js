@@ -11,8 +11,25 @@ const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'pn
 const router = express.Router();
 
 router.get('/', asyncHandler(async (req, res) => {
-  const products = await Product.find().populate(['category', 'metals', 'stoneType']);
-  res.json({ success: true, message: 'Products retrieved successfully', data: products });
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const totalRecords = await Product.countDocuments();
+  const products = await Product.find().populate(['category', 'metals', 'stoneType']).skip(skip).limit(limit);
+  const totalPages = Math.ceil(totalRecords / limit);
+
+  res.json({
+    success: true,
+    message: 'Products retrieved successfully',
+    data: products,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalRecords,
+      limit
+    }
+  });
 }));
 
 router.post('/', upload.array('images', 10), validate(createProductSchema), asyncHandler(async (req, res) => {
