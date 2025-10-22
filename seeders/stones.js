@@ -1,4 +1,5 @@
 const Stone = require('../models/Stone');
+const logger = require('../utils/logger');
 
 const stonesData = [
   {
@@ -29,10 +30,13 @@ const stonesData = [
 ];
 
 const seedStones = async () => {
-  await Stone.deleteMany({});
-  const stones = await Stone.insertMany(stonesData);
-  console.log('Stones seeded');
-  return stones;
+  try {
+    const stones = await Stone.insertMany(stonesData);
+    return stones;
+  } catch (error) {
+    logger.error('Error seeding stones:', error);
+    throw error;
+  }
 };
 
 module.exports = seedStones;

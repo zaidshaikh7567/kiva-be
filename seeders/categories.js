@@ -1,4 +1,5 @@
 const Category = require('../models/Category');
+const logger = require('../utils/logger');
 
 const categoriesData = [
   {
@@ -20,10 +21,13 @@ const categoriesData = [
 ];
 
 const seedCategories = async () => {
-  await Category.deleteMany({});
-  const categories = await Category.insertMany(categoriesData);
-  console.log('Categories seeded');
-  return categories;
+  try {
+    const categories = await Category.insertMany(categoriesData);
+    return categories;
+  } catch (error) {
+    logger.error('Error seeding categories:', error);
+    throw error;
+  }
 };
 
 module.exports = seedCategories;

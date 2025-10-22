@@ -2,6 +2,7 @@ const express = require('express');
 
 const Metal = require('../models/Metal');
 const asyncHandler = require('../middleware/asyncErrorHandler');
+const { authenticate, authorize } = require('../middleware/auth');
 const { createMetalSchema, updateMetalSchema, metalIdSchema } = require('../validations/metal');
 const validate = require('../middleware/validate');
 
@@ -29,7 +30,7 @@ router.get('/', asyncHandler(async (req, res) => {
   });
 }));
 
-router.post('/', validate(createMetalSchema), asyncHandler(async (req, res) => {
+router.post('/', authenticate, authorize('super_admin'), validate(createMetalSchema), asyncHandler(async (req, res) => {
   const { name, color, purityLevels, active } = req.body;
 
   const metal = new Metal({
@@ -51,7 +52,7 @@ router.get('/:id', validate(metalIdSchema, 'params'), asyncHandler(async (req, r
   res.json({ success: true, message: 'Metal retrieved successfully', data: metal });
 }));
 
-router.put('/:id', validate(metalIdSchema, 'params'), validate(updateMetalSchema), asyncHandler(async (req, res) => {
+router.put('/:id', authenticate, authorize('super_admin'), validate(metalIdSchema, 'params'), validate(updateMetalSchema), asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
 
@@ -61,7 +62,7 @@ router.put('/:id', validate(metalIdSchema, 'params'), validate(updateMetalSchema
   res.json({ success: true, message: 'Metal updated successfully', data: metal });
 }));
 
-router.delete('/:id', validate(metalIdSchema, 'params'), asyncHandler(async (req, res) => {
+router.delete('/:id', authenticate, authorize('super_admin'), validate(metalIdSchema, 'params'), asyncHandler(async (req, res) => {
   const { id } = req.params;
   const metal = await Metal.findByIdAndDelete(id);
   if (!metal) throw new Error('Metal not found');

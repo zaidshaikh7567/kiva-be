@@ -1,4 +1,5 @@
 const Metal = require('../models/Metal');
+const logger = require('../utils/logger');
 
 const metalsData = [
   {
@@ -27,10 +28,13 @@ const metalsData = [
 ];
 
 const seedMetals = async () => {
-  await Metal.deleteMany({});
-  const metals = await Metal.insertMany(metalsData);
-  console.log('Metals seeded');
-  return metals;
+  try {
+    const metals = await Metal.insertMany(metalsData);
+    return metals;
+  } catch (error) {
+    logger.error('Error seeding metals:', error);
+    throw error;
+  }
 };
 
 module.exports = seedMetals;

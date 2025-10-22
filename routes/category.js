@@ -2,6 +2,7 @@ const express = require('express');
 
 const Category = require('../models/Category');
 const asyncHandler = require('../middleware/asyncErrorHandler');
+const { authenticate, authorize } = require('../middleware/auth');
 const { createCategorySchema, updateCategorySchema, categoryIdSchema } = require('../validations/category');
 const validate = require('../middleware/validate');
 const createMulter = require('../utils/uploadUtil');
@@ -32,7 +33,7 @@ router.get('/', asyncHandler(async (req, res) => {
   });
 }));
 
-router.post('/', upload.single('image'), validate(createCategorySchema), asyncHandler(async (req, res) => {
+router.post('/', authenticate, authorize('super_admin'), upload.single('image'), validate(createCategorySchema), asyncHandler(async (req, res) => {
   const { name, parentId } = req.body;
   const image = req.file ? req.file.path : null;
 
@@ -58,7 +59,7 @@ router.get('/:id', validate(categoryIdSchema, 'params'), asyncHandler(async (req
   res.json({ success: true, message: 'Category retrieved successfully', data: category });
 }));
 
-router.put('/:id', upload.single('image'), validate(categoryIdSchema, 'params'), validate(updateCategorySchema), asyncHandler(async (req, res) => {
+router.put('/:id', authenticate, authorize('super_admin'), upload.single('image'), validate(categoryIdSchema, 'params'), validate(updateCategorySchema), asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { name, parentId } = req.body;
 
@@ -73,7 +74,7 @@ router.put('/:id', upload.single('image'), validate(categoryIdSchema, 'params'),
   res.json({ success: true, message: 'Category updated successfully', data: category });
 }));
 
-router.delete('/:id', validate(categoryIdSchema, 'params'), asyncHandler(async (req, res) => {
+router.delete('/:id', authenticate, authorize('super_admin'), validate(categoryIdSchema, 'params'), asyncHandler(async (req, res) => {
   const { id } = req.params;
   const category = await Category.findByIdAndDelete(id);
   if (!category) throw new Error('Category not found');

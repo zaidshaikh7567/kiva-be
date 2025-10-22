@@ -1,9 +1,9 @@
 const Product = require('../models/Product');
+const logger = require('../utils/logger');
 
 const seedProducts = async (categories, metals, stones) => {
-  await Product.deleteMany({});
-
-  const productsData = [
+  try {
+    const productsData = [
     {
       title: 'Diamond Engagement Ring',
       description: {
@@ -78,8 +78,11 @@ const seedProducts = async (categories, metals, stones) => {
   ];
 
   const products = await Product.insertMany(productsData);
-  console.log('Products seeded');
   return products;
+  } catch (error) {
+    logger.error('Error seeding products:', error);
+    throw error;
+  }
 };
 
 module.exports = seedProducts;

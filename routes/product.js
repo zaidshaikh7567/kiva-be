@@ -2,6 +2,7 @@ const express = require('express');
 
 const Product = require('../models/Product');
 const asyncHandler = require('../middleware/asyncErrorHandler');
+const { authenticate, authorize } = require('../middleware/auth');
 const { createProductSchema, updateProductSchema, productIdSchema } = require('../validations/product');
 const validate = require('../middleware/validate');
 const createMulter = require('../utils/uploadUtil');
@@ -32,7 +33,7 @@ router.get('/', asyncHandler(async (req, res) => {
   });
 }));
 
-router.post('/', upload.array('images', 10), validate(createProductSchema), asyncHandler(async (req, res) => {
+router.post('/', authenticate, authorize('super_admin'), upload.array('images', 10), validate(createProductSchema), asyncHandler(async (req, res) => {
   const { title, description, subDescription, price, quantity, categoryId, metalIds, stoneTypeId, careInstruction } = req.body;
   const images = req.files ? req.files.map(file => file.path) : [];
 
@@ -68,7 +69,7 @@ router.get('/:id', validate(productIdSchema, 'params'), asyncHandler(async (req,
   res.json({ success: true, message: 'Product retrieved successfully', data: product });
 }));
 
-router.put('/:id', upload.array('images', 10), validate(productIdSchema, 'params'), validate(updateProductSchema), asyncHandler(async (req, res) => {
+router.put('/:id', authenticate, authorize('super_admin'), upload.array('images', 10), validate(productIdSchema, 'params'), validate(updateProductSchema), asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { categoryId, description, metalIds, stoneTypeId, careInstruction, ...updateData } = req.body;
 
@@ -102,7 +103,7 @@ router.put('/:id', upload.array('images', 10), validate(productIdSchema, 'params
   res.json({ success: true, message: 'Product updated successfully', data: product });
 }));
 
-router.delete('/:id', validate(productIdSchema, 'params'), asyncHandler(async (req, res) => {
+router.delete('/:id', authenticate, authorize('super_admin'), validate(productIdSchema, 'params'), asyncHandler(async (req, res) => {
   const { id } = req.params;
   const product = await Product.findByIdAndDelete(id);
   if (!product) throw new Error('Product not found');
