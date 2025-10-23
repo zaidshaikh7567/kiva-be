@@ -7,6 +7,7 @@ const categoryRoutes = require('./routes/category');
 const productRoutes = require('./routes/product');
 const metalRoutes = require('./routes/metal');
 const stoneRoutes = require('./routes/stone');
+const cartRoutes = require('./routes/cart');
 const errorHandler = require('./middleware/errorHandler');
 const { CORS_ORIGIN } = require('./config/env');
 
@@ -26,6 +27,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/metals', metalRoutes);
 app.use('/api/stones', stoneRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.use(errorHandler);
 

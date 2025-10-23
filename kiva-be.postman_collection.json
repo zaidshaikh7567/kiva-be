@@ -1280,6 +1280,145 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Get User Cart",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get current user's cart items with calculated prices.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Response:** Returns array of cart items with populated product, metal, stoneType data and calculatedPrice.",
+						"url": {
+							"raw": "{{baseUrl}}/api/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Add an item to the user's cart.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Request Body (JSON):**\n- productId (required): Product ID\n- metalId (required): Metal ID\n- purityLevel (required): Object with karat and priceMultiplier\n- stoneTypeId (optional): Stone type ID\n- quantity (optional): Quantity (default: 1)\n\n**Response:** Returns the added cart item with calculated price.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": \"68f373145f144c3aa2c9c9bd\",\n    \"metalId\": \"68f7ce5d5104a252c50523b4\",\n    \"purityLevel\": {\n        \"karat\": 18,\n        \"priceMultiplier\": 1.2\n    },\n    \"stoneTypeId\": \"68f7ed51d3cfe837524edc3d\",\n    \"quantity\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cart Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Update a cart item.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Path Parameters:**\n- cartId (required): Cart item ID\n\n**Request Body (JSON - optional fields):**\n- quantity: Updated quantity\n- purityLevel: Updated purity level object\n\n**Response:** Returns the updated cart item with calculated price.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 2,\n    \"purityLevel\": {\n        \"karat\": 22,\n        \"priceMultiplier\": 1.5\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cart/:cartId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								":cartId"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the cart item"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Remove an item from the user's cart.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Path Parameters:**\n- cartId (required): Cart item ID\n\n**Response:** Returns success message.",
+						"url": {
+							"raw": "{{baseUrl}}/api/cart/:cartId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								":cartId"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the cart item to remove"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
