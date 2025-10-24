@@ -4,7 +4,12 @@ import  Img2 from "../../assets/images/necklace-shape.jpeg";
 import  Img3 from "../../assets/images/earrings-shape.jpeg";
 import  Img4 from "../../assets/images/bracelet-shape.jpeg";
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from "react-redux";
 const TrendingSection = () => {
+  // const { products, loading, error } = useSelector(state => state.products);
+  // console.log('products :', products);
+  const categories = useSelector(state => state.categories);
+  console.log('categories :', categories);
   const navigate = useNavigate();
   // 🔹 Dynamic products data
   const products = [

@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, registerUser, logoutUser, selectAuthUser, selectAuthLoading } from '../store/slices/authSlice';
 
 const AuthContext = createContext();
 
@@ -11,37 +13,33 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const user = useSelector(selectAuthUser);
+  const loading = useSelector(selectAuthLoading);
 
-  useEffect(() => {
-    // Check for stored user data on app load
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
-
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const login = async (credentials) => {
+    const result = await dispatch(loginUser(credentials));
+    return result;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const register = async (userData) => {
+    const result = await dispatch(registerUser(userData));
+    return result;
+  };
+
+  const logout = async () => {
+    await dispatch(logoutUser());
   };
 
   const updateUser = (updatedUserData) => {
     const newUserData = { ...user, ...updatedUserData };
-    setUser(newUserData);
     localStorage.setItem('user', JSON.stringify(newUserData));
   };
 
   const value = {
     user,
     login,
+    register,
     logout,
     updateUser,
     loading

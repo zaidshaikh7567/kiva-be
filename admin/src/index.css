@@ -15,6 +15,16 @@ html {
 body {
   touch-action: manipulation;
   -webkit-touch-callout: none;
+  /* Allow text selection by default */
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Prevent text selection on UI elements like buttons, icons, etc. */
+button, a, img, svg, .no-select {
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;

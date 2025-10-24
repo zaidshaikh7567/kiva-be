@@ -11,6 +11,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const favoritesCount = useSelector(selectFavoritesCount);
   const { user, logout } = useAuth();
+  console.log('user :', user);
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
@@ -237,7 +238,7 @@ const Header = () => {
                   <div className="flex items-center space-x-3 mb-4">
                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-montserrat-semibold-600">
-                        {user.firstName?.charAt(0)}
+                        {user.name?.charAt(0)}
                       </span>
                     </div>
                     <div>

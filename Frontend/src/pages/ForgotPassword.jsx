@@ -1,12 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, CheckCircle } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { forgotPassword, clearError, selectAuthLoading, selectAuthSuccess } from '../store/slices/authSlice';
 
 const ForgotPassword = () => {
+  const dispatch = useDispatch();
+  const loading = useSelector(selectAuthLoading);
+  const success = useSelector(selectAuthSuccess);
+  
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+
+  // Clear errors on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
+
+  // Handle success state
+  useEffect(() => {
+    if (success) {
+      setEmailSent(true);
+    }
+  }, [success]);
 
   // ✅ Validation function
   const validate = () => {
@@ -26,13 +45,13 @@ const ForgotPassword = () => {
 
     if (!validate()) return; // Stop if validation fails
 
-    setLoading(true);
+    const result = await dispatch(forgotPassword(email));
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      setEmailSent(true);
-    }, 2000);
+    if (forgotPassword.rejected.match(result)) {
+      setErrors({
+        email: result.payload?.message || 'Failed to send reset email. Please try again.'
+      });
+    }
   };
 
   // ✅ Success UI
@@ -136,17 +155,17 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Sending...' : 'Send Reset Link'}
             </button>
 
             {/* Tip Message */}
-            <div className="bg-primary-light rounded-lg p-4">
+            {/* <div className="bg-primary-light rounded-lg p-4">
               <p className="text-sm font-montserrat-regular-400 text-black-light">
                 <strong>Tip:</strong> Make sure to check your spam folder if you don't receive the email within a few minutes.
               </p>
-            </div>
+            </div> */}
           </form>
 
           {/* Sign In Link */}

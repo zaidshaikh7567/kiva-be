@@ -9,7 +9,7 @@ export const fetchCategories = createAsyncThunk(
     try {
       const response = await api.get(API_METHOD.categories);
       // Return only the data, not the entire response object
-      return response.data;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }

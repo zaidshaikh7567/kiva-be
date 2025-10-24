@@ -8,4 +8,5 @@ export const API_METHOD = {
   reviews: '/api/reviews',
   favorites: '/api/favorites',
   settings: '/api/settings',
+  stones: '/api/stones',
 };

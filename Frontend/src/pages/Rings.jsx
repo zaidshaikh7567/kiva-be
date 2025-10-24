@@ -1,104 +1,144 @@
-import React, { useState } from "react";
-import ringImg1 from "../assets/images/product-1.png";
-import ringImg2 from "../assets/images/product-2.jpg";
-import ringImg3 from "../assets/images/product-3.jpg";
-import ringImg4 from "../assets/images/product-4.jpg";
-import ringImg5 from "../assets/images/product-5.png";
-import ringImg6 from "../assets/images/product-6.png";
+import React, { useState, useEffect, useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Grid, List } from "lucide-react";
 import ProductCard from "../components/ProductCard";
+import CustomDropdown from "../components/CustomDropdown";
+import { fetchProducts } from "../store/slices/productsSlice";
+import { selectProducts, selectProductsLoading, selectProductsLoadingMore, selectProductsError, selectPagination } from "../store/slices/productsSlice";
+import { selectCategories } from "../store/slices/categoriesSlice";
+import { fetchCategories } from "../store/slices/categoriesSlice";
+
+const SORT_OPTIONS = [
+  { value: 'featured', label: 'Featured' },
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'rating', label: 'Highest Rated' },
+];
 
 const Rings = () => {
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const dispatch = useDispatch();
+  const products = useSelector(selectProducts);
+  const productsLoading = useSelector(selectProductsLoading);
+  const productsLoadingMore = useSelector(selectProductsLoadingMore);
+  const productsError = useSelector(selectProductsError);
+  const pagination = useSelector(selectPagination);
+  const categories = useSelector(selectCategories);
+  
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [sortBy, setSortBy] = useState("featured");
+  const [viewMode, setViewMode] = useState("grid");
 
-  const categories = [
-    { id: "all", name: "All Rings", icon: "💍" },
-    { id: "round", name: "Round Ring", icon: "⭕" },
-    { id: "oval", name: "Oval Ring", icon: "🥚" },
-    { id: "emerald", name: "Emerald Ring", icon: "💚" },
-    { id: "cushion", name: "Cushion Ring", icon: "🟫" },
-    { id: "pear", name: "Pear Ring", icon: "🍐" },
-    { id: "radiant", name: "Radiant Ring", icon: "✨" }
-  ];
+  // Fetch products and categories on mount
+  useEffect(() => {
+    dispatch(fetchProducts({ page: 1, limit: 9, reset: true }));
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
-  const rings = [
-    {
-      id: 1,
-      name: "Classic Round Solitaire",
-      price: 1299,
-      originalPrice: 1499,
-      rating: 4.9,
-      reviews: 124,
-      image: ringImg1,
-      category: "round",
-      featured: true,
-      description: "Timeless round brilliant cut diamond solitaire engagement ring"
-    },
-    {
-      id: 2,
-      name: "Vintage Oval Emerald",
-      price: 899,
-      originalPrice: 1099,
-      rating: 4.8,
-      reviews: 89,
-      image: ringImg2,
-      category: "oval",
-      featured: true,
-      description: "Elegant oval cut emerald ring with vintage rose gold setting"
-    },
-    {
-      id: 3,
-      name: "Modern Emerald Cut",
-      price: 1599,
-      originalPrice: null,
-      rating: 4.7,
-      reviews: 67,
-      image: ringImg3,
-      category: "emerald",
-      featured: false,
-      description: "Contemporary emerald cut diamond with channel-set side stones"
-    },
-    {
-      id: 4,
-      name: "Pear Shaped Diamond",
-      price: 2199,
-      originalPrice: 2499,
-      rating: 4.9,
-      reviews: 156,
-      image: ringImg4,
-      category: "pear",
-      featured: true,
-      description: "Stunning pear-shaped diamond in elegant platinum setting"
-    },
-    {
-      id: 5,
-      name: "Cushion Cut Classic",
-      price: 299,
-      originalPrice: 399,
-      rating: 4.6,
-      reviews: 203,
-      image: ringImg5,
-      category: "cushion",
-      featured: false,
-      description: "Delicate cushion cut diamond ring perfect for everyday wear"
-    },
-    {
-      id: 6,
-      name: "Radiant Cut Statement",
-      price: 1899,
-      originalPrice: null,
-      rating: 4.8,
-      reviews: 78,
-      image: ringImg6,
-      category: "radiant",
-      featured: true,
-      description: "Bold radiant cut diamond with geometric halo setting"
+  // Handle load more
+  const handleLoadMore = () => {
+    const nextPage = pagination.currentPage + 1;
+    dispatch(fetchProducts({ page: nextPage, limit: 9, reset: false }));
+  };
+
+  // Find ring category (main category without parent)
+  const ringCategory = useMemo(() => {
+    return categories?.find(cat => 
+      !cat.parent && (cat.name?.toLowerCase() === "ring" || cat.name?.toLowerCase() === "rings")
+    );
+  }, [categories]);
+
+  // Find subcategories where parent is ring category
+  const subCategories = useMemo(() => {
+    const allSubCategories = [];
+    
+    if (ringCategory && categories) {
+      const subCats = categories.filter(cat => 
+        cat.parent && (
+          cat.parent._id === ringCategory._id || 
+          cat.parent?.name?.toLowerCase() === "ring" ||
+          cat.parent?.name?.toLowerCase() === "rings"
+        )
+      );
+      
+      subCats.forEach(cat => {
+        allSubCategories.push({
+          id: cat._id,
+          name: cat.name,
+          icon: "💍"
+        });
+      });
     }
-  ];
+    
+    return allSubCategories;
+  }, [categories, ringCategory]);
 
-  const filteredRings = rings.filter(ring => 
-    selectedCategory === "all" || ring.category === selectedCategory
-  );
+  // Set default selected category to first subcategory
+  useEffect(() => {
+    if (subCategories.length > 0 && !selectedCategory) {
+      setSelectedCategory(subCategories[0].id);
+    }
+  }, [subCategories, selectedCategory]);
+
+  // Filter rings based on ring category and subcategory
+  const filteredRings = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    
+    // First filter by ring category and its subcategories
+    let ringProducts = products.filter(product => {
+      if (!ringCategory) return false;
+      
+      // Check if product belongs to ring category or any of its subcategories
+      const productCategoryId = product.category?._id;
+      const productCategoryName = product.category?.name?.toLowerCase();
+      
+      // Main ring category
+      if (productCategoryId === ringCategory._id || 
+          productCategoryName === "ring" || 
+          productCategoryName === "rings") {
+        return true;
+      }
+      
+      // Check if product belongs to any ring subcategory
+      const ringSubcategoryIds = subCategories.map(sub => sub.id);
+      
+      return ringSubcategoryIds.includes(productCategoryId);
+    });
+
+    // Filter by selected subcategory
+    if (selectedCategory) {
+      ringProducts = ringProducts.filter(product => {
+        return product.category?._id === selectedCategory;
+      });
+    }
+
+    // Map products to match ProductCard expected format
+    return ringProducts.map(product => ({
+      ...product,
+      id: product._id,
+      name: product.title || product.name || '',
+      image: Array.isArray(product.image) ? product.image[0] : product.image,
+      rating: product.rating || 4.5,
+      reviews: product.reviews || 0,
+      featured: product.featured || false,
+      originalPrice: product.originalPrice || null
+    }));
+  }, [products, ringCategory, selectedCategory, subCategories]);
+
+  const sortRings = (rings) => {
+    switch (sortBy) {
+      case "price-low":
+        return [...rings].sort((a, b) => a.price - b.price);
+      case "price-high":
+        return [...rings].sort((a, b) => b.price - a.price);
+      case "rating":
+        return [...rings].sort((a, b) => b.rating - a.rating);
+      case "featured":
+      default:
+        return [...rings].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+    }
+  };
+
+  const sortedRings = sortRings(filteredRings);
 
   return (
     <div className="bg-secondary min-h-screen">
@@ -134,7 +174,7 @@ const Rings = () => {
           <div className="relative mb-8 border-b border-primary-dark pb-[2px]">
             {/* Desktop Navigation */}
             <div className="hidden lg:flex justify-center items-center space-x-8">
-              {categories.map((category) => (
+              {subCategories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
@@ -155,7 +195,7 @@ const Rings = () => {
             {/* Tablet Navigation (2 rows) */}
             <div className="hidden md:flex lg:hidden flex-col space-y-4">
               <div className="flex justify-center items-center space-x-6">
-                {categories.slice(0, 4).map((category) => (
+                {subCategories.slice(0, 4).map((category) => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
@@ -173,7 +213,7 @@ const Rings = () => {
                 ))}
               </div>
               <div className="flex justify-center items-center space-x-6">
-                {categories.slice(4).map((category) => (
+                {subCategories.slice(4).map((category) => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
@@ -196,7 +236,7 @@ const Rings = () => {
             <div className="md:hidden">
               {/* First Row - 4 tabs */}
               <div className="flex justify-center items-center space-x-3 mb-3">
-                {categories.slice(0, 4).map((category) => (
+                {subCategories.slice(0, 4).map((category) => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
@@ -216,7 +256,7 @@ const Rings = () => {
               
               {/* Second Row - 3 tabs */}
               <div className="flex justify-center items-center space-x-3">
-                {categories.slice(4).map((category) => (
+                {subCategories.slice(4).map((category) => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
@@ -238,17 +278,105 @@ const Rings = () => {
         </div>
       </section>
 
+      {/* Simple Filter Section */}
+      <section className="py-4 md:py-8 bg-white">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          {/* Filters and Sorting */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-montserrat-medium-500 text-black-light">
+                {sortedRings.length} rings available
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <CustomDropdown
+                options={SORT_OPTIONS}
+                value={sortBy}
+                onChange={setSortBy}
+                placeholder="Sort by"
+                className="min-w-[200px]"
+                searchable={false}
+              />
+
+              <div className="flex items-center border border-gray-200 rounded-lg">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 ${viewMode === "grid" ? "bg-primary rounded-tl-lg rounded-bl-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
+                >
+                  <Grid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 ${viewMode === "list" ? "bg-primary rounded-tr-lg rounded-br-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tr-lg rounded-br-lg"}`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Products Grid */}
       <section className="py-2 md:py-8 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="grid gap-4 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredRings.map((ring) => (
-              <ProductCard
-                key={ring.id}
-                product={ring}
-              />
-            ))}
-          </div>
+          {productsLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-black-light font-montserrat-regular-400">Loading rings...</p>
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-12">
+              <div className="text-red-500 mb-4">
+                <span className="text-4xl">⚠️</span>
+              </div>
+              <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Error loading rings</h3>
+              <p className="text-black-light font-montserrat-regular-400">
+                {productsError}
+              </p>
+            </div>
+          ) : sortedRings.length > 0 ? (
+            <div className={`grid gap-4 md:gap-8 ${
+              viewMode === "grid" 
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
+                : "grid-cols-1"
+            }`}>
+              {sortedRings.map((ring) => (
+                <ProductCard
+                  key={ring._id || ring.id}
+                  product={ring}
+                  viewMode={viewMode}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-black-light font-montserrat-regular-400">
+                No rings found in this category.
+              </p>
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {sortedRings.length > 0 && pagination.hasMore && (
+            <div className="text-center mt-8 md:mt-12">
+              <button
+                onClick={handleLoadMore}
+                disabled={productsLoadingMore}
+                className="px-8 md:px-12 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 rounded-lg hover:bg-primary-dark transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 mx-auto"
+              >
+                {productsLoadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Load More</span>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

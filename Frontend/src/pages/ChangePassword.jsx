@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { changePassword, clearError, clearSuccess, selectAuthError, selectAuthLoading, selectAuthSuccess } from '../store/slices/authSlice';
+import toast from 'react-hot-toast';
 
 const ChangePassword = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const error = useSelector(selectAuthError);
+  const loading = useSelector(selectAuthLoading);
+  const success = useSelector(selectAuthSuccess);
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -17,8 +24,32 @@ const ChangePassword = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const [passwordChanged, setPasswordChanged] = useState(false);
+
+  // Clear errors and success on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+      dispatch(clearSuccess());
+    };
+  }, [dispatch]);
+
+  // Handle success state
+  useEffect(() => {
+    if (success) {
+      toast.success(success);
+      setPasswordChanged(true);
+      dispatch(clearSuccess());
+    }
+  }, [success, dispatch]);
+
+  // Handle error state
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
 
   const handleChange = (e) => {
     setFormData({
@@ -70,12 +101,10 @@ const ChangePassword = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      setPasswordChanged(true);
-    }, 2000);
+    dispatch(changePassword({
+      currentPassword: formData.currentPassword,
+      newPassword: formData.newPassword
+    }));
   };
 
   if (passwordChanged) {

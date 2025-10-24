@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, clearError, selectAuthLoading } from '../store/slices/authSlice';
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const dispatch = useDispatch();
+  const loading = useSelector(selectAuthLoading);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -13,7 +15,6 @@ const SignIn = () => {
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
   // ✅ Load saved credentials if "Remember Me" was checked
@@ -27,6 +28,13 @@ const SignIn = () => {
       setRememberMe(true);
     }
   }, []);
+
+  // Clear errors on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
 
   // ✅ Validate inputs
   const validate = () => {
@@ -68,20 +76,12 @@ const SignIn = () => {
 
     if (!validate()) return;
 
-    setLoading(true);
+    const result = await dispatch(loginUser({
+      email: formData.email,
+      password: formData.password
+    }));
 
-    setTimeout(() => {
-      const userData = {
-        id: '1',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: formData.email,
-        phone: '+1 (555) 123-4567',
-        address: '123 Main Street, New York, NY 10001',
-      };
-
-      login(userData);
-
+    if (loginUser.fulfilled.match(result)) {
       // ✅ Save credentials if "Remember Me" is checked
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', formData.email);
@@ -93,9 +93,13 @@ const SignIn = () => {
         localStorage.removeItem('rememberMe');
       }
 
-      setLoading(false);
       navigate('/dashboard');
-    }, 1500);
+    } else if (loginUser.rejected.match(result)) {
+      setErrors({
+        email: result.payload?.message || 'Invalid email or password',
+        password: result.payload?.message || 'Invalid email or password'
+      });
+    }
   };
 
   return (
@@ -203,7 +207,7 @@ const SignIn = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>

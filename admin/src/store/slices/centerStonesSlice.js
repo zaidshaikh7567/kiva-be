@@ -1,181 +1,100 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-// Mock data for center stones (will be replaced with real API)
-const mockCenterStones = [
-  {
-    _id: '1',
-    name: '1.0 CT',
-    categoryId: '68e36f191cc55f0b0587b695', // round
-    price: 2500,
-    status: 'active',
-    createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-01-15T10:30:00Z'
-  },
-  {
-    _id: '2',
-    name: '1.5 CT',
-    categoryId: '68e36f191cc55f0b0587b695', // round
-    price: 2200,
-    status: 'active',
-    createdAt: '2024-01-16T14:20:00Z',
-    updatedAt: '2024-01-16T14:20:00Z'
-  },
-  {
-    _id: '3',
-    name: '1.0 C',
-    categoryId: '68e36f191cc55f0b0587b695', // pear (using round for now)
-    price: 2100,
-    status: 'inactive',
-    createdAt: '2024-01-17T09:15:00Z',
-    updatedAt: '2024-01-17T09:15:00Z'
-  },
-  {
-    _id: '4',
-    name: '1.0 C',
-    categoryId: '68e4998dc848309a6bea0674', // Emerald
-    price: 2800,
-    status: 'active',
-    createdAt: '2024-01-18T16:45:00Z',
-    updatedAt: '2024-01-18T16:45:00Z'
-  },
-  {
-    _id: '5',
-    name: '1.0 C',
-    categoryId: '68e499a2c848309a6bea067b', // Cushion
-    price: 2300,
-    status: 'active',
-    createdAt: '2024-01-19T11:30:00Z',
-    updatedAt: '2024-01-19T11:30:00Z'
-  },
-  {
-    _id: '6',
-    name: '1.0 C',
-    categoryId: '68e499b6c848309a6bea0682', // Radiant
-    price: 2600,
-    status: 'inactive',
-    createdAt: '2024-01-20T13:20:00Z',
-    updatedAt: '2024-01-20T13:20:00Z'
-  }
-];
-
-// Helper function to simulate API delay
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
+import toast from 'react-hot-toast';
+import api from '../../services/api';
+import { API_METHOD } from '../../services/apiMethod';
 
 // Async thunks for API calls
 export const fetchCenterStones = createAsyncThunk(
   'centerStones/fetchCenterStones',
-  async (params = {}) => {
-    // Mock API implementation
-    await delay(500); // Simulate API delay
-    
-    // Return all center stones without filtering
-    return {
-      centerStones: mockCenterStones,
-      total: mockCenterStones.length,
-      page: 1,
-      limit: mockCenterStones.length,
-      totalPages: 1
-    };
-    
-    // Uncomment when real API is ready:
-    // const response = await api.get('/center-stones');
-    // return response.data;
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params.page) queryParams.append('page', params.page);
+      if (params.limit) queryParams.append('limit', params.limit);
+      
+      const url = `${API_METHOD.stones}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      const response = await api.get(url);
+      return response.data.data || [];
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
   }
 );
 
 export const createCenterStone = createAsyncThunk(
   'centerStones/createCenterStone',
-  async (centerStoneData) => {
-    // Mock API implementation
-    await delay(500); // Simulate API delay
-    
-    const newCenterStone = {
-      _id: Date.now().toString(),
-      ...centerStoneData,
-      price: parseFloat(centerStoneData.price),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    mockCenterStones.push(newCenterStone);
-    
-    return newCenterStone;
-    
-    // Uncomment when real API is ready:
-    // const response = await api.post('/center-stones', centerStoneData);
-    // return response.data;
+  async (centerStoneData, { rejectWithValue }) => {
+    try {
+      const response = await api.post(API_METHOD.stones, centerStoneData);
+      toast.success('Stone created successfully!');
+      return response.data.data || response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to create stone';
+      toast.error(errorMessage);
+      return rejectWithValue({
+        message: errorMessage,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+    }
   }
 );
 
 export const updateCenterStone = createAsyncThunk(
   'centerStones/updateCenterStone',
-  async ({ id, data }) => {
-    // Mock API implementation
-    await delay(500); // Simulate API delay
-    
-    const index = mockCenterStones.findIndex(stone => stone._id === id);
-    if (index === -1) {
-      throw new Error('Center stone not found');
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`${API_METHOD.stones}/${id}`, data);
+      toast.success('Stone updated successfully!');
+      return response.data.data || response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update stone';
+      toast.error(errorMessage);
+      return rejectWithValue({
+        message: errorMessage,
+        status: error.response?.status,
+        data: error.response?.data
+      });
     }
-    
-    const updatedCenterStone = {
-      ...mockCenterStones[index],
-      ...data,
-      price: parseFloat(data.price),
-      updatedAt: new Date().toISOString()
-    };
-    
-    mockCenterStones[index] = updatedCenterStone;
-    
-    return updatedCenterStone;
-    
-    // Uncomment when real API is ready:
-    // const response = await api.put(`/center-stones/${id}`, data);
-    // return response.data;
   }
 );
 
 export const deleteCenterStone = createAsyncThunk(
   'centerStones/deleteCenterStone',
-  async (id) => {
-    // Mock API implementation
-    await delay(500); // Simulate API delay
-    
-    const index = mockCenterStones.findIndex(stone => stone._id === id);
-    if (index === -1) {
-      throw new Error('Center stone not found');
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`${API_METHOD.stones}/${id}`);
+      toast.success('Stone deleted successfully!');
+      return { id, data: response.data };
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete stone';
+      toast.error(errorMessage);
+      return rejectWithValue({
+        message: errorMessage,
+        status: error.response?.status,
+        data: error.response?.data
+      });
     }
-    
-    mockCenterStones.splice(index, 1);
-    return id;
-    
-    // Uncomment when real API is ready:
-    // await api.delete(`/center-stones/${id}`);
-    // return id;
   }
 );
 
 // Update center stone status
 export const updateCenterStoneStatus = createAsyncThunk(
   'centerStones/updateCenterStoneStatus',
-  async ({ id, status }) => {
-    // Mock API implementation
-    await delay(300); // Simulate API delay
-    
-    const centerStone = mockCenterStones.find(stone => stone._id === id);
-    if (!centerStone) {
-      throw new Error('Center stone not found');
+  async ({ id, active }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`${API_METHOD.stones}/${id}`, { active });
+      toast.success('Stone status updated successfully!');
+      return response.data.data || response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update stone status';
+      toast.error(errorMessage);
+      return rejectWithValue({
+        message: errorMessage,
+        status: error.response?.status,
+        data: error.response?.data
+      });
     }
-    
-    centerStone.status = status;
-    centerStone.updatedAt = new Date().toISOString();
-    
-    return { centerStone, message: 'Status updated successfully' };
-    
-    // Uncomment when real API is ready:
-    // await api.patch(`/center-stones/${id}/status`, { status });
-    // return { id, status };
   }
 );
 
@@ -200,12 +119,12 @@ const centerStonesSlice = createSlice({
       })
       .addCase(fetchCenterStones.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.centerStones || action.payload.data || [];
+        state.items = Array.isArray(action.payload) ? action.payload : [];
         state.error = null;
       })
       .addCase(fetchCenterStones.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch center stones';
+        state.error = action.payload?.message || action.error.message || 'Failed to fetch stones';
       })
       
       // Create center stone
@@ -220,7 +139,7 @@ const centerStonesSlice = createSlice({
       })
       .addCase(createCenterStone.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to create center stone';
+        state.error = action.payload?.message || action.error.message || 'Failed to create stone';
       })
       
       // Update center stone
@@ -238,7 +157,7 @@ const centerStonesSlice = createSlice({
       })
       .addCase(updateCenterStone.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to update center stone';
+        state.error = action.payload?.message || action.error.message || 'Failed to update stone';
       })
       
       // Delete center stone
@@ -248,12 +167,13 @@ const centerStonesSlice = createSlice({
       })
       .addCase(deleteCenterStone.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = state.items.filter(item => item._id !== action.payload);
+        const deletedId = action.payload.id || action.payload;
+        state.items = state.items.filter(item => item._id !== deletedId);
         state.error = null;
       })
       .addCase(deleteCenterStone.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to delete center stone';
+        state.error = action.payload?.message || action.error.message || 'Failed to delete stone';
       })
       
       // Update center stone status
@@ -263,16 +183,16 @@ const centerStonesSlice = createSlice({
       })
       .addCase(updateCenterStoneStatus.fulfilled, (state, action) => {
         state.loading = false;
-        const { centerStone } = action.payload;
-        const index = state.items.findIndex(item => item._id === centerStone._id);
+        const updatedStone = action.payload;
+        const index = state.items.findIndex(item => item._id === updatedStone._id);
         if (index !== -1) {
-          state.items[index] = centerStone;
+          state.items[index] = updatedStone;
         }
         state.error = null;
       })
       .addCase(updateCenterStoneStatus.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to update center stone status';
+        state.error = action.payload?.message || action.error.message || 'Failed to update stone status';
       });
   }
 });

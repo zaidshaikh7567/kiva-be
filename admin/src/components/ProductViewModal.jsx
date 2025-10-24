@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, Package, DollarSign, Hash, Tag, Calendar, Image as ImageIcon, Eye, Edit } from 'lucide-react';
+import { X, Package, DollarSign, Hash, Tag, Calendar, Image as ImageIcon, Eye, Edit, Sparkles, Droplet, Shield } from 'lucide-react';
 import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 
 const ProductViewModal = ({ isOpen, onClose, product, onEdit }) => {
@@ -50,25 +50,28 @@ console.log('product :', product);
             <h1 className="text-2xl font-bold text-black capitalize mb-2">
               {product.title || 'Untitled Product'}
             </h1>
+            {product.subDescription && (
+              <p className="text-gray-600 italic mb-3">{product.subDescription}</p>
+            )}
             <div 
               className="text-gray-600 prose prose-sm max-w-none" 
-              dangerouslySetInnerHTML={{ __html: parseLexicalDescription(product.description) }} 
+              dangerouslySetInnerHTML={{ __html: parseLexicalDescription(product.description) }}
+              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
             />
-              {/* {product.description || 'No description available'} */}
-            {/* </p> */}
           </div>
 
           {/* Images */}
           {product.images && product.images.length > 0 ? (
             <div>
-              <h3 className="font-semibold text-black mb-3">Images</h3>
-              <div className="grid grid-cols-2 gap-2">
+              <h3 className="font-semibold text-black mb-3">Images ({product.images.length})</h3>
+              <div className="grid sm:grid-cols-3 grid-cols-2 gap-2">
                 {product.images.map((image, index) => (
                   <img
                     key={index}
-                    src={image}
+                    src={typeof image === 'string' ? image : image.url || image}
                     alt={`${product.title} ${index + 1}`}
-                    className="w-full h-32 object-cover rounded border"
+                    className="w-full h-32 object-cover rounded border hover:opacity-90 transition-opacity cursor-pointer"
+                    onClick={() => window.open(typeof image === 'string' ? image : image.url || image, '_blank')}
                   />
                 ))}
               </div>
@@ -103,16 +106,82 @@ console.log('product :', product);
             </div>
           </div>
 
-          {/* Category */}
-          <div>
-            <div className="flex items-center space-x-2 mb-2">
-              <Tag className="w-4 h-4 text-gray-600" />
-              <span className="font-medium text-gray-700">Category</span>
+          {/* Category and Stone Type */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="flex items-center space-x-2 mb-2">
+                <Tag className="w-4 h-4 text-gray-600" />
+                <span className="font-medium text-gray-700">Category</span>
+              </div>
+              <span className="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm">
+                {product.category?.name || 'No Category'}
+              </span>
             </div>
-            <span className="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm">
-              {product.category?.name || 'No Category'}
-            </span>
+
+            {product.stoneType && (
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-purple-600" />
+                  <span className="font-medium text-gray-700">Stone Type</span>
+                </div>
+                <div className="bg-purple-50 p-3 rounded">
+                  <div className="font-semibold text-purple-900">{product.stoneType.name}</div>
+                  {product.stoneType.shape && (
+                    <div className="text-sm text-purple-700">Shape: {product.stoneType.shape}</div>
+                  )}
+                  {product.stoneType.price && (
+                    <div className="text-sm text-purple-700">Price: ${product.stoneType.price.toFixed(2)}</div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Metals */}
+          {product.metals && product.metals.length > 0 && (
+            <div>
+              <div className="flex items-center space-x-2 mb-3">
+                <Droplet className="w-4 h-4 text-yellow-600" />
+                <span className="font-medium text-gray-700">Metal Options</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {product.metals.map((metal, index) => (
+                  <div key={metal._id || index} className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div 
+                        className="w-4 h-4 rounded-full border border-gray-300"
+                        style={{ backgroundColor: metal.color }}
+                      />
+                      <span className="font-semibold text-yellow-900">{metal.name}</span>
+                    </div>
+                    {metal.purityLevels && metal.purityLevels.length > 0 && (
+                      <div className="text-sm text-yellow-700">
+                        <span className="font-medium">Purity Levels: </span>
+                        {metal.purityLevels.map((pl, idx) => (
+                          <span key={pl._id || idx}>
+                            {pl.karat}K {idx < metal.purityLevels.length - 1 ? ', ' : ''}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Care Instructions */}
+          {product.careInstruction && (
+            <div>
+              <div className="flex items-center space-x-2 mb-2">
+                <Shield className="w-4 h-4 text-blue-600" />
+                <span className="font-medium text-gray-700">Care Instructions</span>
+              </div>
+              <div className="bg-blue-50 p-4 rounded border border-blue-200">
+                <p className="text-sm text-blue-900 whitespace-pre-wrap">{product.careInstruction}</p>
+              </div>
+            </div>
+          )}
 
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">

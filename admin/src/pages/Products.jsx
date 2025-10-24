@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Package, Plus, Edit, Trash2, RefreshCw, Eye, Search, Filter, X } from 'lucide-react';
-import { clearError, deleteProduct, fetchProducts, createProduct, updateProduct, selectProducts, selectProductsLoading, selectProductsPagination, selectProductsFilters, setFilters, applyFilters, clearFilters } from '../store/slices/productsSlice';
+import { clearError, deleteProduct, fetchProducts, createProduct, updateProduct, selectProducts, selectProductsLoading, selectProductsError, selectProductsPagination, selectProductsFilters, setFilters, applyFilters, clearFilters } from '../store/slices/productsSlice';
 import { fetchCategories, selectCategories } from '../store/slices/categoriesSlice';
+import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
+import { fetchCenterStones, selectCenterStones } from '../store/slices/centerStonesSlice';
 import ProductModal from '../components/ProductModal';
 import ProductViewModal from '../components/ProductViewModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
@@ -14,9 +16,12 @@ const Products = () => {
   const products = useSelector(selectProducts);
   const productsPagination = useSelector(selectProductsPagination);
   const categories = useSelector(selectCategories);
+  const metals = useSelector(selectMetals);
+  const stones = useSelector(selectCenterStones);
   const filters = useSelector(selectProductsFilters);
   
   const loading = useSelector(selectProductsLoading);
+  const error = useSelector(selectProductsError);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,18 +44,9 @@ const Products = () => {
   const [productToView, setProductToView] = useState(null);
 
   // Filter options
-  const stockFilterOptions = [
-    { value: 'all', label: 'All Stock' },
-    { value: 'in-stock', label: 'In Stock' },
-    { value: 'low-stock', label: 'Low Stock (< 10)' },
-    { value: 'out-of-stock', label: 'Out of Stock' },
-  ];
-
   const sortOptions = [
     { value: 'newest', label: 'Newest First' },
     { value: 'oldest', label: 'Oldest First' },
-    { value: 'name-asc', label: 'Name A-Z' },
-    { value: 'name-desc', label: 'Name Z-A' },
     { value: 'price-asc', label: 'Price Low to High' },
     { value: 'price-desc', label: 'Price High to Low' },
     { value: 'stock-asc', label: 'Stock Low to High' },
@@ -70,6 +66,16 @@ const Products = () => {
   // Fetch categories on component mount
   useEffect(() => {
     dispatch(fetchCategories());
+  }, [dispatch]);
+
+  // Fetch metals on component mount
+  useEffect(() => {
+    dispatch(fetchMetals({ page: 1, limit: 100 }));
+  }, [dispatch]);
+
+  // Fetch stones on component mount
+  useEffect(() => {
+    dispatch(fetchCenterStones({ page: 1, limit: 100 }));
   }, [dispatch]);
 
   const handleRefresh = () => {
@@ -97,11 +103,6 @@ const Products = () => {
     setCurrentPage(1);
   };
 
-  const handleStockFilterChange = (value) => {
-    dispatch(setFilters({ stockFilter: value }));
-    setCurrentPage(1);
-  };
-
   const handleSortChange = (value) => {
     dispatch(setFilters({ sortBy: value }));
     setCurrentPage(1);
@@ -113,7 +114,7 @@ const Products = () => {
   };
 
   // Check if any filters are active
-  const hasActiveFilters = filters.search || filters.category !== 'all' || filters.minPrice || filters.maxPrice || filters.stockFilter !== 'all' || filters.sortBy !== 'newest';
+  const hasActiveFilters = filters.search || filters.category !== 'all' || filters.minPrice || filters.maxPrice || filters.sortBy !== 'newest';
 
   const handleDeleteProduct = (product) => {
     setProductToDelete(product);
@@ -312,7 +313,7 @@ const Products = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search */}
             <div>
               <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
@@ -325,7 +326,7 @@ const Products = () => {
                   value={filters.search}
                   onChange={handleSearchChange}
                   placeholder="Search by name..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400"
                 />
               </div>
             </div>
@@ -363,20 +364,6 @@ const Products = () => {
               />
             </div>
 
-            {/* Stock Filter */}
-            <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Stock Status
-              </label>
-              <CustomDropdown
-                options={stockFilterOptions}
-                value={filters.stockFilter}
-                onChange={handleStockFilterChange}
-                placeholder="Select Stock Status"
-                searchable={false}
-              />
-            </div>
-
             {/* Sort */}
             <div>
               <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
@@ -392,29 +379,25 @@ const Products = () => {
             </div>
 
             {/* Price Range */}
-            <div className="md:col-span-2 lg:col-span-4">
+            <div>
               <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
                 Price Range
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <input
-                    type="number"
-                    placeholder="Min Price"
-                    value={filters.minPrice}
-                    onChange={(e) => handlePriceRangeChange('min', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="number"
-                    placeholder="Max Price"
-                    value={filters.maxPrice}
-                    onChange={(e) => handlePriceRangeChange('max', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400"
-                  />
-                </div>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.minPrice}
+                  onChange={(e) => handlePriceRangeChange('min', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400"
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.maxPrice}
+                  onChange={(e) => handlePriceRangeChange('max', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400"
+                />
               </div>
             </div>
           </div>
@@ -462,11 +445,11 @@ const Products = () => {
                     </button>
                   </span>
                 )}
-                {filters.stockFilter !== 'all' && (
+                {filters.sortBy !== 'newest' && (
                   <span className="inline-flex items-center px-3 py-1 bg-primary text-white text-sm rounded-full">
-                    Stock: {stockFilterOptions.find(opt => opt.value === filters.stockFilter)?.label}
+                    Sort: {sortOptions.find(opt => opt.value === filters.sortBy)?.label}
                     <button
-                      onClick={() => dispatch(setFilters({ stockFilter: 'all' }))}
+                      onClick={() => dispatch(setFilters({ sortBy: 'newest' }))}
                       className="ml-2 hover:text-gray-200"
                     >
                       <X className="w-3 h-3" />
@@ -624,9 +607,12 @@ const Products = () => {
         onClose={handleCloseModal}
         onSubmit={handleSubmitProduct}
         loading={loading}
+        error={error}
         productData={selectedProduct}
         mode={modalMode}
         categories={categories}
+        metals={metals}
+        stones={stones}
       />
 
       {/* Delete Confirmation Modal */}

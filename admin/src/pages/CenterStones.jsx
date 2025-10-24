@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Gem, Plus, Edit, Trash2, RefreshCw, Eye } from 'lucide-react';
-import { clearError, deleteCenterStone, fetchCenterStones, createCenterStone, updateCenterStone, updateCenterStoneStatus, selectCenterStones, selectCenterStonesLoading, selectCenterStonesError } from '../store/slices/centerStonesSlice';
+import { clearError, deleteCenterStone, fetchCenterStones, createCenterStone, updateCenterStone, updateCenterStoneStatus, selectCenterStones, selectCenterStonesLoading } from '../store/slices/centerStonesSlice';
 import CenterStoneModal from '../components/CenterStoneModal';
 import CenterStoneViewModal from '../components/CenterStoneViewModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
-import { fetchCategories, selectCategories, selectCategoriesLoading } from '../store/slices/categoriesSlice';
 
 const CenterStones = () => {
   const dispatch = useDispatch();
@@ -14,6 +13,9 @@ const CenterStones = () => {
   
   const loading = useSelector(selectCenterStonesLoading);
   
+  // Pagination state
+  const [currentPage] = useState(1);
+  const [limit] = useState(10);
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,14 +30,9 @@ const CenterStones = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [centerStoneToView, setCenterStoneToView] = useState(null);
 
-  const categories = useSelector(selectCategories);
-  const categoriesLoading = useSelector(selectCategoriesLoading);
-
-
-  // Fetch center stones and categories on component mount
+  // Fetch center stones on component mount
   useEffect(() => {
     dispatch(fetchCenterStones());
-    dispatch(fetchCategories());
   }, [dispatch]);
 
 
@@ -52,8 +49,8 @@ const CenterStones = () => {
   };
 
   const handleStatusToggle = (centerStone) => {
-    const newStatus = centerStone.status === 'active' ? 'inactive' : 'active';
-    dispatch(updateCenterStoneStatus({ id: centerStone._id, status: newStatus }));
+    const newActive = !centerStone.active;
+    dispatch(updateCenterStoneStatus({ id: centerStone._id, active: newActive }));
   };
 
   const handleConfirmDelete = async () => {
@@ -63,15 +60,11 @@ const CenterStones = () => {
         if (deleteCenterStone.fulfilled.match(result)) {
           setIsDeleteModalOpen(false);
           setCenterStoneToDelete(null);
-          // If deleting the last item on a page (and not on page 1), go to previous page
-          if (centerStones.length === 1 && currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-          } else {
-            dispatch(fetchCenterStones({ page: currentPage, limit }));
-          }
+          // Refresh the list
+          dispatch(fetchCenterStones({ page: currentPage, limit }));
         }
       } catch (error) {
-        console.error('Error deleting center stone:', error);
+        console.error('Error deleting stone:', error);
       }
     }
   };
@@ -129,8 +122,8 @@ const CenterStones = () => {
           setIsModalOpen(false);
           setSelectedCenterStone(null);
           setModalMode('add');
-          // Go to first page to see the newly added center stone
-          setCurrentPage(1);
+          // Refresh the list
+          dispatch(fetchCenterStones({ page: currentPage, limit }));
         }
       } catch (error) {
         console.error('Error creating center stone:', error);
@@ -143,7 +136,7 @@ const CenterStones = () => {
           setIsModalOpen(false);
           setSelectedCenterStone(null);
           setModalMode('add');
-          // Refresh current page to see the updated center stone
+          // Refresh the list
           dispatch(fetchCenterStones({ page: currentPage, limit }));
         }
       } catch (error) {
@@ -238,7 +231,7 @@ const CenterStones = () => {
                     Center Stone Name
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
-                    Category
+                    Shape
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
                     Price
@@ -270,11 +263,8 @@ const CenterStones = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-3 py-1 bg-primary-light text-white text-sm font-montserrat-medium-500 rounded-full capitalize">
-                        {(() => {
-                          const categoryObj = categories.find(cat => cat._id === centerStone.categoryId);
-                          return categoryObj ? categoryObj.name : 'N/A';
-                        })()}
+                      <span className="text-sm font-montserrat-medium-500 text-black capitalize">
+                        {centerStone.shape || 'N/A'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -286,13 +276,13 @@ const CenterStones = () => {
                       <button
                         onClick={() => handleStatusToggle(centerStone)}
                         className={`inline-flex px-3 py-1 text-xs font-montserrat-medium-500 rounded-full transition-colors duration-200 ${
-                          centerStone.status === 'active'
+                          centerStone.active
                             ? 'bg-green-100 text-green-800 hover:bg-green-200'
                             : 'bg-red-100 text-red-800 hover:bg-red-200'
                         }`}
-                        title={`Click to ${centerStone.status === 'active' ? 'deactivate' : 'activate'}`}
+                        title={`Click to ${centerStone.active ? 'deactivate' : 'activate'}`}
                       >
-                        {centerStone.status === 'active' ? 'Active' : 'Inactive'}
+                        {centerStone.active ? 'Active' : 'Inactive'}
                       </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

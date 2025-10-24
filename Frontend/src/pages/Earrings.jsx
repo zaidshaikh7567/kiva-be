@@ -1,13 +1,12 @@
-import React, { useState } from "react";
-import earringImg1 from "../assets/images/product-1.png";
-import earringImg2 from "../assets/images/product-2.jpg";
-import earringImg3 from "../assets/images/product-3.jpg";
-import earringImg4 from "../assets/images/product-4.jpg";
-import earringImg5 from "../assets/images/product-5.png";
-import earringImg6 from "../assets/images/product-6.png";
+import React, { useState, useEffect, useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Grid, List } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import CustomDropdown from "../components/CustomDropdown";
+import { fetchProducts } from "../store/slices/productsSlice";
+import { selectProducts, selectProductsLoading, selectProductsLoadingMore, selectProductsError, selectPagination } from "../store/slices/productsSlice";
+import { selectCategories } from "../store/slices/categoriesSlice";
+import { fetchCategories } from "../store/slices/categoriesSlice";
 
 const SORT_OPTIONS = [
   { value: 'featured', label: 'Featured' },
@@ -17,77 +16,64 @@ const SORT_OPTIONS = [
 ];
 
 const Earrings = () => {
+  const dispatch = useDispatch();
+  const products = useSelector(selectProducts);
+  const productsLoading = useSelector(selectProductsLoading);
+  const productsLoadingMore = useSelector(selectProductsLoadingMore);
+  const productsError = useSelector(selectProductsError);
+  const pagination = useSelector(selectPagination);
+  const categories = useSelector(selectCategories);
+  
   const [sortBy, setSortBy] = useState("featured");
   const [viewMode, setViewMode] = useState("grid");
 
-  const earrings = [
-    {
-      id: 1,
-      name: "Classic Diamond Studs",
-      price: 899,
-      originalPrice: 1099,
-      rating: 4.9,
-      reviews: 156,
-      image: earringImg1,
-      featured: true,
-      description: "Timeless diamond stud earrings perfect for everyday elegance"
-    },
-    {
-      id: 2,
-      name: "Vintage Gold Hoops",
-      price: 299,
-      originalPrice: 399,
-      rating: 4.8,
-      reviews: 203,
-      image: earringImg2,
-      featured: true,
-      description: "Classic gold hoop earrings with vintage-inspired design"
-    },
-    {
-      id: 3,
-      name: "Pearl Drop Earrings",
-      price: 599,
-      originalPrice: null,
-      rating: 4.7,
-      reviews: 89,
-      image: earringImg3,
-      featured: false,
-      description: "Elegant pearl drop earrings for special occasions"
-    },
-    {
-      id: 4,
-      name: "Crystal Chandelier",
-      price: 1299,
-      originalPrice: 1499,
-      rating: 4.9,
-      reviews: 124,
-      image: earringImg4,
-      featured: true,
-      description: "Stunning crystal chandelier earrings for glamorous evenings"
-    },
-    {
-      id: 5,
-      name: "Modern Ear Cuffs",
-      price: 199,
-      originalPrice: null,
-      rating: 4.6,
-      reviews: 167,
-      image: earringImg5,
-      featured: false,
-      description: "Contemporary ear cuffs for a bold, modern look"
-    },
-    {
-      id: 6,
-      name: "Delicate Huggie Earrings",
-      price: 399,
-      originalPrice: 499,
-      rating: 4.8,
-      reviews: 145,
-      image: earringImg6,
-      featured: true,
-      description: "Comfortable huggie earrings with subtle sparkle"
-    }
-  ];
+  // Fetch products and categories on mount
+  useEffect(() => {
+    dispatch(fetchProducts({ page: 1, limit: 9, reset: true }));
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  // Handle load more
+  const handleLoadMore = () => {
+    const nextPage = pagination.currentPage + 1;
+    dispatch(fetchProducts({ page: nextPage, limit: 9, reset: false }));
+  };
+
+  // Find earring category (main category without parent)
+  const earringCategory = useMemo(() => {
+    return categories?.find(cat => 
+      !cat.parent && (cat.name?.toLowerCase() === "earring" || cat.name?.toLowerCase() === "earrings")
+    );
+  }, [categories]);
+
+  // Filter earrings based on earring category
+  const filteredEarrings = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    
+    // Filter by earring category
+    let earringProducts = products.filter(product => {
+      if (!earringCategory) return false;
+      
+      const productCategoryId = product.category?._id;
+      const productCategoryName = product.category?.name?.toLowerCase();
+      
+      return productCategoryId === earringCategory._id || 
+             productCategoryName === "earring" || 
+             productCategoryName === "earrings";
+    });
+
+    // Map products to match ProductCard expected format
+    return earringProducts.map(product => ({
+      ...product,
+      id: product._id,
+      name: product.title || product.name || '',
+      image: Array.isArray(product.image) ? product.image[0] : product.image,
+      rating: product.rating || 4.5,
+      reviews: product.reviews || 0,
+      featured: product.featured || false,
+      originalPrice: product.originalPrice || null
+    }));
+  }, [products, earringCategory]);
 
   const sortEarrings = (earrings) => {
     switch (sortBy) {
@@ -103,7 +89,7 @@ const Earrings = () => {
     }
   };
 
-  const sortedEarrings = sortEarrings(earrings);
+  const sortedEarrings = sortEarrings(filteredEarrings);
 
   return (
     <div className="bg-secondary min-h-screen">
@@ -147,13 +133,13 @@ const Earrings = () => {
               <div className="flex items-center border border-gray-200 rounded-lg">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 ${viewMode === "grid" ? "bg-primary rounded-lg  text-white" : "text-black-light hover:bg-gray-50"}`}
+                  className={`p-2 ${viewMode === "grid" ? "bg-primary rounded-tl-lg rounded-bl-lg  text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 ${viewMode === "list" ? "bg-primary rounded-lg text-white" : "text-black-light hover:bg-gray-50"}`}
+                  className={`p-2 ${viewMode === "list" ? "bg-primary rounded-tr-lg rounded-br-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tr-lg rounded-br-lg"}`}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -166,19 +152,62 @@ const Earrings = () => {
       {/* Products Grid */}
       <section className="py-2 md:py-8 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className={`grid gap-4 md:gap-8 ${
-            viewMode === "grid" 
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
-              : "grid-cols-1"
-          }`}>
-            {sortedEarrings.map((earring) => (
-              <ProductCard
-                key={earring.id}
-                product={earring}
-                viewMode={viewMode}
-              />
-            ))}
-          </div>
+          {productsLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-black-light font-montserrat-regular-400">Loading earrings...</p>
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-12">
+              <div className="text-red-500 mb-4">
+                <span className="text-4xl">⚠️</span>
+              </div>
+              <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Error loading earrings</h3>
+              <p className="text-black-light font-montserrat-regular-400">
+                {productsError}
+              </p>
+            </div>
+          ) : sortedEarrings.length > 0 ? (
+            <div className={`grid gap-4 md:gap-8 ${
+              viewMode === "grid" 
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
+                : "grid-cols-1"
+            }`}>
+              {sortedEarrings.map((earring) => (
+                <ProductCard
+                  key={earring._id || earring.id}
+                  product={earring}
+                  viewMode={viewMode}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-black-light font-montserrat-regular-400">
+                No earrings found.
+              </p>
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {sortedEarrings.length > 0 && pagination.hasMore && (
+            <div className="text-center mt-8 md:mt-12">
+              <button
+                onClick={handleLoadMore}
+                disabled={productsLoadingMore}
+                className="px-8 md:px-12 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 rounded-lg hover:bg-primary-dark transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 mx-auto"
+              >
+                {productsLoadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Load More</span>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

@@ -86,7 +86,7 @@ export const convertPrice = (price, fromCurrency = 'USD', toCurrency, exchangeRa
 
 // Helper function to format price
 export const formatPrice = (price, currency, symbol) => {
-  const formattedPrice = price.toFixed(2);
+  const formattedPrice = price?.toFixed(2);
   
   // Special formatting for different currencies
   if (currency === 'JPY') {

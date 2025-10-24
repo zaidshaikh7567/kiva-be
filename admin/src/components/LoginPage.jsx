@@ -1,24 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Lock, Mail, Sparkles } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { login, selectAuthLoading, selectAuthError, clearError } from '../store/slices/authSlice';
+import toast from 'react-hot-toast';
 
-const LoginPage = ({ onLogin }) => {
+const LoginPage = ({ onLogin, onForgotPassword }) => {
+  const dispatch = useDispatch();
+  const loading = useSelector(selectAuthLoading);
+  const error = useSelector(selectAuthError);
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  // Clear error when component mounts
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Static credentials
-    const validEmail = 'admin@mailinator.com';
-    const validPassword = 'Admin@123';
-    
-    if (email === validEmail && password === validPassword) {
-      setError('');
-      onLogin();
-    } else {
-      setError('Invalid email or password');
+    try {
+      const result = await dispatch(login({ email, password }));
+      
+      if (login.fulfilled.match(result)) {
+        toast.success('Login successful!');
+        onLogin();
+      } else {
+        toast.error(result.payload || 'Login failed');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error('An unexpected error occurred');
     }
   };
 
@@ -68,9 +82,12 @@ const LoginPage = ({ onLogin }) => {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="text-sm font-montserrat-medium-500 text-black block">
-                Password
-              </label>
+              {/* <div className="flex items-center justify-between"> */}
+                <label className="text-sm font-montserrat-medium-500 text-black block">
+                  Password
+                </label>
+                
+              {/* </div> */}
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
                 <input
@@ -81,7 +98,7 @@ const LoginPage = ({ onLogin }) => {
                   placeholder="Enter your password"
                   required
                 />
-                <button
+                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-200"
@@ -89,6 +106,17 @@ const LoginPage = ({ onLogin }) => {
                   {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                 </button>
               </div>
+              <div className="flex items-center justify-end mt-2 relative">
+                {onForgotPassword && (
+                  <button
+                    type="button"
+                    onClick={onForgotPassword}
+                    className="text-sm text-primary text-right hover:text-primary-dark font-montserrat-medium-500 transition-colors duration-200"
+                  >
+                    Forgot Password?
+                  </button>
+                )}</div>
+               
             </div>
 
             {/* Error Message */}
@@ -101,9 +129,10 @@ const LoginPage = ({ onLogin }) => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-primary to-primary-dark text-white py-3 rounded-lg font-montserrat-semibold-600 hover:from-primary-dark hover:to-primary transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-primary to-primary-dark text-white py-3 rounded-lg font-montserrat-semibold-600 hover:from-primary-dark hover:to-primary transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
 

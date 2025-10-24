@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser, clearError, selectAuthLoading } from '../store/slices/authSlice';
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loading = useSelector(selectAuthLoading);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -14,9 +18,15 @@ const SignUp = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Clear errors on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
 
   // ✅ Validation logic
   const validate = () => {
@@ -77,15 +87,26 @@ const SignUp = () => {
   };
 
   // ✅ Handle submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate('/sign-in');
-    }, 2000);
+    const result = await dispatch(registerUser({
+      name: `${formData.firstName} ${formData.lastName}`,
+      email: formData.email,
+      password: formData.password
+    }));
+
+    if (registerUser.fulfilled.match(result)) {
+      // Show success message and redirect
+      navigate('/sign-in', { 
+        state: { message: 'Account created successfully! Please sign in.' } 
+      });
+    } else if (registerUser.rejected.match(result)) {
+      setErrors({
+        email: result.payload?.message || 'Failed to create account. Email may already be registered.'
+      });
+    }
   };
 
   return (
@@ -303,7 +324,7 @@ const SignUp = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating Account...' : 'Create Account'}
             </button>

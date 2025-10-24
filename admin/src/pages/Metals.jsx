@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Plus, Edit, Trash2, RefreshCw } from 'lucide-react';
-import { fetchMetals, createMetal, updateMetal, deleteMetal, selectMetals, selectMetalsLoading } from '../store/slices/metalsSlice';
+import { fetchMetals, createMetal, updateMetal, deleteMetal, selectMetals, selectMetalsLoading, selectMetalsPagination } from '../store/slices/metalsSlice';
 import MetalModal from '../components/MetalModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import Pagination from '../components/Pagination';
@@ -11,6 +11,7 @@ const Metals = () => {
   const metals = useSelector(selectMetals);
   console.log('metals :', metals);
   const loading = useSelector(selectMetalsLoading);
+  const pagination = useSelector(selectMetalsPagination);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,10 +27,10 @@ const Metals = () => {
   const [metalToDelete, setMetalToDelete] = useState(null);
 
 
-  // Fetch metals on component mount
+  // Fetch metals on component mount and when page changes
   useEffect(() => {
-    dispatch(fetchMetals());
-  }, [dispatch]);
+    dispatch(fetchMetals({ page: currentPage, limit }));
+  }, [dispatch, currentPage, limit]);
 
 
   // Handle add metal
@@ -63,10 +64,11 @@ const Metals = () => {
 
   // Handle modal submit
   const handleModalSubmit = (metalData) => {
+  console.log('metalData :', metalData);
     if (modalMode === 'add') {
       dispatch(createMetal(metalData));
     } else {
-      dispatch(updateMetal({ id: selectedMetal._id, data: metalData }));
+      dispatch(updateMetal({ metalId: selectedMetal._id, data: metalData }));
     }
     setIsModalOpen(false);
     setSelectedMetal(null);
@@ -112,16 +114,13 @@ const Metals = () => {
           <thead className="bg-primary-light border-b border-gray-200">
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
-                  Metal
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
-                  Carat
+                  Metal Name
                 </th>
                 <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
                   Color
                 </th>
                 <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
-                  Price Multiplier
+                  Purity Levels
                 </th>
                 <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
                   Status
@@ -154,36 +153,37 @@ const Metals = () => {
                 metals.map((metal) => (
                   <tr key={metal._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
+                      <div className="text-sm font-medium text-gray-900">{metal.name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
                         <div 
-                          className={`w-8 h-8 rounded-lg mr-3 bg-gradient-to-r ${metal.gradient}`}
-                          style={{ background: metal.backgroundColor }}
+                          className="w-6 h-6 rounded-full border border-gray-300"
+                          style={{ backgroundColor: metal.color }}
                         ></div>
-                        <div>
-                          {/* <div className="text-sm font-medium text-gray-900">{metal.name}</div> */}
-                          <div className="text-sm text-gray-500 capitalize">{metal.color}</div>
-                        </div>
+                        <span className="text-sm text-gray-900">{metal.colorName}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {metal.carat}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
-                      {metal.color}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className="font-medium">{((metal.priceMultiplier - 1) * 100).toFixed(0)}%</span>
-                      <span className="text-gray-500 ml-1">({(metal.priceMultiplier).toFixed(2)}x)</span>
+                      <div className="flex flex-wrap gap-1">
+                        {metal.purityLevels && metal.purityLevels.length > 0 ? (
+                          metal.purityLevels.map((level, idx) => (
+                            <span key={idx} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {level.karat}K (x{level.priceMultiplier})
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-gray-400">No purity levels</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        metal.isActive 
+                        metal.active 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {metal.isActive ? 'Active' : 'Inactive'}
+                        {metal.active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -211,13 +211,13 @@ const Metals = () => {
       </div>
 
       {/* Pagination */}
-      {metals.length >=1 && (
+      {pagination.totalPages > 1 && (
         <div className="mt-6">
           <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil(metals.length / limit)}
-            totalItems={metals.length}
-            itemsPerPage={limit}
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalRecords}
+            itemsPerPage={pagination.limit}
             onPageChange={setCurrentPage}
           />
         </div>

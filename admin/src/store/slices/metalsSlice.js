@@ -1,47 +1,42 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import api from '../../services/api';
 
 // Async thunks
 export const fetchMetals = createAsyncThunk(
   'metals/fetchMetals',
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
-      // For now, return mock data. Replace with actual API call
-      const mockMetals = [
-        {
-          _id: '0001',
-          carat: '14k',
-          color: 'white',
-          priceMultiplier: 1,
-          gradient: 'from-gray-200 to-gray-300',
-          backgroundColor: 'linear-gradient(to right, #e5e7eb, #d1d5db)',
-          isActive: true,
-          createdAt: new Date().toISOString()
-        },
-        {
-          _id: '0002',
-          carat: '18k',
-          color: 'yellow',
-          priceMultiplier: 1.15,
-          gradient: 'from-yellow-50 to-yellow-100',
-          backgroundColor: 'linear-gradient(to right, #fffbeb, #fefce8)',
-          isActive: true,
-          createdAt: new Date().toISOString()
-        },
-        {
-          _id: '0003',
-          carat: '22k',
-          color: 'rose',
-          priceMultiplier: 1.30,
-          gradient: 'from-pink-50 to-pink-100',
-          backgroundColor: 'linear-gradient(to right, #fdf2f8, #fdf2f8)',
-          isActive: true,
-          createdAt: new Date().toISOString()
-        }
-      ];
+      const response = await api.get('/api/metals', {
+        params: { page, limit }
+      });
       
-      return mockMetals;
+      if (response.data.success) {
+        return {
+          metals: response.data.data,
+          pagination: response.data.pagination
+        };
+      } else {
+        return rejectWithValue(response.data.message || 'Failed to fetch metals');
+      }
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const fetchSingleMetal = createAsyncThunk(
+  'metals/fetchSingleMetal',
+  async (metalId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/api/metals/${metalId}`);
+      
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        return rejectWithValue(response.data.message || 'Failed to fetch metal');
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -50,56 +45,32 @@ export const createMetal = createAsyncThunk(
   'metals/createMetal',
   async (metalData, { rejectWithValue }) => {
     try {
-      // Generate name from carat and color
-      const colorLabels = {
-        'white': 'White Gold',
-        'yellow': 'Yellow Gold', 
-        'rose': 'Rose Gold',
-        'platinum': 'Platinum'
-      };
+      const response = await api.post('/api/metals', metalData);
       
-      const name = `${metalData.carat.toUpperCase()} ${colorLabels[metalData.color] || metalData.color}`;
-      
-      // For now, return mock response. Replace with actual API call
-      const newMetal = {
-        _id: Date.now().toString(),
-        ...metalData,
-        name,
-        createdAt: new Date().toISOString()
-      };
-      
-      return newMetal;
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        return rejectWithValue(response.data.message || 'Failed to create metal');
+      }
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
 export const updateMetal = createAsyncThunk(
   'metals/updateMetal',
-  async ({ id, data }, { rejectWithValue }) => {
+  async ({ metalId, data }, { rejectWithValue }) => {
     try {
-      // Generate name from carat and color
-      const colorLabels = {
-        'white': 'White Gold',
-        'yellow': 'Yellow Gold', 
-        'rose': 'Rose Gold',
-        'platinum': 'Platinum'
-      };
+      const response = await api.put(`/api/metals/${metalId}`, data);
       
-      const name = `${data.carat.toUpperCase()} ${colorLabels[data.color] || data.color}`;
-      
-      // For now, return mock response. Replace with actual API call
-      const updatedMetal = {
-        _id: id,
-        ...data,
-        name,
-        updatedAt: new Date().toISOString()
-      };
-      
-      return updatedMetal;
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        return rejectWithValue(response.data.message || 'Failed to update metal');
+      }
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -108,10 +79,15 @@ export const deleteMetal = createAsyncThunk(
   'metals/deleteMetal',
   async (metalId, { rejectWithValue }) => {
     try {
-      // For now, return mock response. Replace with actual API call
-      return metalId;
+      const response = await api.delete(`/api/metals/${metalId}`);
+      
+      if (response.data.success) {
+        return metalId;
+      } else {
+        return rejectWithValue(response.data.message || 'Failed to delete metal');
+      }
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -120,8 +96,15 @@ const initialState = {
   items: [],
   allItems: [],
   filteredItems: [],
+  currentMetal: null,
   loading: false,
   error: null,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalRecords: 0,
+    limit: 10
+  },
   filters: {
     search: '',
     carat: 'all',
@@ -226,11 +209,28 @@ const metalsSlice = createSlice({
       })
       .addCase(fetchMetals.fulfilled, (state, action) => {
         state.loading = false;
-        state.allItems = action.payload;
-        state.items = action.payload;
+        state.allItems = action.payload.metals;
+        state.items = action.payload.metals;
+        state.pagination = action.payload.pagination;
         state.error = null;
       })
       .addCase(fetchMetals.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // Fetch single metal
+    builder
+      .addCase(fetchSingleMetal.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSingleMetal.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentMetal = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchSingleMetal.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
@@ -301,5 +301,7 @@ export const selectMetals = (state) => state.metals.items;
 export const selectMetalsLoading = (state) => state.metals.loading;
 export const selectMetalsError = (state) => state.metals.error;
 export const selectMetalsFilters = (state) => state.metals.filters;
+export const selectCurrentMetal = (state) => state.metals.currentMetal;
+export const selectMetalsPagination = (state) => state.metals.pagination;
 
 export default metalsSlice.reducer;

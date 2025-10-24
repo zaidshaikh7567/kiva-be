@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { resetPassword, clearError, selectAuthLoading, selectAuthSuccess } from '../store/slices/authSlice';
 
 const ResetPassword = () => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loading = useSelector(selectAuthLoading);
+  const success = useSelector(selectAuthSuccess);
+  
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
@@ -14,8 +19,21 @@ const ResetPassword = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
+
+  // Clear errors on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
+
+  // Handle success state
+  useEffect(() => {
+    if (success) {
+      setPasswordReset(true);
+    }
+  }, [success]);
 
   // password regex: 8+ chars, upper, lower, number, special
   const passwordRegex =
@@ -49,18 +67,18 @@ const ResetPassword = () => {
     setErrors({ ...errors, [e.target.name]: '' });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validate()) return;
 
-    setLoading(true);
+    const result = await dispatch(resetPassword({ token, password: formData.password }));
 
-    // Simulated API call
-    setTimeout(() => {
-      setLoading(false);
-      setPasswordReset(true);
-    }, 1500);
+    if (resetPassword.rejected.match(result)) {
+      setErrors({
+        password: result.payload?.message || 'Failed to reset password. Please try again.'
+      });
+    }
   };
 
   if (passwordReset) {
@@ -206,7 +224,7 @@ const ResetPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Updating Password...' : 'Update Password'}
             </button>

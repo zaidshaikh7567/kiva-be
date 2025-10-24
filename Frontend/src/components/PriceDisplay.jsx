@@ -19,6 +19,11 @@ const PriceDisplay = ({
   const currencySymbol = useSelector(selectCurrencySymbol);
   const exchangeRate = useSelector(selectExchangeRate);
   
+  // Handle undefined or null prices
+  if (price === undefined || price === null) {
+    return <span className={className}>Price not available</span>;
+  }
+  
   // Convert prices from USD to current currency
   const convertedPrice = convertPrice(price, 'USD', currentCurrency, { [currentCurrency]: exchangeRate });
   const convertedOriginalPrice = originalPrice ? 

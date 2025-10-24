@@ -44,11 +44,11 @@ const UserProfile = ({ user, onLogout }) => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-300"
       >
-        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-          <User className="w-4 h-4 text-white" />
+        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-montserrat-semibold-600">
+        {user.name?.charAt(0)}
         </div>
         <span className="hidden md:block font-montserrat-medium-500 text-black text-sm">
-          {user?.firstName || 'User'}
+          {user?.name || 'User'}
         </span>
         <ChevronDown className={`w-4 h-4 text-black-light transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -59,7 +59,7 @@ const UserProfile = ({ user, onLogout }) => {
           {/* User Info */}
           <div className="px-4 py-3 border-b border-gray-100">
             <p className="text-sm font-montserrat-semibold-600 text-black">
-              {user?.firstName} {user?.lastName}
+              {user?.name} 
             </p>
             <p className="text-xs font-montserrat-regular-400 text-black-light">
               {user?.email}

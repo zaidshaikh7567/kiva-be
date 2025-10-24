@@ -5,11 +5,17 @@ import { API_METHOD } from '../../services/apiMethod';
 // Async thunks for API calls
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, limit = 9, reset = true } = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get(API_METHOD.products);
-      // Return only the data, not the entire response object
-      return response.data;
+      const response = await api.get(`${API_METHOD.products}?page=${page}&limit=${limit}`);
+      // Return the data along with pagination info
+      return {
+        data: response.data.data || response.data,
+        page,
+        limit,
+        total: response.data.total || response.data.count || 0,
+        reset
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -62,9 +68,16 @@ const initialState = {
   filteredProducts: [],
   searchResults: [],
   loading: false,
+  loadingMore: false,
   error: null,
   searchQuery: '',
   selectedCategory: null,
+  pagination: {
+    currentPage: 1,
+    limit: 9,
+    total: 0,
+    hasMore: false
+  }
 };
 
 // Products slice
@@ -112,20 +125,40 @@ const productsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Fetch Products
-      .addCase(fetchProducts.pending, (state) => {
-        state.loading = true;
+      .addCase(fetchProducts.pending, (state, action) => {
+        if (action.meta.arg?.reset) {
+          state.loading = true;
+        } else {
+          state.loadingMore = true;
+        }
         state.error = null;
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        // Data is already extracted in the async thunk
-        const products = Array.isArray(action.payload) ? action.payload : [];
-        state.products = products;
-        state.filteredProducts = products;
+        state.loadingMore = false;
+        
+        const products = Array.isArray(action.payload.data) ? action.payload.data : [];
+        const { page, total, reset } = action.payload;
+        
+        if (reset) {
+          // First load or reset
+          state.products = products;
+          state.filteredProducts = products;
+        } else {
+          // Load more - append products
+          state.products = [...state.products, ...products];
+          state.filteredProducts = [...state.filteredProducts, ...products];
+        }
+        
+        // Update pagination
+        state.pagination.currentPage = page;
+        state.pagination.total = total;
+        state.pagination.hasMore = state.products.length < total;
         state.error = null;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
+        state.loadingMore = false;
         state.error = action.payload;
       })
       
@@ -197,8 +230,10 @@ export const selectCurrentProduct = (state) => state.products.currentProduct;
 export const selectFilteredProducts = (state) => state.products.filteredProducts;
 export const selectSearchResults = (state) => state.products.searchResults;
 export const selectProductsLoading = (state) => state.products.loading;
+export const selectProductsLoadingMore = (state) => state.products.loadingMore;
 export const selectProductsError = (state) => state.products.error;
 export const selectSearchQuery = (state) => state.products.searchQuery;
 export const selectSelectedCategory = (state) => state.products.selectedCategory;
+export const selectPagination = (state) => state.products.pagination;
 
 export default productsSlice.reducer;

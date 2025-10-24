@@ -13,7 +13,6 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
   const [showQuickView, setShowQuickView] = useState(false);
   const dispatch = useDispatch();
   const isFavorite = useSelector(state => selectIsFavorite(state, product._id));
-  console.log('isFavorite :', isFavorite);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -59,9 +58,9 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow">
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
             <div className="w-full sm:w-32 h-48 sm:h-32 bg-primary-light rounded-lg overflow-hidden flex-shrink-0">
-              {product.images && product.images.length > 0 ? (
+              {product.images && product?.images?.length > 0 ? (
                 <img
-                  src={product.images[0]?.url || product.images[0]}
+                  src={product.images[0] || product?.images[0]}
                   alt={product.title}
                   className="w-full h-full object-cover"
                 />
@@ -128,9 +127,9 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
       <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group h-full flex flex-col">
         <div className="relative overflow-hidden">
           <div className="aspect-square bg-primary-light">
-            {product.image && product.image.length > 0 ? (
+            {product.images && product.images.length > 0 ? (
               <img
-                src={product.image[0]}
+                src={typeof product.images[0] === 'string' ? product.images[0] : product.images[0]?.url || product.images[0]}
                 alt={product.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />

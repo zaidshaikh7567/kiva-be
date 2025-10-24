@@ -1,18 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, MapPin, CreditCard, Clock, CheckCircle, Eye } from 'lucide-react';
+import { Package, MapPin, CreditCard, Clock, CheckCircle, Eye, Edit2, Save, X } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAuthUser, selectAuthLoading, selectAuthError, selectAuthSuccess, updateUserProfile, clearError, clearSuccess } from '../store/slices/authSlice';
+import toast from 'react-hot-toast';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('orders');
+  const [isEditing, setIsEditing] = useState(false);
+  const dispatch = useDispatch();
+  const user = useSelector(selectAuthUser);
+  const loading = useSelector(selectAuthLoading);
+  const error = useSelector(selectAuthError);
+  const success = useSelector(selectAuthSuccess);
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
 
-  // Mock user data
-  const user = {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Main Street, New York, NY 10001'
+  // Update form data when user changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || ''
+      });
+    }
+  }, [user]);
+
+  // Handle success/error messages
+  useEffect(() => {
+    if (success) {
+      toast.success(success);
+      dispatch(clearSuccess());
+      setIsEditing(false);
+    }
+    if (error) {
+      toast.error(error);
+      dispatch(clearError());
+    }
+  }, [success, error, dispatch]);
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!formData.name || !formData.email) {
+      toast.error('Name and email are required');
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    dispatch(updateUserProfile(formData));
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      address: user.address || ''
+    });
+    setIsEditing(false);
+  };
+  // Mock user data
+  // const user = {
+  //   firstName: 'John',
+  //   lastName: 'Doe',
+  //   email: 'john.doe@example.com',
+  //   phone: '+1 (555) 123-4567',
+  //   address: '123 Main Street, New York, NY 10001'
+  // };
 
   // Mock orders data
   const orders = [
@@ -89,7 +165,7 @@ const Dashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-sorts-mill-gloudy text-black mb-2">
-            Welcome back, {user.firstName}!
+            Welcome back, {user?.name}!
           </h1>
           <p className="text-black-light font-montserrat-regular-400">
             Manage your account and track your orders
@@ -237,83 +313,117 @@ const Dashboard = () => {
 
             {activeTab === 'profile' && (
               <div className="bg-white rounded-2xl shadow-sm p-6">
-                <h2 className="text-2xl font-sorts-mill-gloudy text-black mb-6">
-                  Profile Information
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      value={user.firstName}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-                      readOnly
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      value={user.lastName}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-                      readOnly
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={user.email}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-                      readOnly
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      Phone
-                    </label>
-                    <input
-                      type="tel"
-                      value={user.phone}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-                      readOnly
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      Address
-                    </label>
-                    <textarea
-                      value={user.address}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black"
-                      readOnly
-                    />
-                  </div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-sorts-mill-gloudy text-black">
+                    Profile Information
+                  </h2>
+                  {!isEditing && (
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="flex items-center space-x-2 text-primary hover:text-primary-dark font-montserrat-medium-500 transition-colors duration-300"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      <span>Edit</span>
+                    </button>
+                  )}
                 </div>
 
-                <div className="mt-6 flex space-x-4">
-                  <button className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark font-montserrat-medium-500 transition-colors duration-300">
-                    Edit Profile
-                  </button>
-                  <Link
-                    to="/change-password"
-                    className="border-2 border-primary text-primary px-6 py-3 rounded-lg hover:bg-primary hover:text-white font-montserrat-medium-500 transition-colors duration-300 text-center"
-                  >
-                    Change Password
-                  </Link>
-                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                        Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                        // required
+                        readOnly
+                      />
+                    </div>
+
+                    {/* <div>
+                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      />
+                    </div> */}
+
+                    {/* <div>
+                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                        Address
+                      </label>
+                      <input
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className="w-full px-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      />
+                    </div> */}
+                  </div>
+
+                  {isEditing && (
+                    <div className="mt-6 flex space-x-4">
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="flex items-center space-x-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark font-montserrat-medium-500 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>{loading ? 'Saving...' : 'Save Changes'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancel}
+                        disabled={loading}
+                        className="flex items-center space-x-2 border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 font-montserrat-medium-500 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <X className="w-4 h-4" />
+                        <span>Cancel</span>
+                      </button>
+                    </div>
+                  )}
+                </form>
+
+                {!isEditing && (
+                  <div className="mt-6">
+                    <Link
+                      to="/change-password"
+                      className="inline-flex items-center space-x-2 border-2 border-primary text-primary px-6 py-3 rounded-lg hover:bg-primary hover:text-white font-montserrat-medium-500 transition-colors duration-300"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      <span>Change Password</span>
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>

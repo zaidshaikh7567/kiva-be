@@ -92,6 +92,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   ];
 
   const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     localStorage.removeItem('adminAuthenticated');
     window.location.reload();
   };

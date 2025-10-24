@@ -1,8 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, Grid, List, SlidersHorizontal, X } from 'lucide-react';
 import ShopProductCard from '../components/ShopProductCard';
 import CustomDropdown from '../components/CustomDropdown';
-import { mockProducts, mockCategories } from '../data/mockProducts';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProducts, selectProducts, selectProductsLoading, selectProductsError } from '../store/slices/productsSlice';
+import { fetchCategories } from '../store/slices/categoriesSlice';
+import { selectCategories } from '../store/slices/categoriesSlice';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest First' },
@@ -12,19 +16,41 @@ const SORT_OPTIONS = [
 ];
 
 const Shop = () => {
+  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const products = useSelector(selectProducts);
+  const productsLoading = useSelector(selectProductsLoading);
+  const productsError = useSelector(selectProductsError);
+  const categories = useSelector(selectCategories);
+  
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
 
+  // Fetch products and categories on mount
+  useEffect(() => {
+    dispatch(fetchProducts());
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  // Get parent categories only
+  const parentCategories = categories?.filter(category => !category.parent) || [];
+
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = mockProducts.filter(product => {
-      const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || product.category.name === selectedCategory;
+    let filtered = products.filter(product => {
+      // Safely extract description text for search
+      const descriptionText = typeof product.description === 'string' 
+        ? product.description.toLowerCase() 
+        : '';
+
+      const matchesSearch = product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           descriptionText.includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || 
+                             product.category?.name?.toLowerCase() === selectedCategory.toLowerCase();
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
       
       return matchesSearch && matchesCategory && matchesPrice;
@@ -48,7 +74,7 @@ const Shop = () => {
     }
 
     return filtered;
-  }, [searchTerm, selectedCategory, priceRange, sortBy]);
+  }, [products, searchTerm, selectedCategory, priceRange, sortBy]);
 
   const handlePriceRangeChange = (index, value) => {
     const newRange = [...priceRange];
@@ -147,7 +173,7 @@ const Shop = () => {
                       All Products
                     </span>
                   </label>
-                  {mockCategories.map((category) => (
+                  {parentCategories.map((category) => (
                     <label key={category._id} className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
                       <div className="relative">
                         <input
@@ -285,7 +311,7 @@ const Shop = () => {
                           All Products
                         </span>
                       </label>
-                      {mockCategories.map((category) => (
+                      {parentCategories.map((category) => (
                         <label key={category._id} className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
                           <div className="relative">
                             <input
@@ -391,7 +417,28 @@ const Shop = () => {
             </div>
 
             {/* Products Grid/List */}
-            {filteredProducts.length > 0 ? (
+            {productsLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-black-light font-montserrat-regular-400">Loading products...</p>
+              </div>
+            ) : productsError ? (
+              <div className="text-center py-12">
+                <div className="text-red-500 mb-4">
+                  <Search className="w-16 h-16 mx-auto" />
+                </div>
+                <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Error loading products</h3>
+                <p className="text-black-light font-montserrat-regular-400 mb-4">
+                  {productsError}
+                </p>
+                <button
+                  onClick={() => dispatch(fetchProducts())}
+                  className="px-6 py-3 bg-primary-dark text-white rounded-lg hover:bg-primary transition-colors font-montserrat-medium-500"
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : filteredProducts.length > 0 ? (
               <div className={
                 viewMode === 'grid' 
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'

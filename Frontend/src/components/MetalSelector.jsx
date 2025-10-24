@@ -1,7 +1,78 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMetals, selectMetals, selectMetalsLoading } from '../store/slices/metalsSlice';
 
 const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
-  const metalOptions = [
+  const dispatch = useDispatch();
+  const metals = useSelector(selectMetals);
+  const loading = useSelector(selectMetalsLoading);
+
+  useEffect(() => {
+    dispatch(fetchMetals());
+  }, [dispatch]);
+
+  // Transform API metals data to match component format
+  // Expand metals to show all purity levels as separate options
+  const metalOptions = metals.flatMap(metal => {
+    // Generate gradient colors based on metal color
+    const getColorStyles = (color, karat) => {
+      const lowerColor = color.toLowerCase();
+      const karatStr = String(karat); // Convert to string
+      
+      if (lowerColor?.includes('white')) {
+        return {
+          gradient: karatStr.includes('14') ? 'from-gray-200 to-gray-300' : 'from-gray-100 to-gray-200',
+          borderColor: karatStr.includes('14') ? 'border-gray-200' : 'border-gray-100',
+          textColor: karatStr.includes('14') ? 'text-gray-700' : 'text-gray-600',
+          backgroundColor: karatStr.includes('14') 
+            ? 'linear-gradient(to right, #e5e7eb, #d1d5db)' 
+            : 'linear-gradient(to right, #f3f4f6, #e5e7eb)'
+        };
+      } else if (lowerColor.includes('gold')) {
+        return {
+          gradient: karatStr.includes('14') ? 'from-yellow-50 to-yellow-100' : 'from-yellow-25 to-yellow-50',
+          borderColor: karatStr.includes('14') ? 'border-yellow-100' : 'border-yellow-50',
+          textColor: karatStr.includes('14') ? 'text-yellow-600' : 'text-yellow-500',
+          backgroundColor: karatStr.includes('14')
+            ? 'linear-gradient(to right, #fffbeb, #fefce8)'
+            : 'linear-gradient(to right, #fffbeb, #fffbeb)'
+        };
+      } else if (lowerColor.includes('rose')) {
+        return {
+          gradient: karatStr.includes('14') ? 'from-pink-50 to-pink-100' : 'from-pink-25 to-pink-50',
+          borderColor: karatStr.includes('14') ? 'border-pink-100' : 'border-pink-50',
+          textColor: karatStr.includes('14') ? 'text-pink-600' : 'text-pink-500',
+          backgroundColor: 'linear-gradient(to right, #fdf2f8, #fdf2f8)'
+        };
+      }
+      
+      // Default gray for other colors
+      return {
+        gradient: 'from-gray-200 to-gray-300',
+        borderColor: 'border-gray-200',
+        textColor: 'text-gray-700',
+        backgroundColor: 'linear-gradient(to right, #e5e7eb, #d1d5db)'
+      };
+    };
+
+    // Map each purity level to a separate metal option
+    return metal.purityLevels?.map(purity => {
+      const styles = getColorStyles(metal.name, purity.karat);
+      
+      return {
+        id: `${purity.karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
+        carat: `${purity.karat}K`, // Add 'K' suffix for display
+        color: metal.name,
+        priceMultiplier: purity.priceMultiplier || 1.0,
+        metalId: metal._id,
+        purityLevelId: purity._id,
+        ...styles
+      };
+    }) || [];
+  });
+
+  // Fallback mock data if API hasn't loaded yet
+  const fallbackMetalOptions = [
     // {
     //   id: '10k-white',
     //   carat: '10K',
@@ -32,16 +103,6 @@ const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
       textColor: 'text-gray-600',
       backgroundColor: 'linear-gradient(to right, #f3f4f6, #e5e7eb)'
     },
-    // {
-    //   id: '10k-yellow',
-    //   carat: '10K',
-    //   color: 'Yellow Gold',
-    //   priceMultiplier: 1.0,
-    //   gradient: 'from-yellow-100 to-yellow-200',
-    //   borderColor: 'border-yellow-200',
-    //   textColor: 'text-yellow-700',
-    //   backgroundColor: 'linear-gradient(to right, #fefce8, #fef08a)'
-    // },
     {
       id: '14k-yellow',
       carat: '14K',
@@ -94,6 +155,9 @@ const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
     }
   ];
 
+  // Use API data if available, otherwise use fallback
+  const displayMetalOptions = metalOptions.length > 0 ? metalOptions : fallbackMetalOptions;
+
   return (
     <div className={`space-y-4 ${className}`}>
       <div>
@@ -106,45 +170,51 @@ const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
       </div>
 
       {/* Metal Options Grid */}
-      <div className="grid grid-cols-3 gap-4">
-        {metalOptions.map((metal) => (
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-sm text-black-light mt-2">Loading metals...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-2">
+          {displayMetalOptions.map((metal) => (
           <button
             key={metal.id}
             onClick={() => onMetalChange(metal)}
             className={`
-              relative p-4 rounded-2xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-xl group
+              relative p-2 rounded-2xl transition-all duration-300 
               ${selectedMetal?.id === metal.id 
-                ? 'border-primary ring-2 ring-primary ring-opacity-30 shadow-xl bg-primary-light' 
-                : 'border-secondary hover:border-primary bg-white hover:bg-secondary shadow-sm hover:shadow-lg'
+                ? 'border-primary ring-2 ring-primary ring-opacity-30  bg-primary-light' 
+                : 'border-secondary hover:border-primary bg-white hover:bg-secondary '
               }
             `}
           >
             {/* Metal Color Preview with Carat Overlay */}
             <div 
-              className={`w-full h-12 rounded-xl mb-4 bg-gradient-to-r ${metal.gradient} border border-gray-200 relative flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300`}
+              className={`w-full  h-12 rounded-xl  bg-gradient-to-r ${metal.gradient} border border-gray-200 relative items-center justify-center `}
               style={{ background: metal.backgroundColor }}
             >
-              <div className="font-montserrat-bold-700 text-lg text-black drop-shadow-sm">
+              <div className="font-montserrat-bold-700 text-lg text-black ">
                 {metal.carat}
               </div>
-            </div>
-            
-            {/* Metal Info */}
-            <div className="text-center">
               <div className="font-montserrat-semibold-600 text-black text-sm leading-tight">
                 {metal.color}
               </div>
             </div>
+            
+            {/* Metal Info */}
+        
 
             {/* Selected Indicator */}
             {selectedMetal?.id === metal.id && (
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center ">
                 <div className="w-3 h-3 bg-white rounded-full"></div>
               </div>
             )}
           </button>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Selected Metal Display */}
       {selectedMetal && (

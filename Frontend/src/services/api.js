@@ -1,9 +1,9 @@
 import axios from 'axios';
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 // Create axios instance with base configuration
 const api = axios.create({
   // Use empty baseURL for development - Vite proxy will handle the routing
-  baseURL: import.meta.env.DEV ? '' : 'https://kiva-be.onrender.com',
+  baseURL: URL,
   // timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -16,11 +16,11 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    // You can add auth tokens here if needed
-    // const token = localStorage.getItem('authToken');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // Add auth token to requests
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     
     return config;
   },
@@ -31,19 +31,100 @@ api.interceptors.request.use(
 );
 
 // Response interceptor
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
     // Handle common error cases
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
-      // You can dispatch logout action here if needed
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // If already refreshing, queue this request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(token => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+          throw new Error('No refresh token');
+        }
+
+        // Create a new axios instance without interceptors to avoid infinite loop
+        const refreshAxios = axios.create({
+          baseURL: URL,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const response = await refreshAxios.post('/api/auth/refresh-token', {
+          refreshToken
+        });
+
+        // Handle both response structures
+        const accessToken = response.data?.data?.accessToken || response.data?.accessToken;
+        
+        if (!accessToken) {
+          throw new Error('No access token in response');
+        }
+
+        localStorage.setItem('accessToken', accessToken);
+
+        processQueue(null, accessToken);
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        // Clear tokens and redirect to login
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        
+        // Only redirect if not already on sign-in page
+        if (window.location.pathname !== '/sign-in') {
+          window.location.href = '/sign-in';
+        }
+        
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     } else if (error.response?.status === 500) {
       // Server error occurred
+      console.error('Server error:', error);
     } else if (error.code === 'ECONNABORTED') {
       // Request timeout
+      console.error('Request timeout:', error);
     }
     
     return Promise.reject(error);

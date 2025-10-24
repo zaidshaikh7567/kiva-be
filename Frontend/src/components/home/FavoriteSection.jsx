@@ -1,52 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import Necklaces from "../../assets/images/category-2.png";
-import Bracelets from "../../assets/images/category-3.png";
 import Rings from "../../assets/images/category-1.png";
-import Earrings from "../../assets/images/category-4.png";
 import Summar from "../../assets/images/summar.webp";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
-import { mockCategories } from "../../data/mockProducts";
 import { useDispatch, useSelector } from 'react-redux';
 
 const FavoriteSection = () => {
   const { categories, loading, error } = useSelector(state => state.categories);
   const dispatch = useDispatch();
-  const [useMockData, setUseMockData] = useState(true); // Force mock data since API is not working
   
   useEffect(() => {
-    dispatch(fetchCategories()).catch(() => {
-      console.log('API failed, using mock data for categories');
-      setUseMockData(true);
-    });
+    dispatch(fetchCategories());
   }, [dispatch]);
 
-  // Use mock data if API fails, otherwise use Redux state
-  const displayCategories = useMockData ? mockCategories : (categories?.filter(category => !category.parent) || []);
+  // Filter to only show parent categories (those without a parent)
+  const parentCategories = categories?.filter(category => !category.parent) || [];
   
-  // Map categories to display format with images
-  const getCategoryImage = (categoryName) => {
-    const name = categoryName.toLowerCase();
-    if (name.includes('ring')) return Rings;
-    if (name.includes('earring')) return Earrings;
-    if (name.includes('bracelet')) return Bracelets;
-    if (name.includes('necklace') || name.includes('neckless')) return Necklaces;
-    return Rings; // default fallback
-  };
-
-  const getCategoryLink = (categoryName) => {
-    const name = categoryName.toLowerCase();
-    if (name.includes('ring')) return '/shop?category=rings';
-    if (name.includes('earring')) return '/shop?category=earrings';
-    if (name.includes('bracelet')) return '/shop?category=bracelets';
-    if (name.includes('necklace') || name.includes('neckless')) return '/shop?category=necklaces';
-    return '/shop'; // default fallback
-  };
-
-  const displayCategoriesFormatted = displayCategories.map(category => ({
+  // Format categories for display
+  const displayCategoriesFormatted = parentCategories.map(category => ({
     title: category.name,
-    image: getCategoryImage(category.name),
-    link: getCategoryLink(category.name),
+    image: category.image, // Use the image directly from API
+    link: `/shop?category=${category.name.toLowerCase()}`,
   }));
   return (
     <div className="px-6 md:px-16  xl:px-32  py-8 md:py-16 w-full">
@@ -94,10 +68,10 @@ const FavoriteSection = () => {
        
          {/* Title - Only visible on desktop until hover */}
          <h3
-           className="absolute inset-0 font-sorts-mill-gloudy flex items-center justify-center 
+           className="absolute inset-0 font-sorts-mill-gloudy hidden items-center justify-center 
                       text-white text-[54px] font-medium 
                       pointer-events-none capitalize
-                      hidden md:flex md:group-hover:opacity-0 transition-opacity duration-500"
+                      md:flex md:group-hover:opacity-0 transition-opacity duration-500"
          >
            {item.title}
          </h3>

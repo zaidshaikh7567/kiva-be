@@ -1,17 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon, ChevronDown, Check } from 'lucide-react';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
 import RichTextEditor from './RichTextEditor';
-
-// Stone options for multi-select
-const STONE_OPTIONS = [
-  { id: 'natural-diamond', label: 'Natural Diamond' },
-  { id: 'natural-gemstone', label: 'Natural Gemstone' },
-  { id: 'lab-grown-diamond', label: 'Lab Grown Diamond' },
-  { id: 'lab-grown-gemstone', label: 'Lab Grown Gemstone' },
-];
 
 // Care instructions options
 const CARE_OPTIONS = [
@@ -70,9 +60,8 @@ function getSafeLexicalState(val) {
   return EMPTY_LEXICAL_STATE;
 }
 
-const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, mode = 'add', categories = [] }) => {
-  const dispatch = useDispatch();
-  const metals = useSelector(selectMetals);
+const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, mode = 'add', categories = [], metals = [], stones = [] }) => {
+console.log('productData :', productData);
   console.log('metals--- :', metals);
   const [formData, setFormData] = useState({
     title: '',
@@ -81,8 +70,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     price: '',
     quantity: '',
     categoryId: '',
-    stone: [],
-    care: '',
+    stoneTypeId: '',
+    careInstruction: '',
     images: [],
     metalOptions: []
   });
@@ -91,16 +80,11 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
   const [imagePreviews, setImagePreviews] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
-  const [stoneDropdownOpen, setStoneDropdownOpen] = useState(false);
   const [careDropdownOpen, setCareDropdownOpen] = useState(false);
   const [metalOptionsOpen, setMetalOptionsOpen] = useState(false);
+  const [stoneDropdownOpen, setStoneDropdownOpen] = useState(false);
 
-  // Fetch metals when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      dispatch(fetchMetals());
-    }
-  }, [isOpen, dispatch]);
+  // Metals are now passed as props from Products page
 
   // Update form data when modal opens or productData changes
   useEffect(() => {
@@ -115,10 +99,10 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         price: productData.price?.toString() || '',
         quantity: productData.quantity?.toString() || '',
         categoryId: productData.category?._id || productData.categoryId || '',
-        stone: productData.stone || [],
-        care: productData.care || '',
+        stoneTypeId: productData.stoneType?._id || productData.stoneTypeId || '',
+        careInstruction: productData.careInstruction || '',
         images: [],
-        metalOptions: productData.metalOptions || []
+        metalOptions: productData.metals?.map(m => m._id) || []
       });
 
       // Set image previews for existing images
@@ -139,8 +123,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         price: '',
         quantity: '',
         categoryId: '',
-        stone: [],
-        care: '',
+        stoneTypeId: '',
+        careInstruction: '',
         images: [],
         metalOptions: []
       });
@@ -154,14 +138,14 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
       if (categoryDropdownOpen && !event.target.closest('.category-dropdown-container')) {
         setCategoryDropdownOpen(false);
       }
-      if (stoneDropdownOpen && !event.target.closest('.stone-dropdown-container')) {
-        setStoneDropdownOpen(false);
-      }
       if (careDropdownOpen && !event.target.closest('.care-dropdown-container')) {
         setCareDropdownOpen(false);
       }
       if (metalOptionsOpen && !event.target.closest('.metal-options-container') && !event.target.closest('.metal-options-section')) {
         setMetalOptionsOpen(false);
+      }
+      if (stoneDropdownOpen && !event.target.closest('.stone-dropdown-container')) {
+        setStoneDropdownOpen(false);
       }
     };
 
@@ -169,7 +153,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [categoryDropdownOpen, stoneDropdownOpen, careDropdownOpen, metalOptionsOpen]);
+  }, [categoryDropdownOpen, careDropdownOpen, metalOptionsOpen, stoneDropdownOpen]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -179,24 +163,15 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     }));
   };
 
-  const toggleStone = (stoneId) => {
-    setFormData(prev => ({
-      ...prev,
-      stone: prev.stone.includes(stoneId)
-        ? prev.stone.filter(s => s !== stoneId)
-        : [...prev.stone, stoneId]
-    }));
-  };
-
   const handleCareSelect = (care) => {
-    setFormData(prev => ({ ...prev, care }));
+    setFormData(prev => ({ ...prev, careInstruction: care }));
     setCareDropdownOpen(false);
   };
 
   const toggleMetalOption = (metalId) => {
     // Only allow toggling active metals
     const metal = metals.find(m => m._id === metalId);
-    if (!metal || !metal.isActive) return;
+    if (!metal || !metal.active) return;
     
     setFormData(prev => ({
       ...prev,
@@ -206,10 +181,12 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     }));
   };
 
-  const calculateMetalPrice = (metalId) => {
+  const calculateMetalPrice = (metalId, purityLevel) => {
     const metal = metals.find(m => m._id === metalId);
     if (!metal || !formData.price) return 0;
-    return (parseFloat(formData.price) * metal.priceMultiplier).toFixed(2);
+    // Use the provided purity level's price multiplier for calculation
+    const multiplier = purityLevel ? purityLevel.priceMultiplier : 1;
+    return (parseFloat(formData.price) * multiplier).toFixed(2);
   };
 
   const handleImageChange = (e) => {
@@ -291,10 +268,21 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     e.preventDefault();
     if (formData.title.trim() && formData.price && formData.quantity && formData.categoryId) {
       const submitData = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        subDescription: formData.subDescription || '',
         price: parseFloat(formData.price),
-        quantity: parseInt(formData.quantity)
+        quantity: parseInt(formData.quantity),
+        categoryId: formData.categoryId,
+        metalIds: formData.metalOptions, // Map metalOptions to metalIds
+        careInstruction: formData.careInstruction || '', // Use careInstruction directly
+        images: formData.images // Include images array
       };
+
+      // Only add stoneTypeId if it's a valid ObjectId
+      if (formData.stoneTypeId && formData.stoneTypeId.length === 24 && /^[0-9a-fA-F]{24}$/.test(formData.stoneTypeId)) {
+        submitData.stoneTypeId = formData.stoneTypeId;
+      }
 
       if (mode === 'edit' && productData) {
         // Edit mode - send ID and data
@@ -324,8 +312,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
       price: '',
       quantity: '',
       categoryId: '',
-      stone: [],
-      care: '',
+      stoneTypeId: '',
+      careInstruction: '',
       images: [],
       metalOptions: []
     });
@@ -620,17 +608,17 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
             </div>
           </div>
 
-          {/* Stone - Multi-select Dropdown */}
+          {/* Stone Type - Optional Field */}
           <div className="space-y-2">
             <label className="block text-sm font-montserrat-medium-500 text-black">
-              Stone Type
+              Stone Type (Optional)
             </label>
             <div className="relative stone-dropdown-container">
               <button
                 type="button"
                 onClick={() => setStoneDropdownOpen(!stoneDropdownOpen)}
                 className={`w-full px-4 py-3 border-2 rounded-lg text-left flex items-center justify-between transition-all duration-300 font-montserrat-regular-400
-                  ${formData.stone.length > 0
+                  ${formData.stoneTypeId
                     ? 'border-primary bg-primary-light/10 text-black' 
                     : 'border-gray-200 text-black-light'
                   }
@@ -639,12 +627,10 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                   disabled:opacity-50 disabled:cursor-not-allowed`}
                 disabled={loading}
               >
-                <span className={formData.stone.length > 0 ? 'text-black font-montserrat-medium-500' : 'text-black-light'}>
-                  {formData.stone.length > 0
-                    ? STONE_OPTIONS.filter(opt => formData.stone.includes(opt.id))
-                        .map(opt => opt.label)
-                        .join(', ')
-                    : 'Select stone types'
+                <span className={formData.stoneTypeId ? 'text-black font-montserrat-medium-500' : 'text-black-light'}>
+                  {formData.stoneTypeId
+                    ? stones.find(stone => stone._id === formData.stoneTypeId)?.name || 'Select stone type'
+                    : 'Select stone type'
                   }
                 </span>
                 <ChevronDown 
@@ -657,15 +643,33 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
               {stoneDropdownOpen && (
                 <div className="absolute z-50 w-full mt-2 bg-white border-2 border-primary-light rounded-xl shadow-2xl max-h-60 overflow-y-auto">
                   <div className="py-2">
-                    {STONE_OPTIONS.map((stone) => (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, stoneTypeId: '' });
+                        setStoneDropdownOpen(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left transition-all duration-200 flex items-center justify-between group hover:bg-primary-light ${
+                        !formData.stoneTypeId ? 'bg-primary-light' : ''
+                      }`}
+                    >
+                      <span className="text-black font-montserrat-regular-400">None</span>
+                      {!formData.stoneTypeId && <Check className="w-5 h-5 text-primary" />}
+                    </button>
+                    {stones.map((stone) => (
                       <button
-                        key={stone.id}
+                        key={stone._id}
                         type="button"
-                        onClick={() => toggleStone(stone.id)}
-                        className={`w-full px-4 py-3 text-left transition-all duration-200 flex items-center justify-between group hover:bg-primary-light`}
+                        onClick={() => {
+                          setFormData({ ...formData, stoneTypeId: stone._id });
+                          setStoneDropdownOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 text-left transition-all duration-200 flex items-center justify-between group hover:bg-primary-light ${
+                          formData.stoneTypeId === stone._id ? 'bg-primary-light' : ''
+                        }`}
                       >
-                        <span className="text-black font-montserrat-regular-400">{stone.label}</span>
-                        {formData.stone.includes(stone.id) && (
+                        <span className="text-black font-montserrat-regular-400">{stone.name}</span>
+                        {formData.stoneTypeId === stone._id && (
                           <Check className="w-5 h-5 text-primary" />
                         )}
                       </button>
@@ -686,7 +690,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                 type="button"
                 onClick={() => setCareDropdownOpen(!careDropdownOpen)}
                 className={`w-full px-4 py-3 border-2 rounded-lg text-left flex items-center justify-between transition-all duration-300 font-montserrat-regular-400
-                  ${formData.care
+                  ${formData.careInstruction
                     ? 'border-primary bg-primary-light/10 text-black' 
                     : 'border-gray-200 text-black-light'
                   }
@@ -695,8 +699,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                   disabled:opacity-50 disabled:cursor-not-allowed`}
                 disabled={loading}
               >
-                <span className={formData.care ? 'text-black font-montserrat-medium-500' : 'text-black-light'}>
-                  {formData.care || 'Select care instructions'}
+                <span className={formData.careInstruction ? 'text-black font-montserrat-medium-500' : 'text-black-light'}>
+                  {formData.careInstruction || 'Select care instructions'}
                 </span>
                 <ChevronDown 
                   className={`w-5 h-5 text-primary transition-transform duration-300 ${
@@ -714,13 +718,13 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                         type="button"
                         onClick={() => handleCareSelect(care)}
                         className={`w-full px-4 py-3 text-left transition-all duration-200 flex items-center justify-between group
-                          ${formData.care === care
+                          ${formData.careInstruction === care
                             ? 'bg-primary text-white font-montserrat-medium-500'
                             : 'hover:bg-primary-light text-black font-montserrat-regular-400'
                           }`}
                       >
                         <span>{care}</span>
-                        {formData.care === care && (
+                        {formData.careInstruction === care && (
                           <Check className="w-5 h-5 text-white" />
                         )}
                       </button>
@@ -837,14 +841,14 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                   <h4 className="text-sm font-montserrat-medium-500 text-black">
                     Available Metal Options
                   </h4>
-                  {metals.filter(metal => metal.isActive).length === 0 ? (
+                  {metals.filter(metal => metal.active).length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <div className="text-lg font-medium mb-2">No Active Metals Available</div>
                       <div className="text-sm">Please add or activate metal options in the Metals section</div>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {metals.filter(metal => metal.isActive).map((metal) => (
+                      {metals.filter(metal => metal.active).map((metal) => (
                       <div
                         key={metal._id}
                         className={`relative p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:shadow-lg group
@@ -856,11 +860,11 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                       >
                         {/* Metal Color Preview */}
                         <div 
-                          className={`w-full h-12 rounded-lg mb-3 bg-gradient-to-r ${metal.gradient} border border-gray-200 relative flex items-center justify-center shadow-md`}
-                          style={{ background: metal.backgroundColor }}
+                          className="w-full h-12 rounded-lg mb-3 border border-gray-200 relative flex items-center justify-center shadow-md"
+                          style={{ backgroundColor: metal.color }}
                         >
-                          <div className="font-montserrat-bold-700 text-lg text-black drop-shadow-sm">
-                            {metal.carat.toUpperCase()}
+                          <div className="font-montserrat-bold-700 text-lg text-white drop-shadow-sm">
+                            {metal.name}
                           </div>
                         </div>
                         
@@ -870,19 +874,23 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                             {metal.name}
                           </div>
                           <div className="text-xs font-montserrat-medium-500 text-primary mt-1">
-                            +{((metal.priceMultiplier - 1) * 100).toFixed(0)}% price
+                            {metal.purityLevels && metal.purityLevels.length > 0 && (
+                              <span>{metal.purityLevels.map(pl => `${pl.karat}K`).join(', ')}</span>
+                            )}
                           </div>
                         </div>
 
                         {/* Price Display */}
-                        {formData.price && (
-                          <div className="text-center">
+                        {formData.price && metal.purityLevels && metal.purityLevels.length > 0 && (
+                          <div className="text-center space-y-1">
                             <div className="text-xs font-montserrat-regular-400 text-black-light">
-                              Calculated Price:
+                              Prices:
                             </div>
-                            <div className="text-sm font-montserrat-semibold-600 text-primary">
-                              ${calculateMetalPrice(metal._id)}
-                            </div>
+                            {metal.purityLevels.map((pl, idx) => (
+                              <div key={pl._id || idx} className="text-xs font-montserrat-semibold-600 text-primary">
+                                {pl.karat}K: ${calculateMetalPrice(metal._id, pl)}
+                              </div>
+                            ))}
                           </div>
                         )}
 
@@ -904,37 +912,41 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                     <h4 className="text-sm font-montserrat-semibold-600 text-black mb-3">
                       Selected Metal Options ({formData.metalOptions.filter(metalId => {
                         const metal = metals.find(m => m._id === metalId);
-                        return metal && metal.isActive;
+                        return metal && metal.active;
                       }).length})
                     </h4>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {formData.metalOptions.map(metalId => {
                         const metal = metals.find(m => m._id === metalId);
                         // Only show active metals in the summary
-                        if (!metal || !metal.isActive) return null;
+                        if (!metal || !metal.active) return null;
                         return (
-                          <div key={metalId} className="flex items-center justify-between bg-white rounded-lg p-3">
-                            <div className="flex items-center space-x-3">
+                          <div key={metalId} className="bg-white rounded-lg p-3 border border-white">
+                            <div className="flex items-center space-x-3 mb-2">
                               <div 
-                                className={`w-8 h-8 rounded-lg bg-gradient-to-r ${metal.gradient}`}
-                                style={{ background: metal.backgroundColor }}
+                                className="w-8 h-8 rounded-lg border border-gray-300 flex-shrink-0"
+                                style={{ backgroundColor: metal.color }}
                               ></div>
-                              <div>
-                                <div className="font-montserrat-medium-500 text-black text-sm">
-                                  {metal.name}
-                                </div>
-                                <div className="text-xs font-montserrat-regular-400 text-black-light">
-                                  +{((metal.priceMultiplier - 1) * 100).toFixed(0)}% markup
-                                </div>
+                              <div className="font-montserrat-medium-500 text-black text-sm">
+                                {metal.name}
                               </div>
                             </div>
-                            <div className="text-right">
-                              {formData.price && (
-                                <div className="text-sm font-montserrat-semibold-600 text-primary">
-                              ${calculateMetalPrice(metalId)}
-                                </div>
-                              )}
-                            </div>
+                            {metal.purityLevels && metal.purityLevels.length > 0 && (
+                              <div className="space-y-1 pl-11">
+                                {metal.purityLevels.map((pl, idx) => (
+                                  <div key={pl._id || idx} className="flex items-center justify-between text-xs">
+                                    <span className="font-montserrat-regular-400 text-black-light">
+                                      {pl.karat}K (x{pl.priceMultiplier})
+                                    </span>
+                                    {formData.price && (
+                                      <span className="font-montserrat-semibold-600 text-primary">
+                                        ${calculateMetalPrice(metalId, pl)}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         );
                       })}

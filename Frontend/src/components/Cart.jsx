@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Minus, Plus, Trash2, ShoppingBag, Eye } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { closeCart, updateQuantity, removeFromCart, clearCart } from '../store/slices/cartSlice';
 import PriceDisplay from './PriceDisplay';
 import ProductDetailsModal from './ProductDetailsModal';
@@ -12,6 +12,11 @@ const Cart = () => {
   const { items, totalQuantity, totalPrice, isOpen } = useSelector(state => state.cart);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  
+  // Check if user is authenticated
+  const isAuthenticated = !!localStorage.getItem('accessToken');
+  const MAX_CART_ITEMS = 5;
+  const remainingSlots = MAX_CART_ITEMS - items.length;
 
   if (!isOpen) return null;
 
@@ -68,6 +73,25 @@ const Cart = () => {
 
           {/* Cart Content */}
           <div className="flex-1 overflow-y-auto">
+            {/* Limit Indicator for Unauthenticated Users */}
+            {!isAuthenticated && items.length > 0 && (
+              <div className={`mx-6 mt-4 p-3 rounded-lg border-2 ${
+                remainingSlots <= 1 
+                  ? 'bg-yellow-50 border-yellow-300' 
+                  : 'bg-blue-50 border-blue-300'
+              }`}>
+                <p className={`text-sm font-montserrat-medium-500 ${
+                  remainingSlots <= 1 ? 'text-yellow-800' : 'text-blue-800'
+                }`}>
+                  {remainingSlots > 0 ? (
+                    <>🔒 You can add {remainingSlots} more {remainingSlots === 1 ? 'item' : 'items'}. <Link to="/sign-in" className="underline hover:text-blue-600" onClick={() => dispatch(closeCart())}>Login</Link> for unlimited cart!</>
+                  ) : (
+                    <>⚠️ Cart limit reached! <Link to="/sign-in" className="underline hover:text-yellow-600" onClick={() => dispatch(closeCart())}>Login</Link> to add more items.</>
+                  )}
+                </p>
+              </div>
+            )}
+            
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full p-6 text-center">
                 <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />

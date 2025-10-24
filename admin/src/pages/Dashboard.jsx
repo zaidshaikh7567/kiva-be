@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, Users, ShoppingBag, DollarSign, Gem, Star, Eye, Heart } from 'lucide-react';
+import { TrendingUp, Users, ShoppingBag, DollarSign, Gem } from 'lucide-react';
 
 const Dashboard = () => {
   const stats = [

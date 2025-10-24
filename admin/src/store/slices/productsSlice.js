@@ -17,7 +17,7 @@ export const fetchProducts = createAsyncThunk(
       
       console.log('API URL being called:', url); // Debug log
       const response = await api.get(url);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -32,9 +32,30 @@ export const createProduct = createAsyncThunk(
       const formData = new FormData();
       formData.append('title', productData.title);
       formData.append('description', productData.description);
+      
+      // Add subDescription if provided
+      if (productData.subDescription) {
+        formData.append('subDescription', productData.subDescription);
+      }
+      
       formData.append('price', productData.price.toString());
       formData.append('quantity', productData.quantity.toString());
       formData.append('categoryId', productData.categoryId);
+      
+      // Add metalIds as JSON array string if provided
+      if (productData.metalIds && productData.metalIds.length > 0) {
+        formData.append('metalIds', JSON.stringify(productData.metalIds));
+      }
+      
+      // Add stoneTypeId if provided and is a valid ObjectId (24 char hex string)
+      if (productData.stoneTypeId && productData.stoneTypeId.length === 24 && /^[0-9a-fA-F]{24}$/.test(productData.stoneTypeId)) {
+        formData.append('stoneTypeId', productData.stoneTypeId);
+      }
+      
+      // Add careInstruction if provided
+      if (productData.careInstruction) {
+        formData.append('careInstruction', productData.careInstruction);
+      }
       
       // Add images if provided
       if (productData.images && productData.images.length > 0) {
@@ -71,12 +92,33 @@ export const updateProduct = createAsyncThunk(
       const formData = new FormData();
       formData.append('title', data.title);
       formData.append('description', data.description);
+      
+      // Add subDescription if provided
+      if (data.subDescription) {
+        formData.append('subDescription', data.subDescription);
+      }
+      
       formData.append('price', data.price.toString());
       formData.append('quantity', data.quantity.toString());
       
       // Add categoryId if provided
       if (data.categoryId) {
         formData.append('categoryId', data.categoryId);
+      }
+      
+      // Add metalIds as JSON array string if provided
+      if (data.metalIds && data.metalIds.length > 0) {
+        formData.append('metalIds', JSON.stringify(data.metalIds));
+      }
+      
+      // Add stoneTypeId if provided and is a valid ObjectId (24 char hex string)
+      if (data.stoneTypeId && data.stoneTypeId.length === 24 && /^[0-9a-fA-F]{24}$/.test(data.stoneTypeId)) {
+        formData.append('stoneTypeId', data.stoneTypeId);
+      }
+      
+      // Add careInstruction if provided
+      if (data.careInstruction) {
+        formData.append('careInstruction', data.careInstruction);
       }
       
       // Add images if provided
@@ -172,7 +214,7 @@ const productsSlice = createSlice({
         const searchTerm = state.filters.search.toLowerCase();
         filtered = filtered.filter(product => 
           product.title.toLowerCase().includes(searchTerm) ||
-          product.description.toLowerCase().includes(searchTerm)
+          product?.description?.toLowerCase().includes(searchTerm)
         );
       }
 
@@ -220,17 +262,17 @@ const productsSlice = createSlice({
           case 'oldest':
             filtered.sort((a, b) => new Date(a.createdAt || a.updatedAt) - new Date(b.createdAt || b.updatedAt));
             break;
-          case 'price-low':
+          case 'price-asc':
             filtered.sort((a, b) => a.price - b.price);
             break;
-          case 'price-high':
+          case 'price-desc':
             filtered.sort((a, b) => b.price - a.price);
             break;
-          case 'name-a-z':
-            filtered.sort((a, b) => a.title.localeCompare(b.title));
+          case 'stock-asc':
+            filtered.sort((a, b) => a.quantity - b.quantity);
             break;
-          case 'name-z-a':
-            filtered.sort((a, b) => b.title.localeCompare(a.title));
+          case 'stock-desc':
+            filtered.sort((a, b) => b.quantity - a.quantity);
             break;
           default:
             break;
@@ -317,17 +359,17 @@ const productsSlice = createSlice({
             case 'oldest':
               filtered.sort((a, b) => new Date(a.createdAt || a.updatedAt) - new Date(b.createdAt || b.updatedAt));
               break;
-            case 'price-low':
+            case 'price-asc':
               filtered.sort((a, b) => a.price - b.price);
               break;
-            case 'price-high':
+            case 'price-desc':
               filtered.sort((a, b) => b.price - a.price);
               break;
-            case 'name-a-z':
-              filtered.sort((a, b) => a.title.localeCompare(b.title));
+            case 'stock-asc':
+              filtered.sort((a, b) => a.quantity - b.quantity);
               break;
-            case 'name-z-a':
-              filtered.sort((a, b) => b.title.localeCompare(a.title));
+            case 'stock-desc':
+              filtered.sort((a, b) => b.quantity - a.quantity);
               break;
             default:
               break;

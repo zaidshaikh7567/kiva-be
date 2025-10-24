@@ -1,27 +1,60 @@
 
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { useSelector } from 'react-redux';
+import { selectIsAuthenticated } from './store/slices/authSlice';
 import LoginPage from './components/LoginPage';
+import ForgotPasswordPage from './components/ForgotPasswordPage';
+import ResetPasswordPage from './components/ResetPasswordPage';
 import Layout from './components/Layout';
 
+function LoginWrapper() {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    // This will be handled by Redux state change
+  };
+
+  const handleForgotPassword = () => {
+    navigate('/forgot-password');
+  };
+
+  return <LoginPage onLogin={handleLogin} onForgotPassword={handleForgotPassword} />;
+}
+
+function ForgotPasswordWrapper() {
+  const navigate = useNavigate();
+
+  const handleBackToLogin = () => {
+    navigate('/');
+  };
+
+  return <ForgotPasswordPage onBackToLogin={handleBackToLogin} />;
+}
+
+function ResetPasswordWrapper() {
+  const navigate = useNavigate();
+
+  const handleResetSuccess = () => {
+    navigate('/');
+  };
+
+  return <ResetPasswordPage onResetSuccess={handleResetSuccess} />;
+}
+
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already authenticated
-    const authStatus = localStorage.getItem('adminAuthenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
-  }, []);
+    // Give time for Redux to initialize auth state from localStorage
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
 
-  const handleLogin = () => {
-    localStorage.setItem('adminAuthenticated', 'true');
-    setIsAuthenticated(true);
-  };
+    return () => clearTimeout(timer);
+  }, []);
 
   if (isLoading) {
     return (
@@ -34,13 +67,18 @@ function App() {
     );
   }
 
-  if (!isAuthenticated) {
-    return <LoginPage onLogin={handleLogin} />;
-  }
-
   return (
     <BrowserRouter>
-      <Layout />
+      {!isAuthenticated ? (
+        <Routes>
+          <Route path="/" element={<LoginWrapper />} />
+          <Route path="/forgot-password" element={<ForgotPasswordWrapper />} />
+          <Route path="/reset-password" element={<ResetPasswordWrapper />} />
+          <Route path="*" element={<LoginWrapper />} />
+        </Routes>
+      ) : (
+        <Layout />
+      )}
       <Toaster
         position="top-right"
         toastOptions={{
