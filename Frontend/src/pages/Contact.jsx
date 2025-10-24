@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import contactBg from "../assets/images/contact-bg.jpg";
 import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Calendar, User, Globe } from "lucide-react";
 import CustomDropdown from "../components/CustomDropdown";
-
+import { FaFacebook,  } from "react-icons/fa";
+import { IoLogoWhatsapp } from "react-icons/io";
+import { RiInstagramFill } from "react-icons/ri";
 const SERVICE_OPTIONS = [
   { value: 'general', label: 'General Inquiry' },
   { value: 'custom', label: 'Custom Design' },
@@ -88,63 +90,61 @@ const Contact = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Phone */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <Phone className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">Call Us</h3>
-              <p className="text-primary font-montserrat-bold-700 text-lg mb-2">+1 (555) 123-4567</p>
-              <p className="text-black-light font-montserrat-regular-400 text-sm">
-                Mon-Fri: 9AM-7PM<br />
-                Sat: 10AM-6PM<br />
-                Sun: 12PM-5PM
-              </p>
-            </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  {/* Phone */}
+  <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+      <Phone className="w-8 h-8 text-white" />
+    </div>
+    <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">Call Us</h3>
+    <a
+      href="tel:+919106302269"
+      className="text-primary font-montserrat-bold-700 text-lg mb-2 block hover:underline"
+    >
+      +91 9106302269
+    </a>
+    <p className="text-black-light font-montserrat-regular-400 text-sm">
+      Mon-Fri: 9AM-7PM<br />
+      Sat: 9AM-3PM<br />
+      Sun: Closed
+    </p>
+  </div>
 
-            {/* Email */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <Mail className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">Email Us</h3>
-              <p className="text-primary font-montserrat-bold-700 text-lg mb-2">info@aurorajewelry.com</p>
-              <p className="text-black-light font-montserrat-regular-400 text-sm">
-                General inquiries<br />
-                Custom designs<br />
-                Support requests
-              </p>
-            </div>
+  {/* Email */}
+  <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+      <Mail className="w-8 h-8 text-white" />
+    </div>
+    <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">Email Us</h3>
+    <a
+      href="mailto:kivadiamond3008@gmail.com"
+      className="text-primary font-montserrat-bold-700 text-lg mb-2 block hover:underline"
+    >
+      kivadiamond3008@gmail.com
+    </a>
+    <p className="text-black-light font-montserrat-regular-400 text-sm">
+      General inquiries<br />
+      Custom designs<br />
+      Support requests
+    </p>
+  </div>
 
-            {/* Visit */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <MapPin className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">Visit Us</h3>
-              <p className="text-primary font-montserrat-bold-700 text-lg mb-2">123 Jewelry Lane</p>
-              <p className="text-black-light font-montserrat-regular-400 text-sm">
-                New York, NY 10001<br />
-                United States<br />
-                By appointment
-              </p>
-            </div>
+  {/* Visit */}
+  <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+      <MapPin className="w-8 h-8 text-white" />
+    </div>
+    <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">Visit Us</h3>
+    <p className="text-primary font-montserrat-bold-700 text-lg mb-2">123 Jewelry Lane</p>
+    <p className="text-black-light font-montserrat-regular-400 text-sm">
+      3rd floor above Krishna Hospital,<br />
+      Near Piplas Char Rasta, Katargam Main Road,<br />
+      Surat, 395004 (India)<br />
+      By appointment
+    </p>
+  </div>
+</div>
 
-            {/* Hours */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <Clock className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">Store Hours</h3>
-              <p className="text-primary font-montserrat-bold-700 text-lg mb-2">Mon-Sat: 10AM-6PM</p>
-              <p className="text-black-light font-montserrat-regular-400 text-sm">
-                Sunday: 12PM-5PM<br />
-                Holiday hours vary<br />
-                Call ahead
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -178,7 +178,7 @@ const Contact = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-montserrat-regular-400"
+                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent font-montserrat-regular-400"
                         placeholder="Your full name"
                       />
                     </div>
@@ -196,7 +196,7 @@ const Contact = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-montserrat-regular-400"
+                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent font-montserrat-regular-400"
                         placeholder="Your phone number"
                       />
                     </div>
@@ -216,7 +216,7 @@ const Contact = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-montserrat-regular-400"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent font-montserrat-regular-400"
                       placeholder="your.email@example.com"
                     />
                   </div>
@@ -246,7 +246,8 @@ const Contact = () => {
                     value={formData.subject}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-montserrat-regular-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none
+                     focus:ring-primary focus:border-transparent font-montserrat-regular-400"
                     placeholder="Brief subject of your inquiry"
                   />
                 </div>
@@ -262,7 +263,7 @@ const Contact = () => {
                     onChange={handleInputChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-montserrat-regular-400 resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent font-montserrat-regular-400 resize-none"
                     placeholder="Tell us more about your inquiry..."
                   ></textarea>
                 </div>
@@ -327,14 +328,14 @@ const Contact = () => {
                   jewelry tips, and behind-the-scenes content.
                 </p>
                 <div className="flex space-x-4">
-                  <a href="#" className="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors duration-300">
-                    <span className="text-white font-bold text-sm">f</span>
+                  <a href="https://www.facebook.com/kiva.diamond/?rdid=GnfsBsErFgHnpej1" className="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors duration-300">
+                    <span className="text-white font-bold text-xl"><FaFacebook/></span>
                   </a>
-                  <a href="#" className="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors duration-300">
-                    <span className="text-white font-bold text-sm">i</span>
+                  <a href="https://www.instagram.com/kiva.diamond/?igsh=amV5ZDN3M3Y4a3lo#" className="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors duration-300">
+                    <span className="text-white font-bold text-xl"><RiInstagramFill/></span>
                   </a>
-                  <a href="#" className="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors duration-300">
-                    <span className="text-white font-bold text-sm">t</span>
+                  <a href="https://api.whatsapp.com/send/?phone=919106302269&text&type=phone_number&app_absent=0" className="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors duration-300">
+                    <span className="text-white font-bold text-xl"><IoLogoWhatsapp/></span>
                   </a>
                 </div>
               </div>

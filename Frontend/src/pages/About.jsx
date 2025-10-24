@@ -20,7 +20,7 @@ const About = () => {
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center text-white max-w-5xl mx-auto px-6">
             <h1 className="text-6xl md:text-8xl font-sorts-mill-gloudy leading-tight mb-8">
-              About Aurora<span className="text-primary">.</span>
+              About Kiva<span className="text-primary">.</span>
             </h1>
             <p className="text-2xl md:text-3xl font-montserrat-regular-400 sm:mb-12 mb-6 max-w-3xl mx-auto leading-relaxed">
               Crafting timeless jewelry pieces that celebrate life's most precious moments since 1985
@@ -54,7 +54,7 @@ const About = () => {
             </h2>
             <div className="w-40 h-1 bg-primary mx-auto mb-8"></div>
             <p className="text-xl font-montserrat-regular-400 text-black-light max-w-3xl mx-auto">
-              Aurora Jewelry is a family-owned business that has been creating exquisite jewelry pieces for over four decades
+              Kiva Jewelry is a family-owned business that has been creating exquisite jewelry pieces for over four decades
             </p>
           </div>
           
@@ -64,31 +64,32 @@ const About = () => {
                 Our Story & Heritage
               </h3>
               <p className="text-lg font-montserrat-regular-400 text-black-light mb-6 leading-relaxed">
-                Founded in 1985 by master goldsmith Elena Rodriguez, Aurora Jewelry began as a small workshop in the heart of New York City. 
-                What started as a passion for creating unique pieces for family and friends has grown into one of the most respected 
-                jewelry houses in the industry.
-              </p>
+               Kiva Jewellery, established in 2024, celebrates the timeless beauty of Indian craftsmanship.
+Inspired by the heritage of India and refined with a modern touch, each creation tells a story of grace and devotion.</p>
               <p className="text-lg font-montserrat-regular-400 text-black-light mb-8 leading-relaxed">
-                Today, we continue to honor our founder's vision while embracing modern techniques and contemporary design. 
-                Our commitment to excellence has earned us recognition from prestigious institutions and the trust of thousands of customers worldwide.
+Our artisans bring life to every design through intricate detailing and premium materials.
+From traditional elegance to contemporary sparkle, Kiva offers jewellery for every occasion.
+We take pride in creating pieces that symbolize love, strength, and individuality.
+Every jewel is designed to enhance your charm and connect you to your roots.
+At Kiva, tradition meets modern luxury — beautifully and effortlessly.
               </p>
               
               <div className="grid grid-cols-2 gap-8 mb-8">
                 <div>
                   <h4 className="text-xl font-montserrat-semibold-600 text-black mb-3">Founded</h4>
-                  <p className="text-lg font-montserrat-bold-700 text-primary">1985</p>
+                  <p className="text-lg font-montserrat-bold-700 text-primary">2024</p>
                 </div>
                 <div>
                   <h4 className="text-xl font-montserrat-semibold-600 text-black mb-3">Headquarters</h4>
-                  <p className="text-lg font-montserrat-bold-700 text-primary">New York, USA</p>
+                  <p className="text-lg font-montserrat-bold-700 text-primary">Gujarat, India</p>
                 </div>
-                <div>
-                  <h4 className="text-xl font-montserrat-semibold-600 text-black mb-3">Employees</h4>
-                  <p className="text-lg font-montserrat-bold-700 text-primary">75+</p>
-                </div>
+                  {/* <div>
+                    <h4 className="text-xl font-montserrat-semibold-600 text-black mb-3">Employees</h4>
+                    <p className="text-lg font-montserrat-bold-700 text-primary">75+</p>
+                  </div> */}
                 <div>
                   <h4 className="text-xl font-montserrat-semibold-600 text-black mb-3">Countries Served</h4>
-                  <p className="text-lg font-montserrat-bold-700 text-primary">25+</p>
+                  <p className="text-lg font-montserrat-bold-700 text-primary">5+</p>
                 </div>
               </div>
             </div>

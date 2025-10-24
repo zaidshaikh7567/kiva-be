@@ -1,19 +1,20 @@
 import React from "react";
 import { Mail, Phone, MapPin, Heart } from "lucide-react";
-import { FaFacebook, FaInstagram } from "react-icons/fa";
+import { FaFacebook, FaInstagram,FaWhatsapp  } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import Container from "./Container";
 import { Link } from "react-router-dom";
 import giaLogo from "../assets/icon/gia.svg";
 import igiLogo from "../assets/icon/igi.svg";
 import Logo from '../assets/images/kiva-diamond-logo.png'
-
+import { IoLogoWhatsapp } from "react-icons/io";
+import { RiInstagramFill } from "react-icons/ri";
 const Footer = () => {
   // Social Media Links
   const socialLinks = [
-    { icon: <FaFacebook className="w-5 h-5 text-white" />, href: "#", label: "Facebook" },
-    { icon: <FaInstagram className="w-5 h-5 text-white" />, href: "#", label: "Instagram" },
-    { icon: <FaXTwitter className="w-5 h-5 text-white" />, href: "#", label: "Twitter" },
+    { icon: <FaFacebook className="w-5 h-5 text-white" />, href: "https://www.facebook.com/kiva.diamond/?rdid=GnfsBsErFgHnpej1", label: "Facebook" },
+    { icon: <RiInstagramFill className="w-5 h-5 text-white" />, href: "https://www.instagram.com/kiva.diamond/?igsh=amV5ZDN3M3Y4a3lo#", label: "Instagram" },
+    { icon: <IoLogoWhatsapp className="w-5 h-5 text-white" />, href: "https://api.whatsapp.com/send/?phone=919106302269&text&type=phone_number&app_absent=0", label: "Twitter" },
   ];
 
   // Quick Links
@@ -36,23 +37,27 @@ const Footer = () => {
   ];
 
   // Contact Info
-  const contactInfo = [
-    {
-      icon: <Phone className="w-5 h-5 text-white" />,
-      title: "Phone",
-      value: "+1 (555) 123-4567",
-    },
-    {
-      icon: <Mail className="w-5 h-5 text-white" />,
-      title: "Email",
-      value: "info@aurorajewelry.com",
-    },
-    {
-      icon: <MapPin className="w-5 h-5 text-white" />,
-      title: "Address",
-      value: "123 Jewelry Lane, NY 10001",
-    },
-  ];
+const contactInfo = [
+  {
+    icon: <Phone className="w-5 h-5 text-white" />,
+    title: "Phone",
+    value: "+91 9106302269",
+    link: "tel:+919106302269",
+  },
+  {
+    icon: <Mail className="w-5 h-5 text-white" />,
+    title: "Email",
+    value: "kivadiamond3008@gmail.com",
+    link: "mailto:kivadiamond3008@gmail.com",
+  },
+  {
+    icon: <MapPin className="w-5 h-5 text-white" />,
+    title: "Address",
+    value:
+      "3rd floor above Krishna Hospital, Near Piplas Char Rasta, Katargam Main Road, Surat, 395004 (India)",
+    link: "https://www.google.com/maps?q=Krishna+Hospital,+Katargam,+Surat+395004",
+  },
+];
 
   return (
     <footer className="text-white bg-primary-light">
@@ -137,28 +142,35 @@ const Footer = () => {
           </div>
 
           {/* Contact Information */}
-          <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-black-light flex justify-center md:justify-between w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 items-center md:w-full">
-              {contactInfo.map((info, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                    {info.icon}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-montserrat-medium-500 text-xs sm:text-[14px] text-black-light">
-                      {info.title}
-                    </p>
-                    <p className="text-black-light font-montserrat-regular-400 text-xs sm:text-[13px] break-words">
-                      {info.value}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="mt-8 sm:mt-8 pt-6 sm:pt-8 border-t border-black-light flex justify-center md:justify-between w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 items-center md:w-full">
+      {contactInfo.map((info, index) => (
+        <div key={index} className="flex items-center space-x-3">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+            {info.icon}
           </div>
+          <div className="min-w-0">
+            <p className="font-montserrat-medium-500 text-xs sm:text-[14px] text-black-light">
+              {info.title}
+            </p>
+
+            {/* Make the value clickable */}
+            <a
+              href={info.link}
+              target={info.title === "Address" ? "_blank" : "_self"}
+              rel="noopener noreferrer"
+              className="text-black-light font-montserrat-regular-400 text-xs sm:text-[13px] break-words hover:text-primary transition-colors"
+            >
+              {info.value}
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
 
           {/* Certifications */}
-          <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-black-light">
+          <div className="mt-4 sm:mt-8 pt-2 sm:pt-6 border-t border-black-light">
             <div className="text-center">
               <h3 className="text-xs sm:text-sm font-montserrat-semibold-600 text-black-light mb-4">
                 Certified & Trusted
