@@ -72,7 +72,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
             </div>
             <div className="flex-1">
               <h3 className="text-lg sm:text-xl font-montserrat-semibold-600 text-black mb-2">{product.title}</h3>
-              <p className="text-black-light font-montserrat-regular-400 mb-4 line-clamp-2 text-sm sm:text-base">{extractPlainText(product.description)}</p>
+              <p className="text-black-light font-montserrat-regular-400 mb-4 line-clamp-2 text-sm sm:text-base">{extractPlainText(product.subDescription)}</p>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <PriceDisplay 
@@ -180,7 +180,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
             <Link to={`/product/${product._id || product.id}`} className="block">
               <h3 className="text-base sm:text-lg font-montserrat-semibold-600 text-black mb-2 line-clamp-1 hover:text-primary-dark transition-colors">{product.title}</h3>
             </Link>
-            <p className="text-black-light text-xs sm:text-sm mb-3 line-clamp-2 font-montserrat-regular-400">{extractPlainText(product.description)}</p>
+            <p className="text-black-light text-xs sm:text-sm mb-3 line-clamp-2 font-montserrat-regular-400">{extractPlainText(product.subDescription)}</p>
           </div>
           <div className="flex items-center justify-between mt-auto">
             <PriceDisplay 
