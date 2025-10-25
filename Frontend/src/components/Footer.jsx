@@ -63,7 +63,7 @@ const contactInfo = [
     <footer className="text-white bg-primary-light">
       <div className="px-4 sm:px-6 md:px-8 xl:px-32">
         {/* Main Footer Content */}
-        <div className="pt-12 pb-8 sm:pt-16">
+        <div className="pt-12 pb-6 sm:pt-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {/* Company Info */}
             <div className="sm:col-span-2 lg:col-span-2">
@@ -170,7 +170,7 @@ const contactInfo = [
   </div>
 
           {/* Certifications */}
-          <div className="mt-4 sm:mt-8 pt-2 sm:pt-6 border-t border-black-light">
+          <div className="mt-4 sm:mt-8 pt-6 sm:pt-6 border-t border-black-light">
             <div className="text-center">
               <h3 className="text-xs sm:text-sm font-montserrat-semibold-600 text-black-light mb-4">
                 Certified & Trusted
@@ -199,7 +199,7 @@ const contactInfo = [
         </div>
 
         {/* Bottom Bar */}
-        <div className="py-4 sm:py-6 border-t border-black-light">
+        <div className="py-4 sm:py-8 border-t border-black-light">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 text-center sm:text-left">
             <div className="text-black-light font-montserrat-regular-400 text-xs sm:text-[14px]">
               &copy; {new Date().getFullYear()} Aurora Jewelry. All rights reserved.

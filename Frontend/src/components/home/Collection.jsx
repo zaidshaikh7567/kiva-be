@@ -1,7 +1,9 @@
 import React from "react";
 import collection from "../../assets/images/collection-img.avif";
+import { useNavigate } from "react-router-dom";
 
 const Collection = () => {
+  const navigate = useNavigate();
   return (
     <div className="md:pl-16 lg:pl-32  py-[100px] overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-center">
@@ -25,7 +27,7 @@ const Collection = () => {
             The entire collection is very light, airy, and is a great fit for
             any occasion.
           </p>
-          <button className="w-fit mt-8 px-6 py-3 bg-primary-dark text-white font-medium hover:bg-primary transition mx-auto md:mx-0">
+          <button onClick={() => navigate('/discover')} className="w-fit mt-8 px-6 py-3 bg-primary-dark text-white font-medium hover:bg-primary transition mx-auto md:mx-0">
             — Discover the collection
           </button>
         </div>

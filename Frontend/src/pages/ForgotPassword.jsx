@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, CheckCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { forgotPassword, clearError, selectAuthLoading, selectAuthSuccess } from '../store/slices/authSlice';
+import { forgotPassword, clearError, selectAuthLoading, selectAuthSuccess, selectIsAuthenticated } from '../store/slices/authSlice';
 
 const ForgotPassword = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthLoading);
   const success = useSelector(selectAuthSuccess);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
   const [emailSent, setEmailSent] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated]);
 
   // Clear errors on unmount
   useEffect(() => {

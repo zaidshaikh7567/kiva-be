@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { 
   Users, 
   Search, 
@@ -14,208 +14,108 @@ import {
   RotateCcw,
   UserPlus,
   Filter,
-  XCircle
+  XCircle,
+  Trash2
 } from 'lucide-react';
 import Pagination from '../components/Pagination';
 import CustomDropdown from '../components/CustomDropdown';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { createPortal } from 'react-dom';
+import { 
+  fetchUsers, 
+  selectUsers, 
+  selectUsersLoading, 
+  selectUsersError, 
+  toggleUserStatus,
+  deleteUser
+} from '../store/slices/usersSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Customers = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [togglingUser, setTogglingUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+const dispatch = useDispatch();
+  const users = useSelector(selectUsers);
+  const loading = useSelector(selectUsersLoading);
+  const error = useSelector(selectUsersError);
 
-  // Mock customers data
-  const customers = [
-    {
-      id: 'CUST-001',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      phone: '+1 (555) 123-4567',
-      location: 'New York, NY',
-      joinDate: '2024-01-15',
-      status: 'active',
-      totalOrders: 5,
-      totalSpent: 1299.95,
-      lastOrder: '2024-01-20',
-      avatar: null
-    },
-    {
-      id: 'CUST-002',
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      phone: '+1 (555) 987-6543',
-      location: 'Los Angeles, CA',
-      joinDate: '2024-01-10',
-      status: 'active',
-      totalOrders: 3,
-      totalSpent: 599.97,
-      lastOrder: '2024-01-18',
-      avatar: null
-    },
-    {
-      id: 'CUST-003',
-      name: 'Mike Johnson',
-      email: 'mike.johnson@example.com',
-      phone: '+1 (555) 456-7890',
-      location: 'Chicago, IL',
-      joinDate: '2024-01-05',
-      status: 'inactive',
-      totalOrders: 1,
-      totalSpent: 149.99,
-      lastOrder: '2024-01-12',
-      avatar: null
-    },
-    {
-      id: 'CUST-004',
-      name: 'Sarah Wilson',
-      email: 'sarah.wilson@example.com',
-      phone: '+1 (555) 321-0987',
-      location: 'Miami, FL',
-      joinDate: '2024-01-08',
-      status: 'active',
-      totalOrders: 2,
-      totalSpent: 279.98,
-      lastOrder: '2024-01-16',
-      avatar: null
-    },
-    {
-      id: 'CUST-005',
-      name: 'David Brown',
-      email: 'david.brown@example.com',
-      phone: '+1 (555) 654-3210',
-      location: 'Seattle, WA',
-      joinDate: '2024-01-12',
-      status: 'active',
-      totalOrders: 4,
-      totalSpent: 799.96,
-      lastOrder: '2024-01-19',
-      avatar: null
-    },
-    {
-      id: 'CUST-006',
-      name: 'Lisa Davis',
-      email: 'lisa.davis@example.com',
-      phone: '+1 (555) 789-0123',
-      location: 'Boston, MA',
-      joinDate: '2024-01-03',
-      status: 'active',
-      totalOrders: 6,
-      totalSpent: 1199.94,
-      lastOrder: '2024-01-21',
-      avatar: null
-    },
-    {
-      id: 'CUST-007',
-      name: 'Robert Taylor',
-      email: 'robert.taylor@example.com',
-      phone: '+1 (555) 234-5678',
-      location: 'Denver, CO',
-      joinDate: '2024-01-07',
-      status: 'inactive',
-      totalOrders: 1,
-      totalSpent: 249.99,
-      lastOrder: '2024-01-14',
-      avatar: null
-    },
-    {
-      id: 'CUST-008',
-      name: 'Maria Garcia',
-      email: 'maria.garcia@example.com',
-      phone: '+1 (555) 345-6789',
-      location: 'Phoenix, AZ',
-      joinDate: '2024-01-11',
-      status: 'active',
-      totalOrders: 3,
-      totalSpent: 389.97,
-      lastOrder: '2024-01-17',
-      avatar: null
-    },
-    {
-      id: 'CUST-009',
-      name: 'James Wilson',
-      email: 'james.wilson@example.com',
-      phone: '+1 (555) 456-7890',
-      location: 'Austin, TX',
-      joinDate: '2024-01-09',
-      status: 'active',
-      totalOrders: 2,
-      totalSpent: 399.98,
-      lastOrder: '2024-01-15',
-      avatar: null
-    },
-    {
-      id: 'CUST-010',
-      name: 'Jennifer Lee',
-      email: 'jennifer.lee@example.com',
-      phone: '+1 (555) 567-8901',
-      location: 'Portland, OR',
-      joinDate: '2024-01-13',
-      status: 'active',
-      totalOrders: 4,
-      totalSpent: 699.96,
-      lastOrder: '2024-01-22',
-      avatar: null
-    },
-    {
-      id: 'CUST-011',
-      name: 'Michael Chen',
-      email: 'michael.chen@example.com',
-      phone: '+1 (555) 678-9012',
-      location: 'San Francisco, CA',
-      joinDate: '2024-01-06',
-      status: 'inactive',
-      totalOrders: 1,
-      totalSpent: 89.99,
-      lastOrder: '2024-01-13',
-      avatar: null
-    },
-    {
-      id: 'CUST-012',
-      name: 'Amanda Rodriguez',
-      email: 'amanda.rodriguez@example.com',
-      phone: '+1 (555) 789-0123',
-      location: 'San Diego, CA',
-      joinDate: '2024-01-14',
-      status: 'active',
-      totalOrders: 3,
-      totalSpent: 559.97,
-      lastOrder: '2024-01-23',
-      avatar: null
-    }
-  ];
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300); // 500ms debounce delay
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'inactive':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch users when debounced search term or status filter changes
+  useEffect(() => {
+    dispatch(fetchUsers({ 
+      page: 1, 
+      limit: 10, // Fetch more users for client-side filtering
+      search: debouncedSearchTerm,
+      active: statusFilter === 'all' ? '' : statusFilter === 'active' ? 'true' : 'false'
+    }));
+  }, [dispatch, debouncedSearchTerm, statusFilter]);
+
+  const getStatusColor = (active) => {
+    return active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+  };
+
+  // Handle user status toggle
+  const handleToggleStatus = async (userId, currentStatus) => {
+    setTogglingUser(userId);
+    try {
+      await dispatch(toggleUserStatus({ userId, active: !currentStatus }));
+    } catch (error) {
+      console.error('Error toggling user status:', error);
+    } finally {
+      setTogglingUser(null);
     }
   };
 
-  const filteredCustomers = customers.filter(customer => {
-    const matchesSearch = customer.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || customer.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Handle user deletion
+  const handleDeleteUser = (user) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
 
-  // Pagination logic
-  const totalItems = filteredCustomers.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedCustomers = filteredCustomers.slice(startIndex, endIndex);
+  // Confirm user deletion
+  const handleConfirmDelete = async () => {
+    if (userToDelete) {
+      setIsDeleting(true);
+      try {
+        await dispatch(deleteUser(userToDelete._id));
+        setShowDeleteModal(false);
+        setUserToDelete(null);
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
 
+  // Cancel user deletion
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setUserToDelete(null);
+  };
+
+  // Handle page change (client-side pagination)
   const handlePageChange = (page) => {
+    // Update pagination state for client-side pagination
+    // The actual pagination is handled by the paginatedUsers useMemo
+    // We can store the current page in local state if needed
     setCurrentPage(page);
   };
 
@@ -242,11 +142,41 @@ const Customers = () => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter]);
 
+  // Client-side filtering for better performance
+  const filteredUsers = useMemo(() => {
+    let filtered = [...users];
+
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(user => 
+        user.name.toLowerCase().includes(searchLower) ||
+        user.email.toLowerCase().includes(searchLower) ||
+        user._id.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      const isActive = statusFilter === 'active';
+      filtered = filtered.filter(user => user.active === isActive);
+    }
+
+    return filtered;
+  }, [users, searchTerm, statusFilter]);
+
+  // Pagination for filtered results
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredUsers.slice(startIndex, endIndex);
+  }, [filteredUsers, currentPage, itemsPerPage]);
+
   const customerStats = {
-    total: customers.length,
-    active: customers.filter(c => c.status === 'active').length,
-    inactive: customers.filter(c => c.status === 'inactive').length,
-    totalRevenue: customers.reduce((sum, c) => sum + c.totalSpent, 0)
+    total: filteredUsers.length,
+    active: filteredUsers.filter(u => u.active).length,
+    inactive: filteredUsers.filter(u => !u.active).length,
+    totalRevenue: 0 // This would need to be calculated from orders data
   };
 
   return (
@@ -263,7 +193,7 @@ const Customers = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-montserrat-medium-500 text-black-light">Total Customers</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-black">{customerStats.total}</p>
+              <p className="text-2xl font-sorts-mill-gloudy font-bold text-black">{users.length}</p>
             </div>
             <div className="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center">
               <Users className="w-6 h-6 text-primary" />
@@ -320,7 +250,8 @@ const Customers = () => {
                 placeholder="Search customers by name, email, or location..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 focus:ring-primary outline-none focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 focus:ring-primary outline-none focus:border-primary font-montserrat-regular-400 text-black min-w-0"
+                maxLength={100}
               />
             </div>
           </div>
@@ -348,47 +279,51 @@ const Customers = () => {
             </button>
 
             {/* Export Button */}
-            <button className="flex items-center space-x-2 px-4 py-3 border border-primary-light rounded-lg hover:bg-gray-50 transition-colors duration-300">
+            {/* <button className="flex items-center space-x-2 px-4 py-3 border border-primary-light rounded-lg hover:bg-gray-50 transition-colors duration-300">
               <Download className="w-5 h-5 text-black-light" />
               <span className="font-montserrat-medium-500 text-black">Export</span>
-            </button>
+            </button> */}
           </div>
         </div>
 
         {/* Active Filters Display */}
         {(searchTerm || statusFilter !== 'all') && (
           <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-montserrat-medium-500 text-black-light">Active filters:</span>
-                {searchTerm && (
-                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500">
-                    <Search className="w-4 h-4" />
-                    <span>"{searchTerm}"</span>
-                    <button
-                      onClick={() => setSearchTerm('')}
-                      className="ml-1 hover:text-primary-dark transition-colors duration-300"
-                    >
-                      <XCircle className="w-4 h-4" />
-                    </button>
-                  </span>
-                )}
-                {statusFilter !== 'all' && (
-                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500">
-                    <Filter className="w-4 h-4" />
-                    <span className="capitalize">{statusFilter}</span>
-                    <button
-                      onClick={() => setStatusFilter('all')}
-                      className="ml-1 hover:text-primary-dark transition-colors duration-300"
-                    >
-                      <XCircle className="w-4 h-4" />
-                    </button>
-                  </span>
-                )}
+            <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+              <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
+                <span className="text-sm font-montserrat-medium-500 text-black-light whitespace-nowrap">Active filters:</span>
+                <div className="flex flex-wrap gap-2">
+                  {searchTerm && (
+                    <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500 max-w-xs">
+                      <Search className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">"{searchTerm.length > 20 ? searchTerm.substring(0, 20) + '...' : searchTerm}"</span>
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="ml-1 hover:text-primary-dark transition-colors duration-300 flex-shrink-0"
+                        title="Remove search filter"
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    </span>
+                  )}
+                  {statusFilter !== 'all' && (
+                    <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500">
+                      <Filter className="w-4 h-4 flex-shrink-0" />
+                      <span className="capitalize">{statusFilter}</span>
+                      <button
+                        onClick={() => setStatusFilter('all')}
+                        className="ml-1 hover:text-primary-dark transition-colors duration-300 flex-shrink-0"
+                        title="Remove status filter"
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    </span>
+                  )}
+                </div>
               </div>
               <button
                 onClick={handleResetFilters}
-                className="text-sm font-montserrat-medium-500 text-primary hover:text-primary-dark transition-colors duration-300"
+                className="text-sm font-montserrat-medium-500 text-primary hover:text-primary-dark transition-colors duration-300 whitespace-nowrap self-start sm:self-auto"
               >
                 Clear all filters
               </button>
@@ -401,92 +336,143 @@ const Customers = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-primary-light">  
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Customer</th>
-                <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Contact</th>
-                <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Location</th>
-                <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Orders</th>
-                <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Total Spent</th>
-                <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Last Order</th>
+                <th className="px-4 py-4 text-left text-sm font-montserrat-semibold-600 text-black">User</th>
+                <th className="px-4 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Contact</th>
+                <th className="px-4 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Status</th>
+                <th className="px-4 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Role</th>
+                <th className="px-4 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Created</th>
+                <th className="px-4 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Updated</th>
+                {/* <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Last Activity</th> */}
                 <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {paginatedCustomers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-gray-50 transition-colors duration-300">
-                  <td className="px-6 py-4">
+              {loading ? (
+                <tr>
+                  <td colSpan="8" className="px-6 py-8 text-center">
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      <span className="ml-2 text-black-light">Loading users...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan="8" className="px-6 py-8 text-center text-red-600">
+                    Error: {error}
+                  </td>
+                </tr>
+              ) : filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="px-6 py-8 text-center text-black-light">
+                    No users found
+                  </td>
+                </tr>
+              ) : (
+                paginatedUsers.map((user) => (
+                  <tr key={user._id} className="hover:bg-gray-50 transition-colors duration-300">
+                    <td className="px-4 py-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 min-w-10 min-h-10 bg-primary-light rounded-full flex items-center justify-center">
                         <span className="text-sm font-montserrat-semibold-600 text-primary">
-                          {customer.name.split(' ').map(n => n[0]).join('')}
+                            {user.name.split(' ').map(n => n[0]).join('')}
                         </span>
+                        </div>
+                        <div>
+                          <p className="font-montserrat-semibold-600 text-black">{user.name}</p>
+                          {/* <p className="text-sm font-montserrat-regular-400 text-black-light">{user._id}</p> */}
+                        </div>
                       </div>
+                    </td>
+                    <td className="px-4 py-4">
                       <div>
-                        <p className="font-montserrat-semibold-600 text-black">{customer.name}</p>
-                        <p className="text-sm font-montserrat-regular-400 text-black-light">{customer.id}</p>
+                        <p className="font-montserrat-medium-500 text-black">{user.email}</p>
+                        {/* <p className="text-sm font-montserrat-regular-400 text-black-light">{user._id}</p> */}
                       </div>
+                    </td>
+                   
+                    <td className="px-4 py-4">
+                      <div className="flex items-center space-x-3">
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={user.active}
+                            onChange={() => handleToggleStatus(user._id, user.active)}
+                            disabled={togglingUser === user._id}
+                            className="sr-only peer"
+                          />
+                          <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary ${togglingUser === user._id ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                            {togglingUser === user._id && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              </div>
+                            )}
+                          </div>
+                        </label>
+                        <span className={`text-sm font-montserrat-medium-500 ${user.active ? 'text-green-600' : 'text-gray-500'}`}>
+                          {user.active ? 'Active' : 'Inactive'}
+                        </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-montserrat-medium-500 text-black">{customer.email}</p>
-                      <p className="text-sm font-montserrat-regular-400 text-black-light">{customer.phone}</p>
+                    <td className="px-4 py-4">
+                      <span className="font-montserrat-semibold-600 text-black capitalize">{user.role}</span>
+                    </td>
+                    {/* <td className="px-4 py-4">
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-black-light" />
+                        <span className="font-montserrat-regular-400 text-black">
+                          {new Date(user.updatedAt).toLocaleDateString()}
+                        </span>
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
+                    </td> */}
+                    <td className="px-4 py-4">
                     <div className="flex items-center space-x-2">
-                      <MapPin className="w-4 h-4 text-black-light" />
-                      <span className="font-montserrat-regular-400 text-black">{customer.location}</span>
+                        <Calendar className="w-4 h-4 text-black-light" />
+                        <span className="font-montserrat-regular-400 text-black">
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-montserrat-medium-500 ${getStatusColor(customer.status)}`}>
-                      <span className="capitalize">{customer.status}</span>
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-montserrat-semibold-600 text-black">{customer.totalOrders}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-montserrat-semibold-600 text-black">${customer.totalSpent}</span>
-                  </td>
-                  <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 text-black-light" />
                       <span className="font-montserrat-regular-400 text-black">
-                        {new Date(customer.lastOrder).toLocaleDateString()}
+                          {new Date(user.updatedAt).toLocaleDateString()}
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-2">
+                    <td className="px-4 py-4">
+                      <div className="flex items-center ">
                       <button
-                        onClick={() => handleViewCustomer(customer)}
-                        className="flex items-center space-x-1 px-3 py-2 text-sm font-montserrat-medium-500 text-primary hover:bg-primary-light rounded-lg transition-colors duration-300"
+                          onClick={() => handleViewCustomer(user)}
+                          className="flex items-center space-x-1 px-2 py-2 text-sm font-montserrat-medium-500 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-300"
                       >
                         <Eye className="w-4 h-4" />
-                        <span>View</span>
                       </button>
-                      <button className="p-2 text-black-light hover:text-black hover:bg-gray-100 rounded-lg transition-colors duration-300">
-                        <MoreVertical className="w-4 h-4" />
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg transition-colors duration-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {Math.ceil(filteredUsers.length / itemsPerPage) > 1 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
+          totalPages={Math.ceil(filteredUsers.length / itemsPerPage)}
+          totalItems={filteredUsers.length}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           className="mt-6"
@@ -500,7 +486,7 @@ const Customers = () => {
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-sorts-mill-gloudy font-bold text-black">
-                  Customer Details - {selectedCustomer.name}
+                  User Details - {selectedCustomer.name}
                 </h2>
                 <button
                   onClick={() => setShowCustomerModal(false)}
@@ -512,10 +498,10 @@ const Customers = () => {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Customer Info */}
+              {/* User Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-lg font-montserrat-semibold-600 text-black mb-4">Customer Information</h3>
+                  <h3 className="text-lg font-montserrat-semibold-600 text-black mb-4">User Information</h3>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
                       <Users className="w-5 h-5 text-black-light" />
@@ -526,12 +512,11 @@ const Customers = () => {
                       <span className="font-montserrat-regular-400 text-black">{selectedCustomer.email}</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Phone className="w-5 h-5 text-black-light" />
-                      <span className="font-montserrat-regular-400 text-black">{selectedCustomer.phone}</span>
+                      <Users className="w-5 h-5 text-black-light" />
+                      <span className="font-montserrat-regular-400 text-black">Role: {selectedCustomer.role}</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <MapPin className="w-5 h-5 text-black-light" />
-                      <span className="font-montserrat-regular-400 text-black">{selectedCustomer.location}</span>
+                      <span className="font-montserrat-regular-400 text-black">ID: {selectedCustomer._id}</span>
                     </div>
                   </div>
                 </div>
@@ -542,25 +527,18 @@ const Customers = () => {
                     <div className="flex items-center space-x-3">
                       <Calendar className="w-5 h-5 text-black-light" />
                       <span className="font-montserrat-regular-400 text-black">
-                        Joined: {new Date(selectedCustomer.joinDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <ShoppingBag className="w-5 h-5 text-black-light" />
-                      <span className="font-montserrat-regular-400 text-black">
-                        Total Orders: {selectedCustomer.totalOrders}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Star className="w-5 h-5 text-black-light" />
-                      <span className="font-montserrat-regular-400 text-black">
-                        Total Spent: ${selectedCustomer.totalSpent}
+                        Created: {new Date(selectedCustomer.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Calendar className="w-5 h-5 text-black-light" />
                       <span className="font-montserrat-regular-400 text-black">
-                        Last Order: {new Date(selectedCustomer.lastOrder).toLocaleDateString()}
+                        Updated: {new Date(selectedCustomer.updatedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span className="font-montserrat-regular-400 text-black">
+                        Status: {selectedCustomer.active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
                   </div>
@@ -572,8 +550,8 @@ const Customers = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Account Status</h3>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-montserrat-medium-500 ${getStatusColor(selectedCustomer.status)}`}>
-                      <span className="capitalize">{selectedCustomer.status}</span>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-montserrat-medium-500 ${getStatusColor(selectedCustomer.active)}`}>
+                      <span className="capitalize">{selectedCustomer.active ? 'Active' : 'Inactive'}</span>
                     </span>
                   </div>
                   <div className="flex space-x-2">
@@ -591,6 +569,18 @@ const Customers = () => {
         </div>,
         document.body
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        loading={isDeleting}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone and will permanently remove the user from the system."
+        itemName={userToDelete?.name}
+        itemType="user"
+      />
     </div>
   );
 };

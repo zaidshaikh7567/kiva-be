@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetPassword, clearError, selectAuthLoading, selectAuthSuccess } from '../store/slices/authSlice';
+import { resetPassword, clearError, selectAuthLoading, selectAuthSuccess, selectIsAuthenticated } from '../store/slices/authSlice';
 
 const ResetPassword = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthLoading);
   const success = useSelector(selectAuthSuccess);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
@@ -20,6 +22,13 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Clear errors on unmount
   useEffect(() => {

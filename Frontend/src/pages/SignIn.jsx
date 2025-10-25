@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser, clearError, selectAuthLoading } from '../store/slices/authSlice';
+import { loginUser, clearError, selectAuthLoading, selectIsAuthenticated } from '../store/slices/authSlice';
+import toast from 'react-hot-toast';
 
 const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthLoading);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -28,6 +30,13 @@ const SignIn = () => {
       setRememberMe(true);
     }
   }, []);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Clear errors on unmount
   useEffect(() => {
@@ -95,10 +104,11 @@ const SignIn = () => {
 
       navigate('/dashboard');
     } else if (loginUser.rejected.match(result)) {
-      setErrors({
-        email: result.payload?.message || 'Invalid email or password',
-        password: result.payload?.message || 'Invalid email or password'
-      });
+      toast.error(result.payload?.message || 'Invalid email or password');
+      // setErrors({
+      //   email: result.payload?.message || 'Invalid email or password',
+      //   password: result.payload?.message || 'Invalid email or password'
+      // });
     }
   };
 

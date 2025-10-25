@@ -4,6 +4,7 @@ export const API_METHOD = {
   products: '/api/products',
   orders: '/api/orders',
   customers: '/api/customers',
+  users: '/api/users',
   analytics: '/api/analytics',
   reviews: '/api/reviews',
   favorites: '/api/favorites',

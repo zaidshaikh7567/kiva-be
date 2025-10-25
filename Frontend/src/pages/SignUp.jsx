@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { registerUser, clearError, selectAuthLoading } from '../store/slices/authSlice';
+import { registerUser, clearError, selectAuthLoading, selectIsAuthenticated } from '../store/slices/authSlice';
 
 const SignUp = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthLoading);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -20,6 +21,13 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Clear errors on unmount
   useEffect(() => {

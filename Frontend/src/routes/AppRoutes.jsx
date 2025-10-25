@@ -25,9 +25,11 @@ import PrivacyPolicy from "../pages/PrivacyPolicy";
 import ShippingInfo from "../pages/ShippingInfo";
 import ReturnsExchanges from "../pages/ReturnsExchanges";
 import NotFound from "../pages/NotFound";
+import Discover from "../pages/Discover";
 import ScrollToTop from "../helpers/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "../components/ProtectedRoute";
+import AuthRedirect from "../components/AuthRedirect";
 
 const AppRoutes = () => {
   return (
@@ -36,6 +38,7 @@ const AppRoutes = () => {
      
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/discover" element={<Discover />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/about" element={<About />} />
@@ -59,10 +62,10 @@ const AppRoutes = () => {
         </Route>
 
         {/* <Route element={<AuthLayout />}> */}
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/sign-in" element={<AuthRedirect><SignIn /></AuthRedirect>} />
+          <Route path="/sign-up" element={<AuthRedirect><SignUp /></AuthRedirect>} />
+          <Route path="/forgot-password" element={<AuthRedirect><ForgotPassword /></AuthRedirect>} />
+          <Route path="/reset-password" element={<AuthRedirect><ResetPassword /></AuthRedirect>} />
         {/* </Route> */}
 
         <Route element={<MainLayout />}>

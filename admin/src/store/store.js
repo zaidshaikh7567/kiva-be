@@ -4,6 +4,7 @@ import categoriesReducer from './slices/categoriesSlice';
 import productsReducer from './slices/productsSlice';
 import metalsReducer from './slices/metalsSlice';
 import centerStonesReducer from './slices/centerStonesSlice';
+import usersReducer from './slices/usersSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     products: productsReducer,
     metals: metalsReducer,
     centerStones: centerStonesReducer,
+    users: usersReducer,
     // Add other reducers here as needed
     // orders: ordersReducer,
     // etc.

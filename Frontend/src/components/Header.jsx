@@ -147,7 +147,7 @@ const Header = () => {
       {/* Mobile Sidebar */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 xl:hidden">
-          <div className="absolute top-0 left-0 w-3/4 max-w-xs h-full bg-white shadow-lg p-6">
+          <div className="absolute top-0 left-0 w-3/4 max-w-xs h-full bg-white shadow-lg p-6 overflow-y-auto">
             {/* Close Button */}
             <button
               className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
@@ -160,15 +160,15 @@ const Header = () => {
             <div className="text-xl font-serif text-primary mb-8">Aurora</div>
 
             {/* Currency Selection */}
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <label className="block text-sm font-montserrat-medium-500 text-gray-600 mb-3">
                 Currency
               </label>
               <CurrencyDropdown />
-            </div>
+            </div> */}
 
             {/* Navigation Links */}
-            <nav className="flex flex-col space-y-4">
+            <nav className="flex flex-col space-y-2">
               <Link
                 to="/shop"
                 onClick={() => setIsOpen(false)}
@@ -227,7 +227,7 @@ const Header = () => {
               <Link
                 to="/contact"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-gray-100"
               >
                 Contact Us
               </Link>
@@ -236,7 +236,7 @@ const Header = () => {
               {user ? (
                 <div className="pt-4 border-t border-gray-200 mt-4">
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 min-w-8 min-h-8 bg-primary rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-montserrat-semibold-600">
                         {user.name?.charAt(0)}
                       </span>
