@@ -1,7 +1,8 @@
-import API_METHOD from './apiMethod';
+import axios from 'axios';
 
 // TODO: Replace with your actual backend endpoint when ready
 const GOOGLE_AUTH_ENDPOINT = '/api/auth/google';
+const URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Send Google authorization code to backend
@@ -10,8 +11,12 @@ const GOOGLE_AUTH_ENDPOINT = '/api/auth/google';
  */
 export const exchangeGoogleCode = async (code) => {
   try {
-    const response = await API_METHOD.post(GOOGLE_AUTH_ENDPOINT, {
+    const response = await axios.post(`${URL}${GOOGLE_AUTH_ENDPOINT}`, {
       code: code,
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
     
     return {
