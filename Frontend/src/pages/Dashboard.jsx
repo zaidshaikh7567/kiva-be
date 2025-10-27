@@ -6,7 +6,7 @@ import { selectAuthUser, selectAuthLoading, selectAuthError, selectAuthSuccess, 
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('orders');
+  const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const dispatch = useDispatch();
   const user = useSelector(selectAuthUser);
@@ -191,6 +191,17 @@ const Dashboard = () => {
               </div>
 
               <nav className="space-y-2">
+              <button
+                  onClick={() => setActiveTab('profile')}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 ${
+                    activeTab === 'profile'
+                      ? 'bg-primary-light text-primary'
+                      : 'text-black-light hover:bg-gray-50'
+                  }`}
+                >
+                  <MapPin className="w-5 h-5" />
+                  <span className="font-montserrat-medium-500">Profile</span>
+                </button>
                 <button
                   onClick={() => setActiveTab('orders')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 ${
@@ -203,17 +214,7 @@ const Dashboard = () => {
                   <span className="font-montserrat-medium-500">My Orders</span>
                 </button>
 
-                <button
-                  onClick={() => setActiveTab('profile')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 ${
-                    activeTab === 'profile'
-                      ? 'bg-primary-light text-primary'
-                      : 'text-black-light hover:bg-gray-50'
-                  }`}
-                >
-                  <MapPin className="w-5 h-5" />
-                  <span className="font-montserrat-medium-500">Profile</span>
-                </button>
+              
 
                 <Link
                   to="/change-password"
