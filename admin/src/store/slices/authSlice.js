@@ -107,6 +107,48 @@ export const refreshToken = createAsyncThunk(
   }
 );
 
+// Get User Profile
+export const getUserProfile = createAsyncThunk(
+  'auth/getProfile',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/api/auth/profile');
+      return response.data.data || response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Update User Profile
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await api.put('/api/auth/profile', userData);
+      return response.data.data || response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Change Password
+export const changePassword = createAsyncThunk(
+  'auth/changePassword',
+  async ({ currentPassword, newPassword }, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/api/auth/change-password', {
+        currentPassword,
+        newPassword
+      });
+      return response.data.data || response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // Initial state
 const initialState = {
   user: null,
@@ -115,6 +157,7 @@ const initialState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  success: null,
 };
 
 // Load user data from localStorage on initialization
@@ -171,6 +214,9 @@ const authSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    clearSuccess: (state) => {
+      state.success = null;
     },
     setUser: (state, action) => {
       state.user = action.payload;
@@ -248,12 +294,55 @@ const authSlice = createSlice({
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         localStorage.removeItem('adminAuthenticated');
+      })
+      // Get User Profile
+      .addCase(getUserProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+        localStorage.setItem('user', JSON.stringify(action.payload));
+      })
+      .addCase(getUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to fetch profile';
+      })
+      // Update User Profile
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        localStorage.setItem('user', JSON.stringify(action.payload));
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to update profile';
+      })
+      // Change Password
+      .addCase(changePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.loading = false;
+        state.success = 'Password changed successfully!';
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to change password';
       });
   },
 });
 
 // Export actions
-export const { logout, clearError, setUser, setAccessToken } = authSlice.actions;
+export const { logout, clearError, clearSuccess, setUser, setAccessToken } = authSlice.actions;
 
 // Export selectors
 export const selectAuth = (state) => state.auth;
@@ -261,6 +350,7 @@ export const selectUser = (state) => state.auth.user;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectAuthLoading = (state) => state.auth.loading;
 export const selectAuthError = (state) => state.auth.error;
+export const selectAuthSuccess = (state) => state.auth.success;
 
 // Export reducer
 export default authSlice.reducer;

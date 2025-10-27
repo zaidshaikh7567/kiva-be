@@ -1,6 +1,6 @@
 import React from "react";
 import { Clock, Bell, Mail, Sparkles, Heart } from "lucide-react";
-
+import { Link } from 'react-router-dom';
 const Necklaces = () => {
   return (
     <div className="bg-secondary min-h-screen">
@@ -187,8 +187,8 @@ const Necklaces = () => {
           </p>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            <a
-              href="/rings"
+            <Link
+              to="/rings"
               className="group bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-2xl p-6 text-center"
             >
               <div className="text-4xl mb-3">💍</div>
@@ -196,10 +196,10 @@ const Necklaces = () => {
               <p className="text-sm font-montserrat-regular-400 text-gray-300">
                 Discover our exquisite ring collection
               </p>
-            </a>
+            </Link>
 
-            <a
-              href="/earrings"
+            <Link
+              to="/earrings"
               className="group bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-2xl p-6 text-center"
             >
               <div className="text-4xl mb-3">💎</div>
@@ -207,10 +207,10 @@ const Necklaces = () => {
               <p className="text-sm font-montserrat-regular-400 text-gray-300">
                 Browse our stunning earring collection
               </p>
-            </a>
+            </Link>
 
-            <a
-              href="/bracelets"
+            <Link
+              to="/bracelets"
               className="group bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-2xl p-6 text-center"
             >
               <div className="text-4xl mb-3">📿</div>
@@ -218,7 +218,7 @@ const Necklaces = () => {
               <p className="text-sm font-montserrat-regular-400 text-gray-300">
                 Explore our elegant bracelet collection
               </p>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

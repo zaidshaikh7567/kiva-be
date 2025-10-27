@@ -9,6 +9,7 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
     image: null
   });
   const [imagePreview, setImagePreview] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
 
   // Update form data when categoryData changes (for edit mode)
   useEffect(() => {
@@ -42,31 +43,64 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image size should be less than 5MB');
-        return;
-      }
+      processFile(file);
+    }
+  };
 
-      setFormData(prev => ({
-        ...prev,
-        image: file
-      }));
+  const processFile = (file) => {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB');
+      return;
+    }
 
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    setFormData(prev => ({
+      ...prev,
+      image: file
+    }));
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Drag and drop handlers
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragIn = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragOut = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      processFile(file);
     }
   };
 
@@ -221,9 +255,19 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
               </div>
             )}
 
-            {/* Upload Button */}
+            {/* Upload Button with Drag and Drop */}
             {!imagePreview && (
-              <div className="relative">
+              <div 
+                className={`relative border-2 border-dashed rounded-lg transition-all duration-200 ${
+                  dragActive 
+                    ? 'border-primary bg-primary-light/10' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+                onDragEnter={handleDragIn}
+                onDragLeave={handleDragOut}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
                 <input
                   type="file"
                   id="categoryImage"
@@ -234,11 +278,11 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
                 />
                 <label
                   htmlFor="categoryImage"
-                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`flex flex-col items-center justify-center w-full h-32 cursor-pointer transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                  <span className="text-sm font-montserrat-medium-500 text-black-light">
-                    Click to upload image
+                  <Upload className={`w-8 h-8 mb-2 transition-colors ${dragActive ? 'text-primary' : 'text-gray-400'}`} />
+                  <span className={`text-sm font-montserrat-medium-500 transition-colors ${dragActive ? 'text-primary' : 'text-black-light'}`}>
+                    {dragActive ? 'Drop image here' : 'Click to upload image or drag and drop'}
                   </span>
                   <span className="text-xs font-montserrat-regular-400 text-gray-400 mt-1">
                     PNG, JPG, JPEG (Max 5MB)
@@ -247,9 +291,19 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
               </div>
             )}
 
-            {/* Change Image Button */}
+            {/* Change Image Button with Drag and Drop */}
             {imagePreview && formData.image && (
-              <div className="relative">
+              <div 
+                className={`relative border-2 border-dashed rounded-lg transition-all duration-200 ${
+                  dragActive 
+                    ? 'border-primary bg-primary-light/10' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onDragEnter={handleDragIn}
+                onDragLeave={handleDragOut}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
                 <input
                   type="file"
                   id="categoryImageChange"
@@ -260,11 +314,11 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
                 />
                 <label
                   htmlFor="categoryImageChange"
-                  className={`flex items-center justify-center space-x-2 w-full px-4 py-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`flex items-center justify-center space-x-2 w-full px-4 py-2 cursor-pointer transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  <ImageIcon className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm font-montserrat-medium-500 text-gray-600">
-                    Change Image
+                  <ImageIcon className={`w-4 h-4 transition-colors ${dragActive ? 'text-primary' : 'text-gray-600'}`} />
+                  <span className={`text-sm font-montserrat-medium-500 transition-colors ${dragActive ? 'text-primary' : 'text-gray-600'}`}>
+                    {dragActive ? 'Drop to replace image' : 'Change Image'}
                   </span>
                 </label>
               </div>

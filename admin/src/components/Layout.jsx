@@ -34,7 +34,9 @@ const Layout = () => {
       '/favorites': 'Favorites',
       '/settings': 'Settings',
       '/metals': 'Metals',
-      '/center-stones': 'Center Stones'
+      '/center-stones': 'Center Stones',
+      '/profile': 'Profile',
+      '/change-password': 'Change Password'
     };
     return titles[path] || 'Dashboard';
   };

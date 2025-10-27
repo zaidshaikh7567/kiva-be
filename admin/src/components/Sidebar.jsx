@@ -17,11 +17,13 @@ import {
   Zap,
   Diamond
 } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../store/slices/authSlice';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+  const user = useSelector(selectUser);
   const navigationItems = [
     {
       id: 'dashboard',
@@ -123,7 +125,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             </div>
             <div>
               <h2 className="text-lg font-sorts-mill-gloudy font-bold text-black">
-                Jewelry Admin
+               {user.name}
               </h2>
               <p className="text-xs font-montserrat-light-300 text-black-light">
                 Management Panel

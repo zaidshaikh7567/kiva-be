@@ -4,6 +4,7 @@ import SubHeroSection from '../components/home/SubHeroSection'
 import TrendingSection from '../components/home/TrendingSection'
 import Collection from '../components/home/Collection'
 import FavoriteSection from '../components/home/FavoriteSection'
+import ReviewsSlider from '../components/ReviewsSlider'
 
 const Home = () => {
   return (
@@ -13,6 +14,7 @@ const Home = () => {
         <TrendingSection/>
         <Collection/>
         <FavoriteSection/>
+        <ReviewsSlider/>
     </div>
   )
 }

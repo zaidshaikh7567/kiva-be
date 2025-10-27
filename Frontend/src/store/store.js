@@ -7,6 +7,7 @@ import stonesReducer from './slices/stonesSlice';
 import currencyReducer from './slices/currencySlice';
 import favoritesReducer from './slices/favoritesSlice';
 import authReducer from './slices/authSlice';
+import reviewsReducer from './slices/reviewsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     currency: currencyReducer,
     favorites: favoritesReducer,
     auth: authReducer,
+    reviews: reviewsReducer,
   },
 });
 
