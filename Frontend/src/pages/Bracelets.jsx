@@ -7,6 +7,7 @@ import { fetchProducts } from "../store/slices/productsSlice";
 import { selectProducts, selectProductsLoading, selectProductsLoadingMore, selectProductsError, selectPagination } from "../store/slices/productsSlice";
 import { selectCategories } from "../store/slices/categoriesSlice";
 import { fetchCategories } from "../store/slices/categoriesSlice";
+import AnimatedSection from "../components/home/AnimatedSection";
 
 const SORT_OPTIONS = [
   { value: 'featured', label: 'Featured' },
@@ -94,23 +95,26 @@ const Bracelets = () => {
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}
-      <section className="py-8 md:py-16 lg:py-20 bg-secondary">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
-          <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
-            JEWELRY COLLECTION
-          </p>
-          <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
-            Bracelet Collection<span className="text-primary">.</span>
-          </h1>
-          <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
-            Discover our exquisite collection of bracelets, from delicate chains to statement cuffs
-          </p>
-          <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
-        </div>
-      </section>
+      <AnimatedSection animationType="fadeInUp" delay={100}>
+        <section className="py-8 md:py-16 lg:py-20 bg-secondary">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
+            <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
+              JEWELRY COLLECTION
+            </p>
+            <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
+              Bracelet Collection<span className="text-primary">.</span>
+            </h1>
+            <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
+              Discover our exquisite collection of bracelets, from delicate chains to statement cuffs
+            </p>
+            <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
+          </div>
+        </section>
+      </AnimatedSection>
 
       {/* Simple Filter Section */}
-      <section className="py-4 md:py-8 bg-white">
+      <AnimatedSection animationType="fadeInLeft" delay={200}>
+        <section className="py-4 md:py-8 bg-white">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           {/* Filters and Sorting */}
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
@@ -148,9 +152,11 @@ const Bracelets = () => {
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Products Grid */}
-      <section className="py-2 md:py-8 bg-secondary">
+      <AnimatedSection animationType="scaleIn" delay={300}>
+        <section className="py-2 md:py-8 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           {productsLoading ? (
             <div className="text-center py-12">
@@ -210,9 +216,11 @@ const Bracelets = () => {
           )}
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Call to Action */}
-      <section className="py-16 md:py-20 bg-black text-white">
+      <AnimatedSection animationType="fadeInUp" delay={400}>
+        <section className="py-16 md:py-20 bg-black text-white">
         <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
             Need Help Choosing<span className="text-primary">?</span>
@@ -231,6 +239,7 @@ const Bracelets = () => {
           </div>
         </div>
       </section>
+      </AnimatedSection>
     </div>
   );
 };

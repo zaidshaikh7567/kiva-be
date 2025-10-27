@@ -2,12 +2,14 @@ import React from "react";
 import aboutImg1 from "../assets/images/about-img.png";
 import aboutImg2 from "../assets/images/about-img2.jpg";
 import { Star, Users, Award, Heart, CheckCircle, Shield, Gem, Clock, MapPin, Phone, Mail, Globe, Sparkles } from "lucide-react";
+import AnimatedSection from "../components/home/AnimatedSection";
 
 const About = () => {
   return (
     <div className="bg-white">
       {/* Hero Banner Section */}
-      <section className="relative h-[80vh] overflow-hidden">
+      <AnimatedSection animationType="fadeInUp" delay={100}>
+        <section className="relative h-[80vh] overflow-hidden">
         <div className="absolute inset-0">
           <img
             src={aboutImg1}
@@ -44,9 +46,11 @@ const About = () => {
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Company Overview Section */}
-      <section className="py-24 bg-secondary">
+      <AnimatedSection animationType="fadeInLeft" delay={200}>
+        <section className="py-24 bg-secondary">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-5xl md:text-6xl font-sorts-mill-gloudy text-black mb-8">
@@ -105,9 +109,11 @@ At Kiva, tradition meets modern luxury — beautifully and effortlessly.
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Mission & Vision Section */}
-      <section className="py-24 bg-white">
+      <AnimatedSection animationType="scaleIn" delay={300}>
+        <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             {/* Mission */}
@@ -138,9 +144,11 @@ At Kiva, tradition meets modern luxury — beautifully and effortlessly.
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Values Section */}
-      <section className="py-24 bg-secondary">
+      <AnimatedSection animationType="fadeInRight" delay={400}>
+        <section className="py-24 bg-secondary">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-5xl md:text-6xl font-sorts-mill-gloudy text-black mb-8">
@@ -226,6 +234,7 @@ At Kiva, tradition meets modern luxury — beautifully and effortlessly.
           </div>
         </div>
       </section>
+      </AnimatedSection>
     </div>
   );
 };

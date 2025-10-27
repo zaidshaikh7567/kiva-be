@@ -9,6 +9,7 @@ import ProductDetailsModal from '../components/ProductDetailsModal';
 import { extractPlainText } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
+import AnimatedSection from '../components/home/AnimatedSection';
 
 const Favorites = () => {
   const favorites = useSelector(selectFavorites);
@@ -57,24 +58,27 @@ const Favorites = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="py-8 md:py-16 lg:py-20 bg-secondary">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
-          <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
-            FAVORITES
-          </p>
-          <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
-            Your Favorite <span className="text-primary">Jewelry</span>
-          </h1>
-          <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
-            Discover and manage your favorite jewelry pieces, saved for easy access and future purchases.
-          </p>
-          <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
-        </div>
-      </section>
+      <AnimatedSection animationType="fadeInUp" delay={100}>
+        <section className="py-8 md:py-16 lg:py-20 bg-secondary">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
+            <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
+              FAVORITES
+            </p>
+            <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
+              Your Favorite <span className="text-primary">Jewelry</span>
+            </h1>
+            <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
+              Discover and manage your favorite jewelry pieces, saved for easy access and future purchases.
+            </p>
+            <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
+          </div>
+        </section>
+      </AnimatedSection>
 
       <div className="max-w-[1420px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+        <AnimatedSection animationType="fadeInLeft" delay={200}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
           <div>
             <h2 className="text-2xl font-montserrat-semibold-600 text-black mb-2">
               My Favorites
@@ -93,9 +97,11 @@ const Favorites = () => {
               Clear All
             </button>
           )}
-        </div>
+          </div>
+        </AnimatedSection>
 
         {/* Favorites Content */}
+        <AnimatedSection animationType="scaleIn" delay={300}>
         {favoritesCount > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {favorites.map((product) => (
@@ -180,6 +186,7 @@ const Favorites = () => {
             </Link>
           </div>
         )}
+        </AnimatedSection>
       </div>
 
       {/* Quick View Modal */}

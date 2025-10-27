@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ShoppingBag, Menu, X, Heart } from "lucide-react"; // lucide-react icons
 import { useSelector } from "react-redux";
 import { selectFavoritesCount } from "../store/slices/favoritesSlice";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import CurrencyDropdown from "./CurrencyDropdown";
 import UserProfile from "./UserProfile";
 import { useAuth } from "../contexts/AuthContext";
@@ -11,7 +11,13 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const favoritesCount = useSelector(selectFavoritesCount);
   const { user, logout } = useAuth();
+  const location = useLocation();
   console.log('user :', user);
+
+  // Function to check if a link is active
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
@@ -40,37 +46,49 @@ const Header = () => {
         <nav className="hidden xl:flex space-x-8 text-[#1e2b38] font-medium">
           <Link
             to="/shop"
-            className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+              isActive('/shop') ? 'text-primary' : 'text-black-light'
+            }`}
           >
             Shop
           </Link>
           <Link
             to="/rings"
-            className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+              isActive('/rings') ? 'text-primary' : 'text-black-light'
+            }`}
           >
             Rings
           </Link>
           <Link
             to="/earrings"
-            className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+              isActive('/earrings') ? 'text-primary' : 'text-black-light'
+            }`}
           >
             Earrings
           </Link>
           <Link
             to="/bracelets"
-            className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+              isActive('/bracelets') ? 'text-primary' : 'text-black-light'
+            }`}
           >
             Bracelets
           </Link>
           <Link
             to="/necklaces"
-            className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+              isActive('/necklaces') ? 'text-primary' : 'text-black-light'
+            }`}
           >
             Necklaces
           </Link>
           <Link
             to="/favorites"
-            className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px] flex items-center gap-1"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] flex items-center gap-1 transition-colors duration-200 ${
+              isActive('/favorites') ? 'text-primary' : 'text-black-light'
+            }`}
           >
             <Heart className="w-4 h-4" />
             Favorites
@@ -82,13 +100,17 @@ const Header = () => {
           </Link>
           <Link
             to="/about"
-            className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+              isActive('/about') ? 'text-primary' : 'text-black-light'
+            }`}
           >
             About
           </Link>
           <Link
             to="/contact"
-            className="hover:text-black text-black-light font-montserrat-medium-500 text-[16px]"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+              isActive('/contact') ? 'text-primary' : 'text-black-light'
+            }`}
           >
             Contact Us
           </Link>
@@ -172,42 +194,54 @@ const Header = () => {
               <Link
                 to="/shop"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                className={`font-montserrat-medium-500 text-base py-2 border-b border-gray-100 transition-colors duration-200 ${
+                  isActive('/shop') ? 'text-primary' : 'text-black-light hover:text-primary'
+                }`}
               >
                 Shop
               </Link>
               <Link
                 to="/rings"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                className={`font-montserrat-medium-500 text-base py-2 border-b border-gray-100 transition-colors duration-200 ${
+                  isActive('/rings') ? 'text-primary' : 'text-black-light hover:text-primary'
+                }`}
               >
                 Rings
               </Link>
               <Link
                 to="/earrings"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                className={`font-montserrat-medium-500 text-base py-2 border-b border-gray-100 transition-colors duration-200 ${
+                  isActive('/earrings') ? 'text-primary' : 'text-black-light hover:text-primary'
+                }`}
               >
                 Earrings
               </Link>
               <Link
                 to="/bracelets"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                className={`font-montserrat-medium-500 text-base py-2 border-b border-gray-100 transition-colors duration-200 ${
+                  isActive('/bracelets') ? 'text-primary' : 'text-black-light hover:text-primary'
+                }`}
               >
                 Bracelets
               </Link>
               <Link
                 to="/necklaces"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                className={`font-montserrat-medium-500 text-base py-2 border-b border-gray-100 transition-colors duration-200 ${
+                  isActive('/necklaces') ? 'text-primary' : 'text-black-light hover:text-primary'
+                }`}
               >
                 Necklaces
               </Link>
               <Link
                 to="/favorites"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100 flex items-center gap-2"
+                className={`font-montserrat-medium-500 text-base py-2 border-b border-gray-100 flex items-center gap-2 transition-colors duration-200 ${
+                  isActive('/favorites') ? 'text-primary' : 'text-black-light hover:text-primary'
+                }`}
               >
                 <Heart className="w-4 h-4" />
                 Favorites
@@ -220,14 +254,18 @@ const Header = () => {
               <Link
                 to="/about"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-b border-gray-100"
+                className={`font-montserrat-medium-500 text-base py-2 border-b border-gray-100 transition-colors duration-200 ${
+                  isActive('/about') ? 'text-primary' : 'text-black-light hover:text-primary'
+                }`}
               >
                 About
               </Link>
               <Link
                 to="/contact"
                 onClick={() => setIsOpen(false)}
-                className="hover:text-primary text-black-light font-montserrat-medium-500 text-base py-2 border-gray-100"
+                className={`font-montserrat-medium-500 text-base py-2 border-b border-gray-100 transition-colors duration-200 ${
+                  isActive('/contact') ? 'text-primary' : 'text-black-light hover:text-primary'
+                }`}
               >
                 Contact Us
               </Link>

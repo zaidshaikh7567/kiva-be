@@ -5,6 +5,7 @@ import CustomDropdown from "../components/CustomDropdown";
 import { FaFacebook,  } from "react-icons/fa";
 import { IoLogoWhatsapp } from "react-icons/io";
 import { RiInstagramFill } from "react-icons/ri";
+import AnimatedSection from "../components/home/AnimatedSection";
 const SERVICE_OPTIONS = [
   { value: 'general', label: 'General Inquiry' },
   { value: 'custom', label: 'Custom Design' },
@@ -55,31 +56,34 @@ const Contact = () => {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative h-[70vh] overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src={contactBg}
-            alt="Contact Aurora Jewelry"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/50" />
-        </div>
-        
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="text-center text-white max-w-4xl mx-auto px-6">
-            <h1 className="text-5xl md:text-7xl font-sorts-mill-gloudy leading-tight mb-6">
-              Contact Us<span className="text-primary">.</span>
-            </h1>
-            <p className="text-xl md:text-2xl font-montserrat-regular-400 mb-8 max-w-2xl mx-auto">
-              We're here to help you find the perfect piece or answer any questions
-            </p>
-            <div className="w-24 h-1 bg-primary mx-auto"></div>
+      <AnimatedSection animationType="fadeInUp" delay={100}>
+        <section className="relative h-[70vh] overflow-hidden">
+          <div className="absolute inset-0">
+            <img
+              src={contactBg}
+              alt="Contact Aurora Jewelry"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/50" />
           </div>
-        </div>
-      </section>
+          
+          <div className="relative z-10 h-full flex items-center justify-center">
+            <div className="text-center text-white max-w-4xl mx-auto px-6">
+              <h1 className="text-5xl md:text-7xl font-sorts-mill-gloudy leading-tight mb-6">
+                Contact Us<span className="text-primary">.</span>
+              </h1>
+              <p className="text-xl md:text-2xl font-montserrat-regular-400 mb-8 max-w-2xl mx-auto">
+                We're here to help you find the perfect piece or answer any questions
+              </p>
+              <div className="w-24 h-1 bg-primary mx-auto"></div>
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
 
       {/* Contact Information Cards */}
-      <section className="py-20 bg-secondary">
+      <AnimatedSection animationType="scaleIn" delay={200}>
+        <section className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-sorts-mill-gloudy text-black mb-6">
@@ -147,9 +151,11 @@ const Contact = () => {
 
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Contact Form & Additional Info */}
-      <section className="py-20 bg-white">
+      <AnimatedSection animationType="fadeInLeft" delay={300}>
+        <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             {/* Contact Form */}
@@ -355,9 +361,11 @@ const Contact = () => {
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Map Section */}
-      <section className="py-20 bg-secondary">
+      <AnimatedSection animationType="fadeInRight" delay={400}>
+        <section className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-sorts-mill-gloudy text-black mb-6">
@@ -433,6 +441,7 @@ const Contact = () => {
           </div>
         </div>
       </section>
+      </AnimatedSection>
     </div>
   );
 };

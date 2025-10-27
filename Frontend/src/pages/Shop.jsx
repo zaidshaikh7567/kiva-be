@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, selectProducts, selectProductsLoading, selectProductsError } from '../store/slices/productsSlice';
 import { fetchCategories } from '../store/slices/categoriesSlice';
 import { selectCategories } from '../store/slices/categoriesSlice';
+import AnimatedSection from '../components/home/AnimatedSection';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest First' },
@@ -92,21 +93,22 @@ const Shop = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
- 
-      <section className="py-8 md:py-16 lg:py-20 bg-secondary">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
-          <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
-          SHOP
-          </p>
-          <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
-          Our Jewelry Collection <span className="text-primary">.</span>
-          </h1>
-          <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
-          Discover our exquisite collection of handcrafted jewelry pieces, each one telling a unique story of elegance and beauty.
-          </p>
-          <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
-        </div>
-      </section>
+      <AnimatedSection animationType="fadeInUp" delay={100}>
+        <section className="py-8 md:py-16 lg:py-20 bg-secondary">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
+            <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
+            SHOP
+            </p>
+            <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
+            Our Jewelry Collection <span className="text-primary">.</span>
+            </h1>
+            <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
+            Discover our exquisite collection of handcrafted jewelry pieces, each one telling a unique story of elegance and beauty.
+            </p>
+            <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
+          </div>
+        </section>
+      </AnimatedSection>
       <div className="max-w-[1420px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters - Desktop */}

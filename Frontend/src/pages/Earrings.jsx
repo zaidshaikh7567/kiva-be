@@ -7,6 +7,7 @@ import { fetchProducts } from "../store/slices/productsSlice";
 import { selectProducts, selectProductsLoading, selectProductsLoadingMore, selectProductsError, selectPagination } from "../store/slices/productsSlice";
 import { selectCategories } from "../store/slices/categoriesSlice";
 import { fetchCategories } from "../store/slices/categoriesSlice";
+import AnimatedSection from "../components/home/AnimatedSection";
 
 const SORT_OPTIONS = [
   { value: 'featured', label: 'Featured' },
@@ -94,143 +95,151 @@ const Earrings = () => {
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}
-      <section className="py-8 md:py-16 lg:py-20 bg-secondary">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
-          <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
-            JEWELRY COLLECTION
-          </p>
-          <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
-            Earring Collection<span className="text-primary">.</span>
-          </h1>
-          <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
-            Discover our stunning collection of earrings, from delicate studs to statement pieces
-          </p>
-          <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
-        </div>
-      </section>
+      <AnimatedSection animationType="fadeInUp" delay={100}>
+        <section className="py-8 md:py-16 lg:py-20 bg-secondary">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
+            <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
+              JEWELRY COLLECTION
+            </p>
+            <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
+              Earring Collection<span className="text-primary">.</span>
+            </h1>
+            <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
+              Discover our stunning collection of earrings, from delicate studs to statement pieces
+            </p>
+            <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
+          </div>
+        </section>
+      </AnimatedSection>
 
       {/* Simple Filter Section */}
-      <section className="py-4 md:py-8 bg-white">
-        <div className="max-w-6xl mx-auto px-4 md:px-6">
-          {/* Filters and Sorting */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-            <div className="flex items-center space-x-4">
-              <span className="text-sm font-montserrat-medium-500 text-black-light">
-                {sortedEarrings.length} earrings available
-              </span>
-            </div>
+      <AnimatedSection animationType="fadeInLeft" delay={200}>
+        <section className="py-4 md:py-8 bg-white">
+          <div className="max-w-6xl mx-auto px-4 md:px-6">
+            {/* Filters and Sorting */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-montserrat-medium-500 text-black-light">
+                  {sortedEarrings.length} earrings available
+                </span>
+              </div>
 
-            <div className="flex items-center space-x-4">
-              <CustomDropdown
-                options={SORT_OPTIONS}
-                value={sortBy}
-                onChange={setSortBy}
-                placeholder="Sort by"
-                className="min-w-[200px]"
-                  searchable={false}
-              />
+              <div className="flex items-center space-x-4">
+                <CustomDropdown
+                  options={SORT_OPTIONS}
+                  value={sortBy}
+                  onChange={setSortBy}
+                  placeholder="Sort by"
+                  className="min-w-[200px]"
+                    searchable={false}
+                />
 
-              <div className="flex items-center border border-gray-200 rounded-lg">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 ${viewMode === "grid" ? "bg-primary rounded-tl-lg rounded-bl-lg  text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
-                >
-                  <Grid className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 ${viewMode === "list" ? "bg-primary rounded-tr-lg rounded-br-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tr-lg rounded-br-lg"}`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
+                <div className="flex items-center border border-gray-200 rounded-lg">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`p-2 ${viewMode === "grid" ? "bg-primary rounded-tl-lg rounded-bl-lg  text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
+                  >
+                    <Grid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`p-2 ${viewMode === "list" ? "bg-primary rounded-tr-lg rounded-br-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tr-lg rounded-br-lg"}`}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </AnimatedSection>
 
       {/* Products Grid */}
-      <section className="py-2 md:py-8 bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          {productsLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-black-light font-montserrat-regular-400">Loading earrings...</p>
-            </div>
-          ) : productsError ? (
-            <div className="text-center py-12">
-              <div className="text-red-500 mb-4">
-                <span className="text-4xl">⚠️</span>
+      <AnimatedSection animationType="scaleIn" delay={300}>
+        <section className="py-2 md:py-8 bg-secondary">
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            {productsLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-black-light font-montserrat-regular-400">Loading earrings...</p>
               </div>
-              <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Error loading earrings</h3>
-              <p className="text-black-light font-montserrat-regular-400">
-                {productsError}
-              </p>
-            </div>
-          ) : sortedEarrings.length > 0 ? (
-            <div className={`grid gap-4 md:gap-8 ${
-              viewMode === "grid" 
-                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
-                : "grid-cols-1"
-            }`}>
-              {sortedEarrings.map((earring) => (
-                <ProductCard
-                  key={earring._id || earring.id}
-                  product={earring}
-                  viewMode={viewMode}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-black-light font-montserrat-regular-400">
-                No earrings found.
-              </p>
-            </div>
-          )}
+            ) : productsError ? (
+              <div className="text-center py-12">
+                <div className="text-red-500 mb-4">
+                  <span className="text-4xl">⚠️</span>
+                </div>
+                <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Error loading earrings</h3>
+                <p className="text-black-light font-montserrat-regular-400">
+                  {productsError}
+                </p>
+              </div>
+            ) : sortedEarrings.length > 0 ? (
+              <div className={`grid gap-4 md:gap-8 ${
+                viewMode === "grid" 
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
+                  : "grid-cols-1"
+              }`}>
+                {sortedEarrings.map((earring) => (
+                  <ProductCard
+                    key={earring._id || earring.id}
+                    product={earring}
+                    viewMode={viewMode}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-black-light font-montserrat-regular-400">
+                  No earrings found.
+                </p>
+              </div>
+            )}
 
-          {/* Load More Button */}
-          {sortedEarrings.length > 0 && pagination.hasMore && (
-            <div className="text-center mt-8 md:mt-12">
-              <button
-                onClick={handleLoadMore}
-                disabled={productsLoadingMore}
-                className="px-8 md:px-12 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 rounded-lg hover:bg-primary-dark transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 mx-auto"
-              >
-                {productsLoadingMore ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span>Loading...</span>
-                  </>
-                ) : (
-                  <span>Load More</span>
-                )}
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
+            {/* Load More Button */}
+            {sortedEarrings.length > 0 && pagination.hasMore && (
+              <div className="text-center mt-8 md:mt-12">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={productsLoadingMore}
+                  className="px-8 md:px-12 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 rounded-lg hover:bg-primary-dark transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 mx-auto"
+                >
+                  {productsLoadingMore ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Loading...</span>
+                    </>
+                  ) : (
+                    <span>Load More</span>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+      </AnimatedSection>
 
       {/* Call to Action */}
-      <section className="py-16 md:py-20 bg-black text-white">
-        <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
-            Need Help Choosing<span className="text-primary">?</span>
-          </h2>
-          <p className="text-base md:text-lg lg:text-xl font-montserrat-regular-400 text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto px-4">
-            Our jewelry experts can help you find the perfect earrings or create a custom design just for you
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
-            <button className="px-6 md:px-10 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg text-base md:text-lg">
-              Custom Design
-            </button>
-            <button className="px-6 md:px-10 py-3 md:py-4 border-2 border-primary text-primary font-montserrat-medium-500 hover:bg-primary hover:text-white transition-colors duration-300 rounded-lg text-base md:text-lg">
-              Book Consultation
-            </button>
+      <AnimatedSection animationType="fadeInUp" delay={400}>
+        <section className="py-16 md:py-20 bg-black text-white">
+          <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
+              Need Help Choosing<span className="text-primary">?</span>
+            </h2>
+            <p className="text-base md:text-lg lg:text-xl font-montserrat-regular-400 text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto px-4">
+              Our jewelry experts can help you find the perfect earrings or create a custom design just for you
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
+              <button className="px-6 md:px-10 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg text-base md:text-lg">
+                Custom Design
+              </button>
+              <button className="px-6 md:px-10 py-3 md:py-4 border-2 border-primary text-primary font-montserrat-medium-500 hover:bg-primary hover:text-white transition-colors duration-300 rounded-lg text-base md:text-lg">
+                Book Consultation
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </AnimatedSection>
     </div>
   );
 };

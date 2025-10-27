@@ -1,11 +1,14 @@
 import React from "react";
 import { Clock, Bell, Mail, Sparkles, Heart } from "lucide-react";
 import { Link } from 'react-router-dom';
+import AnimatedSection from "../components/home/AnimatedSection";
+
 const Necklaces = () => {
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}
-      <section className="py-8 md:py-16 lg:py-20 bg-secondary">
+      <AnimatedSection animationType="fadeInUp" delay={100}>
+        <section className="py-8 md:py-16 lg:py-20 bg-secondary">
         <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
           <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
             JEWELRY COLLECTION
@@ -19,9 +22,11 @@ const Necklaces = () => {
           <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Coming Soon Section */}
-      <section className="py-16 md:py-24 bg-white">
+      <AnimatedSection animationType="scaleIn" delay={200}>
+        <section className="py-16 md:py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
           {/* Coming Soon Icon */}
           <div className="mb-8">
@@ -175,9 +180,11 @@ const Necklaces = () => {
           </div>
         </div>
       </section>
+      </AnimatedSection>
 
       {/* Call to Action */}
-      <section className="py-16 md:py-20 bg-black text-white">
+      <AnimatedSection animationType="fadeInRight" delay={300}>
+        <section className="py-16 md:py-20 bg-black text-white">
         <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
             Explore Our Other Collections<span className="text-primary">.</span>
@@ -222,6 +229,7 @@ const Necklaces = () => {
           </div>
         </div>
       </section>
+      </AnimatedSection>
     </div>
   );
 };
