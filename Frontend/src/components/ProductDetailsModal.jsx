@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { X, Heart, Star, ShoppingBag, Minus, Plus, Gem, Shield, Truck, RotateCcw, Award, Info, ListChevronsDownUp, HelpCircle, FileText } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { X, Heart, Star, ShoppingBag, Minus, Plus, Gem, Shield, Truck, RotateCcw, Award, Info, ListChevronsDownUp, HelpCircle, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCartItem } from '../store/slices/cartSlice';
 import { toggleFavorite as toggleFavoriteAction, selectIsFavorite } from '../store/slices/favoritesSlice';
@@ -22,6 +22,10 @@ console.log('product :', product);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedCenterStone, setSelectedCenterStone] = useState(null);
   const [selectedCarat, setSelectedCarat] = useState(product.stoneType?.name);
+  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
+  const imageContainerRef = useRef(null);
+  const mousePositionRef = useRef({ x: 0, y: 0 });
   const dispatch = useDispatch();
   
   // Currency selectors
@@ -53,6 +57,89 @@ console.log('product :', product);
       document.body.style.overflow = "auto";
     };
   }, [isOpen, dispatch]);
+
+  // Image navigation handlers
+  const handleNextImage = (e) => {
+    e?.stopPropagation();
+    const total = product?.images?.length || 0;
+    if (total > 0) {
+      setSelectedImage((prev) => (prev + 1) % total);
+    }
+    // Reset magnifier position to current mouse position after image change
+    if (imageContainerRef.current && mousePositionRef.current) {
+      const rect = imageContainerRef.current.getBoundingClientRect();
+      const x = mousePositionRef.current.x - rect.left;
+      const y = mousePositionRef.current.y - rect.top;
+      const constrainedX = Math.max(0, Math.min(x, rect.width));
+      const constrainedY = Math.max(0, Math.min(y, rect.height));
+      setMagnifierPosition({ x: constrainedX, y: constrainedY });
+    }
+  };
+
+  const handlePreviousImage = (e) => {
+    e?.stopPropagation();
+    const total = product?.images?.length || 0;
+    if (total > 0) {
+      setSelectedImage((prev) => (prev - 1 + total) % total);
+    }
+    // Reset magnifier position to current mouse position after image change
+    if (imageContainerRef.current && mousePositionRef.current) {
+      const rect = imageContainerRef.current.getBoundingClientRect();
+      const x = mousePositionRef.current.x - rect.left;
+      const y = mousePositionRef.current.y - rect.top;
+      const constrainedX = Math.max(0, Math.min(x, rect.width));
+      const constrainedY = Math.max(0, Math.min(y, rect.height));
+      setMagnifierPosition({ x: constrainedX, y: constrainedY });
+    }
+  };
+
+  // Hide magnifier when entering arrow button area
+  const handleArrowMouseEnter = () => {
+    setShowMagnifier(false);
+  };
+
+  // Re-enable magnifier when leaving arrow button and going to image
+  const handleArrowMouseLeave = () => {
+    // Small delay to allow mouse to move to image container
+    setTimeout(() => {
+      if (imageContainerRef.current && mousePositionRef.current) {
+        const rect = imageContainerRef.current.getBoundingClientRect();
+        const { x, y } = mousePositionRef.current;
+        // Check if mouse is within image bounds
+        const isOverImage = 
+          x >= rect.left && 
+          x <= rect.right && 
+          y >= rect.top && 
+          y <= rect.bottom;
+        if (isOverImage) {
+          setShowMagnifier(true);
+        }
+      }
+    }, 10);
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!isOpen || !product) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft') {
+        setSelectedImage((prev) => {
+          const total = product?.images?.length || 0;
+          return total > 0 ? (prev - 1 + total) % total : prev;
+        });
+      } else if (e.key === 'ArrowRight') {
+        setSelectedImage((prev) => {
+          const total = product?.images?.length || 0;
+          return total > 0 ? (prev + 1) % total : prev;
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, product]);
+
   if (!isOpen || !product) return null;
 
   // Check if product is a ring (to show ring size and center stone options)
@@ -200,7 +287,46 @@ console.log('product :', product);
     return (basePrice + centerStonePrice) * metalMultiplier;
   };
 
+  // Magnifier handlers
+  const handleMouseMove = (e) => {
+    if (!imageContainerRef.current) return;
+    
+    // Track global mouse position
+    mousePositionRef.current = { x: e.clientX, y: e.clientY };
+    
+    const rect = imageContainerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Constrain position within image bounds
+    const constrainedX = Math.max(0, Math.min(x, rect.width));
+    const constrainedY = Math.max(0, Math.min(y, rect.height));
+    
+    setMagnifierPosition({ x: constrainedX, y: constrainedY });
+  };
 
+  const handleMouseEnter = () => {
+    setShowMagnifier(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowMagnifier(false);
+  };
+
+  // Calculate zoom position for background image
+  const getZoomPosition = () => {
+    if (!imageContainerRef.current) return { x: 0, y: 0, zoom: 2.5 };
+    const rect = imageContainerRef.current.getBoundingClientRect();
+    const zoomLevel = 4.5; // Zoom factor
+    const x = (magnifierPosition.x / rect.width) * 100;
+    const y = (magnifierPosition.y / rect.height) * 100;
+    return { x, y, zoom: zoomLevel };
+  };
+
+  const zoomPos = getZoomPosition();
+
+  // Get total images for display
+  const totalImages = product?.images?.length || 0;
   
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -221,17 +347,39 @@ console.log('product :', product);
           <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
             {/* Product Images */}
             <div className="relative bg-gray-50 p-4 lg:p-8">
-              <div className="aspect-square relative overflow-hidden rounded-2xl mb-4">
+              <div 
+                ref={imageContainerRef}
+                className="aspect-square relative overflow-hidden rounded-2xl mb-4 cursor-zoom-in"
+                onMouseMove={handleMouseMove}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                {/* Main Image */}
                 <img
                   src={product?.images?.[selectedImage]}
                   alt={product?.name}
                   className="w-full h-full object-cover"
                 />
-                {/* {product?.featured && (
-                  <div className="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-montserrat-medium-500">
-                    Featured
-                  </div>
-                )} */}
+                
+                {/* Magnified Image Overlay */}
+                {showMagnifier && imageContainerRef.current && (
+                  <div 
+                    className="absolute pointer-events-none z-20 border-2 border-white rounded-full shadow-2xl overflow-hidden"
+                    style={{
+                      left: `${magnifierPosition.x}px`,
+                      top: `${magnifierPosition.y}px`,
+                      width: '200px',
+                      height: '200px',
+                      backgroundImage: `url(${product?.images?.[selectedImage]})`,
+                      backgroundSize: `${zoomPos.zoom * 100}%`,
+                      backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
+                      backgroundRepeat: 'no-repeat',
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                  />
+                )}
+                
+                {/* Favorite Button */}
                 <button
                   onClick={toggleFavorite}
                   className={`absolute top-4 sm:right-4 left-4 w-fit  p-2 rounded-full transition-all duration-200 z-10 ${
@@ -242,16 +390,50 @@ console.log('product :', product);
                 >
                   <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
                 </button>
+
+                {/* Navigation Arrows */}
+                {totalImages > 1 && (
+                  <>
+                    {/* Previous Button */}
+                    <button
+                      onClick={handlePreviousImage}
+                      onMouseEnter={handleArrowMouseEnter}
+                      onMouseLeave={handleArrowMouseLeave}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-1 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-6 h-6 text-black" />
+                    </button>
+
+                    {/* Next Button */}
+                    <button
+                      onClick={handleNextImage}
+                      onMouseEnter={handleArrowMouseEnter}
+                      onMouseLeave={handleArrowMouseLeave}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-1 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-6 h-6 text-black" />
+                    </button>
+                  </>
+                )}
+
+                {/* Image Counter */}
+                {totalImages > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-montserrat-medium-500">
+                    {selectedImage + 1} / {totalImages}
+                  </div>
+                )}
               </div>
 
               {/* Thumbnail Images */}
               <div className="grid grid-cols-4 gap-2">
-                {product.images.slice(1, 5).map((img, index) => (
+              {product.images.slice(1, 5).map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors duration-300 ${
-                      selectedImage === index ? 'border-primary' : 'border-gray-200'
+                      selectedImage === index ? 'border-primary ring-1 outline-none ring-primary ring-offset-2' : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <img
