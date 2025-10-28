@@ -3,6 +3,7 @@ import { HelpCircle, ChevronDown, Plus, Minus } from 'lucide-react';
 import Container from '../components/Container';
 import faq1 from '../assets/images/product-10.png';
 import faq2 from '../assets/images/product-6.png';
+import { Link } from 'react-router-dom';
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(0); // First FAQ open by default
@@ -213,17 +214,17 @@ const FAQ = () => {
                 Can't find the answer you're looking for? Our customer service team is here to help!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="/contact"
+                <Link
+                  to="/contact"
                   className="inline-block bg-primary text-white px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-primary-dark transition-colors"
                 >
                   Contact Us
-                </a>
+                </Link>
                 <a
-                  href="tel:+15551234567"
+                  href="tel:+919106302269"
                   className="inline-block bg-white text-primary border-2 border-primary px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-primary-light transition-colors"
                 >
-                  Call +1 (555) 123-4567
+                  Call +91 9106302269
                 </a>
               </div>
             </div>

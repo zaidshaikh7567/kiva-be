@@ -135,7 +135,7 @@ const Shop = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search jewelry..."
-                    className="w-full pl-10 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black placeholder-black-light"
+                    className="w-full pl-10 pr-4 py-2 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black placeholder-black-light"
                   />
                 </div>
               </div>

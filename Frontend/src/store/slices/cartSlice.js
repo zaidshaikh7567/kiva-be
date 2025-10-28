@@ -8,16 +8,6 @@ const isAuthenticated = () => {
   return !!localStorage.getItem('accessToken');
 };
 
-// Helper function to sync cart to localStorage
-const syncToLocalStorage = (items) => {
-  localStorage.setItem('cart', JSON.stringify(items));
-};
-
-// Helper function to load cart from localStorage
-const loadFromLocalStorage = () => {
-  const cartData = localStorage.getItem('cart');
-  return cartData ? JSON.parse(cartData) : [];
-};
 
 // Helper function to safely convert to number
 const toNumber = (value) => {
@@ -32,19 +22,13 @@ export const fetchCartItems = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       if (!isAuthenticated()) {
-        // If not authenticated, load from localStorage
-        const localCart = loadFromLocalStorage();
-        return { data: localCart };
+        // Return empty cart if not authenticated
+        return { data: [] };
       }
       const response = await api.get(API_METHOD.cart);
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch cart items';
-      // If API fails and not authenticated, try loading from localStorage
-      if (!isAuthenticated()) {
-        const localCart = loadFromLocalStorage();
-        return { data: localCart };
-      }
       return rejectWithValue(errorMessage);
     }
   }
@@ -55,41 +39,17 @@ export const addCartItem = createAsyncThunk(
   async (cartData, { rejectWithValue, dispatch }) => {
     try {
       if (!isAuthenticated()) {
-        // If not authenticated, check limit (5 items max)
-        const localCart = loadFromLocalStorage();
-        const MAX_CART_ITEMS = 5;
-        
-        // Check if adding this item would exceed the limit
-        if (localCart.length >= MAX_CART_ITEMS) {
-          toast.error('Cart limit reached! Please login to add more items.', {
-            duration: 4000,
-            icon: '🔒',
-          });
-          return rejectWithValue('Cart limit reached. Please login to add more items.');
-        }
-        
-        // Add to localStorage with full product details
-        const newItem = {
-          id: `${cartData.productId}_${Date.now()}`,
-          productId: cartData.productId,
-          name: cartData.name || cartData.title,
-          title: cartData.title || cartData.name,
-          price: toNumber(cartData.price || 0),
-          image: cartData.image,
-          images: cartData.images,
-          description: cartData.description,
-          quantity: toNumber(cartData.quantity || 1),
-          selectedMetal: cartData.selectedMetal,
-          _id: cartData._id || cartData.productId,
-          metalId: cartData.metalId,
-          purityLevel: cartData.purityLevel,
-          stoneTypeId: cartData.stoneTypeId,
-        };
-        localCart.push(newItem);
-        syncToLocalStorage(localCart);
-        toast.success('Item added to cart!');
-        return { data: newItem };
+        // Redirect to login page if not authenticated
+        toast.error('Please login to add items to cart', {
+          duration: 3000,
+          icon: '🔒',
+        });
+        // Store the current URL to redirect back after login
+        // const currentPath = window.location.pathname;
+        // window.location.href = `/sign-in?redirect=${encodeURIComponent(currentPath)}`;
+        return rejectWithValue('Authentication required');
       }
+      
       const response = await api.post(API_METHOD.cart, cartData);
       toast.success('Item added to cart!');
       await dispatch(fetchCartItems()); // Refresh cart after adding
@@ -107,15 +67,7 @@ export const updateCartItem = createAsyncThunk(
   async ({ cartId, cartData }, { rejectWithValue, dispatch }) => {
     try {
       if (!isAuthenticated()) {
-        // If not authenticated, update in localStorage
-        const localCart = loadFromLocalStorage();
-        const itemIndex = localCart.findIndex(item => item.id === cartId);
-        if (itemIndex !== -1) {
-          localCart[itemIndex] = { ...localCart[itemIndex], ...cartData };
-          syncToLocalStorage(localCart);
-          return { data: localCart[itemIndex] };
-        }
-        return rejectWithValue('Item not found');
+        return rejectWithValue('Authentication required');
       }
       const response = await api.put(API_METHOD.cart, { cartId, ...cartData });
       await dispatch(fetchCartItems()); // Refresh cart after updating
@@ -133,11 +85,7 @@ export const deleteCartItem = createAsyncThunk(
   async (cartId, { rejectWithValue, dispatch }) => {
     try {
       if (!isAuthenticated()) {
-        // If not authenticated, delete from localStorage
-        const localCart = loadFromLocalStorage();
-        const filteredCart = localCart.filter(item => item.id !== cartId);
-        syncToLocalStorage(filteredCart);
-        return { data: { cartId } };
+        return rejectWithValue('Authentication required');
       }
       const response = await api.delete(`${API_METHOD.cart}/${cartId}`);
       toast.success('Item removed from cart');
@@ -156,9 +104,7 @@ export const clearCartItems = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       if (!isAuthenticated()) {
-        // If not authenticated, clear localStorage
-        syncToLocalStorage([]);
-        return { data: [] };
+        return rejectWithValue('Authentication required');
       }
       const response = await api.delete(API_METHOD.cart);
       toast.success('Cart cleared');
@@ -186,18 +132,21 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action) => {
+      // Require authentication for adding to cart
+      if (!isAuthenticated()) {
+        toast.error('Please login to add items to cart', {
+          duration: 3000,
+          icon: '🔒',
+        });
+        // Store the current URL to redirect back after login
+        const currentPath = window.location.pathname;
+        window.location.href = `/sign-in?redirect=${encodeURIComponent(currentPath)}`;
+        return; // Don't add the item
+      }
+      
       const product = action.payload;
       const productId = product._id || product.id;
       const existingItem = state.items.find(item => item.id === productId);
-      
-      // Check limit for unauthenticated users
-      if (!isAuthenticated() && !existingItem && state.items.length >= 5) {
-        toast.error('Cart limit reached! Please login to add more items.', {
-          duration: 4000,
-          icon: '🔒',
-        });
-        return; // Don't add the item
-      }
       
       if (existingItem) {
         existingItem.quantity += 1;
@@ -213,6 +162,7 @@ const cartSlice = createSlice({
           description: product.description,
           quantity: 1,
           selectedMetal: product.selectedMetal,
+          ringSize: product.ringSize,
           _id: product._id,
         };
         state.items.push(normalizedProduct);
@@ -224,11 +174,6 @@ const cartSlice = createSlice({
       
       // Auto-open cart when item is added
       state.isOpen = true;
-      
-      // Sync to localStorage if not authenticated
-      if (!isAuthenticated()) {
-        syncToLocalStorage(state.items);
-      }
     },
     
     removeFromCart: (state, action) => {
@@ -238,11 +183,6 @@ const cartSlice = createSlice({
       // Update totals
       state.totalQuantity = state.items.reduce((total, item) => total + toNumber(item.quantity), 0);
       state.totalPrice = state.items.reduce((total, item) => total + (toNumber(item.price) * toNumber(item.quantity)), 0);
-      
-      // Sync to localStorage if not authenticated
-      if (!isAuthenticated()) {
-        syncToLocalStorage(state.items);
-      }
     },
     
     updateQuantity: (state, action) => {
@@ -261,22 +201,12 @@ const cartSlice = createSlice({
         state.totalQuantity = state.items.reduce((total, item) => total + item.quantity, 0);
         state.totalPrice = state.items.reduce((total, item) => total + (item.price * item.quantity), 0);
       }
-      
-      // Sync to localStorage if not authenticated
-      if (!isAuthenticated()) {
-        syncToLocalStorage(state.items);
-      }
     },
     
     clearCart: (state) => {
       state.items = [];
       state.totalQuantity = 0;
       state.totalPrice = 0;
-      
-      // Sync to localStorage if not authenticated
-      if (!isAuthenticated()) {
-        syncToLocalStorage([]);
-      }
     },
     
     toggleCart: (state) => {
@@ -291,14 +221,9 @@ const cartSlice = createSlice({
       state.isOpen = false;
     },
     
-    initializeCart: (state) => {
-      // Load cart from localStorage if not authenticated
-      if (!isAuthenticated()) {
-        const localCart = loadFromLocalStorage();
-        state.items = localCart;
-        state.totalQuantity = localCart.reduce((total, item) => total + (item.quantity || 0), 0);
-        state.totalPrice = localCart.reduce((total, item) => total + ((item.price || 0) * (item.quantity || 0)), 0);
-      }
+    initializeCart: () => {
+      // Cart will be loaded via fetchCartItems when authenticated
+      // No localStorage initialization needed
     },
   },
   extraReducers: (builder) => {

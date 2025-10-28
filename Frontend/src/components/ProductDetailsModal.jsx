@@ -58,6 +58,7 @@ console.log('product :', product);
   // Check if product is a ring (to show ring size and center stone options)
   // Check if category is ring or if parent category is ring
   const categoryName = product?.category?.name?.toLowerCase();
+  console.log('product555 :', product);
   
   // Find parent category from categories array if it exists
   let parentCategoryName = null;
@@ -69,9 +70,19 @@ console.log('product :', product);
   }
   
   const isRing = (categoryName === 'ring' || categoryName === 'rings') ||
-                 (parentCategoryName === 'ring' || parentCategoryName === 'rings');
+  (parentCategoryName === 'ring' || parentCategoryName === 'rings');
+  console.log('isRing :', isRing);
   const handleAddToCart = async () => {
     try {
+      // Validate ring size for rings
+      if (isRing && !selectedRingSize) {
+        toast.error('Please select a ring size before adding to cart', {
+          duration: 3000,
+          position: 'top-right',
+        });
+        return;
+      }
+
       // Check if user is authenticated
       const isAuthenticated = !!localStorage.getItem('accessToken');
       
@@ -80,6 +91,11 @@ console.log('product :', product);
         productId: product._id,
         quantity: quantity,
       };
+
+      // Add ring size if product is a ring
+      if (isRing && selectedRingSize) {
+        cartData.ringSize = selectedRingSize;
+      }
 
       // Add metal information if selected
       if (selectedMetal) {
@@ -96,6 +112,7 @@ console.log('product :', product);
       }
 
       // For unauthenticated users, include full product details
+      console.log('!isAuthenticated :', !isAuthenticated);
       if (!isAuthenticated) {
         cartData.name = product.title || product.name;
         cartData.title = product.title || product.name;
@@ -105,13 +122,27 @@ console.log('product :', product);
         cartData.description = product.description;
         cartData._id = product._id;
         cartData.selectedMetal = selectedMetal;
+        if (isRing && selectedRingSize) {
+          cartData.ringSize = selectedRingSize;
+        }
       }
 
       // Dispatch the async thunk
       await dispatch(addCartItem(cartData));
+      
+      // Show success message
+      // toast.success(`${product.title || product.name} added to cart${isRing && selectedRingSize ? ` with size ${selectedRingSize}` : ''}!`, {
+      //   duration: 2000,
+      //   position: 'top-right',
+      // });
+      
       onClose();
     } catch (error) {
       console.error('Failed to add item to cart:', error);
+      toast.error('Failed to add item to cart. Please try again.', {
+        duration: 3000,
+        position: 'top-right',
+      });
     }
   };
 
@@ -353,15 +384,20 @@ console.log('product :', product);
                 {isRing && (
                   <div className="mb-6">
                     <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      Ring Size
+                      Ring Size <span className="text-red-500">*</span>
                     </label>
                     <CustomDropdown
                       options={RING_SIZES}
                       value={selectedRingSize}
                       onChange={handleRingSizeChange}
-                      placeholder="Select Ring Size"
+                      placeholder="Select Ring Size (Required)"
                       searchable={false}
                     />
+                    {!selectedRingSize && (
+                      <p className="mt-2 text-xs text-gray-600 font-montserrat-regular-400">
+                        Need help finding your size? Check our <a href="/size-guide" className="text-primary hover:underline">Size Guide</a>
+                      </p>
+                    )}
                   </div>
                 )}
 

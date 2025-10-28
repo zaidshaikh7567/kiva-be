@@ -324,7 +324,7 @@ const Rings = () => {
       {/* </AnimatedSection> */}
 
       {/* Products Grid */}
-      <AnimatedSection animationType="scaleIn" delay={300}>
+      {/* <AnimatedSection animationType="scaleIn" delay={300}> */}
         <section className="py-2 md:py-8 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           {productsLoading ? (
@@ -385,7 +385,7 @@ const Rings = () => {
           )}
         </div>
       </section>
-      </AnimatedSection>
+      {/* </AnimatedSection> */}
 
       {/* Call to Action */}
       <AnimatedSection animationType="fadeInUp" delay={400}>

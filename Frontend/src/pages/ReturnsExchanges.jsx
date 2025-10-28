@@ -1,6 +1,7 @@
 import React from 'react';
 import { RefreshCw, CheckCircle, XCircle, Package, Clock, DollarSign, AlertTriangle } from 'lucide-react';
 import Container from '../components/Container';
+import { Link } from 'react-router-dom';
 
 const ReturnsExchanges = () => {
   const returnSteps = [
@@ -432,14 +433,14 @@ const ReturnsExchanges = () => {
               Our customer service team is ready to help you with your return or exchange.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/contact"
+              <Link
+                hretof="/contact"
                 className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-gray-100 transition-colors"
               >
                 Contact Us
-              </a>
+              </Link>
               <a
-                href="mailto:returns@aurorajewelry.com"
+                href="mailto:kivadiamond3008@gmail.com"
                 className="inline-block bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-white/30 transition-colors"
               >
                 Email Returns Team

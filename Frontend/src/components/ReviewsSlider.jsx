@@ -35,6 +35,7 @@ const ReviewsSlider = () => {
     email: '',
     comment: ''
   });
+  console.log('formData----Reviews Form Data :', formData);
   
   const [errors, setErrors] = useState({});
 

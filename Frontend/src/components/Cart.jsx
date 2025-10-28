@@ -10,6 +10,7 @@ const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalQuantity, totalPrice, isOpen } = useSelector(state => state.cart);
+  console.log('items :', items);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   

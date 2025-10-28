@@ -24,12 +24,115 @@ const Contact = () => {
     message: '',
     service: 'general'
   });
+  console.log('formData----Contact Form Data :', formData);
+
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', null
+
+  // Validation functions
+  const validateField = (name, value) => {
+    let error = '';
+    
+    switch (name) {
+      case 'name':
+        if (!value.trim()) {
+          error = 'Full name is required';
+        } else if (value.trim().length < 2) {
+          error = 'Name must be at least 2 characters';
+        } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+          error = 'Name can only contain letters and spaces';
+        }
+        break;
+        
+      case 'email':
+        if (!value.trim()) {
+          error = 'Email address is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+          error = 'Please enter a valid email address';
+        }
+        break;
+        
+      case 'phone':
+        if (value.trim() && !/^[+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-()]/g, ''))) {
+          error = 'Please enter a valid phone number';
+        }
+        break;
+        
+      case 'subject':
+        if (!value.trim()) {
+          error = 'Subject is required';
+        } else if (value.trim().length < 5) {
+          error = 'Subject must be at least 5 characters';
+        } else if (value.trim().length > 100) {
+          error = 'Subject must be less than 100 characters';
+        }
+        break;
+        
+      case 'message':
+        if (!value.trim()) {
+          error = 'Message is required';
+        } else if (value.trim().length < 10) {
+          error = 'Message must be at least 10 characters';
+        } else if (value.trim().length > 1000) {
+          error = 'Message must be less than 1000 characters';
+        }
+        break;
+        
+      default:
+        break;
+    }
+    
+    return error;
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    const requiredFields = ['name', 'email', 'subject', 'message'];
+    
+    // Validate required fields
+    requiredFields.forEach(field => {
+      const error = validateField(field, formData[field]);
+      if (error) {
+        newErrors[field] = error;
+      }
+    });
+    
+    // Validate optional fields
+    if (formData.phone) {
+      const phoneError = validateField('phone', formData.phone);
+      if (phoneError) {
+        newErrors.phone = phoneError;
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleInputChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ''
+      });
+    }
+
+    // Real-time validation for better UX
+    const error = validateField(name, value);
+    if (error) {
+      setErrors({
+        ...errors,
+        [name]: error
+      });
+    }
   };
 
   const handleServiceChange = (value) => {
@@ -39,18 +142,41 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: '',
-      service: 'general'
-    });
+    
+    // Clear previous status
+    setSubmitStatus(null);
+    
+    // Validate form
+    if (!validateForm()) {
+      setSubmitStatus('error');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call - replace with actual API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Success
+      setSubmitStatus('success');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+        service: 'general'
+      });
+      setErrors({});
+      
+    } catch {
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -170,24 +296,62 @@ const Contact = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Status Messages */}
+                {submitStatus === 'success' && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center">
+                      <div className="w-5 h-5 min-w-5 min-h-5 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <p className="text-green-800 font-montserrat-medium-500">
+                        Thank you! Your message has been sent successfully. We'll get back to you soon.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {submitStatus === 'error' && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center">
+                      <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mr-3">
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <p className="text-red-800 font-montserrat-medium-500">
+                        Please fix the errors below and try again.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-montserrat-medium-500 text-black mb-2">
                       Full Name *
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
+                      <User className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${errors.name ? 'text-red-500' : 'text-black-light'}`} />
                       <input
                         type="text"
                         id="name"
                         name="name"
                         value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent font-montserrat-regular-400"
+                        onChange={handleInputChange}                
+                        className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors duration-200 ${
+                          errors.name 
+                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                            : 'border-gray-300 focus:ring-primary focus:border-transparent'
+                        }`}
                         placeholder="Your full name"
                       />
                     </div>
+                    {errors.name && (
+                      <p className="mt-1 text-sm text-red-600 font-montserrat-regular-400">
+                        {errors.name}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -195,17 +359,26 @@ const Contact = () => {
                       Phone Number
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
+                      <Phone className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${errors.phone ? 'text-red-500' : 'text-black-light'}`} />
                       <input
                         type="tel"
                         id="phone"
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent font-montserrat-regular-400"
+                        className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors duration-200 ${
+                          errors.phone 
+                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                            : 'border-gray-300 focus:ring-primary focus:border-transparent'
+                        }`}
                         placeholder="Your phone number"
                       />
                     </div>
+                    {errors.phone && (
+                      <p className="mt-1 text-sm text-red-600 font-montserrat-regular-400">
+                        {errors.phone}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -214,18 +387,26 @@ const Contact = () => {
                     Email Address *
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
+                    <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${errors.email ? 'text-red-500' : 'text-black-light'}`} />
                     <input
                       type="email"
                       id="email"
                       name="email"
                       value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent font-montserrat-regular-400"
+                      onChange={handleInputChange}              
+                      className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors duration-200 ${
+                        errors.email 
+                          ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                          : 'border-gray-300 focus:ring-primary focus:border-transparent'
+                      }`}
                       placeholder="your.email@example.com"
                     />
                   </div>
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600 font-montserrat-regular-400">
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -250,12 +431,19 @@ const Contact = () => {
                     id="subject"
                     name="subject"
                     value={formData.subject}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none
-                     focus:ring-primary focus:border-transparent font-montserrat-regular-400"
+                    onChange={handleInputChange}            
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors duration-200 ${
+                      errors.subject 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-300 focus:ring-primary focus:border-transparent'
+                    }`}
                     placeholder="Brief subject of your inquiry"
                   />
+                  {errors.subject && (
+                    <p className="mt-1 text-sm text-red-600 font-montserrat-regular-400">
+                      {errors.subject}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -266,20 +454,42 @@ const Contact = () => {
                     id="message"
                     name="message"
                     value={formData.message}
-                    onChange={handleInputChange}
-                    required
+                    onChange={handleInputChange}            
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent font-montserrat-regular-400 resize-none"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 resize-none transition-colors duration-200 ${
+                      errors.message 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-300 focus:ring-primary focus:border-transparent'
+                    }`}
                     placeholder="Tell us more about your inquiry..."
                   ></textarea>
+                  {errors.message && (
+                    <p className="mt-1 text-sm text-red-600 font-montserrat-regular-400">
+                      {errors.message}
+                    </p>
+                  )}
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-8 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
+                  disabled={isSubmitting}
+                  className={`w-full font-montserrat-medium-500 py-4 px-8 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 text-lg ${
+                    isSubmitting
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      : 'bg-primary text-white hover:bg-primary-dark'
+                  }`}
                 >
-                  <Send className="w-5 h-5" />
-                  <span>Send Message</span>
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      <span>Send Message</span>
+                    </>
+                  )}
                 </button>
               </form>
             </div>
@@ -354,7 +564,8 @@ const Contact = () => {
                 </p>
                 <div className="flex items-center space-x-2 text-primary font-montserrat-medium-500">
                   <Phone className="w-4 h-4" />
-                  <span className="text-sm">+1 (555) 123-4567</span>
+                  {/* <span className="text-sm">+91 9106302269</span> */}
+                  <a href="tel:+919106302269" className="text-sm">+91 9106302269</a>
                 </div>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Ruler, Info, Circle, Move } from 'lucide-react';
 import Container from '../components/Container';
+import { Link } from 'react-router-dom';
 
 const SizeGuide = () => {
   const [selectedTab, setSelectedTab] = useState('rings');
@@ -369,12 +370,12 @@ const SizeGuide = () => {
             <p className="font-montserrat-regular-400 text-white/90 mb-6 max-w-2xl mx-auto">
               Our jewelry experts are here to help you find the perfect size. Contact us for personalized assistance.
             </p>
-            <a
-              href="/contact"
+            <Link
+              to="/contact"
               className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-gray-100 transition-colors"
             >
               Contact Us
-            </a>
+            </Link>
           </div>
         </div>
       </Container>

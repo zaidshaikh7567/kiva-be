@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, Shield, Droplet, Sun, Home, AlertTriangle } from 'lucide-react';
 import Container from '../components/Container';
+import { Link } from 'react-router-dom';
 
 const JewelryCare = () => {
   const careCategories = [
@@ -277,12 +278,12 @@ const JewelryCare = () => {
                 We offer professional cleaning and inspection services to keep your jewelry looking its best. 
                 Bring your pieces in for complimentary cleaning or schedule a full maintenance service.
               </p>
-              <a
-                href="/contact"
+              <Link
+                to="/contact"
                 className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-gray-100 transition-colors"
               >
                 Schedule Service
-              </a>
+              </Link>
             </div>
           </div>
 

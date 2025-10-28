@@ -1,6 +1,7 @@
 import React from 'react';
 import { Truck, Package, MapPin, Clock, DollarSign, Globe, Shield } from 'lucide-react';
 import Container from '../components/Container';
+import { Link } from 'react-router-dom';
 
 const ShippingInfo = () => {
   const shippingOptions = [
@@ -332,12 +333,12 @@ const ShippingInfo = () => {
             <p className="font-montserrat-regular-400 text-white/90 mb-6 max-w-2xl mx-auto">
               Our customer service team is here to help with any shipping questions or concerns.
             </p>
-            <a
-              href="/contact"
+            <Link
+              to="/contact"
               className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-gray-100 transition-colors"
             >
               Contact Support
-            </a>
+            </Link>
           </div>
         </div>
       </Container>

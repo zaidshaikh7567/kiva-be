@@ -1,11 +1,14 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag, Eye, Trash2 } from 'lucide-react';
+import { Heart, ShoppingBag, Eye, Trash2, X } from 'lucide-react';
 import { selectFavorites, selectFavoritesCount, removeFromFavorites, clearFavorites } from '../store/slices/favoritesSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import PriceDisplay from '../components/PriceDisplay';
 import ProductDetailsModal from '../components/ProductDetailsModal';
+import CustomDropdown from '../components/CustomDropdown';
+import { RING_SIZES } from '../services/centerStonesApi';
+import { selectCategories } from '../store/slices/categoriesSlice';
 import { extractPlainText } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
@@ -17,15 +20,75 @@ const Favorites = () => {
   const favoritesCount = useSelector(selectFavoritesCount);
   console.log('favoritesCount :', favoritesCount);
   const dispatch = useDispatch();
+  const categories = useSelector(selectCategories);
   const [showQuickView, setShowQuickView] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showRingSizeModal, setShowRingSizeModal] = useState(false);
+  const [selectedRingSize, setSelectedRingSize] = useState('');
+  const [productForRingSize, setProductForRingSize] = useState(null);
 
-  const handleAddToCart = (product) => {
-    dispatch(addToCart(product));
-    toast.success(`${product.title || product.name} added to cart!`, {
+  // Check if product is a ring
+  const isRing = (product) => {
+    const categoryName = product?.category?.name?.toLowerCase();
+    
+    // Find parent category from categories array if it exists
+    let parentCategoryName = null;
+    if (product?.category?.parent && categories) {
+      const parentCategory = categories.find(cat => 
+        cat._id === product.category.parent || cat.id === product.category.parent
+      );
+      parentCategoryName = parentCategory?.name?.toLowerCase();
+    }
+    
+    return (categoryName === 'ring' || categoryName === 'rings') ||
+           (parentCategoryName === 'ring' || parentCategoryName === 'rings');
+  };
+
+  const handleRingSizeChange = (size) => {
+    setSelectedRingSize(size);
+  };
+
+  const handleConfirmRingSize = () => {
+    if (!selectedRingSize) {
+      toast.error('Please select a ring size', {
+        duration: 2000,
+        position: 'top-right',
+      });
+      return;
+    }
+    
+    // Add to cart with ring size
+    const productWithRingSize = {
+      ...productForRingSize,
+      ringSize: selectedRingSize
+    };
+    
+    dispatch(addToCart(productWithRingSize));
+    toast.success(`${productForRingSize.title || productForRingSize.name} added to cart with size ${selectedRingSize}!`, {
       duration: 2000,
       position: 'top-right',
     });
+    
+    // Close modal and reset
+    setShowRingSizeModal(false);
+    setSelectedRingSize('');
+    setProductForRingSize(null);
+  };
+
+  const handleAddToCart = (product) => {
+    // Check if product is a ring
+    if (isRing(product)) {
+      // Show ring size selection modal
+      setProductForRingSize(product);
+      setShowRingSizeModal(true);
+    } else {
+      // Add directly to cart
+      dispatch(addToCart(product));
+      toast.success(`${product.title || product.name} added to cart!`, {
+        duration: 2000,
+        position: 'top-right',
+      });
+    }
   };
 
   const handleRemoveFromFavorites = (product) => {
@@ -196,6 +259,90 @@ const Favorites = () => {
           isOpen={showQuickView}
           onClose={handleCloseQuickView}
         />
+      )}
+
+      {/* Ring Size Selection Modal */}
+      {showRingSizeModal && productForRingSize && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-montserrat-semibold-600 text-black">
+                Select Ring Size
+              </h3>
+              <button
+                onClick={() => {
+                  setShowRingSizeModal(false);
+                  setSelectedRingSize('');
+                  setProductForRingSize(null);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Product Info */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-4">
+                {productForRingSize?.images?.[0] && (
+                  <img
+                    src={productForRingSize.images[0]}
+                    alt={productForRingSize.title || productForRingSize.name}
+                    className="w-20 h-20 object-cover rounded-lg"
+                  />
+                )}
+                <div>
+                  <h4 className="font-montserrat-semibold-600 text-black mb-1">
+                    {productForRingSize.title || productForRingSize.name}
+                  </h4>
+                  <PriceDisplay 
+                    price={productForRingSize.price}
+                    originalPrice={productForRingSize.originalPrice}
+                    variant="small"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Ring Size Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
+                Ring Size *
+              </label>
+              <CustomDropdown
+                options={RING_SIZES}
+                value={selectedRingSize}
+                onChange={handleRingSizeChange}
+                placeholder="Select your ring size"
+                searchable={false}
+              />
+              <p className="mt-2 text-xs text-gray-600 font-montserrat-regular-400">
+                Need help finding your size? Check our <a href="/size-guide" className="text-primary hover:underline">Size Guide</a>
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowRingSizeModal(false);
+                  setSelectedRingSize('');
+                  setProductForRingSize(null);
+                }}
+                className="flex-1 border border-gray-300 text-gray-700 font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmRingSize}
+                className="flex-1 bg-primary text-white font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors duration-200"
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

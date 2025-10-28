@@ -1,6 +1,7 @@
 import React from 'react';
 import { Shield, Lock, Eye, UserCheck, Mail, AlertCircle } from 'lucide-react';
 import Container from '../components/Container';
+import { Link } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
   const sections = [
@@ -248,16 +249,16 @@ const PrivacyPolicy = () => {
               If you have any questions or concerns about our Privacy Policy or how we handle your data, 
               please don't hesitate to contact us.
             </p>
-            <div className="space-y-2">
-              <p className="font-montserrat-medium-500">Email: privacy@aurorajewelry.com</p>
-              <p className="font-montserrat-medium-500">Phone: +1 (555) 123-4567</p>
+            <div className="space-y-2 block">
+              <a className="font-montserrat-medium-500 block" href="mailto:kivadiamond3008@gmail.com">Email: kivadiamond3008@gmail.com</a>
+              <a className="font-montserrat-medium-500 block" href="tel:+919106302269">Phone: +91 9106302269</a>
             </div>
-            <a
-              href="/contact"
+            <Link
+              to="/contact"
               className="inline-block mt-6 bg-white text-primary px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-gray-100 transition-colors"
             >
               Contact Us
-            </a>
+            </Link>
           </div>
         </div>
       </Container>

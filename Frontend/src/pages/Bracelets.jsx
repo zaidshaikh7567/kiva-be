@@ -155,7 +155,7 @@ const Bracelets = () => {
       {/* </AnimatedSection> */}
 
       {/* Products Grid */}
-      <AnimatedSection animationType="scaleIn" delay={300}>
+      {/* <AnimatedSection animationType="scaleIn" delay={300}> */}
         <section className="py-2 md:py-8 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           {productsLoading ? (
@@ -216,10 +216,10 @@ const Bracelets = () => {
           )}
         </div>
       </section>
-      </AnimatedSection>
+      {/* </AnimatedSection> */}
 
       {/* Call to Action */}
-      <AnimatedSection animationType="fadeInUp" delay={400}>
+      {/* <AnimatedSection animationType="fadeInUp" delay={400}> */}
         <section className="py-16 md:py-20 bg-black text-white">
         <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
@@ -239,7 +239,7 @@ const Bracelets = () => {
           </div>
         </div>
       </section>
-      </AnimatedSection>
+      {/* </AnimatedSection> */}
     </div>
   );
 };
