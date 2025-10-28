@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, Grid, List, SlidersHorizontal, X } from 'lucide-react';
 import ShopProductCard from '../components/ShopProductCard';
 import CustomDropdown from '../components/CustomDropdown';
+import DualRangeSlider from '../components/DualRangeSlider';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, selectProducts, selectProductsLoading, selectProductsError } from '../store/slices/productsSlice';
 import { fetchCategories } from '../store/slices/categoriesSlice';
@@ -77,9 +78,7 @@ const Shop = () => {
     return filtered;
   }, [products, searchTerm, selectedCategory, priceRange, sortBy]);
 
-  const handlePriceRangeChange = (index, value) => {
-    const newRange = [...priceRange];
-    newRange[index] = parseInt(value);
+  const handlePriceRangeChange = (newRange) => {
     setPriceRange(newRange);
   };
 
@@ -210,27 +209,16 @@ const Shop = () => {
 
               {/* Price Range */}
               <div className="mb-6">
-                <label className="block text-sm font-montserrat-medium-500 text-black-light mb-2">
-                  Price Range: <span className="text-primary-dark font-montserrat-semibold-600">${priceRange[0]}</span> - <span className="text-primary-dark font-montserrat-semibold-600">${priceRange[1]}</span>
+                <label className="block text-sm font-montserrat-medium-500 text-black-light mb-4">
+                  Price Range
                 </label>
-                <div className="space-y-3">
-                  <input
-                    type="range"
-                    min="0"
-                    max="5000"
-                    value={priceRange[0]}
-                    onChange={(e) => handlePriceRangeChange(0, e.target.value)}
-                    className="w-full accent-primary"
-                  />
-                  <input
-                    type="range"
-                    min="0"
-                    max="5000"
-                    value={priceRange[1]}
-                    onChange={(e) => handlePriceRangeChange(1, e.target.value)}
-                    className="w-full accent-primary"
-                  />
-                </div>
+                <DualRangeSlider
+                  min={0}
+                  max={5000}
+                  value={priceRange}
+                  onChange={handlePriceRangeChange}
+                  step={50}
+                />
               </div>
             </div>
           </div>
@@ -348,27 +336,16 @@ const Shop = () => {
 
                   {/* Mobile Price Range */}
                   <div className="mb-6">
-                    <label className="block text-sm font-montserrat-medium-500 text-black-light mb-2">
-                      Price Range: <span className="text-primary-dark font-montserrat-semibold-600">${priceRange[0]}</span> - <span className="text-primary-dark font-montserrat-semibold-600">${priceRange[1]}</span>
+                    <label className="block text-sm font-montserrat-medium-500 text-black-light mb-4">
+                      Price Range
                     </label>
-                    <div className="space-y-3">
-                      <input
-                        type="range"
-                        min="0"
-                        max="5000"
-                        value={priceRange[0]}
-                        onChange={(e) => handlePriceRangeChange(0, e.target.value)}
-                        className="w-full accent-primary"
-                      />
-                      <input
-                        type="range"
-                        min="0"
-                        max="5000"
-                        value={priceRange[1]}
-                        onChange={(e) => handlePriceRangeChange(1, e.target.value)}
-                        className="w-full accent-primary"
-                      />
-                    </div>
+                    <DualRangeSlider
+                      min={0}
+                      max={5000}
+                      value={priceRange}
+                      onChange={handlePriceRangeChange}
+                      step={50}
+                    />
                   </div>
 
                   <button

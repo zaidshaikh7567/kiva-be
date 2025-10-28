@@ -10,4 +10,11 @@ export const API_METHOD = {
   favorites: '/api/favorites',
   settings: '/api/settings',
   stones: '/api/stones',
+  auth: {
+    login: '/api/admin/auth/login',
+    google: '/api/admin/auth/google',
+    logout: '/api/admin/auth/logout',
+    profile: '/api/admin/auth/profile',
+    refreshToken: '/api/admin/auth/refresh-token',
+  },
 };

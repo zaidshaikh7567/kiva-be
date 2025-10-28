@@ -12,7 +12,7 @@ console.log('GOOGLE_CLIENT_ID :', GOOGLE_CLIENT_ID);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId={"GOOGLE_CLIENT_ID"}>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <Provider store={store}>
         <App />
       </Provider>

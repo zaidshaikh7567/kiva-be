@@ -152,9 +152,9 @@ const Favorites = () => {
                 
                 <div className="p-3 sm:p-4 flex-1 flex flex-col">
                   <div className="flex-1">
-                    <Link to={`/product/${product._id || product.id}`} className="block">
+                    {/* <Link to={`/product/${product._id || product.id}`} className="block"> */}
                       <h3 className="text-base sm:text-lg font-montserrat-semibold-600 text-black mb-2 line-clamp-1 hover:text-primary-dark transition-colors">{product.title || product.name}</h3>
-                    </Link>
+                    {/* </Link> */}
                     <p className="text-black-light text-xs sm:text-sm mb-3 line-clamp-2 font-montserrat-regular-400">{extractPlainText(product.description)}</p>
                   </div>
                   <div className="flex items-center justify-between mt-auto">

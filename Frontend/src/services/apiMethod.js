@@ -13,6 +13,7 @@ export const API_METHOD = {
   auth: {
     register: '/api/auth/register',
     login: '/api/auth/login',
+    google: '/api/auth/google',
     forgotPassword: '/api/auth/forgot-password',
     resetPassword: '/api/auth/reset-password',
     changePassword: '/api/auth/change-password',

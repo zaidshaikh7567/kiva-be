@@ -1,14 +1,13 @@
 import axios from 'axios';
-
 import { API_METHOD } from './apiMethod';
 
 const GOOGLE_AUTH_ENDPOINT = API_METHOD.auth.google;
 const URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
- * Send Google authorization code to backend
+ * Send Google authorization code to backend for admin authentication
  * @param {string} code - The authorization code from Google
- * @returns {Promise} - Response from backend with user data and token
+ * @returns {Promise} - Response from backend with admin data and token
  */
 export const exchangeGoogleCode = async (code) => {
   try {
@@ -34,9 +33,9 @@ export const exchangeGoogleCode = async (code) => {
 };
 
 /**
- * Handle Google login flow
+ * Handle Google login flow for admin
  * @param {string} code - The authorization code from Google
- * @returns {Promise} - User data and auth token
+ * @returns {Promise} - Admin data and auth token
  */
 export const handleGoogleLogin = async (code) => {
   return await exchangeGoogleCode(code);

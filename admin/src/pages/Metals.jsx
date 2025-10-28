@@ -135,7 +135,7 @@ const Metals = () => {
                 <tr>
                   <td colSpan="6" className="px-6 py-12 text-center">
                     <div className="flex items-center justify-center">
-                      <RefreshCw className="w-6 h-6 animate-spin text-blue-600 mr-2" />
+                      <RefreshCw className="w-6 h-6 animate-spin text-primary mr-2" />
                       <span className="text-gray-500">Loading metals...</span>
                     </div>
                   </td>

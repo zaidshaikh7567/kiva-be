@@ -15,6 +15,7 @@ import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
+console.log('product :', product);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedMetal, setSelectedMetal] = useState(null);
@@ -181,7 +182,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2 bg-white/80 rounded-full hover:bg-white transition-colors duration-300"
+            className="absolute lg:top-4 top-8 lg:right-4 right-6 z-10 p-2 bg-white/80 rounded-full hover:bg-white transition-colors duration-300"
           >
             <X className="w-5 h-5 text-black" />
           </button>
@@ -195,14 +196,14 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                   alt={product?.name}
                   className="w-full h-full object-cover"
                 />
-                {product?.featured && (
+                {/* {product?.featured && (
                   <div className="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-montserrat-medium-500">
                     Featured
                   </div>
-                )}
+                )} */}
                 <button
                   onClick={toggleFavorite}
-                  className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 z-10 ${
+                  className={`absolute top-4 sm:right-4 left-4 w-fit  p-2 rounded-full transition-all duration-200 z-10 ${
                     isFavorite 
                       ? 'bg-primary text-white' 
                       : 'bg-white/90 text-black-light hover:bg-primary hover:text-white'

@@ -13,7 +13,8 @@ const PriceDisplay = ({
   originalPrice = null, 
   className = "", 
   showOriginalPrice = true,
-  showSavings = false 
+  showSavings = false,
+  variant = "default" // "default" or "small"
 }) => {
   const currentCurrency = useSelector(selectCurrentCurrency);
   const currencySymbol = useSelector(selectCurrencySymbol);
@@ -35,9 +36,26 @@ const PriceDisplay = ({
   
   const savings = convertedOriginalPrice ? convertedOriginalPrice - convertedPrice : 0;
 
+  // Define styling based on variant
+  const priceClasses = variant === "small" 
+    ? className || "text-xs text-black-light font-montserrat-regular-400"
+    : "text-xl md:text-2xl font-montserrat-bold-700 text-primary";
+  
+  const containerClasses = variant === "small" 
+    ? className || ""
+    : `flex items-center space-x-2 ${className}`;
+
+  if (variant === "small") {
+    return (
+      <span className={priceClasses}>
+        {formattedPrice}
+      </span>
+    );
+  }
+
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
-      <span className="text-xl md:text-2xl font-montserrat-bold-700 text-primary">
+    <div className={containerClasses}>
+      <span className={priceClasses}>
         {formattedPrice}
       </span>
       {originalPrice && showOriginalPrice && (

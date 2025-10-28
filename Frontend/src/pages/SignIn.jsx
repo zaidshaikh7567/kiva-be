@@ -62,7 +62,7 @@ const SignIn = () => {
           // Save user data and token to localStorage or Redux store
           // TODO: Update based on your auth structure
           if (result.data.token) {
-            localStorage.setItem('authToken', result.data.token);
+            localStorage.setItem('accessToken', result.data.token);
           }
           if (result.data.user) {
             localStorage.setItem('user', JSON.stringify(result.data.user));
