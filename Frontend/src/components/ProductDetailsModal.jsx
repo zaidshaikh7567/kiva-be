@@ -602,7 +602,7 @@ console.log('product :', product);
                     {isRing && selectedCarat && (
                       <div className="flex justify-between">
                         <span>Center Stone:</span>
-                        <span>{selectedCarat} CT</span>
+                        <span>{selectedCarat}</span>
                       </div>
                     )}
                     {isRing && selectedRingSize && (

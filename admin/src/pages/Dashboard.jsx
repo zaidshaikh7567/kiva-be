@@ -71,7 +71,7 @@ const Dashboard = () => {
     <div className="space-y-8">
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-4 text-white mb-8">
-        <h1 className="text-2xl font-sorts-mill-gloudy font-bold mb-3">
+        <h1 className="text-2xl font-sorts-mill-gloudy font-bold ">
           Welcome to {adminData.name}
         </h1>
         {/* <p className="font-montserrat-regular-400 opacity-90 text-lg">

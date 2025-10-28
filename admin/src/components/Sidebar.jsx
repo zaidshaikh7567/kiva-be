@@ -127,9 +127,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               <h2 className="text-lg font-sorts-mill-gloudy font-bold text-black">
                {user.name}
               </h2>
-              <p className="text-xs font-montserrat-light-300 text-black-light">
+              {/* <p className="text-xs font-montserrat-light-300 text-black-light">
                 Management Panel
-              </p>
+              </p> */}
             </div>
           </div>
           <button

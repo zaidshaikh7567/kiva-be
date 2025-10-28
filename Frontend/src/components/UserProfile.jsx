@@ -44,7 +44,7 @@ const UserProfile = ({ user, onLogout }) => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-300"
       >
-        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-montserrat-semibold-600">
+        <div className="w-8 h-8 min-w-8 min-h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-montserrat-semibold-600">
         {user.name?.charAt(0)}
         </div>
         <span className="hidden md:block font-montserrat-medium-500 text-black text-sm">

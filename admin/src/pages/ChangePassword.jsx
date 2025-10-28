@@ -104,7 +104,7 @@ const ChangePassword = () => {
 
   if (passwordChanged) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 ">
         {/* <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-8 text-white mb-8">
           <h1 className="text-4xl font-sorts-mill-gloudy font-bold mb-3">
             Password Changed
@@ -114,7 +114,7 @@ const ChangePassword = () => {
           </p>
         </div> */}
 
-        <div className="bg-white rounded-2xl shadow-sm p-8">
+        <div className="bg-white rounded-2xl shadow-sm p-8 ">
           <div className="text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
@@ -150,7 +150,7 @@ const ChangePassword = () => {
       </div> */}
 
       {/* Form */}
-      <div className="bg-white rounded-2xl shadow-sm p-8">
+      <div className="bg-white rounded-2xl shadow-sm p-8 max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Current Password */}
           <div>

@@ -290,13 +290,13 @@ const Categories = () => {
                                   onClick={() => handleOpenEditModal(subCategory)}
                                   className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                 >
-                                  <Edit className="w-3 h-3" />
+                                  <Edit className="w-4 h-4" />
                                 </button>
                                 <button 
                                   onClick={() => handleDeleteCategory(subCategory)}
                                   className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
                             </div>

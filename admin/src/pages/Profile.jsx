@@ -98,7 +98,7 @@ const Profile = () => {
       </div> */}
 
       {/* Profile Information */}
-      <div className="bg-white rounded-2xl shadow-sm p-8">
+      <div className="bg-white rounded-2xl shadow-sm p-8 max-w-2xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-sorts-mill-gloudy text-black">
             {user.name} Information

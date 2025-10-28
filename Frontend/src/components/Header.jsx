@@ -202,7 +202,7 @@ const Header = () => {
             </div> */}
 
             {/* Navigation Links */}
-            <nav className="space-y-1 mb-8">
+            <nav className="space-y-1 mb-1">
               <Link
                 to="/shop"
                 onClick={() => setIsOpen(false)}
@@ -303,9 +303,9 @@ const Header = () => {
 
             {/* User Section */}
             {user ? (
-              <div className="border-t border-gray-200 pt-6">
+              <div className=" border-gray-200 pt-0">
                 {/* User Profile Header */}
-                <div className="flex items-center space-x-3 mb-6 p-4 bg-gray-50 rounded-lg">
+                {/* <div className="flex items-center space-x-3 m-2-6 p-4 bg-gray-50 rounded-lg">
                   <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-md">
                     <span className="text-white text-lg font-montserrat-semibold-600">
                       {user.name?.charAt(0) || user.firstName?.charAt(0) || 'U'}
@@ -318,22 +318,22 @@ const Header = () => {
                     <p className="text-sm font-montserrat-regular-400 text-gray-600 truncate">
                       {user.email}
                     </p>
-                  </div>
-                </div>
+                  </div>  
+                </div> */}
 
                 {/* User Actions */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <Link
                     to="/dashboard"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center px-4 py-3 rounded-lg font-montserrat-medium-500 text-base text-gray-700 hover:bg-gray-50 hover:text-primary transition-all duration-200"
+                    className="flex items-center px-4 py-2 rounded-lg font-montserrat-medium-500 text-base text-gray-700 hover:bg-gray-50 hover:text-primary transition-all duration-200"
                   >
                     Dashboard
                   </Link>
                   <Link
                     to="/change-password"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center px-4 py-3 rounded-lg font-montserrat-medium-500 text-base text-gray-700 hover:bg-gray-50 hover:text-primary transition-all duration-200"
+                    className="flex items-center px-4 py-2 rounded-lg font-montserrat-medium-500 text-base text-gray-700 hover:bg-gray-50 hover:text-primary transition-all duration-200"
                   >
                     Change Password
                   </Link>
