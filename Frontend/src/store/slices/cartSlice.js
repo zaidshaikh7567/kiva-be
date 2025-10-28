@@ -139,8 +139,8 @@ const cartSlice = createSlice({
           icon: '🔒',
         });
         // Store the current URL to redirect back after login
-        const currentPath = window.location.pathname;
-        window.location.href = `/sign-in?redirect=${encodeURIComponent(currentPath)}`;
+        // const currentPath = window.location.pathname;
+        // window.location.href = `/sign-in?redirect=${encodeURIComponent(currentPath)}`;
         return; // Don't add the item
       }
       

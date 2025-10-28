@@ -184,7 +184,7 @@ const Cart = () => {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center ">
                         {/* View Details Button */}
                         <button
                           onClick={() => handleViewProduct(item)}
@@ -227,10 +227,22 @@ const Cart = () => {
                 />
               </div>
 
+              {/* View Cart Button - Full Page */}
+              <button
+                onClick={() => {
+                  dispatch(closeCart());
+                  navigate('/view-cart');
+                }}
+                className="w-full bg-white text-primary border-2 border-primary font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 flex items-center justify-center space-x-2 mb-3"
+              >
+                <Eye className="w-5 h-5" />
+                <span>View Cart</span>
+              </button>
+
               {/* Checkout Button */}
               <button
                 onClick={handleCheckout}
-                className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
+                className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
               >
                 <ShoppingBag className="w-5 h-5" />
                 <span>Proceed to Checkout</span>
@@ -239,7 +251,7 @@ const Cart = () => {
               {/* Continue Shopping */}
               <button
                 onClick={() => dispatch(closeCart())}
-                className="w-full mt-3 text-primary border border-primary font-montserrat-medium-500 py-3 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300"
+                className="w-full mt-3 text-primary border border-primary font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300"
               >
                 Continue Shopping
               </button>

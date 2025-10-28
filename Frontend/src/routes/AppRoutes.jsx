@@ -10,6 +10,7 @@ import Rings from "../pages/Rings";
 import Earrings from "../pages/Earrings";
 import Bracelets from "../pages/Bracelets";
 import Necklaces from "../pages/Necklaces";
+import ViewCart from "../pages/ViewCart";
 import Checkout from "../pages/Checkout";
 import OrderSuccess from "../pages/OrderSuccess";
 import SignIn from "../pages/SignIn";
@@ -47,6 +48,7 @@ const AppRoutes = () => {
           <Route path="/earrings" element={<Earrings />} />
           <Route path="/bracelets" element={<Bracelets />} />
           <Route path="/necklaces" element={<Necklaces />} />
+          <Route path="/view-cart" element={<ViewCart />} />
           <Route path="/size-guide" element={<SizeGuide />} />
           <Route path="/jewelry-care" element={<JewelryCare />} />
           <Route path="/faq" element={<FAQ />} />
