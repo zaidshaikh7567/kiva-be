@@ -28,7 +28,8 @@ const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
               </p>
               <PriceDisplay 
                 price={item.price * item.quantity}
-                className="text-sm font-montserrat-bold-700 text-primary"
+                className="text-sm font-montserrat-bold-700 text-primary" 
+                variant="small"
               />
             </div>
           </div>
@@ -70,10 +71,10 @@ const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
 
       {/* Free Shipping Notice */}
       {totalPrice < 500 && (
-        <div className="bg-primary-light rounded-lg p-4">
-          <p className="text-xs font-montserrat-medium-500 text-black-light text-center">
-            Add <PriceDisplay price={500 - totalPrice} className="inline font-montserrat-bold-700 text-primary" /> more to get FREE shipping!
-          </p>
+        <div className="bg-primary-light rounded-lg p-4 ">
+          <span className="text-xs font-montserrat-medium-500 text-black-light text-center flex ">
+            Add <PriceDisplay price={500 - totalPrice} variant="small" className="inline font-montserrat-bold-700 text-black mx-2" /> more to get FREE shipping!
+          </span>
         </div>
       )}
     </div>
