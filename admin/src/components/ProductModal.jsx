@@ -118,7 +118,7 @@ console.log('productData :', productData);
       // Reset form for add mode when modal opens
       setFormData({
         title: '',
-        description: '',
+        description: EMPTY_LEXICAL_STATE,
         subDescription: '',
         price: '',
         quantity: '',
@@ -129,6 +129,11 @@ console.log('productData :', productData);
         metalOptions: []
       });
       setImagePreviews([]);
+      // Reset dropdowns
+      setCategoryDropdownOpen(false);
+      setCareDropdownOpen(false);
+      setMetalOptionsOpen(false);
+      setStoneDropdownOpen(false);
     }
   }, [isOpen, productData, mode]);
 
@@ -307,7 +312,7 @@ console.log('productData :', productData);
 
     setFormData({
       title: '',
-      description: '',
+      description: EMPTY_LEXICAL_STATE,
       subDescription: '',
       price: '',
       quantity: '',
@@ -318,6 +323,11 @@ console.log('productData :', productData);
       metalOptions: []
     });
     setImagePreviews([]);
+    // Reset dropdowns
+    setCategoryDropdownOpen(false);
+    setCareDropdownOpen(false);
+    setMetalOptionsOpen(false);
+    setStoneDropdownOpen(false);
     onClose();
   };
 

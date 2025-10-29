@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Package, Plus, Edit, Trash2, RefreshCw, Eye, Search, Filter, X } from 'lucide-react';
-import { clearError, deleteProduct, fetchProducts, createProduct, updateProduct, selectProducts, selectProductsLoading, selectProductsError, selectProductsPagination, selectProductsFilters, setFilters, applyFilters, clearFilters } from '../store/slices/productsSlice';
+import { clearError, deleteProduct, fetchProducts, createProduct, updateProduct, selectProducts, selectProductsLoading, selectProductsError, selectProductsPagination, selectProductsFilters, setFilters, applyFilters, clearFilters, setPagination } from '../store/slices/productsSlice';
 import { fetchCategories, selectCategories } from '../store/slices/categoriesSlice';
 import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
 import { fetchCenterStones, selectCenterStones } from '../store/slices/centerStonesSlice';
@@ -14,6 +14,7 @@ import CustomDropdown from '../components/CustomDropdown';
 const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
+  console.log('products@@@@@@@ :', products);
   const productsPagination = useSelector(selectProductsPagination);
   const categories = useSelector(selectCategories);
   const metals = useSelector(selectMetals);
@@ -23,12 +24,12 @@ const Products = () => {
   const loading = useSelector(selectProductsLoading);
   const error = useSelector(selectProductsError);
   
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [limit] = useState(10);
-  
   // Filter state
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Use pagination from Redux
+  const currentPage = productsPagination?.page || 1;
+  const limit = productsPagination?.limit || 10;
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,34 +84,34 @@ const Products = () => {
   };
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    dispatch(setPagination({ page }));
+    dispatch(applyFilters()); // Re-apply filters to update paginated items
   };
 
   // Filter handlers
   const handleSearchChange = (e) => {
     dispatch(setFilters({ search: e.target.value }));
-    setCurrentPage(1); // Reset to first page when searching
+    dispatch(setPagination({ page: 1 })); // Reset to first page when searching
   };
 
   const handleCategoryChange = (value) => {
     dispatch(setFilters({ category: value }));
-    setCurrentPage(1);
+    dispatch(setPagination({ page: 1 }));
   };
 
   const handlePriceRangeChange = (field, value) => {
     const filterKey = field === 'min' ? 'minPrice' : 'maxPrice';
     dispatch(setFilters({ [filterKey]: value }));
-    setCurrentPage(1);
+    dispatch(setPagination({ page: 1 }));
   };
 
   const handleSortChange = (value) => {
     dispatch(setFilters({ sortBy: value }));
-    setCurrentPage(1);
+    dispatch(setPagination({ page: 1 }));
   };
 
   const clearAllFilters = () => {
     dispatch(clearFilters());
-    setCurrentPage(1);
   };
 
   // Check if any filters are active
@@ -130,9 +131,10 @@ const Products = () => {
           setProductToDelete(null);
           // If deleting the last item on a page (and not on page 1), go to previous page
           if (products.length === 1 && currentPage > 1) {
-            setCurrentPage(currentPage - 1);
+            dispatch(setPagination({ page: currentPage - 1 }));
+            dispatch(applyFilters());
           } else {
-            dispatch(fetchProducts({ page: currentPage, limit }));
+            dispatch(fetchProducts());
           }
         }
       } catch (error) {
@@ -195,7 +197,8 @@ const Products = () => {
           setSelectedProduct(null);
           setModalMode('add');
           // Go to first page to see the newly added product
-          setCurrentPage(1);
+          dispatch(setPagination({ page: 1 }));
+          dispatch(fetchProducts());
         }
       } catch (error) {
         console.error('Error creating product:', error);
@@ -208,8 +211,8 @@ const Products = () => {
           setIsModalOpen(false);
           setSelectedProduct(null);
           setModalMode('add');
-          // Refresh current page to see the updated product
-          dispatch(fetchProducts({ page: currentPage, limit }));
+          // Refresh products to see the updated product
+          dispatch(fetchProducts());
         }
       } catch (error) {
         console.error('Error updating product:', error);
@@ -590,10 +593,10 @@ const Products = () => {
       </div>
 
       {/* Pagination */}
-      {productsPagination && productsPagination.pages > 1 && (
+      {productsPagination && productsPagination.totalPages > 0 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={productsPagination.pages}
+          totalPages={productsPagination.totalPages}
           totalItems={productsPagination.total}
           itemsPerPage={limit}
           onPageChange={handlePageChange}

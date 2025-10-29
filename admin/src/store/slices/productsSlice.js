@@ -214,7 +214,7 @@ const productsSlice = createSlice({
         const searchTerm = state.filters.search.toLowerCase();
         filtered = filtered.filter(product => 
           product.title.toLowerCase().includes(searchTerm) ||
-          product?.description?.toLowerCase().includes(searchTerm)
+          product?.subDescription?.toLowerCase().includes(searchTerm)
         );
       }
 
@@ -280,7 +280,22 @@ const productsSlice = createSlice({
       }
 
       state.filteredItems = filtered;
-      state.items = filtered;
+      
+      // Calculate pagination based on filtered results
+      const total = filtered.length;
+      const totalPages = Math.ceil(total / state.pagination.limit) || 1;
+      
+      // Update pagination
+      state.pagination = {
+        ...state.pagination,
+        total,
+        totalPages
+      };
+      
+      // Apply pagination to items
+      const startIndex = (state.pagination.page - 1) * state.pagination.limit;
+      const endIndex = startIndex + state.pagination.limit;
+      state.items = filtered.slice(startIndex, endIndex);
     },
     clearFilters: (state) => {
       state.filters = {
@@ -292,7 +307,23 @@ const productsSlice = createSlice({
         sortBy: 'newest'
       };
       state.filteredItems = [...state.allItems];
-      state.items = [...state.allItems];
+      
+      // Calculate pagination for all items
+      const total = state.allItems.length;
+      const limit = state.pagination.limit || 10;
+      const totalPages = Math.ceil(total / limit) || 1;
+      
+      state.pagination = {
+        ...state.pagination,
+        total,
+        totalPages,
+        page: 1
+      };
+      
+      // Apply pagination to items
+      const startIndex = 0;
+      const endIndex = limit;
+      state.items = state.allItems.slice(startIndex, endIndex);
     },
   },
   extraReducers: (builder) => {
@@ -377,12 +408,25 @@ const productsSlice = createSlice({
         }
 
         state.filteredItems = filtered;
-        state.items = filtered;
         
-        // Update pagination if provided
-        if (action.payload.pagination) {
-          state.pagination = action.payload.pagination;
-        }
+        // Calculate pagination based on filtered results
+        const total = filtered.length;
+        const limit = state.pagination.limit || 10;
+        const totalPages = Math.ceil(total / limit) || 1;
+        
+        // Update pagination
+        state.pagination = {
+          ...state.pagination,
+          total,
+          totalPages,
+          page: state.pagination.page || 1,
+          limit
+        };
+        
+        // Apply pagination to items
+        const startIndex = (state.pagination.page - 1) * limit;
+        const endIndex = startIndex + limit;
+        state.items = filtered.slice(startIndex, endIndex);
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;

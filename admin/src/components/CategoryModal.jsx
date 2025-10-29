@@ -11,9 +11,9 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
   const [imagePreview, setImagePreview] = useState(null);
   const [dragActive, setDragActive] = useState(false);
 
-  // Update form data when categoryData changes (for edit mode)
+  // Update form data when modal opens or categoryData changes
   useEffect(() => {
-    if (mode === 'edit' && categoryData) {
+    if (isOpen && mode === 'edit' && categoryData) {
       setFormData({
         name: categoryData.name || '',
         parentId: categoryData.parent?._id || categoryData.parentId || null,
@@ -22,17 +22,20 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
       // Set existing image preview if available
       if (categoryData.image) {
         setImagePreview(categoryData.image);
+      } else {
+        setImagePreview(null);
       }
-    } else {
-      // Reset form for add mode
+    } else if (isOpen && mode === 'add') {
+      // Reset form for add mode when modal opens
       setFormData({
         name: '',
         parentId: null,
         image: null
       });
       setImagePreview(null);
+      setDragActive(false);
     }
-  }, [categoryData, mode]);
+  }, [isOpen, categoryData, mode]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

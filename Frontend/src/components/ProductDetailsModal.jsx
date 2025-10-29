@@ -428,7 +428,7 @@ console.log('product :', product);
 
               {/* Thumbnail Images */}
               <div className="grid grid-cols-4 gap-2">
-              {product.images.slice(1, 5).map((img, index) => (
+              {product.images.slice(1, 50).map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}

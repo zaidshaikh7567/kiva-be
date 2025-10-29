@@ -4,13 +4,14 @@ import { Package, Plus, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { clearError, deleteCategory, fetchCategories, createCategory, updateCategory, selectCategoriesLoading } from '../store/slices/categoriesSlice';
 import CategoryModal from '../components/CategoryModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import { selectAllProducts, fetchProducts } from '../store/slices/productsSlice';
 
 
 const Categories = () => {
   const dispatch = useDispatch();
   const categories = useSelector(state => state.categories.categories);
   const loading = useSelector(selectCategoriesLoading);
-  
+  const products = useSelector(selectAllProducts);
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -23,6 +24,7 @@ const Categories = () => {
   // Fetch categories on component mount
   useEffect(() => {
     dispatch(fetchCategories());
+    dispatch(fetchProducts());
   }, [dispatch]);
 
 
@@ -126,6 +128,19 @@ const Categories = () => {
     }
   };
 
+  // Helper function to calculate product count for a category
+  const getProductCount = (categoryId) => {
+    if (!products || !Array.isArray(products)) return 0;
+    const matchingProducts = products.filter(product => {
+      const productCategoryId = product.category?._id || product.categoryId;
+      return productCategoryId === categoryId;
+    });
+    if (matchingProducts.length > 0) {
+      console.log(`Category ${categoryId} has ${matchingProducts.length} products:`, matchingProducts.map(p => p.title));
+    }
+    return matchingProducts.length;
+  };
+
   // Show loading state
   if (loading && categories.length === 0) {
     return (
@@ -188,7 +203,7 @@ const Categories = () => {
 
       {/* Categories List - Hierarchical View */}
       <div className="space-y-4">
-        {categories.length === 0 && !loading ? (
+        {categories?.length === 0 && !loading ? (
           <div className="text-center py-12">
             <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-sorts-mill-gloudy font-bold text-black mb-2">
@@ -208,24 +223,41 @@ const Categories = () => {
         ) : (
           // Show only main categories with their sub-categories
           categories
-            .filter(category => !category.parent) // Only main categories
+            .filter(category => !category?.parent) // Only main categories
             .map((mainCategory) => {
+            // console.log('mainCategory :', mainCategory);
               // Find sub-categories for this main category
-              const subCategories = categories.filter(cat => 
-                cat.parent && cat.parent._id === mainCategory._id
+              const subCategories = categories?.filter(cat => 
+                cat?.parent && cat?.parent?._id === mainCategory?._id
               );
+              // console.log('categories()()(()(()()))(()()) :', categories);
+              // console.log('subCategories()())() :', subCategories);
+
+              // Get product count for main category
+              const mainCategoryProductCount = getProductCount(mainCategory?._id);
+              // console.log('mainCategoryProductCount :', mainCategoryProductCount);
+              
+              // Get product count for all subcategories combined
+              const totalSubCategoryProductCount = subCategories.reduce((total, subCat) => {
+                const count = getProductCount(subCat?._id);
+                // console.log(`SubCategory ${subCat.name} (${subCat._id}): ${count} products`);
+                return total + count;
+              }, 0);
+              
+              // console.log('totalSubCategoryProductCount :', totalSubCategoryProductCount);
+              // console.log('Total (main + sub):', mainCategoryProductCount + totalSubCategoryProductCount);
 
               return (
-                <div key={mainCategory._id} className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div key={mainCategory?._id} className="bg-white rounded-xl shadow-sm border border-gray-200">
                   {/* Main Category Header */}
                   <div className="p-6 border-b border-gray-100">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center overflow-hidden">
-                          {mainCategory.image ? (
+                          {mainCategory?.image ? (
                             <img 
-                              src={mainCategory.image} 
-                              alt={mainCategory.name}
+                              src={mainCategory?.image} 
+                              alt={mainCategory?.name}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -234,11 +266,13 @@ const Categories = () => {
                         </div>
                         <div>
                           <h3 className="text-xl font-sorts-mill-gloudy font-bold text-black capitalize">
-                            {mainCategory.name}
+                            {mainCategory?.name} ({subCategories?.length > 0 ? totalSubCategoryProductCount : mainCategoryProductCount})
                           </h3>
+                          {subCategories?.length > 0 && (
                           <p className="text-sm font-montserrat-regular-400 text-black-light">
-                            {subCategories.length} sub-categories • {mainCategory.productCount || 0} products
+                            {subCategories?.length} sub-categories • {totalSubCategoryProductCount} products
                           </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -262,20 +296,20 @@ const Categories = () => {
                   </div>
 
                   {/* Sub Categories */}
-                  {subCategories.length > 0 && (
+                  {subCategories?.length > 0 && (
                     <div className="p-6 bg-gray-50">
                       <h4 className="text-sm font-montserrat-semibold-600 text-black-light mb-4">
-                        Sub Categories ({subCategories.length})
+                        Sub Categories ({subCategories?.length})
                       </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {subCategories.map((subCategory) => (
-                          <div key={subCategory._id} className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-sm transition-shadow">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
+                        {subCategories?.map((subCategory) => (
+                          <div key={subCategory?._id} className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-sm transition-shadow">
                             {/* Category Image */}
-                            {subCategory.image && (
+                            {subCategory?.image && (
                               <div className="w-full h-32 mb-3 rounded-lg overflow-hidden bg-gray-50">
                                 <img 
-                                  src={subCategory.image} 
-                                  alt={subCategory.name}
+                                  src={subCategory?.image} 
+                                  alt={subCategory?.name}
                                   className="w-full h-full object-cover"
                                 />
                               </div>
@@ -283,7 +317,7 @@ const Categories = () => {
                             
                             <div className="flex items-center justify-between mb-3">
                               <h5 className="font-sorts-mill-gloudy font-bold text-black capitalize">
-                                {subCategory.name}
+                                {subCategory?.name}
                               </h5>
                               <div className="flex items-center space-x-1">
                                 <button 
@@ -302,7 +336,7 @@ const Categories = () => {
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-xs font-montserrat-medium-500 text-black-light">
-                                {subCategory.productCount || 0} products
+                                {getProductCount(subCategory?._id)} products
                               </span>
                               <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-montserrat-medium-500 rounded-full">
                                 Sub Category
