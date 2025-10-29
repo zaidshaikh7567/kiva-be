@@ -18,7 +18,6 @@ import SignUp from "../pages/SignUp";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import Dashboard from "../pages/Dashboard";
-import ChangePassword from "../pages/ChangePassword";
 import SizeGuide from "../pages/SizeGuide";
 import JewelryCare from "../pages/JewelryCare";
 import FAQ from "../pages/FAQ";
@@ -27,10 +26,12 @@ import ShippingInfo from "../pages/ShippingInfo";
 import ReturnsExchanges from "../pages/ReturnsExchanges";
 import NotFound from "../pages/NotFound";
 import Discover from "../pages/Discover";
+import Gallery from "../pages/Gallery";
 import ScrollToTop from "../helpers/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AuthRedirect from "../components/AuthRedirect";
+import CurrencyTestPage from "../pages/CurrencyTestPage";
 
 const AppRoutes = () => {
   return (
@@ -40,6 +41,7 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/discover" element={<Discover />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/about" element={<About />} />
@@ -55,12 +57,12 @@ const AppRoutes = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/shipping-info" element={<ShippingInfo />} />
           <Route path="/returns-exchanges" element={<ReturnsExchanges />} />
+          <Route path="/currency-test" element={<CurrencyTestPage />} />
           
           {/* Protected Routes - Require Authentication */}
           <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
           <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
         </Route>
 
         {/* <Route element={<AuthLayout />}> */}

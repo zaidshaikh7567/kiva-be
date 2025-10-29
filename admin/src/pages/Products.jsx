@@ -390,14 +390,14 @@ const Products = () => {
                 <input
                   type="number"
                   placeholder="Min"
-                  value={filters.minPrice}
+                  value={filters?.minPrice}
                   onChange={(e) => handlePriceRangeChange('min', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400"
                 />
                 <input
                   type="number"
                   placeholder="Max"
-                  value={filters.maxPrice}
+                  value={filters?.maxPrice}
                   onChange={(e) => handlePriceRangeChange('max', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400"
                 />
@@ -410,9 +410,9 @@ const Products = () => {
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-montserrat-medium-500 text-black">Active filters:</span>
-                {filters.search && (
+                {filters?.search && (
                   <span className="inline-flex items-center px-3 py-1 bg-primary text-white text-sm rounded-full">
-                    Search: "{filters.search}"
+                    Search: "{filters?.search}"
                     <button
                       onClick={() => dispatch(setFilters({ search: '' }))}
                       className="ml-2 hover:text-gray-200"
@@ -421,11 +421,11 @@ const Products = () => {
                     </button>
                   </span>
                 )}
-                {filters.category !== 'all' && (
+                {filters?.category !== 'all' && (
                   <span className="inline-flex items-center px-3 py-1 bg-primary text-white text-sm rounded-full">
                     Category: {(() => {
-                      const selectedCat = categories.find(cat => (cat._id || cat.id || cat.name) === filters.category);
-                      if (!selectedCat) return filters.category;
+                      const selectedCat = categories?.find(cat => (cat?._id || cat?.id || cat?.name) === filters?.category);
+                      if (!selectedCat) return filters?.category;
                       const parentCat = selectedCat.parent ? categories.find(c => c._id === selectedCat.parent) : null;
                       return parentCat ? `${parentCat.name} - ${selectedCat.name}` : selectedCat.name;
                     })()}
@@ -437,9 +437,9 @@ const Products = () => {
                     </button>
                   </span>
                 )}
-                {(filters.minPrice || filters.maxPrice) && (
+                {(filters?.minPrice || filters?.maxPrice) && (
                   <span className="inline-flex items-center px-3 py-1 bg-primary text-white text-sm rounded-full">
-                    Price: ${filters.minPrice || '0'} - ${filters.maxPrice || '∞'}
+                    Price: ${filters?.minPrice || '0'} - ${filters?.maxPrice || '∞'}
                     <button
                       onClick={() => dispatch(setFilters({ minPrice: '', maxPrice: '' }))}
                       className="ml-2 hover:text-gray-200"
@@ -448,9 +448,9 @@ const Products = () => {
                     </button>
                   </span>
                 )}
-                {filters.sortBy !== 'newest' && (
+                {filters?.sortBy !== 'newest' && (
                   <span className="inline-flex items-center px-3 py-1 bg-primary text-white text-sm rounded-full">
-                    Sort: {sortOptions.find(opt => opt.value === filters.sortBy)?.label}
+                    Sort: {sortOptions?.find(opt => opt?.value === filters?.sortBy)?.label}
                     <button
                       onClick={() => dispatch(setFilters({ sortBy: 'newest' }))}
                       className="ml-2 hover:text-gray-200"
@@ -468,7 +468,7 @@ const Products = () => {
 
       {/* Products Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        {products.length === 0 && !loading ? (
+        {products?.length === 0 && !loading ? (
           <div className="text-center py-12">
             <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-sorts-mill-gloudy font-bold text-black mb-2">
@@ -515,18 +515,19 @@ const Products = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {products.map((product) => (
-                  <tr key={product._id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={product?._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 min-w-[250px]">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Package className="w-5 h-5 text-white" />
+                          {/* <Package className="w-5 h-5 text-white" /> */}
+                          <img src={product?.images?.[0]} alt={product?.title} className="w-10 h-10 rounded-lg" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <h3 
                             onClick={() => handleOpenViewModal(product)}
                             className="text-sm font-montserrat-medium-500 font-bold text-black capitalize cursor-pointer hover:text-primary transition-colors truncate"
                           >
-                            {product.title || 'Unnamed Product'}
+                            {product?.title || 'Unnamed Product'}
                           </h3>
                           {/* <p className="text-xs font-montserrat-regular-400 text-black-light truncate">
                             {product.description || 'No description'}
@@ -536,22 +537,22 @@ const Products = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-montserrat-medium-500 text-black capitalize">
-                        {product.category?.name || 'No category'}
+                        {product?.category?.name || 'No category'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-montserrat-semibold-600 text-primary">
-                        ${product.price?.toFixed(2) || '0.00'}
+                        ${product?.price?.toFixed(2) || '0.00'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-montserrat-medium-500 text-black">
-                        {product.quantity || 0}
+                        {product?.quantity || 0}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-montserrat-medium-500 text-black-light">
-                        {product.images?.length || 0}
+                        {product?.images?.length || 0}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -593,11 +594,11 @@ const Products = () => {
       </div>
 
       {/* Pagination */}
-      {productsPagination && productsPagination.totalPages > 0 && (
+      {productsPagination && productsPagination?.totalPages > 0 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={productsPagination.totalPages}
-          totalItems={productsPagination.total}
+          totalPages={productsPagination?.totalPages}
+          totalItems={productsPagination?.total}
           itemsPerPage={limit}
           onPageChange={handlePageChange}
           className="mt-4"

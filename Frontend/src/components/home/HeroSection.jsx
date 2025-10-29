@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import heroImage from "../../assets/images/hero.jpg";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -112,14 +113,14 @@ const HeroSection = () => {
         >
           Every day is your special day with our fine jewelry!
         </p>
-         <button 
+         <Link to="/shop" 
            className={`w-fit mt-8 px-6 py-3 bg-primary-dark text-white font-medium hover:bg-primary transition mx-auto lg:mx-0 duration-700 ${
              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
            }`}
            style={{ transitionDelay: '700ms' }}
          >
            — Shop
-         </button>
+         </Link>
       </div>
 
       {/* Right Image (only visible on desktop split layout) */}

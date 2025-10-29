@@ -171,7 +171,8 @@ const ViewCart = () => {
 
                             <PriceDisplay 
                               price={item.price}
-                              className="text-primary font-montserrat-bold-700 text-xl"
+                              variant="small"
+                              className="text-primary font-montserrat-bold-700 text-lg"
                             />
                           </div>
 
@@ -241,6 +242,7 @@ const ViewCart = () => {
                       Subtotal ({totalQuantity} {totalQuantity === 1 ? 'item' : 'items'})
                     </span>
                     <PriceDisplay 
+                    variant="small"
                       price={totalPrice}
                       className="text-black font-montserrat-semibold-600"
                     />

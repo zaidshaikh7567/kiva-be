@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Play, 
   Pause, 
@@ -18,10 +19,16 @@ import {
   ChevronDown,
   Filter,
   Grid,
-  List
+  List,
+  ZoomIn
 } from 'lucide-react';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import { BsInstagram } from "react-icons/bs";
 
 const Discover = () => {
+  const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState(null);
   const [muted, setMuted] = useState(true);
   const [likedItems, setLikedItems] = useState(new Set());
@@ -140,6 +147,73 @@ const Discover = () => {
     { id: 'bracelets', name: 'Bracelets', count: collections.filter(c => c.category === 'bracelets').length }
   ];
 
+  // Social Media Gallery Data - Dynamic and easily configurable
+  const socialGalleryItems = [
+    {
+      id: 1,
+      image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop&crop=center",
+      alt: "Golden Hair Clip",
+      link: "#",
+      bgColor: "bg-white"
+    },
+    {
+      id: 2,
+      image: "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&h=400&fit=crop&crop=center",
+      alt: "Earrings Collection",
+      link: "#",
+      bgColor: "bg-[#F5F1E8]"
+    },
+    {
+      id: 3,
+      image: "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&h=400&fit=crop&crop=center",
+      alt: "Necklace Collection",
+      link: "#",
+      bgColor: "bg-[#F5F1E8]"
+    },
+    {
+      id: 4,
+      image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop&crop=center",
+      alt: "Bracelet Collection",
+      link: "#",
+      bgColor: "bg-gray-200"
+    },
+    {
+      id: 5,
+      image: "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=400&fit=crop&crop=center",
+      alt: "Fashion Portrait",
+      link: "#",
+      bgColor: "bg-gray-300"
+    },
+    {
+      id: 6,
+      image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop&crop=center",
+      alt: "Jewelry Showcase",
+      link: "#",
+      bgColor: "bg-gray-300"
+    },
+    {
+      id: 7,
+      image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop&crop=center",
+      alt: "Elegant Accessories",
+      link: "#",
+      bgColor: "bg-gray-300"
+    },
+    {
+      id: 8,
+      image: "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=400&fit=crop&crop=center",
+      alt: "Luxury Collection",
+      link: "#",
+      bgColor: "bg-gray-300"
+    },
+    {
+      id: 9,
+      image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop&crop=center",
+      alt: "Designer Pieces",
+      link: "#",
+      bgColor: "bg-gray-300"
+    }
+  ];
+
   const filteredCollections = selectedCategory === 'all' 
     ? collections 
     : collections.filter(c => c.category === selectedCategory);
@@ -153,6 +227,36 @@ const Discover = () => {
       return () => clearInterval(interval);
     }
   }, [isVideoPlaying, filteredCollections.length]);
+
+  // Keyboard navigation for fullscreen image slider (infinite)
+  useEffect(() => {
+    if (!fullscreenImage) return;
+
+    const handleKeyPress = (e) => {
+      if (e.key === 'ArrowLeft') {
+        const newIndex = fullscreenImage.index === 0 
+          ? fullscreenImage.images.length - 1 
+          : fullscreenImage.index - 1;
+        setFullscreenImage({
+          ...fullscreenImage,
+          index: newIndex
+        });
+      } else if (e.key === 'ArrowRight') {
+        const newIndex = fullscreenImage.index === fullscreenImage.images.length - 1
+          ? 0
+          : fullscreenImage.index + 1;
+        setFullscreenImage({
+          ...fullscreenImage,
+          index: newIndex
+        });
+      } else if (e.key === 'Escape') {
+        setFullscreenImage(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [fullscreenImage]);
 
   const toggleLike = (id) => {
     setLikedItems(prev => {
@@ -247,7 +351,10 @@ const Discover = () => {
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               
-              <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 border-2 border-gray-300 text-gray-700 font-montserrat-medium-500 rounded-xl hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300 flex items-center justify-center gap-3">
+              <button 
+                onClick={() => navigate('/gallery')}
+                className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 border-2 border-gray-300 text-gray-700 font-montserrat-medium-500 rounded-xl hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300 flex items-center justify-center gap-3"
+              >
                 <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-sm sm:text-base">Browse Gallery</span>
               </button>
@@ -387,7 +494,7 @@ const Discover = () => {
           {viewMode === 'grid' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {filteredCollections.map((collection) => (
-                <div key={collection.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
+                <div key={collection.id} className="group bg-white  shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
                   <div className="relative aspect-[4/5] overflow-hidden">
                     <img
                       src={collection.images[0]}
@@ -404,7 +511,7 @@ const Discover = () => {
                       </button>
                     </div>
 
-                    <div className="absolute top-3 left-3 flex flex-col gap-2">
+                    {/* <div className="absolute top-3 left-3 flex flex-col gap-2">
                       {collection.isNew && (
                         <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-montserrat-medium-500">
                           NEW
@@ -415,9 +522,9 @@ const Discover = () => {
                           FEATURED
                         </span>
                       )}
-                    </div>
+                    </div> */}
 
-                    <div className="absolute top-3 right-3 flex flex-col gap-2">
+                    {/* <div className="absolute top-3 right-3 flex flex-col gap-2">
                       <button
                         onClick={() => toggleLike(collection.id)}
                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
@@ -431,31 +538,39 @@ const Discover = () => {
                       <button className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-gray-700 hover:bg-white transition-all duration-300">
                         <Share2 className="w-4 h-4" />
                       </button>
-                    </div>
+                    </div> */}
                   </div>
 
-                  <div className="p-4 sm:p-6">
-                    <h3 className="text-lg sm:text-xl font-sorts-mill-gloudy font-medium text-gray-900 mb-2">
+                  <div className="p-2 sm:p-2">
+                    {/* <h3 className="text-lg sm:text-xl font-sorts-mill-gloudy font-medium text-gray-900 mb-2">
                       {collection.title}
                     </h3>
                     <p className="text-sm text-gray-500 font-montserrat-regular-400 mb-4">
                       {collection.subtitle}
-                    </p>
+                    </p> */}
                     
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-1">
                       {collection.images.slice(0, 3).map((image, index) => (
                         <div
                           key={index}
-                          className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group/thumb"
-                          onClick={() => setFullscreenImage({ collection: collection.title, image, index })}
+                          className="relative aspect-square overflow-hidden cursor-pointer group/thumb"
+                          onClick={() => setFullscreenImage({ collection: collection.title, images: collection.images, image, index })}
                         >
                           <img
                             src={image}
                             alt={`${collection.title} ${index + 1}`}
                             className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
                           />
+                          
+                          {/* Primary Color Overlay with Zoom Icon on Hover */}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div className="transform transition-transform duration-300 group-hover/thumb:scale-110">
+                              <ZoomIn className="w-4 h-4 md:w-4 md:h-4 text-white" />
+                            </div>
+                          </div>
+
                           {index === 2 && collection.images.length > 3 && (
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
                               <span className="text-white text-xs font-montserrat-medium-500">
                                 +{collection.images.length - 3}
                               </span>
@@ -502,15 +617,23 @@ const Discover = () => {
                           <div
                             key={index}
                             className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group/thumb"
-                            onClick={() => setFullscreenImage({ collection: collection.title, image, index })}
+                            onClick={() => setFullscreenImage({ collection: collection.title, images: collection.images, image, index })}
                           >
                             <img
                               src={image}
                               alt={`${collection.title} ${index + 1}`}
                               className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
                             />
+                            
+                            {/* Primary Color Overlay with Zoom Icon on Hover */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0  group-hover/thumb:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                              <div className="transform transition-transform duration-300 group-hover/thumb:scale-110">
+                                <ZoomIn className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                              </div>
+                            </div>
+
                             {index === 3 && collection.images.length > 4 && (
-                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
                                 <span className="text-white text-xs sm:text-sm font-montserrat-medium-500">
                                   +{collection.images.length - 4}
                                 </span>
@@ -528,8 +651,131 @@ const Discover = () => {
         </div>
       </section>
 
+{/* Social Media Gallery Slider Section */}
+<section className="py-12 md:py-16 bg-[#F5F1E8] overflow-hidden">
+  <div className="w-full">
+    {/* Top Banner */}
+    <div className="text-center mb-16">
+      <h2 className="text-2xl md:text-3xl font-sorts-mill-gloudy font-thin text-gray-900 mb-2">
+        Stay Engaged With Us
+      </h2>
+      <p className="text-gray-600 font-montserrat-regular-400">
+        Stay updated with our latest collections and news
+      </p>
+    </div>
+
+    {/* Gallery Slider - Auto Slider with react-slick - Center Mode */}
+    <div className="relative px-4 md:px-8">
+      <Slider
+        {...{
+          dots: false,
+          infinite: true,
+          speed: 1000,
+          slidesToShow: 4,
+          slidesToScroll: 1,
+          autoplay: true,
+          autoplaySpeed: 3000,
+          pauseOnHover: true,
+          arrows: false,
+          centerMode: true,
+          centerPadding: '8%',
+          responsive: [
+            {
+              breakpoint: 1280,
+              settings: {
+                slidesToShow: 4,
+                centerMode: true,
+                centerPadding: '8%',
+              }
+            },
+            {
+              breakpoint: 1024,
+              settings: {
+                slidesToShow: 3,
+                centerMode: true,
+                centerPadding: '5%',
+              }
+            },
+            {
+              breakpoint: 768,
+              settings: {
+                slidesToShow: 2,
+                centerMode: true,
+                centerPadding: '5%',
+              }
+            },
+            {
+              breakpoint: 640,
+              settings: {
+                slidesToShow: 1,
+                centerMode: true,
+                centerPadding: '15%',
+              }
+            },
+            {
+              breakpoint: 480,
+              settings: {
+                slidesToShow: 1,
+                centerMode: true,
+                centerPadding: '10%',
+              }
+            }
+          ]
+        }}
+        className="social-gallery-slider"
+      >
+        {socialGalleryItems.map((item) => (
+          <div key={item.id} className="px-1 md:px-2">
+            <div className="relative group h-full w-full overflow-hidden aspect-square shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer">
+              {/* Background Image */}
+              <img
+                src={item.image}
+                alt={item.alt}
+                className={`w-full h-full object-cover object-center transition-transform duration-500 group-hover:rotate-3 group-hover:scale-110 ${item.bgColor}`}
+              />
+              
+              {/* Opacity Overlay on Hover */}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                {/* Instagram Icon - Shows on Hover */}
+                <div className="transform transition-transform duration-500 group-hover:scale-110 hover:rotate-90">
+                  <div className="rounded-2xl p-3 md:p-4 ">
+                   <BsInstagram className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </Slider>
+    </div>
+
+    {/* Custom Slider Styles */}
+    <style>{`
+      .social-gallery-slider .slick-slide {
+        padding: 0 4px;
+      }
+      .social-gallery-slider .slick-track {
+        display: flex;
+        align-items: stretch;
+      }
+      .social-gallery-slider .slick-slide > div {
+        height: 100%;
+      }
+      .social-gallery-slider .slick-slide.slick-center {
+        transform: scale(1);
+      }
+      .social-gallery-slider .slick-slide:not(.slick-center) {
+        opacity: 0.8;
+      }
+      .social-gallery-slider .slick-slide.slick-center {
+        opacity: 1;
+      }
+    `}</style>
+  </div>
+</section>
+
       {/* Beautiful Marquee */}
-      <section className="py-8 sm:py-12 bg-primary-light overflow-hidden mb-12">
+      {/* <section className="py-8 sm:py-12 bg-primary-light overflow-hidden mb-12">
         <div className="flex animate-marquee">
           {[...filteredCollections, ...filteredCollections].map((collection, index) => (
             <div key={index} className="flex-shrink-0 mx-2 sm:mx-4 w-48 sm:w-64 h-32 sm:h-40 relative group overflow-hidden rounded-lg sm:rounded-xl shadow-lg">
@@ -548,12 +794,12 @@ const Discover = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* Video Modal */}
       {activeVideo && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden">
+          <div className="relative w-full max-w-4xl bg-black  overflow-hidden">
             <button
               onClick={() => setActiveVideo(null)}
               className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300"
@@ -586,10 +832,10 @@ const Discover = () => {
         </div>
       )}
 
-      {/* Fullscreen Image Modal */}
+      {/* Fullscreen Image Modal with Slider */}
       {fullscreenImage && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-          <div className="relative w-full h-full max-w-6xl max-h-[90vh] bg-black rounded-2xl overflow-hidden flex">
+          <div className="relative w-full h-full max-w-6xl max-h-[90vh] bg-black overflow-hidden flex flex-col">
             <button
               onClick={() => setFullscreenImage(null)}
               className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300"
@@ -597,49 +843,83 @@ const Discover = () => {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex-1 flex items-center justify-center p-8">
+            {/* Main Image Container */}
+            <div className="flex-1 flex items-center justify-center p-8 relative">
               <img
-                src={fullscreenImage.image}
+                src={fullscreenImage.images[fullscreenImage.index]}
                 alt={`${fullscreenImage.collection} - Image ${fullscreenImage.index + 1}`}
-                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                className="max-w-full max-h-full object-contain shadow-2xl transition-opacity duration-300"
               />
+
+              {/* Left Arrow - Infinite navigation */}
+              <button
+                onClick={() => {
+                  const newIndex = fullscreenImage.index === 0 
+                    ? fullscreenImage.images.length - 1 
+                    : fullscreenImage.index - 1;
+                  setFullscreenImage({
+                    ...fullscreenImage,
+                    index: newIndex
+                  });
+                }}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 z-10 backdrop-blur-sm"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+
+              {/* Right Arrow - Infinite navigation */}
+              <button
+                onClick={() => {
+                  const newIndex = fullscreenImage.index === fullscreenImage.images.length - 1
+                    ? 0
+                    : fullscreenImage.index + 1;
+                  setFullscreenImage({
+                    ...fullscreenImage,
+                    index: newIndex
+                  });
+                }}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 z-10 backdrop-blur-sm"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
             </div>
 
-            <div className="absolute bottom-4 left-4 right-4">
-              <div className="bg-black/60 backdrop-blur-sm rounded-xl p-3">
-                <h3 className="text-white text-lg font-sorts-mill-gloudy font-medium">
-                  {fullscreenImage.collection}
-                </h3>
-                <p className="text-white/80 text-sm font-montserrat-regular-400">
-                  Image {fullscreenImage.index + 1} from collection
-                </p>
+            {/* Bottom Info Bar */}
+            <div className="absolute bottom-4 left-4 right-4 z-10">
+              <div className="bg-black/60 backdrop-blur-sm rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <h3 className="text-white text-lg font-sorts-mill-gloudy font-medium">
+                    {fullscreenImage.collection}
+                  </h3>
+                  <p className="text-white/80 text-sm font-montserrat-regular-400">
+                    Image {fullscreenImage.index + 1} of {fullscreenImage.images.length}
+                  </p>
+                </div>
+                {/* Navigation Dots */}
+                <div className="flex gap-2">
+                  {fullscreenImage.images.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setFullscreenImage({
+                          ...fullscreenImage,
+                          index: idx
+                        });
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        idx === fullscreenImage.index
+                          ? 'bg-white w-6'
+                          : 'bg-white/40 hover:bg-white/60'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Call to Action */}
-      {/* <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-primary-dark via-primary to-primary-light">
-        <div className="container mx-auto px-4 text-center text-white">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-sorts-mill-gloudy font-thin mb-4 sm:mb-6">
-            Ready to Explore?
-          </h2>
-          <p className="text-base sm:text-lg font-montserrat-regular-400 mb-6 sm:mb-8 max-w-2xl mx-auto text-white/90">
-            Discover the perfect jewelry pieces that reflect your unique style and personality.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-white text-primary-dark font-montserrat-medium-500 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center justify-center gap-3">
-              <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="text-sm sm:text-base">Explore Collections</span>
-            </button>
-            <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-montserrat-medium-500 rounded-xl hover:bg-white hover:text-primary-dark transition-all duration-300 flex items-center justify-center gap-3">
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="text-sm sm:text-base">Create Wishlist</span>
-            </button>
-          </div>
-        </div>
-      </section> */}
     </div>
   );
 };

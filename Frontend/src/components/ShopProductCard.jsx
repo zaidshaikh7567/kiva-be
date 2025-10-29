@@ -140,7 +140,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
                     price={product.price}
                     className="text-xl sm:text-2xl font-montserrat-bold-700 text-primary-dark"
                   />
-                  <span className="text-sm text-black-light font-montserrat-regular-400">({product.quantity} in stock)</span>
+                  {/* <span className="text-sm text-black-light font-montserrat-regular-400">({product.quantity} in stock)</span> */}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -245,10 +245,12 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
           </div>
           <div className="flex items-center justify-between mt-auto">
             <PriceDisplay 
+              variant="small"
               price={product.price}
               className="text-lg sm:text-xl font-montserrat-bold-700 text-primary-dark"
+              
             />
-            <span className="text-xs sm:text-sm text-black-light font-montserrat-regular-400">{product.quantity} in stock</span>
+            {/* <span className="text-xs sm:text-sm text-black-light font-montserrat-regular-400">{product.quantity} in stock</span> */}
           </div>
         </div>
       </div>

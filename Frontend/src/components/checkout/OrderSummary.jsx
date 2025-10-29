@@ -44,7 +44,8 @@ const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
           </span>
           <PriceDisplay 
             price={totalPrice}
-            className="text-sm font-montserrat-semibold-600 text-black"
+            variant="small"
+            className=" font-montserrat-semibold-600 text-primary text-lg"
           />
         </div>
         <div className="flex justify-between items-center">
@@ -53,12 +54,13 @@ const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
           </span>
           <PriceDisplay 
             price={shippingCost}
-            className="text-sm font-montserrat-semibold-600 text-black"
+            variant="small"
+            className=" font-montserrat-semibold-600 text-primary text-lg"
           />
         </div>
         <div className="border-t border-primary-light pt-3 mt-3">
           <div className="flex justify-between items-center">
-            <span className="text-lg font-montserrat-bold-700 text-black">
+            <span className="text-2xl font-montserrat-bold-700 text-primary">
               Total
             </span>
             <PriceDisplay 

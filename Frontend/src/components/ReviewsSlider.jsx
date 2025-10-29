@@ -277,7 +277,7 @@ const ReviewsSlider = () => {
       try {
         await navigator.share({
           title: 'Check out these customer reviews!',
-          text: 'See what our customers are saying about Aurora Jewelry',
+          text: 'See what our clients are saying about Aurora Jewelry',
           url: currentUrl,
         });
       } catch {
@@ -308,7 +308,7 @@ const ReviewsSlider = () => {
         <div className="text-center mb-8 sm:mb-12 relative">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4">
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy font-bold text-black">
-              What Our Customers Say
+              What Our Clients Say
             </h2>
             <button
               onClick={handleShare}
@@ -324,7 +324,7 @@ const ReviewsSlider = () => {
             </button>
           </div>
           <p className="text-sm sm:text-base md:text-lg font-montserrat-regular-400 text-black-light max-w-2xl mx-auto px-4">
-            Don't just take our word for it - hear from our satisfied customers
+            Don't just take our word for it - hear from our satisfied clients
           </p>
           <div className="w-16 sm:w-24 h-1 bg-primary mx-auto mt-4"></div>
         </div>

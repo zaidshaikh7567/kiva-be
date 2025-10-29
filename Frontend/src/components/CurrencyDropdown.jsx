@@ -1,7 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, RefreshCw, AlertCircle } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setCurrency, selectCurrentCurrency, selectCurrencyOptions } from '../store/slices/currencySlice';
+import { 
+  setCurrency, 
+  selectCurrentCurrency, 
+  selectCurrencyOptions,
+  fetchExchangeRates,
+  detectUserLocation,
+  selectCurrencyLoading,
+  selectCurrencyError,
+  selectLastUpdated,
+  selectDetectedCountry,
+  selectLocationDetectionMethod,
+  clearError
+} from '../store/slices/currencySlice';
 
 const CurrencyDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,7 +21,14 @@ const CurrencyDropdown = () => {
   const dispatch = useDispatch();
   
   const currentCurrency = useSelector(selectCurrentCurrency);
+  console.log('currentCurrency :', currentCurrency);
   const currencyOptions = useSelector(selectCurrencyOptions);
+  console.log('currencyOptions :', currencyOptions);
+  const loading = useSelector(selectCurrencyLoading);
+  const error = useSelector(selectCurrencyError);
+  const lastUpdated = useSelector(selectLastUpdated);
+  const detectedCountry = useSelector(selectDetectedCountry);
+  const detectionMethod = useSelector(selectLocationDetectionMethod);
   
   const currentOption = currencyOptions.find(option => option.code === currentCurrency);
 
@@ -26,9 +45,36 @@ const CurrencyDropdown = () => {
     };
   }, []);
 
+  // Detect location and fetch exchange rates on component mount
+  useEffect(() => {
+    // First detect user location to set appropriate currency
+    dispatch(detectUserLocation()).then(() => {
+      // Then fetch exchange rates
+      dispatch(fetchExchangeRates());
+    });
+  }, [dispatch]);
+
   const handleCurrencyChange = (currencyCode) => {
     dispatch(setCurrency(currencyCode));
     setIsOpen(false);
+  };
+
+  const handleRefreshRates = (e) => {
+    e.stopPropagation();
+    dispatch(clearError());
+    dispatch(detectUserLocation()).then(() => {
+      dispatch(fetchExchangeRates());
+    });
+  };
+
+  const formatLastUpdated = (timestamp) => {
+    if (!timestamp) return '';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    } catch {
+      return '';
+    }
   };
 
   return (
@@ -42,7 +88,41 @@ const CurrencyDropdown = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-[200px] sm:w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+        <div className="absolute top-full right-0 mt-2 w-[280px] sm:w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+          {/* Header with refresh button */}
+          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-montserrat-semibold-600 text-black">Currency</h3>
+              <button
+                onClick={handleRefreshRates}
+                disabled={loading}
+                className="flex items-center space-x-1 px-2 py-1 text-xs text-gray-600 hover:text-primary transition-colors disabled:opacity-50"
+                title="Refresh exchange rates"
+              >
+                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </button>
+            </div>
+            {detectedCountry && (
+              <p className="text-xs text-gray-500 mt-1">
+                📍 {detectedCountry}
+                {/* 📍 {detectedCountry} ({detectionMethod}) */}
+              </p>
+            )}
+            {lastUpdated && (
+              <p className="text-xs text-gray-500 mt-1">
+                Last updated: {formatLastUpdated(lastUpdated)}
+              </p>
+            )}
+            {error && (
+              <div className="flex items-center space-x-1 mt-1 text-red-600">
+                <AlertCircle className="w-3 h-3" />
+                <span className="text-xs">Failed to load rates</span>
+              </div>
+            )}
+          </div>
+
+          {/* Currency options */}
           <div className="py-1">
             {currencyOptions.map((option) => (
               <button
