@@ -15,7 +15,8 @@ import {
   Crown,
   Star,
   Zap,
-  Diamond
+  Diamond,
+  Share2
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
@@ -78,6 +79,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       label: 'Reviews',
       icon: Star,
       path: '/reviews'
+    },
+    {
+      id: 'social-handles',
+      label: 'Social Handles',
+      icon: Share2,
+      path: '/social-handles'
     },
     {
       id: 'favorites',

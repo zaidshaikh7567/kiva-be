@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, selectProducts, selectProductsLoading } from '../store/slices/productsSlice';
 import { fetchCategories, selectCategories } from '../store/slices/categoriesSlice';
 import { ZoomIn, Loader2, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import ProductDetailsModal from '../components/ProductDetailsModal';
 
 const Gallery = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,8 @@ const Gallery = () => {
   
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [fullscreenImage, setFullscreenImage] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
   // Fetch products and categories on mount
   useEffect(() => {
@@ -58,6 +61,7 @@ const Gallery = () => {
   const openFullscreen = (image, index) => {
     setFullscreenImage({
       images: allImages.map(img => img.url),
+      items: allImages, // keep mapping to productId/title
       index,
       collection: 'Gallery'
     });
@@ -191,7 +195,17 @@ const Gallery = () => {
               <img
                 src={fullscreenImage.images[fullscreenImage.index]}
                 alt={`Gallery Image ${fullscreenImage.index + 1}`}
-                className="max-w-full max-h-full object-contain shadow-2xl transition-opacity duration-300"
+                className="max-w-full max-h-full object-contain shadow-2xl transition-opacity duration-300 cursor-pointer"
+                onClick={() => {
+                  const current = fullscreenImage.items?.[fullscreenImage.index];
+                  if (!current) return;
+                  const product = products.find(p => (p._id || p.id) === current.productId);
+                  if (product) {
+                    setSelectedProduct(product);
+                    setIsProductModalOpen(true);
+                    setFullscreenImage(null);
+                  }
+                }}
               />
 
               {/* Left Arrow - Fixed Position */}
@@ -267,6 +281,13 @@ const Gallery = () => {
           display: none;
         }
       `}</style>
+
+      {/* Product Details Modal */}
+      <ProductDetailsModal
+        product={selectedProduct}
+        isOpen={isProductModalOpen}
+        onClose={() => setIsProductModalOpen(false)}
+      />
     </div>
   );
 };

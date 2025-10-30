@@ -1,0 +1,231 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Plus, Edit, Trash2, RefreshCw, Link2, Share2 } from 'lucide-react';
+import { fetchSocialHandles, createSocialHandle, updateSocialHandle, deleteSocialHandle, selectSocialHandles, selectSocialHandlesLoading } from '../store/slices/socialHandlesSlice';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import CustomDropdown from '../components/CustomDropdown';
+
+const PLATFORM_OPTIONS = ['Instagram', 'Facebook', 'Pinterest', 'LinkedIn'];
+
+const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) => {
+  const [preview, setPreview] = useState(data?.image || '');
+  const [file, setFile] = useState(null);
+  const [url, setUrl] = useState(data?.url || '');
+  const [platform, setPlatform] = useState(data?.platform || PLATFORM_OPTIONS[0]);
+  const [isActive, setIsActive] = useState(Boolean(data?.isActive));
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleFiles = (files) => {
+    const f = files?.[0];
+    if (!f) return;
+    setFile(f);
+    setPreview(f);
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      setPreview(data?.image || '');
+      setFile(null);
+      setUrl(data?.url || '');
+      setPlatform(data?.platform || PLATFORM_OPTIONS[0]);
+      setIsActive(Boolean(data?.isActive));
+    }
+  }, [isOpen, data]);
+
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative mx-auto max-w-xl bg-white rounded-2xl p-6 mt-16 shadow-xl">
+        <h3 className="text-xl font-sorts-mill-gloudy text-black mb-4">{mode === 'edit' ? 'Edit Social Handle' : 'Add Social Handle'}</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">Image</label>
+            {preview && (
+              <div className="mb-3 w-full h-40 border rounded-xl overflow-hidden bg-gray-50">
+                <img alt="preview" src={typeof preview === 'string' ? preview : URL.createObjectURL(preview)} className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
+              className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer ${isDragging ? 'border-primary bg-primary-light/20' : 'border-gray-300 bg-gray-50'}`}
+              onClick={() => document.getElementById('social-image-input')?.click()}
+            >
+              <p className="text-sm font-montserrat-regular-400 text-black-light">Drag & drop image here, or click to browse</p>
+              <input id="social-image-input" type="file" accept="image/*" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-montserrat-medium-500 text-black mb-1">Platform</label>
+            <CustomDropdown
+              options={PLATFORM_OPTIONS.map(p => ({ label: p, value: p }))}
+              value={platform}
+              onChange={setPlatform}
+              placeholder="Select platform"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-montserrat-medium-500 text-black mb-1">URL</label>
+            <input className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} />
+          </div>
+          <label className="inline-flex items-center space-x-2">
+            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
+            <span className="text-sm font-montserrat-regular-400 text-black">Active</span>
+          </label>
+          <div className="flex justify-end space-x-2 pt-2">
+            <button onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+            <button disabled={loading} onClick={() => onSubmit({ image: file, url, platform, isActive })} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark">
+              {loading ? 'Saving...' : (mode === 'edit' ? 'Update' : 'Create')}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SocialHandles = () => {
+  const dispatch = useDispatch();
+  const socialItems = useSelector(selectSocialHandles);
+  const loading = useSelector(selectSocialHandlesLoading);
+  const USE_DUMMY = true;
+  const [localItems, setLocalItems] = useState([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mode, setMode] = useState('add');
+  const [current, setCurrent] = useState(null);
+  console.log('current :', current);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [toDelete, setToDelete] = useState(null);
+
+  // Seed dummy data when API not available
+  useEffect(() => {
+    if (USE_DUMMY) {
+      const seeded = [
+        { id: '1', platform: 'Instagram', url: 'https://instagram.com/yourbrand', image: 'https://via.placeholder.com/600x400?text=Instagram', isActive: true },
+        { id: '2', platform: 'Facebook', url: 'https://facebook.com/yourbrand', image: 'https://via.placeholder.com/600x400?text=Facebook', isActive: true },
+        { id: '3', platform: 'Pinterest', url: 'https://pinterest.com/yourbrand', image: 'https://via.placeholder.com/600x400?text=Pinterest', isActive: false },
+      ];
+      setLocalItems(seeded);
+    } else {
+      dispatch(fetchSocialHandles());
+    }
+  }, [dispatch, USE_DUMMY]);
+
+  const items = useMemo(() => (USE_DUMMY ? localItems : socialItems), [USE_DUMMY, localItems, socialItems]);
+
+  const openAdd = () => { setMode('add'); setCurrent(null); setIsModalOpen(true); };
+  const openEdit = (item) => { setMode('edit'); setCurrent(item); setIsModalOpen(true); };
+  const closeModal = () => { setIsModalOpen(false); setCurrent(null); setMode('add'); };
+
+  const submit = async (data) => {
+    if (USE_DUMMY) {
+      // Convert image File to data URL for preview/persistence
+      const toDataUrl = (file) => new Promise((resolve) => {
+        if (!file) return resolve('');
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+      const imageUrl = data.image instanceof File ? await toDataUrl(data.image) : data.image || '';
+      if (mode === 'add') {
+        const newItem = { id: String(Date.now()), platform: data.platform, url: data.url, image: imageUrl, isActive: data.isActive };
+        setLocalItems(prev => [newItem, ...prev]);
+        closeModal();
+      } else {
+        const id = current._id || current.id;
+        setLocalItems(prev => prev.map(it => (it.id === id ? { ...it, platform: data.platform, url: data.url, image: imageUrl || it.image, isActive: data.isActive } : it)));
+        closeModal();
+      }
+      return;
+    }
+    if (mode === 'add') {
+      const res = await dispatch(createSocialHandle(data));
+      if (createSocialHandle.fulfilled.match(res)) closeModal();
+    } else {
+      const res = await dispatch(updateSocialHandle({ id: current._id || current.id, data }));
+      if (updateSocialHandle.fulfilled.match(res)) closeModal();
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!toDelete) return;
+    if (USE_DUMMY) {
+      const id = toDelete._id || toDelete.id;
+      setLocalItems(prev => prev.filter(it => (it.id !== id)));
+      setIsDeleteModalOpen(false); setToDelete(null);
+      return;
+    }
+    const res = await dispatch(deleteSocialHandle(toDelete._id || toDelete.id));
+    if (deleteSocialHandle.fulfilled.match(res)) { setIsDeleteModalOpen(false); setToDelete(null); }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-row items-center justify-end gap-2">
+        <button onClick={() => { USE_DUMMY ? setLocalItems([...localItems]) : dispatch(fetchSocialHandles()); }} disabled={loading} className="flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50">
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          <span>Refresh</span>
+        </button>
+        <button onClick={openAdd} className="flex items-center space-x-2 bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-2 rounded-lg font-montserrat-medium-500 hover:shadow-lg transition-all">
+          <Plus className="w-4 h-4" />
+          <span>Add Social Handle</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {items?.map((item) => (
+          <div key={item._id || item.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="w-full h-40 bg-gray-50 overflow-hidden">
+              {item.image ? (
+                <img src={item.image} alt={item.platform || 'social'} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400"><Share2 className="w-8 h-8" /></div>
+              )}
+            </div>
+            <div className="p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-montserrat-semibold-600 capitalize">{item.platform || 'Social'}</div>
+                <span className={`text-xs px-2 py-1 rounded-full ${item.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>{item.isActive ? 'Active' : 'Inactive'}</span>
+              </div>
+              <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs text-black-light break-all">
+                <Link2 className="w-4 h-4 mr-1" /> {item.url}
+              </a>
+              <div className="flex items-center justify-end space-x-2 pt-2">
+                <button onClick={() => openEdit(item)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
+                <button onClick={() => { setIsDeleteModalOpen(true); setToDelete(item); }} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <SocialHandleModal
+        key={`${mode}-${current?._id || current?.id || 'new'}`}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onSubmit={submit}
+        loading={loading}
+        data={current}
+        mode={mode}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => { setIsDeleteModalOpen(false); setToDelete(null); }}
+        onConfirm={confirmDelete}
+        loading={loading}
+        title="Delete Social Handle"
+        message="Are you sure you want to delete this social handle?"
+        itemName={toDelete?.platform || toDelete?.url}
+        itemType="social handle"
+      />
+    </div>
+  );
+};
+
+export default SocialHandles;
+
+

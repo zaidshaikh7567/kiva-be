@@ -21,7 +21,7 @@ console.log('product :', product);
   const [selectedMetal, setSelectedMetal] = useState(null);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedCenterStone, setSelectedCenterStone] = useState(null);
-  const [selectedCarat, setSelectedCarat] = useState(product.stoneType?.name);
+  const [selectedCarat, setSelectedCarat] = useState(product?.stoneType?.name);
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const imageContainerRef = useRef(null);

@@ -186,7 +186,7 @@ const FavoriteSection = () => {
       <div className="px-6 md:px-16 xl:px-32 py-8 md:py-16 w-full bg-[#F5F1E8]">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch">
           {/* LEFT SIDE - IMAGE WITH CURVED TEXT */}
-          <div className="w-full lg:w-[70%] xl:w-[35%] relative">
+          <div className="w-full lg:w-[70%] xl:w-[50%] 2xl:w-[35%] relative">
             <div className="relative rounded-tl-full rounded-tr-full overflow-hidden shadow-2xl h-full min-h-[700px] bg-white">
               {/* Background Image */}
               <div
