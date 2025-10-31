@@ -297,7 +297,7 @@ const Categories = () => {
 
                   {/* Sub Categories */}
                   {subCategories?.length > 0 && (
-                    <div className="p-6 bg-gray-50">
+                    <div className="p-6 bg-secondary rounded-b-xl">
                       <h4 className="text-sm font-montserrat-semibold-600 text-black-light mb-4">
                         Sub Categories ({subCategories?.length})
                       </h4>

@@ -125,7 +125,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-[18px] border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-[24px] border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center">
               <Gem className="w-5 h-5 text-white" />
