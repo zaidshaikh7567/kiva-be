@@ -13,10 +13,10 @@ const Accordion = ({ title, children, isOpen = false, onToggle, icon }) => {
   };
 
   return (
-    <div className=" rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className=" rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200">
       <button
         onClick={handleToggle}
-        className="w-full px-2 py-4 bg-white hover:bg-primary/10 transition-all duration-200 flex items-center justify-between text-left group"
+        className="w-full px-2 py-2 bg-white hover:bg-primary/10 transition-all duration-200 flex items-center justify-between text-left group"
       >
         <div className="flex items-center space-x-3">
           {icon && (

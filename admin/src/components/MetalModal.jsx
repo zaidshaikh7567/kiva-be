@@ -8,19 +8,19 @@ const colorOptions = [
   { value: '#FFFFFF', label: 'White', colorName: 'White' },
   { value: '#FFD700', label: 'Yellow', colorName: 'Yellow' },
   { value: '#E8B4B8', label: 'Rose', colorName: 'Rose' },
-  { value: '#C0C0C0', label: 'Silver', colorName: 'Silver' },
-  { value: '#E5E4E2', label: 'Platinum', colorName: 'Platinum' },
+  // { value: '#C0C0C0', label: 'Silver', colorName: 'Silver' },
+  // { value: '#E5E4E2', label: 'Platinum', colorName: 'Platinum' },
 ];
 
 // Karat options for purity levels
 const karatOptions = [
-  { value: 10, label: '10K' },
+  // { value: 10, label: '10K' },
   { value: 14, label: '14K' },
   { value: 18, label: '18K' },
   { value: 22, label: '22K' },
   { value: 24, label: '24K' },
-  { value: 925, label: '925 Sterling' },
-  { value: 950, label: '950 Platinum' },
+  // { value: 925, label: '925 Sterling' },
+  // { value: 950, label: '950 Platinum' },
 ];
 
 const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode = 'add' }) => {

@@ -21,6 +21,7 @@ body {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
+  outline: none;
 }
 
 /* Prevent text selection on UI elements like buttons, icons, etc. */

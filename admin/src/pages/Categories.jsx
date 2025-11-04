@@ -225,13 +225,10 @@ const Categories = () => {
           categories
             .filter(category => !category?.parent) // Only main categories
             .map((mainCategory) => {
-            // console.log('mainCategory :', mainCategory);
               // Find sub-categories for this main category
               const subCategories = categories?.filter(cat => 
                 cat?.parent && cat?.parent?._id === mainCategory?._id
               );
-              // console.log('categories()()(()(()()))(()()) :', categories);
-              // console.log('subCategories()())() :', subCategories);
 
               // Get product count for main category
               const mainCategoryProductCount = getProductCount(mainCategory?._id);
@@ -244,8 +241,6 @@ const Categories = () => {
                 return total + count;
               }, 0);
               
-              // console.log('totalSubCategoryProductCount :', totalSubCategoryProductCount);
-              // console.log('Total (main + sub):', mainCategoryProductCount + totalSubCategoryProductCount);
 
               return (
                 <div key={mainCategory?._id} className="bg-white rounded-xl shadow-sm border border-gray-200">

@@ -61,8 +61,6 @@ function getSafeLexicalState(val) {
 }
 
 const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, mode = 'add', categories = [], metals = [], stones = [] }) => {
-console.log('productData :', productData);
-  console.log('metals--- :', metals);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -873,7 +871,7 @@ console.log('productData :', productData);
                           className="w-full h-12 rounded-lg mb-3 border border-gray-200 relative flex items-center justify-center shadow-md"
                           style={{ backgroundColor: metal.color }}
                         >
-                          <div className="font-montserrat-bold-700 text-lg text-white drop-shadow-sm">
+                          <div className="font-montserrat-bold-700 text-lg text-black drop-shadow-sm">
                             {metal.name}
                           </div>
                         </div>

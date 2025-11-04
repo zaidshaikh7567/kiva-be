@@ -15,11 +15,11 @@ const StickyCartButton = () => {
   return (
     <button 
       onClick={() => dispatch(openCart())}
-      className="fixed top-24 right-4 z-50 bg-primary text-white p-4 rounded-full shadow-lg hover:bg-primary-dark hover:shadow-xl transition-all duration-300 group"
+      className="fixed top-24 right-4 z-50 bg-primary text-white p-2 sm:p-4 rounded-full shadow-lg hover:bg-primary-dark hover:shadow-xl transition-all duration-300 group"
     >
-      <ShoppingBag className="w-6 h-6" />
+      <ShoppingBag className="sm:w-6 sm:h-6 w-4 h-4" />
       {totalQuantity > 0 && (
-        <span className="absolute -top-1 -right-1 bg-white text-primary text-xs w-6 h-6 flex items-center justify-center rounded-full font-montserrat-medium-500 animate-pulse">
+        <span className="absolute -top-1 -right-1 bg-white text-primary text-xs sm:w-6 sm:h-6 w-4 h-4 flex items-center justify-center rounded-full font-montserrat-medium-500 animate-pulse">
           {totalQuantity}
         </span>
       )}

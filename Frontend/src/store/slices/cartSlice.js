@@ -26,6 +26,7 @@ export const fetchCartItems = createAsyncThunk(
         return { data: [] };
       }
       const response = await api.get(API_METHOD.cart);
+      console.log('response :', response);
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch cart items';

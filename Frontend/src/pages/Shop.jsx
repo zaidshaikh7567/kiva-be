@@ -112,7 +112,7 @@ const Shop = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters - Desktop */}
           <div className="hidden lg:block w-80 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
+            <div className="bg-white rounded-lg shadow-sm px-6 py-[10px] sticky top-8">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-montserrat-semibold-600 text-black">Filters</h3>
                 <button
@@ -262,7 +262,7 @@ const Shop = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search jewelry..."
-                        className="w-full pl-10 pr-4 py-3 border border-primary-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black placeholder-black-light"
+                        className="w-full pl-10 pr-4 py-3 border border-primary-light rounded-lg outline-none focus:ring-1 focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black placeholder-black-light"
                       />
                     </div>
                   </div>

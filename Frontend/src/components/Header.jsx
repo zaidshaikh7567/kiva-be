@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { selectFavoritesCount } from "../store/slices/favoritesSlice";
 import { Link, useLocation } from "react-router-dom";
 import CurrencyDropdown from "./CurrencyDropdown";
+import CategoryDropdown from "./CategoryDropdown";
 import UserProfile from "./UserProfile";
 import { useAuth } from "../contexts/AuthContext";
 import Logo from "../assets/images/kiva-diamond-logo.png";
@@ -12,7 +13,6 @@ const Header = () => {
   const favoritesCount = useSelector(selectFavoritesCount);
   const { user, logout } = useAuth();
   const location = useLocation();
-  console.log('user :', user);
 
   // Function to check if a link is active
   const isActive = (path) => {
@@ -43,7 +43,10 @@ const Header = () => {
         </Link>
         </div>
         {/* Desktop Navigation */}
-        <nav className="hidden xl:flex space-x-8 text-[#1e2b38] font-medium">
+        <nav className="hidden xl:flex items-center space-x-6 text-[#1e2b38] font-medium">
+          {/* Category Dropdown */}
+     
+           <CategoryDropdown />
           <Link
             to="/shop"
             className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
@@ -52,7 +55,7 @@ const Header = () => {
           >
             Shop
           </Link>
-          <Link
+          {/* <Link
             to="/rings"
             className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
               isActive('/rings') ? 'text-primary' : 'text-black-light'
@@ -83,7 +86,8 @@ const Header = () => {
             }`}
           >
             Necklaces
-          </Link>
+          </Link> */}
+         
           <Link
             to="/favorites"
             className={`hover:text-black font-montserrat-medium-500 text-[16px] flex items-center gap-1 transition-colors duration-200 ${
@@ -203,6 +207,9 @@ const Header = () => {
 
             {/* Navigation Links */}
             <nav className="space-y-1 mb-1">
+              {/* Category Dropdown for Mobile */}
+           
+              
               <Link
                 to="/shop"
                 onClick={() => setIsOpen(false)}
@@ -272,7 +279,7 @@ const Header = () => {
                   Favorites
                 </div>
                 {favoritesCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  <span className="bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
                     {favoritesCount}
                   </span>
                 )}

@@ -6,6 +6,7 @@ import metalsReducer from './slices/metalsSlice';
 import centerStonesReducer from './slices/centerStonesSlice';
 import usersReducer from './slices/usersSlice';
 import socialHandlesReducer from './slices/socialHandlesSlice';
+import reviewsReducer from './slices/reviewsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     centerStones: centerStonesReducer,
     users: usersReducer,
     socials: socialHandlesReducer,
+    reviews: reviewsReducer,
     // Add other reducers here as needed
     // orders: ordersReducer,
     // etc.

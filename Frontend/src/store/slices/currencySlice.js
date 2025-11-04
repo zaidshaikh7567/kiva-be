@@ -119,7 +119,6 @@ export const fetchExchangeRates = createAsyncThunk(
       }
       
       const data = await response.json();
-      console.log('data :', data);
       
       if (data.result === 'success') {
         return {
@@ -266,7 +265,6 @@ export const convertPrice = (price, fromCurrency = 'USD', toCurrency, exchangeRa
   
   // Convert from USD to target currency
   const rate = exchangeRates[toCurrency] || 1;
-  console.log('rate :', rate);
   return price * rate;
 };
 

@@ -28,7 +28,8 @@ export const fetchProductById = createAsyncThunk(
     try {
       const response = await api.get(`${API_METHOD.products}/${id}`);
       // Return only the data, not the entire response object
-      return response.data;
+      // Handle both response.data.data and response.data structures
+      return response.data.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }

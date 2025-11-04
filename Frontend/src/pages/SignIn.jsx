@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, clearError, selectAuthLoading, selectIsAuthenticated } from '../store/slices/authSlice';
+import CustomCheckbox from '../components/CustomCheckbox';
 import toast from 'react-hot-toast';
 import { useGoogleLogin } from '@react-oauth/google';
 import { handleGoogleLogin } from '../services/googleAuth';
@@ -56,7 +57,6 @@ const SignIn = () => {
         
         // Send authorization code to backend
         const result = await handleGoogleLogin(codeResponse.code);
-        console.log('result :', result);
         
         if (result.success) {
           // Save user data and token to localStorage or Redux store
@@ -235,17 +235,13 @@ const SignIn = () => {
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-primary focus:ring-primary border-primary-light rounded"
-                />
-                <label className="ml-2 text-sm font-montserrat-regular-400 text-black-light">
-                  Remember me
-                </label>
-              </div>
+              <CustomCheckbox
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                label="Remember me"
+                name="rememberMe"
+                id="rememberMe"
+              />
               <Link
                 to="/forgot-password"
                 className="text-sm font-montserrat-medium-500 text-primary hover:text-primary-dark transition-colors duration-300"

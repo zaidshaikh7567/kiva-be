@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { 
   ShoppingBag, 
@@ -18,10 +18,14 @@ import {
   CreditCard,
   Phone,
   Mail,
-  RotateCcw
+  RotateCcw,
+  FileText,
+  FileSpreadsheet,
+  ChevronDown
 } from 'lucide-react';
 import Pagination from '../components/Pagination';
 import CustomDropdown from '../components/CustomDropdown';
+import { exportToPDF, exportToCSV } from '../utils/exportUtils';
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,6 +34,8 @@ const Orders = () => {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
 
   // Mock orders data - expanded for pagination demo
   const orders = [
@@ -381,6 +387,34 @@ const Orders = () => {
     setShowOrderModal(true);
   };
 
+  // Close export menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target)) {
+        setShowExportMenu(false);
+      }
+    };
+
+    if (showExportMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showExportMenu]);
+
+  // Export handlers
+  const handleExportPDF = () => {
+    exportToPDF(filteredOrders, 'orders');
+    setShowExportMenu(false);
+  };
+
+  const handleExportCSV = () => {
+    exportToCSV(filteredOrders, 'orders');
+    setShowExportMenu(false);
+  };
+
 
   return (
     <div className="space-y-6">
@@ -465,7 +499,7 @@ const Orders = () => {
                 placeholder="Search orders by ID, customer name, or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary outline-none !focus:border-primary font-montserrat-regular-400 text-black"
+                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary !focus:border-primary font-montserrat-regular-400 text-black"
               />
             </div>
           </div>
@@ -492,11 +526,37 @@ const Orders = () => {
               <span className="font-montserrat-medium-500 text-black">Reset</span>
             </button>
 
-            {/* Export Button */}
-            <button className="flex items-center space-x-2 px-4 py-3 border border-primary-light rounded-lg hover:bg-gray-50 transition-colors duration-300">
-              <Download className="w-5 h-5 text-black-light" />
-              <span className="font-montserrat-medium-500 text-black">Export</span>
-            </button>
+            {/* Export Button with Dropdown */}
+            <div className="relative" ref={exportMenuRef}>
+              <button 
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="flex items-center space-x-2 px-4 py-3 border border-primary-light rounded-lg hover:bg-gray-50 transition-colors duration-300"
+              >
+                <Download className="w-5 h-5 text-black-light" />
+                <span className="font-montserrat-medium-500 text-black">Export</span>
+                <ChevronDown className={`w-4 h-4 text-black-light transition-transform duration-300 ${showExportMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Export Dropdown Menu */}
+              {showExportMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <button
+                    onClick={handleExportPDF}
+                    className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 transition-colors duration-300"
+                  >
+                    <FileText className="w-5 h-5 text-red-600" />
+                    <span className="font-montserrat-medium-500 text-black">Export as PDF</span>
+                  </button>
+                  <button
+                    onClick={handleExportCSV}
+                    className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 transition-colors duration-300"
+                  >
+                    <FileSpreadsheet className="w-5 h-5 text-green-600" />
+                    <span className="font-montserrat-medium-500 text-black">Export as CSV</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -592,11 +652,11 @@ const Orders = () => {
                         className="flex items-center space-x-1 px-3 py-2 text-sm font-montserrat-medium-500 text-primary hover:bg-primary-light rounded-lg transition-colors duration-300"
                       >
                         <Eye className="w-4 h-4" />
-                        <span>View</span>
+                        {/* <span>View</span> */}
                       </button>
-                      <button className="p-2 text-black-light hover:text-black hover:bg-gray-100 rounded-lg transition-colors duration-300">
+                      {/* <button className="p-2 text-black-light hover:text-black hover:bg-gray-100 rounded-lg transition-colors duration-300">
                         <MoreVertical className="w-4 h-4" />
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>

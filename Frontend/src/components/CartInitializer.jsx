@@ -12,6 +12,7 @@ const CartInitializer = ({ children }) => {
     // Fetch cart from API if user is authenticated
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {
+    console.log('accessToken :', accessToken);
       dispatch(fetchCartItems());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

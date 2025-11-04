@@ -6,6 +6,7 @@ import { registerUser, clearError, selectAuthLoading, selectIsAuthenticated } fr
 import { useGoogleLogin } from '@react-oauth/google';
 import { handleGoogleLogin } from '../services/googleAuth';
 import toast from 'react-hot-toast';
+import CustomCheckbox from '../components/CustomCheckbox';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -337,16 +338,17 @@ const SignUp = () => {
 
             {/* Terms and Conditions */}
             <div className="flex items-start">
-              <input
-                type="checkbox"
+              <CustomCheckbox
                 checked={agreedToTerms}
                 onChange={(e) => {
                   setAgreedToTerms(e.target.checked);
                   setErrors({ ...errors, terms: '' });
                 }}
-                className="h-4 w-4 text-primary focus:ring-primary border-primary-light rounded mt-1"
-              />
-              <label className="ml-2 text-sm font-montserrat-regular-400 text-black-light">
+                label="I agree to the Terms and Conditions"
+                name="agreedToTerms"
+                id="agreedToTerms"
+              />  
+              {/* <label className="ml-2 text-sm font-montserrat-regular-400 text-black-light">
                 I agree to the{' '}
                 <Link
                   to="/terms"
@@ -361,7 +363,7 @@ const SignUp = () => {
                 >
                   Privacy Policy
                 </Link>
-              </label>
+              </label> */}
             </div>
             {errors.terms && (
               <p className="mt-1 text-sm text-red-500 font-montserrat-regular-400">

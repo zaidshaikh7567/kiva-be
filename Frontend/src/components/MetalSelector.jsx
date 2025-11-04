@@ -1,12 +1,16 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMetals, selectMetals, selectMetalsLoading } from '../store/slices/metalsSlice';
+import { useLocation } from 'react-router-dom';
 
 const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
   const loading = useSelector(selectMetalsLoading);
-
+const pathname = useLocation();
+console.log('pathname :', pathname);
+const isProductDetail = pathname?.pathname?.includes('/product/');
+const gridCols = isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-9' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6';
   useEffect(() => {
     dispatch(fetchMetals());
   }, [dispatch]);
@@ -176,25 +180,25 @@ const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
           <p className="text-sm text-black-light mt-2">Loading metals...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-2">
+        <div className={`grid ${isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-9' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6'} gap-2`}>
           {displayMetalOptions.map((metal) => (
           <button
             key={metal.id}
             onClick={() => onMetalChange(metal)}
             className={`
-              relative p-2 rounded-2xl transition-all duration-300 
+              relative p-1 rounded-lg transition-all duration-300 
               ${selectedMetal?.id === metal.id 
-                ? 'border-primary ring-2 ring-primary ring-opacity-30  bg-primary-light' 
+                ? 'border-primary ring-1 ring-primary ring-opacity-30  bg-primary-light' 
                 : 'border-secondary hover:border-primary bg-white hover:bg-secondary '
               }
             `}
           >
             {/* Metal Color Preview with Carat Overlay */}
             <div 
-              className={`w-full  h-12 rounded-xl  bg-gradient-to-r ${metal.gradient} border border-gray-200 relative items-center justify-center `}
+              className={`w-full p-2  rounded-lg  bg-gradient-to-r ${metal.gradient} border border-gray-200 relative items-center justify-center `}
               style={{ background: metal.backgroundColor }}
             >
-              <div className="font-montserrat-bold-700 text-lg text-black ">
+              <div className="font-montserrat-bold-700 text-sm text-black ">
                 {metal.carat}
               </div>
               <div className="font-montserrat-semibold-600 text-black text-sm leading-tight">
@@ -207,8 +211,8 @@ const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
 
             {/* Selected Indicator */}
             {selectedMetal?.id === metal.id && (
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center ">
-                <div className="w-3 h-3 bg-white rounded-full"></div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center ">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
               </div>
             )}
           </button>

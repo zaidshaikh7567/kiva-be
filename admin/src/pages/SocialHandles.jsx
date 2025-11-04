@@ -4,6 +4,7 @@ import { Plus, Edit, Trash2, RefreshCw, Link2, Share2 } from 'lucide-react';
 import { fetchSocialHandles, createSocialHandle, updateSocialHandle, deleteSocialHandle, selectSocialHandles, selectSocialHandlesLoading } from '../store/slices/socialHandlesSlice';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import CustomDropdown from '../components/CustomDropdown';
+import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
 
 const PLATFORM_OPTIONS = ['Instagram', 'Facebook', 'Pinterest', 'LinkedIn'];
 
@@ -12,7 +13,8 @@ const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) =
   const [file, setFile] = useState(null);
   const [url, setUrl] = useState(data?.url || '');
   const [platform, setPlatform] = useState(data?.platform || PLATFORM_OPTIONS[0]);
-  const [isActive, setIsActive] = useState(Boolean(data?.isActive));
+  const [isActive, setIsActive] = useState(mode === 'edit' ?Boolean(data?.isActive) : true);
+
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFiles = (files) => {
@@ -28,7 +30,7 @@ const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) =
       setFile(null);
       setUrl(data?.url || '');
       setPlatform(data?.platform || PLATFORM_OPTIONS[0]);
-      setIsActive(Boolean(data?.isActive));
+      setIsActive(mode === 'edit' ? Boolean(data?.isActive) : true);
     }
   }, [isOpen, data]);
 
@@ -71,8 +73,13 @@ const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) =
             <input className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} />
           </div>
           <label className="inline-flex items-center space-x-2">
-            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
-            <span className="text-sm font-montserrat-regular-400 text-black">Active</span>
+            <CustomCheckbox
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              label="Active"
+              name="isActive"
+              id="isActive"
+            />
           </label>
           <div className="flex justify-end space-x-2 pt-2">
             <button onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>

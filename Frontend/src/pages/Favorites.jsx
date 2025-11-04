@@ -18,7 +18,6 @@ const Favorites = () => {
   const favorites = useSelector(selectFavorites);
   console.log('favorites :', favorites);
   const favoritesCount = useSelector(selectFavoritesCount);
-  console.log('favoritesCount :', favoritesCount);
   const dispatch = useDispatch();
   const categories = useSelector(selectCategories);
   const [showQuickView, setShowQuickView] = useState(false);

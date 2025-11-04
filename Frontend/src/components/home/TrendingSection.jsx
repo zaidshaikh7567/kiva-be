@@ -5,6 +5,7 @@ import  Img3 from "../../assets/images/earrings-shape.jpeg";
 import  Img4 from "../../assets/images/bracelet-shape.jpeg";
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from "react-redux";
+import PriceDisplay from "../PriceDisplay";
 const TrendingSection = () => {
   // const { products, loading, error } = useSelector(state => state.products);
   // console.log('products :', products);
@@ -17,32 +18,33 @@ const TrendingSection = () => {
       id: 1,
       image: Img1,
       name: "Diamond Ring",
-      price: "$1,200",
+      price: "1200",
       path: "/rings",
     },
     {
       id: 2,
       image: Img2,
       name: "Necklace",
-      price: "$980",
+      price: "980",
       path: "/necklaces",
     },
     {
       id: 3,
       image: Img3,
       name: "Emerald Earrings",
-      price: "$450",
+      price: "450",
       path: "/earrings",
     },
     {
       id: 4,
       image: Img4,
       name: "Sapphire Bracelet",
-      price: "$670",
+      price: "670",
       path: "/bracelets",
     },
   ];
 
+  console.log('products :', products);
   return (
     <div className="px-6 md:px-16 xl:px-32  py-8 md:py-16 w-full">
       {/* Section Heading */}
@@ -61,23 +63,24 @@ const TrendingSection = () => {
 
       {/* Products Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
-        {products.map((product) => (
+        {products?.map((product) => (
           <div
-            key={product.id}
+            key={product?.id}
             className="flex bg-white flex-col items-center text-center  p-6  shadow-sm hover:shadow-md transition"
           >
             <img
-              src={product.image}
-              alt={product.name}
+              src={product?.image}
+              alt={product?.name}
               className="w-full h-60 md:object-fill rounded-md"
             />
             <div className="mt-4 text-xl font-montserrat-medium-500 text-black">
-              {product.name}
+              {product?.name}
             </div>
             <div className="mt-2 text-lg font-montserrat-bold-700 text-primary">
-              {product.price}
+              {/* {product.price} */}
+              {/* <PriceDisplay variant="small" price={Number(product.price)} /> */}
             </div>
-            <button onClick={() => navigate(product.path)} className="mt-6 px-6 py-3 bg-primary-dark text-white font-medium rounded-md hover:bg-primary transition">
+            <button onClick={() => navigate(product?.path)} className="mt-6 px-6 py-3 bg-primary-dark text-white font-medium rounded-md hover:bg-primary transition">
               — Discover
             </button>
           </div>

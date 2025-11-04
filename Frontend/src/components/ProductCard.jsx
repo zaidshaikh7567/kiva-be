@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Heart, Star, ShoppingBag, Eye, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
@@ -17,6 +18,8 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const [showRingSizeModal, setShowRingSizeModal] = useState(false);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const isFavorite = useSelector(state => selectIsFavorite(state, product.id));
   const categories = useSelector(selectCategories);
 
@@ -100,14 +103,28 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     }
   };
 
-  const handleViewDetails = () => {
+  const handleViewDetails = (e) => {
+    e.stopPropagation();
     setShowDetails(true);
+  };
+
+  const handleCardClick = () => {
+    const productId = product._id || product.id;
+    if (productId) {
+      // Pass current location with query params as state to preserve it when going back
+      const currentPath = location.pathname + location.search;
+      navigate(`/product/${productId}`, { 
+        state: { from: currentPath },
+        replace: false 
+      });
+    }
   };
 
   return (
     <>
       <div
-        className={`bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group ${
+        onClick={handleCardClick}
+        className={`bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer ${
           viewMode === "list" ? "flex flex-col sm:flex-row" : ""
         }`}
       >
@@ -126,7 +143,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             </div>
           )}
           <button 
-            onClick={handleToggleFavorite}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleFavorite(e);
+            }}
             className={`absolute top-3 right-3 md:top-4 md:right-4 p-2 rounded-full transition-colors duration-300 z-20 pointer-events-auto ${
               isFavorite 
                 ? 'bg-primary text-white hover:primary' 
@@ -144,14 +164,20 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           {/* Quick Actions Overlay */}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-2 z-10">
             <button
-              onClick={handleViewDetails}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewDetails(e);
+              }}
               className="p-3 bg-white/90 rounded-full hover:bg-white transition-colors duration-300"
               title="View Details"
             >
               <Eye className="w-5 h-5 text-black" />
             </button>
             <button
-              onClick={handleAddToCart}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToCart();
+              }}
               className="p-3 bg-primary rounded-full hover:bg-primary-dark transition-colors duration-300"
               title="Add to Cart"
             >
@@ -193,14 +219,21 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
                 </div>
                 <div className="flex space-x-2 flex-shrink-0 w-full sm:w-auto">
                   <button 
-                    onClick={handleViewDetails}
+                   onClick={handleCardClick}
+                    // onClick={(e) => {
+                    //   e.stopPropagation();
+                    //   handleViewDetails(e);
+                    // }}
                     className="flex-1 sm:flex-none border border-gray-200 bg-gray-100 text-black font-montserrat-medium-500 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center space-x-1.5 text-xs md:text-sm"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">View</span>
                   </button>
                   <button 
-                    onClick={handleAddToCart}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToCart();
+                    }}
                     className="flex-1 sm:flex-none bg-primary text-white font-montserrat-medium-500 py-2 px-3 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-1.5 text-xs md:text-sm"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
@@ -238,14 +271,21 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
 
               <div className="flex space-x-2">
                 <button 
-                  onClick={handleViewDetails}
+                  onClick={handleCardClick}
+                  // onClick={(e) => {
+                  //   e.stopPropagation();
+                  //   handleViewDetails(e);
+                  // }}
                   className="flex-1 border border-gray-200 bg-gray-100 text-black font-montserrat-medium-500 py-2 md:py-3 rounded-lg hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center space-x-2 text-sm md:text-base"
                 >
                   <Eye className="w-4 h-4 md:w-5 md:h-5" />
                   <span>View</span>
                 </button>
                 <button 
-                  onClick={handleAddToCart}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCart();
+                  }}
                   className="flex-1 bg-primary text-white font-montserrat-medium-500 py-2 md:py-3 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-sm md:text-base"
                 >
                   <ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />

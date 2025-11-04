@@ -14,7 +14,6 @@ import CustomDropdown from '../components/CustomDropdown';
 const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
-  console.log('products@@@@@@@ :', products);
   const productsPagination = useSelector(selectProductsPagination);
   const categories = useSelector(selectCategories);
   const metals = useSelector(selectMetals);

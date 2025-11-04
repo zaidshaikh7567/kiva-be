@@ -162,7 +162,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     setIsOpen(false);
                   }}
                   className={`
-                    w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200
+                    w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 outline-none
                     ${isActive 
                       ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-md' 
                       : 'text-black-light hover:bg-primary-light hover:text-black'

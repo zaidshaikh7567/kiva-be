@@ -72,7 +72,6 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
         
         // Send authorization code to backend
         const result = await handleGoogleLogin(codeResponse.code);
-        console.log('Admin result :', result);
         
         if (result.success) {
           // Save admin data and token to localStorage
