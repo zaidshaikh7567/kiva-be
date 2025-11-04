@@ -490,8 +490,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                     ? 'border-primary bg-primary-light/10 text-black' 
                     : 'border-gray-200 text-black-light'
                   }
-                  ${categoryDropdownOpen ? 'ring-2 ring-primary ring-opacity-20' : ''}
-                  hover:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
+                  ${categoryDropdownOpen ? 'ring-1 ring-primary ring-opacity-20' : ''}
+                  hover:border-primary-dark focus:outline-none focus:ring-1 focus:ring-primary focus:ring-opacity-20
                   disabled:opacity-50 disabled:cursor-not-allowed`}
                 disabled={loading}
               >
@@ -630,8 +630,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                     ? 'border-primary bg-primary-light/10 text-black' 
                     : 'border-gray-200 text-black-light'
                   }
-                  ${stoneDropdownOpen ? 'ring-2 ring-primary ring-opacity-20' : ''}
-                  hover:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
+                  ${stoneDropdownOpen ? 'ring-1 ring-primary ring-opacity-20' : ''}
+                  hover:border-primary-dark focus:outline-none focus:ring-1 focus:ring-primary focus:ring-opacity-20
                   disabled:opacity-50 disabled:cursor-not-allowed`}
                 disabled={loading}
               >
@@ -702,8 +702,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                     ? 'border-primary bg-primary-light/10 text-black' 
                     : 'border-gray-200 text-black-light'
                   }
-                  ${careDropdownOpen ? 'ring-2 ring-primary ring-opacity-20' : ''}
-                  hover:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
+                  ${careDropdownOpen ? 'ring-1 ring-primary ring-opacity-20' : ''}
+                  hover:border-primary-dark focus:outline-none focus:ring-1 focus:ring-primary focus:ring-opacity-20
                   disabled:opacity-50 disabled:cursor-not-allowed`}
                 disabled={loading}
               >
@@ -861,7 +861,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                         key={metal._id}
                         className={`relative p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:shadow-lg group
                           ${formData.metalOptions.includes(metal._id)
-                            ? 'border-primary bg-primary-light ring-2 ring-primary ring-opacity-30'
+                            ? 'border-primary bg-primary-light 1 ring-primary ring-opacity-30'
                             : 'border-gray-200 bg-white hover:border-primary-light'
                           }`}
                         onClick={() => toggleMetalOption(metal._id)}

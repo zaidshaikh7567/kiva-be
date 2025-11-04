@@ -14,7 +14,7 @@ router.get('/', asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const totalRecords = await Review.countDocuments();
-  const reviews = await Review.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
+  const reviews = await Review.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
   const totalPages = Math.ceil(totalRecords / limit);
 
   res.json({
@@ -56,7 +56,7 @@ router.put('/:id', authenticate, authorize('super_admin'), validate(reviewIdSche
   const { id } = req.params;
   const updateData = req.body;
 
-  const review = await Review.findByIdAndUpdate(id, updateData, { new: true });
+  const review = await Review.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
   if (!review) throw new Error('Review not found');
 
   res.json({ success: true, message: 'Review updated successfully', data: review });

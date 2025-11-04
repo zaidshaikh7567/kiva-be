@@ -48,8 +48,8 @@ const CustomDropdown = ({
         className={`
           relative w-full px-4 py-3 text-left bg-white border border-primary-light rounded-lg shadow-sm 
           focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary
-          ${disabled ? 'bg-gray-50 cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}
-          ${isOpen ? 'ring-2 ring-primary border-primary' : ''}
+          ${disabled ? 'bg-gray-50 cursor-not-allowed opacity-50' : 'cursor-pointer '}
+          ${isOpen ? 'ring- ring-primary border-primary' : ''}
         `}
       >
         <span className={`block truncate font-montserrat-regular-400 ${!value ? 'text-black-light' : 'text-black'}`}>

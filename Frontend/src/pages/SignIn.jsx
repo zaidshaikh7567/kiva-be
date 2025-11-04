@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser, clearError, selectAuthLoading, selectIsAuthenticated } from '../store/slices/authSlice';
+import { loginUser, clearError, selectAuthLoading, selectIsAuthenticated, setUser, updateTokens } from '../store/slices/authSlice';
 import CustomCheckbox from '../components/CustomCheckbox';
 import toast from 'react-hot-toast';
 import { useGoogleLogin } from '@react-oauth/google';
@@ -58,15 +58,23 @@ const SignIn = () => {
         // Send authorization code to backend
         const result = await handleGoogleLogin(codeResponse.code);
         
-        if (result.success) {
-          // Save user data and token to localStorage or Redux store
-          // TODO: Update based on your auth structure
-          if (result.data.token) {
-            localStorage.setItem('accessToken', result.data.token);
+        if (result.success && result.data?.data) {
+          const { user, accessToken, refreshToken } = result.data.data;
+          
+          // Save tokens to localStorage
+          if (accessToken) {
+            localStorage.setItem('accessToken', accessToken);
           }
-          if (result.data.user) {
-            localStorage.setItem('user', JSON.stringify(result.data.user));
+          if (refreshToken) {
+            localStorage.setItem('refreshToken', refreshToken);
           }
+          if (user) {
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+          
+          // Update Redux store
+          dispatch(setUser(user));
+          dispatch(updateTokens({ accessToken, refreshToken }));
           
           toast.success('Google login successful!');
           

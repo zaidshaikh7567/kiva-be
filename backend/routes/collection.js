@@ -17,7 +17,7 @@ router.get('/', asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const totalRecords = await Collection.countDocuments();
-  const collections = await Collection.find().skip(skip).limit(limit);
+  const collections = await Collection.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
   const totalPages = Math.ceil(totalRecords / limit);
 
   res.json({
@@ -80,7 +80,7 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
     updateData.images = [...existingImages, ...newImages];
   }
 
-  const collection = await Collection.findByIdAndUpdate(id, updateData, { new: true });
+  const collection = await Collection.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
   if (!collection) throw new Error('Collection not found');
 
   res.json({ success: true, message: 'Collection updated successfully', data: collection });

@@ -7,7 +7,7 @@ const { createSocialHandleSchema, updateSocialHandleSchema, socialHandleIdSchema
 const validate = require('../middleware/validate');
 const createMulter = require('../utils/uploadUtil');
 
-const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'png', 'jpeg'], maxSize: 2 * 1024 * 1024, folder: 'social-handles' });
+const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'png', 'jpeg', 'webp'], maxSize: 2 * 1024 * 1024, folder: 'social-handles' });
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ router.get('/', asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const totalRecords = await SocialHandle.countDocuments();
-  const socialHandles = await SocialHandle.find().skip(skip).limit(limit);
+  const socialHandles = await SocialHandle.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
   const totalPages = Math.ceil(totalRecords / limit);
 
   res.json({
@@ -70,7 +70,7 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.single('image'
   if (isActive !== undefined) updateData.isActive = isActive;
   if (req.file) updateData.image = req.file.path;
 
-  const socialHandle = await SocialHandle.findByIdAndUpdate(id, updateData, { new: true });
+  const socialHandle = await SocialHandle.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
   if (!socialHandle) throw new Error('Social handle not found');
 
   res.json({ success: true, message: 'Social handle updated successfully', data: socialHandle });

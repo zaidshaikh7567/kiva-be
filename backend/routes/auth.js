@@ -9,7 +9,16 @@ const { authenticate, authorize } = require('../middleware/auth');
 const { sendEmail } = require('../utils/emailUtil');
 const { loginSchema, registerSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema, googleAuthSchema } = require('../validations/auth');
 const validate = require('../middleware/validate');
+const createMulter = require('../utils/uploadUtil');
 const { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URL } = require('../config/env');
+
+// Multer configuration for profile image upload
+const upload = createMulter({ 
+  storage: 'cloudinary', 
+  allowedFormats: ['jpg', 'png', 'jpeg', 'webp'], 
+  maxSize: 2 * 1024 * 1024, // 2MB
+  folder: 'profile-images' 
+});
 
 const router = express.Router();
 
@@ -33,7 +42,13 @@ router.post('/login', validate(loginSchema), asyncHandler(async (req, res) => {
     success: true,
     message: 'Login successful',
     data: {
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role,
+        profileImage: user.profileImage || null
+      },
       accessToken,
       refreshToken
     }
@@ -82,7 +97,13 @@ router.post('/register', validate(registerSchema), asyncHandler(async (req, res)
     success: true,
     message: 'User registered successfully',
     data: {
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role,
+        profileImage: user.profileImage || null
+      },
       accessToken,
       refreshToken
     }
@@ -149,18 +170,42 @@ router.get('/profile', authenticate, asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Profile retrieved successfully', data: user });
 }));
 
-router.put('/profile', authenticate, validate(updateProfileSchema), asyncHandler(async (req, res) => {
+router.put('/profile', authenticate, upload.single('profileImage'), validate(updateProfileSchema), asyncHandler(async (req, res) => {
   const { name } = req.body;
+  const updateData = {};
 
-  const user = await User.findByIdAndUpdate(req.user._id, { name }, { new: true }).select('-password -otp -otpExpires');
+  // Only update name if provided and not empty
+  if (name && name.trim().length > 0) {
+    updateData.name = name.trim();
+  }
+
+  // Handle profile image upload (optional - only if file is uploaded)
+  if (req.file) {
+    updateData.profileImage = req.file.path;
+  }
+
+  // Check if there's anything to update
+  if (Object.keys(updateData).length === 0) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'No valid fields provided for update. Please provide name or profileImage.' 
+    });
+  }
+
+  const user = await User.findByIdAndUpdate(req.user._id, updateData, { new: true }).select('-password -otp -otpExpires');
   if (!user) throw new Error('User not found');
 
   res.json({ success: true, message: 'Profile updated successfully', data: user });
 }));
 
-// Google OAuth Login
+// Google OAuth Login/Signup (handles both login and signup)
 router.post('/google', validate(googleAuthSchema), asyncHandler(async (req, res) => {
   const { code } = req.body;
+
+  // Validate environment variables
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REDIRECT_URL) {
+    throw new Error('Google OAuth credentials are not configured. Please check environment variables.');
+  }
 
   try {
     // 1. Exchange authorization code for access token
@@ -173,6 +218,10 @@ router.post('/google', validate(googleAuthSchema), asyncHandler(async (req, res)
     });
 
     const { access_token } = tokenResponse.data;
+
+    if (!access_token) {
+      throw new Error('Failed to obtain access token from Google');
+    }
 
     // 2. Get user info from Google
     const userResponse = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
@@ -187,7 +236,7 @@ router.post('/google', validate(googleAuthSchema), asyncHandler(async (req, res)
       throw new Error('Email not provided by Google');
     }
 
-    // 3. Find or create user
+    // 3. Check if user already exists
     let user = await User.findOne({ 
       $or: [
         { email },
@@ -195,46 +244,61 @@ router.post('/google', validate(googleAuthSchema), asyncHandler(async (req, res)
       ]
     });
 
+    let isNewUser = false;
+
     if (!user) {
-      // Create new user with Google auth
+      // Sign up: Create new user with Google auth
+      isNewUser = true;
       user = new User({
         name: name || `${given_name || ''} ${family_name || ''}`.trim() || email.split('@')[0],
         email,
         googleId,
         password: crypto.randomBytes(32).toString('hex'), // Random password for Google users (won't be used)
         role: 'user',
-        active: true
+        active: true,
+        profileImage: picture || null // Set profile image from Google if available
       });
       await user.save();
     } else {
-      // Update existing user with Google ID if not set
+      // Login: Update existing user
+      isNewUser = false;
+      
+      // Link Google account if not already linked
       if (!user.googleId) {
         user.googleId = googleId;
       }
-      // Update name if provided
+      
+      // Update profile information if changed
       if (name && name !== user.name) {
         user.name = name;
       }
+      
+      // Update profile image from Google if user doesn't have one
+      if (!user.profileImage && picture) {
+        user.profileImage = picture;
+      }
+      
       await user.save();
     }
 
     // 4. Generate JWT tokens
     const { accessToken, refreshToken } = generateTokens(user);
 
-    // 5. Return response
+    // 5. Return response with appropriate message
     res.json({
       success: true,
-      message: 'Google authentication successful',
+      message: isNewUser ? 'Google signup successful' : 'Google login successful',
       data: {
         user: {
           id: user._id,
           name: user.name,
           email: user.email,
           role: user.role,
-          image: picture || null
+          profileImage: user.profileImage || picture || null
         },
         accessToken,
-        refreshToken
+        refreshToken,
+        isNewUser
       }
     });
   } catch (error) {
@@ -250,7 +314,10 @@ router.post('/google', validate(googleAuthSchema), asyncHandler(async (req, res)
     }
     
     // Other errors
-    throw new Error(error.message || 'Google authentication failed');
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Google authentication failed'
+    });
   }
 }));
 

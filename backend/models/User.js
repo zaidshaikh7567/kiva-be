@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
     enum: ['super_admin', 'user'],
     default: 'user'
   },
+  profileImage: {
+    type: String,
+    default: null
+  },
   otp: {
     type: String,
     default: null

@@ -44,7 +44,7 @@ const Dashboard = () => {
               <nav className="space-y-2">
               <button
                   onClick={() => setActiveTab('profile')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 ${
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 outline-none ${
                     activeTab === 'profile'
                       ? 'bg-primary-light text-primary'
                       : 'text-black-light hover:bg-gray-50'
@@ -55,7 +55,7 @@ const Dashboard = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab('orders')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 ${
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 outline-none ${
                     activeTab === 'orders'
                       ? 'bg-primary-light text-primary'
                       : 'text-black-light hover:bg-gray-50'
@@ -66,7 +66,7 @@ const Dashboard = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab('password')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 ${
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 outline-none ${
                     activeTab === 'password'
                       ? 'bg-primary-light text-primary'
                       : 'text-black-light hover:bg-gray-50'

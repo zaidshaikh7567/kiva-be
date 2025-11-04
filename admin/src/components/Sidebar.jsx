@@ -16,7 +16,8 @@ import {
   Star,
   Zap,
   Diamond,
-  Share2
+  Share2,
+  FolderOpen
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
@@ -55,6 +56,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       label: 'Center Stones',
       icon: Diamond,
       path: '/center-stones'
+    },
+    {
+      id: 'collections',
+      label: 'Collections',
+      icon: FolderOpen,
+      path: '/collections'
     },
     {
       id: 'orders',

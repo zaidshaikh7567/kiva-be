@@ -130,7 +130,30 @@ export const updateUserProfile = createAsyncThunk(
   'auth/updateProfile',
   async (profileData, { rejectWithValue }) => {
     try {
-      const response = await api.put(API_METHOD.auth.updateProfile, profileData);
+      // Check if profileImage is a File object (for upload) or a string (existing URL)
+      const formData = new FormData();
+      
+      if (profileData.name) {
+        formData.append('name', profileData.name);
+      }
+      
+      // Only append profileImage if it's a File object (new upload)
+      if (profileData.profileImage instanceof File) {
+        formData.append('profileImage', profileData.profileImage);
+      }
+      
+      // Determine if we should use FormData or JSON
+      const hasFile = profileData.profileImage instanceof File;
+      const requestData = hasFile ? formData : profileData;
+      
+      const response = await api.put(API_METHOD.auth.updateProfile, requestData, {
+        headers: hasFile ? {
+          'Content-Type': 'multipart/form-data',
+        } : {
+          'Content-Type': 'application/json',
+        }
+      });
+      
       return response.data.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

@@ -32,7 +32,7 @@ router.get('/', authenticate, authorize('super_admin'), asyncHandler(async (req,
   const skip = (page - 1) * limit;
 
   const totalRecords = await Contact.countDocuments();
-  const contacts = await Contact.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
+  const contacts = await Contact.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
   const totalPages = Math.ceil(totalRecords / limit);
 
   res.json({

@@ -462,14 +462,15 @@ const Reviews = () => {
           <>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Name</th>
-                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Email</th>
-                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Rating</th>
-                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Comment</th>
-                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black min-w-[250px]">Date</th>
-                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Actions</th>
+                <thead className="bg-primary-light">
+                  <tr className=" text-black">
+                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 ">Name</th>
+                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 ">Email</th>
+                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 ">Rating</th>
+                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 ">Comment</th>
+                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600  min-w-[200px]">Created At</th>
+                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600  min-w-[200px]">Updated At</th>
+                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 ">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -504,6 +505,17 @@ const Reviews = () => {
                           <Calendar className="w-4 h-4 text-black-light" />
                           <span className="font-montserrat-regular-400 text-black text-sm">
                             {formatDate(review.createdAt)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {
+                          review.updatedAt
+                        }
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4 text-black-light" />
+                          <span className="font-montserrat-regular-400 text-black text-sm">
+                            {review.updatedAt ? formatDate(review.updatedAt) : "-"}
                           </span>
                         </div>
                       </td>

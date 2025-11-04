@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Plus, Edit, Trash2, RefreshCw, Link2, Share2 } from 'lucide-react';
+import { Plus, Edit, Trash2, RefreshCw, Link2, Share2, Calendar } from 'lucide-react';
 import { fetchSocialHandles, createSocialHandle, updateSocialHandle, deleteSocialHandle, selectSocialHandles, selectSocialHandlesLoading } from '../store/slices/socialHandlesSlice';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import CustomDropdown from '../components/CustomDropdown';
@@ -70,7 +70,7 @@ const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) =
           </div>
           <div>
             <label className="block text-sm font-montserrat-medium-500 text-black mb-1">URL</label>
-            <input className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} />
+            <input className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary" placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} />
           </div>
           <label className="inline-flex items-center space-x-2">
             <CustomCheckbox
@@ -200,6 +200,24 @@ const SocialHandles = () => {
               <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs text-black-light break-all">
                 <Link2 className="w-4 h-4 mr-1" /> {item.url}
               </a>
+              <div className="flex flex-col space-y-1 pt-2">
+                <div className="flex items-center space-x-1 text-xs text-black-light">
+                  <Calendar className="w-3 h-3" />
+                  <span>Created: {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  }) : 'N/A'}</span>
+                </div>
+                <div className="flex items-center space-x-1 text-xs text-black-light">
+                  <Calendar className="w-3 h-3" />
+                  <span>Updated: {item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  }) : 'N/A'}</span>
+                </div>
+              </div>
               <div className="flex items-center justify-end space-x-2 pt-2">
                 <button onClick={() => openEdit(item)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
                 <button onClick={() => { setIsDeleteModalOpen(true); setToDelete(item); }} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>

@@ -7,7 +7,7 @@ const { createCategorySchema, updateCategorySchema, categoryIdSchema } = require
 const validate = require('../middleware/validate');
 const createMulter = require('../utils/uploadUtil');
 
-const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'png', 'jpeg'], maxSize: 2 * 1024 * 1024, folder: 'categories' });
+const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'png', 'jpeg', 'webp'], maxSize: 2 * 1024 * 1024, folder: 'categories' });
 
 const router = express.Router();
 

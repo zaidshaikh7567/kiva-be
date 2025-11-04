@@ -94,7 +94,7 @@ const Necklaces = () => {
                 <input
                   type="email"
                   placeholder="Enter your email address"
-                  className="flex-1 px-4 py-3 rounded-lg text-black font-montserrat-regular-400 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="flex-1 px-4 py-3 rounded-lg text-black font-montserrat-regular-400 focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <button className="px-8 py-3 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg flex items-center justify-center space-x-2">
                   <Bell className="w-5 h-5" />

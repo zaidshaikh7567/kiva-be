@@ -27,8 +27,8 @@ const resetPasswordSchema = zod.object({
 });
 
 const updateProfileSchema = zod.object({
-  name: zod.string().min(1, 'Name is required').max(100, 'Name too long')
-});
+  name: zod.string().max(100, 'Name too long').optional()
+}).passthrough(); // Allow additional fields like profileImage (handled by multer)
 
 const googleAuthSchema = zod.object({
   code: zod.string().min(1, 'Authorization code is required')

@@ -11,6 +11,7 @@ export const API_METHOD = {
   settings: '/api/settings',
   stones: '/api/stones',
   socials: '/api/socials',
+  collections: '/api/collections',
   auth: {
     login: '/api/admin/auth/login',
     google: '/api/admin/auth/google',
