@@ -1,0 +1,1454 @@
+{
+	"info": {
+		"_postman_id": "be8ed1b8-7700-4016-9a1c-ce36a04c1d7a",
+		"name": "Kiva BE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45938403",
+		"_collection_link": "https://zaidshaikh-3266451.postman.co/workspace/Kiva-Diamond~0193cde8-7f11-44bf-b84f-c4ede89cc09c/collection/45938403-be8ed1b8-7700-4016-9a1c-ce36a04c1d7a?action=share&source=collection_link&creator=45938403"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"description": "Register a new user account.\n\n**Request Body (JSON):**\n- name (required): User's full name\n- email (required): User's email address\n- password (required): User's password (min 6 characters)\n\n**Response:** Returns user data and JWT tokens.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login as Super Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.success && response.data) {",
+									"        pm.collectionVariables.set('accessToken', response.data.accessToken);",
+									"        pm.collectionVariables.set('refreshToken', response.data.refreshToken);",
+									"        console.log('Super Admin tokens stored successfully');",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"description": "Authenticate super admin and get JWT tokens.\n\n**Request Body (JSON):**\n- email (required): Super admin email address\n- password (required): Super admin password\n\n**Response:** Returns user data and JWT tokens.\n\n**Post-Request Script:** Automatically extracts and stores access and refresh tokens in collection variables.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@mailinator.com\",\n    \"password\": \"Admin@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login as User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.success && response.data) {",
+									"        pm.collectionVariables.set('accessToken', response.data.accessToken);",
+									"        pm.collectionVariables.set('refreshToken', response.data.refreshToken);",
+									"        console.log('User tokens stored successfully');",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"description": "Authenticate regular user and get JWT tokens.\n\n**Request Body (JSON):**\n- email (required): User's email address\n- password (required): User's password\n\n**Response:** Returns user data and JWT tokens.\n\n**Post-Request Script:** Automatically extracts and stores access and refresh tokens in collection variables.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"description": "Refresh JWT access token using refresh token.\n\n**Request Body (JSON):**\n- refreshToken (required): Valid refresh token\n\n**Response:** Returns new access and refresh tokens.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/refresh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get current user's profile information.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Response:** Returns user profile data.",
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Update current user's profile information.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Request Body (JSON):**\n- name (required): Updated user name\n\n**Response:** Returns updated user profile data.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Name\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Change current user's password.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Request Body (JSON):**\n- currentPassword (required): Current password\n- newPassword (required): New password (min 6 characters)\n\n**Response:** Returns success message.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currentPassword\": \"oldpassword123\",\n    \"newPassword\": \"newpassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/change-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"description": "Request password reset OTP via email.\n\n**Request Body (JSON):**\n- email (required): User's email address\n\n**Response:** Returns success message (OTP sent to email).",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/forgot-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"description": "Reset password using OTP.\n\n**Request Body (JSON):**\n- email (required): User's email address\n- otp (required): 6-digit OTP from email\n- newPassword (required): New password (min 6 characters)\n\n**Response:** Returns success message.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"otp\": \"123456\",\n    \"newPassword\": \"newpassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Management (Super Admin)",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get paginated list of all users (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Query Parameters:**\n- page (optional): Page number (default: 1)\n- limit (optional): Items per page (default: 10)\n\n**Response:** Returns paginated user list.",
+						"url": {
+							"raw": "{{baseUrl}}/api/users?page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get specific user by ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- userId (required): User ID\n\n**Response:** Returns user data.",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the user"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Update user information (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- userId (required): User ID\n\n**Request Body (JSON - optional fields):**\n- name: Updated user name\n- active: Updated active status (true/false)\n\n**Note:** Email and role cannot be changed via this endpoint for security.\n\n**Response:** Returns updated user data.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated User Name\",\n    \"active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the user to update"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Delete user by ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- userId (required): User ID\n\n**Response:** Returns success message.",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the user to delete"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"description": "Retrieve all categories with pagination support.\n\n**Query Parameters:**\n- page (optional): Page number (default: 1)\n- limit (optional): Number of items per page (default: 10)\n\n**Response:** Returns paginated list of categories with metadata.",
+						"url": {
+							"raw": "{{baseUrl}}/api/categories?page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Create a new category (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Request Body (Form Data):**\n- name (required): Category name\n- parentId (optional): Parent category ID for hierarchical categories\n- image (required): Category image file (jpg, png, jpeg, max 2MB)\n\n**Response:** Returns the created category object.",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Electronics",
+									"type": "text",
+									"description": "Category name"
+								},
+								{
+									"key": "parentId",
+									"value": "",
+									"type": "text",
+									"description": "Parent category ID (optional)"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": [],
+									"description": "Category image file (jpg, png, jpeg, max 2MB)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"description": "Retrieve a single category by its ID.\n\n**Path Parameters:**\n- categoryId (required): The unique identifier of the category\n\n**Response:** Returns the category object with populated parent information.",
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the category"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Update an existing category by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- categoryId (required): The unique identifier of the category to update\n\n**Request Body (Form Data - all fields optional):**\n- name: Updated category name\n- parentId: Updated parent category ID\n- image: New category image file (jpg, png, jpeg, max 2MB)\n\n**Response:** Returns the updated category object.",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Electronics",
+									"type": "text",
+									"description": "Updated category name"
+								},
+								{
+									"key": "parentId",
+									"value": "",
+									"type": "text",
+									"description": "Updated parent category ID"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": [],
+									"description": "New category image file (jpg, png, jpeg, max 2MB)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the category to update"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Delete a category by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- categoryId (required): The unique identifier of the category to delete\n\n**Response:** Returns success message upon deletion.",
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the category to delete"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Metals",
+			"item": [
+				{
+					"name": "Get All Metals",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/metals?page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metals"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Metal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Create a new metal type (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Request Body (JSON):**\n- name (required): Metal name\n- color (required): Hex color code for the metal\n- purityLevels (required): Array of purity level objects with karat and priceMultiplier\n- active (optional): Whether the metal is active (default: true)\n\n**Response:** Returns the created metal object.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Gold\",\n    \"color\": \"#FFD700\",\n    \"purityLevels\": [\n        {\"karat\": 18, \"priceMultiplier\": 1.2},\n        {\"karat\": 22, \"priceMultiplier\": 1.5},\n        {\"karat\": 24, \"priceMultiplier\": 1.8}\n    ],\n    \"active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metals",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Metal",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"description": "Retrieve a single metal by its ID.\n\n**Path Parameters:**\n- metalId (required): The unique identifier of the metal\n\n**Response:** Returns the metal object.",
+						"url": {
+							"raw": "{{baseUrl}}/api/metals/:metalId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metals",
+								":metalId"
+							],
+							"variable": [
+								{
+									"key": "metalId",
+									"value": "68f7ce5d5104a252c50523b4",
+									"description": "Unique identifier of the metal"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Metal",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Update an existing metal by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- metalId (required): The unique identifier of the metal to update\n\n**Request Body (JSON - all fields optional):**\n- name: Updated metal name\n- color: Updated hex color code\n- purityLevels: Updated array of purity levels\n- active: Updated active status\n\n**Response:** Returns the updated metal object.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Gold\",\n    \"color\": \"#FFD700CC\",\n    \"purityLevels\": [\n        {\"karat\": 22, \"priceMultiplier\": 1.3},\n        {\"karat\": 24, \"priceMultiplier\": 1.6}\n    ],\n    \"active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metals/:metalId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metals",
+								":metalId"
+							],
+							"variable": [
+								{
+									"key": "metalId",
+									"value": "68f7ce5d5104a252c50523b4",
+									"description": "Unique identifier of the metal to update"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Metal",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Delete a metal by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- metalId (required): The unique identifier of the metal to delete\n\n**Response:** Returns success message upon deletion.",
+						"url": {
+							"raw": "{{baseUrl}}/api/metals/:metalId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metals",
+								":metalId"
+							],
+							"variable": [
+								{
+									"key": "metalId",
+									"value": "68f7ce5d5104a252c50523b4",
+									"description": "Unique identifier of the metal to delete"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Stones",
+			"item": [
+				{
+					"name": "Get All Stones",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/stones?page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Stone",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Create a new stone type (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Request Body (JSON):**\n- name (required): Stone name\n- price (required): Base price of the stone\n- shape (required): Shape of the stone\n- active (optional): Whether the stone is active (default: true)\n\n**Response:** Returns the created stone object.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Diamond\",\n    \"price\": 5000,\n    \"shape\": \"Round\",\n    \"active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/stones",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Stone",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"description": "Retrieve a single stone by its ID.\n\n**Path Parameters:**\n- stoneId (required): The unique identifier of the stone\n\n**Response:** Returns the stone object.",
+						"url": {
+							"raw": "{{baseUrl}}/api/stones/:stoneId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones",
+								":stoneId"
+							],
+							"variable": [
+								{
+									"key": "stoneId",
+									"value": "68f7ed51d3cfe837524edc3d",
+									"description": "Unique identifier of the stone"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Stone",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Update an existing stone by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- stoneId (required): The unique identifier of the stone to update\n\n**Request Body (JSON - all fields optional):**\n- name: Updated stone name\n- price: Updated base price\n- shape: Updated stone shape\n- active: Updated active status\n\n**Response:** Returns the updated stone object.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Diamond\",\n    \"price\": 5500,\n    \"shape\": \"Princess\",\n    \"active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/stones/:stoneId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones",
+								":stoneId"
+							],
+							"variable": [
+								{
+									"key": "stoneId",
+									"value": "68f7ed51d3cfe837524edc3d",
+									"description": "Unique identifier of the stone to update"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Stone",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Delete a stone by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- stoneId (required): The unique identifier of the stone to delete\n\n**Response:** Returns success message upon deletion.",
+						"url": {
+							"raw": "{{baseUrl}}/api/stones/:stoneId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stones",
+								":stoneId"
+							],
+							"variable": [
+								{
+									"key": "stoneId",
+									"value": "68f7ed51d3cfe837524edc3d",
+									"description": "Unique identifier of the stone to delete"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products?page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Create a new product (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Request Body (Form Data):**\n- title (required): Product title\n- description (required): Product description (Lexical JSON format)\n- subDescription (optional): Short product description\n- price (required): Product price\n- quantity (required): Available quantity\n- categoryId (required): Category ID\n- metalIds (optional): Array of metal IDs as JSON string\n- stoneTypeId (optional): Stone type ID\n- careInstruction (optional): Care instructions\n- images (required): Product images (up to 10 files, jpg/png/jpeg)\n\n**Response:** Returns the created product object with populated references.",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Sample Product",
+									"type": "text",
+									"description": "Product title"
+								},
+								{
+									"key": "description",
+									"value": "{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"This is a sample description.\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+									"type": "text",
+									"description": "Product description (Lexical JSON format)"
+								},
+								{
+									"key": "subDescription",
+									"value": "Short description",
+									"type": "text",
+									"description": "Short product description"
+								},
+								{
+									"key": "price",
+									"value": "99.99",
+									"type": "text",
+									"description": "Product price"
+								},
+								{
+									"key": "quantity",
+									"value": "10",
+									"type": "text",
+									"description": "Available quantity"
+								},
+								{
+									"key": "categoryId",
+									"value": "68f373145f144c3aa2c9c9bd",
+									"type": "text",
+									"description": "Category ID"
+								},
+								{
+									"key": "metalIds",
+									"value": "[\"68f7ce5d5104a252c50523b4\"]",
+									"type": "text",
+									"description": "Array of metal IDs as JSON string"
+								},
+								{
+									"key": "stoneTypeId",
+									"value": "68f7ed51d3cfe837524edc3d",
+									"type": "text",
+									"description": "Stone type ID"
+								},
+								{
+									"key": "careInstruction",
+									"value": "Clean with mild soap and water. Avoid harsh chemicals.",
+									"type": "text",
+									"description": "Care instructions"
+								},
+								{
+									"key": "images",
+									"type": "file",
+									"src": [],
+									"description": "Product images (up to 10 files, jpg/png/jpeg)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"description": "Retrieve a single product by its ID.\n\n**Path Parameters:**\n- productId (required): The unique identifier of the product\n\n**Response:** Returns the product object with populated category, metals, and stone type information.",
+						"url": {
+							"raw": "{{baseUrl}}/api/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the product"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Update an existing product by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- productId (required): The unique identifier of the product to update\n\n**Request Body (Form Data - all fields optional):**\n- title: Updated product title\n- description: Updated description (Lexical JSON format)\n- subDescription: Updated short description\n- price: Updated price\n- quantity: Updated quantity\n- categoryId: Updated category ID\n- metalIds: Updated array of metal IDs as JSON string\n- stoneTypeId: Updated stone type ID\n- careInstruction: Updated care instructions\n- images: New product images (up to 10 files)\n\n**Response:** Returns the updated product object with populated references.",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Updated Product",
+									"type": "text",
+									"description": "Updated product title"
+								},
+								{
+									"key": "price",
+									"value": "149.99",
+									"type": "text",
+									"description": "Updated price"
+								},
+								{
+									"key": "quantity",
+									"value": "5",
+									"type": "text",
+									"description": "Updated quantity"
+								},
+								{
+									"key": "categoryId",
+									"value": "68f373145f144c3aa2c9c9bd",
+									"type": "text",
+									"description": "Updated category ID"
+								},
+								{
+									"key": "metalIds",
+									"value": "[\"68f7ce5d5104a252c50523b4\"]",
+									"type": "text",
+									"description": "Updated array of metal IDs as JSON string"
+								},
+								{
+									"key": "stoneTypeId",
+									"value": "68f7ed51d3cfe837524edc3d",
+									"type": "text",
+									"description": "Updated stone type ID"
+								},
+								{
+									"key": "careInstruction",
+									"value": "Store in a cool, dry place. Avoid direct sunlight.",
+									"type": "text",
+									"description": "Updated care instructions"
+								},
+								{
+									"key": "images",
+									"type": "file",
+									"src": [],
+									"description": "New product images (up to 10 files)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the product to update"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Delete a product by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- productId (required): The unique identifier of the product to delete\n\n**Response:** Returns success message upon deletion.",
+						"url": {
+							"raw": "{{baseUrl}}/api/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "68f373145f144c3aa2c9c9bd",
+									"description": "Unique identifier of the product to delete"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Get User Cart",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get current user's cart items with calculated prices.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Response:** Returns array of cart items with populated product, metal, stoneType data and calculatedPrice.",
+						"url": {
+							"raw": "{{baseUrl}}/api/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Add an item to the user's cart.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Request Body (JSON):**\n- productId (required): Product ID\n- metalId (required): Metal ID\n- purityLevel (required): Object with karat and priceMultiplier\n- stoneTypeId (optional): Stone type ID\n- quantity (optional): Quantity (default: 1)\n\n**Response:** Returns the added cart item with calculated price.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": \"68f373145f144c3aa2c9c9bd\",\n    \"metalId\": \"68f7ce5d5104a252c50523b4\",\n    \"purityLevel\": {\n        \"karat\": 18,\n        \"priceMultiplier\": 1.2\n    },\n    \"stoneTypeId\": \"68f7ed51d3cfe837524edc3d\",\n    \"quantity\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cart Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Update a cart item.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Path Parameters:**\n- cartId (required): Cart item ID\n\n**Request Body (JSON - optional fields):**\n- quantity: Updated quantity\n- purityLevel: Updated purity level object\n\n**Response:** Returns the updated cart item with calculated price.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 2,\n    \"purityLevel\": {\n        \"karat\": 22,\n        \"priceMultiplier\": 1.5\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cart/:cartId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								":cartId"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the cart item"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Remove an item from the user's cart.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Path Parameters:**\n- cartId (required): Cart item ID\n\n**Response:** Returns success message.",
+						"url": {
+							"raw": "{{baseUrl}}/api/cart/:cartId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								":cartId"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the cart item to remove"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		}
+	]
+}
