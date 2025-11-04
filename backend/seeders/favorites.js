@@ -37,15 +37,15 @@ const seedFavorites = async (users, products) => {
       },
       {
         user: users[2]._id,
-        product: products[4]._id
+        product: products[3]._id
+      },
+      {
+        user: users[2]._id,
+        product: products[3]._id
       },
       {
         user: users[3]._id,
-        product: products[0]._id
-      },
-      {
-        user: users[3]._id,
-        product: products[5]._id
+        product: products[1]._id
       }
     ];
 
@@ -71,4 +71,3 @@ const seedFavorites = async (users, products) => {
 };
 
 module.exports = seedFavorites;
-
