@@ -1,6 +1,9 @@
 const express = require('express');
 
 const Cart = require('../models/Cart');
+const Product = require('../models/Product');
+const Metal = require('../models/Metal');
+const Stone = require('../models/Stone');
 const asyncHandler = require('../middleware/asyncErrorHandler');
 const { authenticate } = require('../middleware/auth');
 const { addToCartSchema, updateCartSchema, cartIdSchema } = require('../validations/cart');
@@ -12,10 +15,16 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const carts = await Cart.find({ user: userId }).populate(['product', 'metal', 'stoneType']);
   const cartsWithPrice = carts.map(cart => {
-    const productPrice = cart.product.price;
-    const metalMultiplier = cart.purityLevel.priceMultiplier;
-    const stonePrice = cart.stoneType ? cart.stoneType.price : 0;
-    const totalPrice = (productPrice * metalMultiplier + stonePrice) * cart.quantity;
+    // Check if product exists and has price
+    if (!cart.product) {
+      throw new Error(`Product not found for cart item ${cart._id}`);
+    }
+    
+    const productPrice = cart.product.price || 0;
+    const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
+    const stonePrice = cart.stoneType?.price || 0;
+    const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
+    
     return {
       ...cart.toObject(),
       calculatedPrice: totalPrice
@@ -30,7 +39,27 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
 
 router.post('/', authenticate, validate(addToCartSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { productId, metalId, purityLevel, stoneTypeId, quantity = 1 } = req.body;
+  const { productId, metalId, purityLevel, stoneTypeId, ringSize, quantity = 1 } = req.body;
+
+  // Verify product exists
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new Error('Product not found');
+  }
+
+  // Verify metal exists
+  const metal = await Metal.findById(metalId);
+  if (!metal) {
+    throw new Error('Metal not found');
+  }
+
+  // Verify stone exists if provided
+  if (stoneTypeId) {
+    const stone = await Stone.findById(stoneTypeId);
+    if (!stone) {
+      throw new Error('Stone not found');
+    }
+  }
 
   const cart = new Cart({
     user: userId,
@@ -38,16 +67,18 @@ router.post('/', authenticate, validate(addToCartSchema), asyncHandler(async (re
     metal: metalId,
     purityLevel,
     stoneType: stoneTypeId,
+    ringSize: ringSize || undefined,
     quantity
   });
 
   await cart.save();
   await cart.populate(['product', 'metal', 'stoneType']);
 
-  const productPrice = cart.product.price;
-  const metalMultiplier = cart.purityLevel.priceMultiplier;
-  const stonePrice = cart.stoneType ? cart.stoneType.price : 0;
-  const totalPrice = (productPrice * metalMultiplier + stonePrice) * cart.quantity;
+  // Calculate price with null checks
+  const productPrice = cart.product?.price || 0;
+  const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
+  const stonePrice = cart.stoneType?.price || 0;
+  const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
 
   res.status(201).json({ success: true, message: 'Item added to cart successfully', data: { ...cart.toObject(), calculatedPrice: totalPrice } });
 }));
@@ -60,10 +91,16 @@ router.put('/:id', authenticate, validate(cartIdSchema, 'params'), validate(upda
   const cart = await Cart.findOneAndUpdate({ _id: id, user: userId }, updateData, { new: true }).populate(['product', 'metal', 'stoneType']);
   if (!cart) throw new Error('Cart item not found');
 
-  const productPrice = cart.product.price;
-  const metalMultiplier = cart.purityLevel.priceMultiplier;
-  const stonePrice = cart.stoneType ? cart.stoneType.price : 0;
-  const totalPrice = (productPrice * metalMultiplier + stonePrice) * cart.quantity;
+  // Check if product exists
+  if (!cart.product) {
+    throw new Error('Product not found for this cart item');
+  }
+
+  // Calculate price with null checks
+  const productPrice = cart.product?.price || 0;
+  const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
+  const stonePrice = cart.stoneType?.price || 0;
+  const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
 
   res.json({ success: true, message: 'Cart item updated successfully', data: { ...cart.toObject(), calculatedPrice: totalPrice } });
 }));

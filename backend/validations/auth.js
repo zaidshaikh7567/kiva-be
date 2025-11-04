@@ -30,11 +30,16 @@ const updateProfileSchema = zod.object({
   name: zod.string().min(1, 'Name is required').max(100, 'Name too long')
 });
 
+const googleAuthSchema = zod.object({
+  code: zod.string().min(1, 'Authorization code is required')
+});
+
 module.exports = {
   loginSchema,
   registerSchema,
   changePasswordSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-  updateProfileSchema
+  updateProfileSchema,
+  googleAuthSchema
 };

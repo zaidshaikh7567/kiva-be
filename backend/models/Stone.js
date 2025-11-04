@@ -16,6 +16,11 @@ const stoneSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true
+  },
   active: {
     type: Boolean,
     default: true

@@ -8,6 +8,11 @@ const productRoutes = require('./routes/product');
 const metalRoutes = require('./routes/metal');
 const stoneRoutes = require('./routes/stone');
 const cartRoutes = require('./routes/cart');
+const socialHandleRoutes = require('./routes/socialHandle');
+const contactRoutes = require('./routes/contact');
+const reviewRoutes = require('./routes/review');
+const favoriteRoutes = require('./routes/favorite');
+const collectionRoutes = require('./routes/collection');
 const errorHandler = require('./middleware/errorHandler');
 const { CORS_ORIGIN } = require('./config/env');
 
@@ -28,6 +33,11 @@ app.use('/api/products', productRoutes);
 app.use('/api/metals', metalRoutes);
 app.use('/api/stones', stoneRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/social-handles', socialHandleRoutes);
+app.use('/api/contacts', contactRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/collections', collectionRoutes);
 
 app.use(errorHandler);
 

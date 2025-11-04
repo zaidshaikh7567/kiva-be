@@ -21,6 +21,10 @@ const metalSchema = new mongoose.Schema({
       type: Number,
       required: true,
       min: 0
+    },
+    active: {
+      type: Boolean,
+      default: true
     }
   }],
   active: {

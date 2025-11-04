@@ -16,7 +16,14 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: function() {
+      return !this.googleId; // Password required only if not using Google auth
+    }
+  },
+  googleId: {
+    type: String,
+    default: null,
+    sparse: true // Allows multiple null values but unique when set
   },
   active: {
     type: Boolean,
@@ -40,7 +47,8 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+  // Only hash password if it's modified and exists (not Google-only users)
+  if (!this.isModified('password') || !this.password) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });

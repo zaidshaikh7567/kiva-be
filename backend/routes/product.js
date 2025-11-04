@@ -7,7 +7,7 @@ const { createProductSchema, updateProductSchema, productIdSchema } = require('.
 const validate = require('../middleware/validate');
 const createMulter = require('../utils/uploadUtil');
 
-const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'png', 'jpeg'], maxSize: 2 * 1024 * 1024, folder: 'products' });
+const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'png', 'jpeg', 'webp'], maxSize: 2 * 1024 * 1024, folder: 'products' });
 
 const router = express.Router();
 
@@ -73,6 +73,10 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
   const { id } = req.params;
   const { categoryId, description, metalIds, stoneTypeId, careInstruction, ...updateData } = req.body;
 
+  // Get existing product to preserve existing images
+  const existingProduct = await Product.findById(id);
+  if (!existingProduct) throw new Error('Product not found');
+
   if (categoryId !== undefined) {
     updateData.category = categoryId;
   }
@@ -93,8 +97,11 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
     updateData.careInstruction = careInstruction;
   }
 
+  // Merge new images with existing images
   if (req.files && req.files.length > 0) {
-    updateData.images = req.files.map(file => file.path);
+    const newImages = req.files.map(file => file.path);
+    const existingImages = existingProduct.images || [];
+    updateData.images = [...existingImages, ...newImages];
   }
 
   const product = await Product.findByIdAndUpdate(id, updateData, { new: true }).populate(['category', 'metals', 'stoneType']);

@@ -511,7 +511,7 @@ const Discover = () => {
                       </button>
                     </div>
 
-                    {/* <div className="absolute top-3 left-3 flex flex-col gap-2">
+                    <div className="absolute top-3 left-3 flex flex-col gap-2">
                       {collection.isNew && (
                         <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-montserrat-medium-500">
                           NEW
@@ -522,7 +522,7 @@ const Discover = () => {
                           FEATURED
                         </span>
                       )}
-                    </div> */}
+                    </div>
 
                     {/* <div className="absolute top-3 right-3 flex flex-col gap-2">
                       <button

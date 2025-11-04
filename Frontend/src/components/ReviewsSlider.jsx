@@ -27,6 +27,7 @@ const ReviewsSlider = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
+  console.log('hoverRating :', hoverRating);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sliderRef, setSliderRef] = useState(null);
   const [shareCopied, setShareCopied] = useState(false);

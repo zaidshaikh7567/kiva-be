@@ -6,23 +6,23 @@ const metalsData = [
     name: 'Gold',
     color: 'Yellow',
     purityLevels: [
-      { karat: 24, priceMultiplier: 1.0 },
-      { karat: 18, priceMultiplier: 0.75 },
-      { karat: 14, priceMultiplier: 0.58 }
+      { karat: 24, priceMultiplier: 1.0, active: true },
+      { karat: 18, priceMultiplier: 0.75, active: true },
+      { karat: 14, priceMultiplier: 0.58, active: false }
     ]
   },
   {
     name: 'Silver',
     color: 'Silver',
     purityLevels: [
-      { karat: 925, priceMultiplier: 0.3 }
+      { karat: 925, priceMultiplier: 0.3, active: true }
     ]
   },
   {
     name: 'Platinum',
     color: 'White',
     purityLevels: [
-      { karat: 950, priceMultiplier: 1.5 }
+      { karat: 950, priceMultiplier: 1.5, active: true }
     ]
   }
 ];

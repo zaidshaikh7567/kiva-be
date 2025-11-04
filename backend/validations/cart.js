@@ -8,6 +8,7 @@ const addToCartSchema = zod.object({
     priceMultiplier: zod.coerce.number().min(0)
   }),
   stoneTypeId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid stone ObjectId').optional(),
+  ringSize: zod.string().optional(),
   quantity: zod.coerce.number().int().min(1).optional()
 });
 
@@ -16,7 +17,8 @@ const updateCartSchema = zod.object({
   purityLevel: zod.object({
     karat: zod.coerce.number().min(0),
     priceMultiplier: zod.coerce.number().min(0)
-  }).optional()
+  }).optional(),
+  ringSize: zod.string().optional()
 });
 
 const cartIdSchema = zod.object({

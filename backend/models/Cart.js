@@ -32,6 +32,10 @@ const cartSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Stone'
   },
+  ringSize: {
+    type: String,
+    trim: true
+  },
   quantity: {
     type: Number,
     default: 1,

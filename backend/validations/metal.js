@@ -3,6 +3,7 @@ const zod = require('zod');
 const purityLevelSchema = zod.object({
   karat: zod.number().min(0, 'Karat must be non-negative'),
   priceMultiplier: zod.number().min(0, 'Price multiplier must be non-negative'),
+  active: zod.boolean().optional(),
 });
 
 const createMetalSchema = zod.object({
