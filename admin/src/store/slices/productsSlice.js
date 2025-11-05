@@ -42,8 +42,8 @@ export const createProduct = createAsyncThunk(
       formData.append('categoryId', productData.categoryId);
       
       // Add metalIds as JSON array string if provided
-      if (productData.metalIds && productData.metalIds.length > 0) {
-        formData.append('metalIds', JSON.stringify(productData.metalIds));
+      if (productData.metals && productData.metals.length > 0) {
+        formData.append('metalIds', JSON.stringify(productData.metals));
       }
       
       // Add stoneTypeId if provided and is a valid ObjectId (24 char hex string)
@@ -106,9 +106,10 @@ export const updateProduct = createAsyncThunk(
       }
       
       // Add metalIds as JSON array string if provided
-      if (data.metalIds && data.metalIds.length > 0) {
-        formData.append('metalIds', JSON.stringify(data.metalIds));
+     if (data.metals && data.metals.length > 0) {
+        formData.append('metalIds', JSON.stringify(data.metals));
       }
+      
       
       // Add stoneTypeId if provided and is a valid ObjectId (24 char hex string)
       if (data.stoneTypeId && data.stoneTypeId.length === 24 && /^[0-9a-fA-F]{24}$/.test(data.stoneTypeId)) {

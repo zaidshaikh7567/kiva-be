@@ -356,7 +356,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         price: parseFloat(formData.price),
         quantity: parseInt(formData.quantity),
         categoryId: formData.categoryId,
-        metalIds: formData.metalOptions, // Map metalOptions to metalIds
+        metals: formData.metalOptions, // Map metalOptions to metalIds
         careInstruction: formData.careInstruction || '', // Use careInstruction directly
         images: formData.images, // Include images array
         shape: formData.shape || '',
@@ -369,6 +369,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
       if (formData.stoneTypeId && formData.stoneTypeId.length === 24 && /^[0-9a-fA-F]{24}$/.test(formData.stoneTypeId)) {
         submitData.stoneTypeId = formData.stoneTypeId;
       }
+console.log(submitData,'submitDatas');
 
       if (mode === 'edit' && productData) {
         // Edit mode - send ID and data

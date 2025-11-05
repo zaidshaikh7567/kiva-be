@@ -660,6 +660,7 @@ const ProductDetail = () => {
                   <MetalSelector
                     selectedMetal={selectedMetal}
                     onMetalChange={handleMetalChange}
+                    product={product}
                   />
                 </div>
 

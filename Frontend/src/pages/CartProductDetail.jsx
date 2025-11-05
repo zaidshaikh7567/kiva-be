@@ -95,9 +95,9 @@ const CartProductDetail = () => {
         console.log('foundItem :', foundItem);
         if (foundItem.metal) {
           const metal = foundItem.metal;
-          console.log('metal :', metal);
+          // console.log('metal :', metal);
           const purityLevel = foundItem.purityLevel || {};
-          console.log('purityLevel :', purityLevel);
+          // console.log('purityLevel :', purityLevel);
           
           if (metal._id) {
             const karat = purityLevel.karat || metal.karat || 18;
@@ -105,7 +105,7 @@ const CartProductDetail = () => {
               id: `${karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
               metalId: metal._id,
               carat: `${karat}K`,
-              color: metal.color || 'Gold',
+              color: metal.name || 'Gold',
               priceMultiplier: purityLevel.priceMultiplier || 1
             });
           }
@@ -119,7 +119,7 @@ const CartProductDetail = () => {
           const stoneType = foundItem.stoneType;
           if (stoneType.name) {
             console.log('stoneType----------------->1 :', stoneType);
-            setSelectedCarat({
+            ({
               name: stoneType.name,
               id: stoneType._id || stoneType.id
             });
@@ -130,7 +130,6 @@ const CartProductDetail = () => {
         }
       }
     }
-  }, [cartItems, cartItemId, dispatch, stones]);
 
   // Set initial carat when product or stones load
   useEffect(() => {
@@ -675,7 +674,7 @@ const CartProductDetail = () => {
                   />
                   {selectedMetal && (
                     <div className="text-sm font-montserrat-regular-400 text-black-light">
-                      ({selectedMetal.carat} {selectedMetal.color})
+                      ({selectedMetal.carat})
                     </div>
                   )}
                 </div>

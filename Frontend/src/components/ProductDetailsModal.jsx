@@ -511,7 +511,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
 
               {/* Thumbnail Images */}
               <div className="grid grid-cols-4 gap-2">
-              {product.images.slice(1, 50).map((img, index) => (
+              {product.images.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
