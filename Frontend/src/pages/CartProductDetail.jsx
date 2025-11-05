@@ -4,11 +4,11 @@ import { Heart, Star, ShoppingBag, Minus, Plus, Gem, ChevronLeft, ChevronRight, 
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById, selectCurrentProduct, selectProductsLoading, selectProductsError } from '../store/slices/productsSlice';
 import { fetchCartItems, selectCartItems, selectCartLoading, updateCartItem, updateQuantity } from '../store/slices/cartSlice';
-import { 
-  toggleFavorite as toggleFavoriteAction, 
-  addToFavoritesAPI, 
-  removeFromFavoritesAPI, 
-  selectIsFavorite 
+import {
+  toggleFavorite as toggleFavoriteAction,
+  addToFavoritesAPI,
+  removeFromFavoritesAPI,
+  selectIsFavorite
 } from '../store/slices/favoritesSlice';
 import { selectIsAuthenticated } from '../store/slices/authSlice';
 import PriceDisplay from '../components/PriceDisplay';
@@ -26,7 +26,7 @@ const CartProductDetail = () => {
   const { cartItemId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedMetal, setSelectedMetal] = useState(null);
@@ -40,7 +40,7 @@ const CartProductDetail = () => {
   console.log('cartItem :', cartItem);
   const imageContainerRef = useRef(null);
   const mousePositionRef = useRef({ x: 0, y: 0 });
-  
+
   // Redux selectors
   const product = useSelector(selectCurrentProduct);
   const loading = useSelector(selectProductsLoading);
@@ -63,34 +63,34 @@ const CartProductDetail = () => {
   // Find cart item by ID and set selections
   useEffect(() => {
     if (cartItems && cartItems.length > 0 && cartItemId) {
-    console.log('cartItems :', cartItems);
-      const foundItem = cartItems.find(item => 
+      console.log('cartItems :', cartItems);
+      const foundItem = cartItems.find(item =>
         item._id === cartItemId || item.id === cartItemId || item.cartId === cartItemId
       );
-      
+
       if (foundItem) {
         setCartItem(foundItem);
         console.log('foundItem :', foundItem);
-        
+
         // Extract product from cart item (API structure has nested product)
         const cartProduct = foundItem.product || foundItem;
-        
+
         // Fetch product details if we have productId
         const productId = cartProduct._id || cartProduct.productId || foundItem.productId;
         if (productId) {
           dispatch(fetchProductById(productId));
         }
-        
+
         // Set quantity from cart item
         if (foundItem.quantity) {
           setQuantity(foundItem.quantity);
         }
-        
+
         // Set ring size if available
         if (foundItem.ringSize) {
           setSelectedRingSize(foundItem.ringSize);
         }
-        
+
         // Set metal selection if available (API structure has metal and purityLevel)
         console.log('foundItem :', foundItem);
         if (foundItem.metal) {
@@ -98,7 +98,7 @@ const CartProductDetail = () => {
           // console.log('metal :', metal);
           const purityLevel = foundItem.purityLevel || {};
           // console.log('purityLevel :', purityLevel);
-          
+
           if (metal._id) {
             const karat = purityLevel.karat || metal.karat || 18;
             setSelectedMetal({
@@ -113,7 +113,7 @@ const CartProductDetail = () => {
           // Fallback for localStorage structure
           setSelectedMetal(foundItem.selectedMetal);
         }
-        
+
         // Set stone selection if available (API structure has stoneType)
         if (foundItem.stoneType) {
           const stoneType = foundItem.stoneType;
@@ -131,11 +131,13 @@ const CartProductDetail = () => {
       }
     }
 
+  }, [cartItems, cartItemId, dispatch, stones]);
+
   // Set initial carat when product or stones load
   useEffect(() => {
     // If we have cart item with stoneType name, use that
     if (cartItem?.stoneType?.name && !selectedCarat) {
-        console.log('stoneType----------------->2 :', cartItem);
+      console.log('stoneType----------------->2 :', cartItem);
       setSelectedCarat({
         name: cartItem.stoneType.name,
         id: cartItem.stoneType._id || cartItem.stoneType.id
@@ -143,7 +145,7 @@ const CartProductDetail = () => {
     }
     // Otherwise, use product's default stoneType
     else if (product?.stoneType?.name && !selectedCarat) {
-        console.log('stoneType----------------->3 :', product);
+      console.log('stoneType----------------->3 :', product);
       setSelectedCarat({
         name: product.stoneType.name,
         id: product.stoneType._id || product.stoneType.id
@@ -206,10 +208,10 @@ const CartProductDetail = () => {
       if (imageContainerRef.current && mousePositionRef.current) {
         const rect = imageContainerRef.current.getBoundingClientRect();
         const { x, y } = mousePositionRef.current;
-        const isOverImage = 
-          x >= rect.left && 
-          x <= rect.right && 
-          y >= rect.top && 
+        const isOverImage =
+          x >= rect.left &&
+          x <= rect.right &&
+          y >= rect.top &&
           y <= rect.bottom;
         if (isOverImage) {
           setShowMagnifier(true);
@@ -244,12 +246,12 @@ const CartProductDetail = () => {
   const categoryName = product?.category?.name?.toLowerCase();
   let parentCategoryName = null;
   if (product?.category?.parent && categories) {
-    const parentCategory = categories.find(cat => 
+    const parentCategory = categories.find(cat =>
       cat._id === product.category.parent || cat.id === product.category.parent
     );
     parentCategoryName = parentCategory?.name?.toLowerCase();
   }
-  
+
   const isRing = (categoryName === 'ring' || categoryName === 'rings') ||
     (parentCategoryName === 'ring' || parentCategoryName === 'rings');
 
@@ -269,7 +271,7 @@ const CartProductDetail = () => {
   const handleCaratChange = (carat) => {
     console.log('carat----------------->5 :', carat);
     // Find stone by carat name
-    const stone = stones.find(stone => 
+    const stone = stones.find(stone =>
       stone.name.toLowerCase().includes(carat.toLowerCase())
     );
     if (stone) {
@@ -335,15 +337,15 @@ const CartProductDetail = () => {
           cartData.stoneTypeId = selectedCenterStone._id;
         } else {
           // Find from stones array by name
-          const selectedStone = stones.find(stone => 
-            typeof selectedCarat === 'string' 
+          const selectedStone = stones.find(stone =>
+            typeof selectedCarat === 'string'
               ? (stone.name.toLowerCase() === selectedCarat.toLowerCase() ||
-                 stone.name.toLowerCase().includes(selectedCarat.toLowerCase()))
+                stone.name.toLowerCase().includes(selectedCarat.toLowerCase()))
               : (stone.name.toLowerCase() === selectedCarat.name?.toLowerCase() ||
-                 stone.name.toLowerCase().includes(selectedCarat.name?.toLowerCase()))
+                stone.name.toLowerCase().includes(selectedCarat.name?.toLowerCase()))
           );
           console.log('selectedStone :', selectedStone);
-          
+
           if (selectedStone?._id) {
             cartData.stoneTypeId = selectedStone._id;
           } else if (product?.stoneType?._id) {
@@ -359,15 +361,15 @@ const CartProductDetail = () => {
       console.log('isAuthenticated :', isAuthenticated);
       if (isAuthenticated) {
         // Update via API
-        await dispatch(updateCartItem({ 
-          cartId: cartItemId, 
-          cartData: cartData 
+        await dispatch(updateCartItem({
+          cartId: cartItemId,
+          cartData: cartData
         })).unwrap();
-        
+
         // Build success message with selected options
         let successMessage = 'Cart updated successfully!';
         const options = [];
-        
+
         if (selectedMetal) {
           options.push(`${selectedMetal.carat}K`);
         }
@@ -381,11 +383,11 @@ const CartProductDetail = () => {
         if (quantity > 1) {
           options.push(`Qty: ${quantity}`);
         }
-        
+
         if (options.length > 0) {
           successMessage = `Cart updated (${options.join(', ')})!`;
         }
-        
+
         toast.success(successMessage, {
           duration: 3000,
           position: 'top-right',
@@ -409,26 +411,26 @@ const CartProductDetail = () => {
 
   // Calculate final price with metal multiplier and center stone
   const getFinalPrice = () => {
-      const basePrice = product?.price || 0;
-      const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
-      const centerStonePrice = selectedCenterStone ? selectedCenterStone.price : 0;
-      return (basePrice + centerStonePrice) * metalMultiplier;
-    };
-    console.log('getFinalPrice :', getFinalPrice());
+    const basePrice = product?.price || 0;
+    const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
+    const centerStonePrice = selectedCenterStone ? selectedCenterStone.price : 0;
+    return (basePrice + centerStonePrice) * metalMultiplier;
+  };
+  console.log('getFinalPrice :', getFinalPrice());
 
   // Magnifier handlers
   const handleMouseMove = (e) => {
     if (!imageContainerRef.current) return;
-    
+
     mousePositionRef.current = { x: e.clientX, y: e.clientY };
-    
+
     const rect = imageContainerRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     const constrainedX = Math.max(0, Math.min(x, rect.width));
     const constrainedY = Math.max(0, Math.min(y, rect.height));
-    
+
     setMagnifierPosition({ x: constrainedX, y: constrainedY });
   };
 
@@ -452,16 +454,16 @@ const CartProductDetail = () => {
   const zoomPos = getZoomPosition();
   const totalImages = product?.images?.length || 0;
 
-//   if (loading || cartLoading || stonesLoading) {
-//     return (
-//       <div className="min-h-screen bg-white flex items-center justify-center">
-//         <div className="text-center">
-//           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-//           <p className="text-black-light font-montserrat-regular-400">Loading product details...</p>
-//         </div>
-//       </div>
-//     );
-//   }
+  //   if (loading || cartLoading || stonesLoading) {
+  //     return (
+  //       <div className="min-h-screen bg-white flex items-center justify-center">
+  //         <div className="text-center">
+  //           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+  //           <p className="text-black-light font-montserrat-regular-400">Loading product details...</p>
+  //         </div>
+  //       </div>
+  //     );
+  //   }
 
   if (error || !product || !cartItem) {
     return (
@@ -497,123 +499,122 @@ const CartProductDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-5 h-full">
             {/* Product Images */}
             <div className="relative lg:px-4 lg:col-span-2">
-              <div 
+              <div
                 ref={imageContainerRef}
                 className="aspect-square relative overflow-hidden mb-3 cursor-zoom-in max-w-xl mx-auto shadow-lg"
                 onMouseMove={handleMouseMove}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
-              {/* Main Image */}
-              <img
-                src={product?.images?.[selectedImage]}
-                alt={product?.name || product?.title}
-                className="w-full h-full object-cover rounded-lg"
-              />
-              
-              {/* Magnified Image Overlay */}
-              {showMagnifier && imageContainerRef.current && (
-                <div 
-                  className="absolute pointer-events-none z-20 border-2 border-white rounded-full shadow-2xl overflow-hidden"
-                  style={{
-                    left: `${magnifierPosition.x}px`,
-                    top: `${magnifierPosition.y}px`,
-                    width: '200px',
-                    height: '200px',
-                    backgroundImage: `url(${product?.images?.[selectedImage]})`,
-                    backgroundSize: `${zoomPos.zoom * 100}%`,
-                    backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
-                    backgroundRepeat: 'no-repeat',
-                    transform: 'translate(-50%, -50%)',
-                  }}
+                {/* Main Image */}
+                <img
+                  src={product?.images?.[selectedImage]}
+                  alt={product?.name || product?.title}
+                  className="w-full h-full object-cover rounded-lg"
                 />
-              )}
-              
-              {/* Favorite Button */}
-              <button
-                onClick={async (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  
-                  if (!product) return;
-                  
-                  const productId = product._id || product.id;
-                  if (!productId) {
-                    toast.error('Invalid product');
-                    return;
-                  }
 
-                  if (isAuthenticated) {
-                    if (isFavorite) {
-                      await dispatch(removeFromFavoritesAPI(productId));
-                      toast.success(`${product.title || product.name} removed from favorites!`, {
-                        duration: 2000,
-                        position: 'top-right',
-                      });
-                    } else {
-                      await dispatch(addToFavoritesAPI(productId));
-                      toast.success(`${product.title || product.name} added to favorites!`, {
-                        duration: 2000,
-                        position: 'top-right',
-                      });
+                {/* Magnified Image Overlay */}
+                {showMagnifier && imageContainerRef.current && (
+                  <div
+                    className="absolute pointer-events-none z-20 border-2 border-white rounded-full shadow-2xl overflow-hidden"
+                    style={{
+                      left: `${magnifierPosition.x}px`,
+                      top: `${magnifierPosition.y}px`,
+                      width: '200px',
+                      height: '200px',
+                      backgroundImage: `url(${product?.images?.[selectedImage]})`,
+                      backgroundSize: `${zoomPos.zoom * 100}%`,
+                      backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
+                      backgroundRepeat: 'no-repeat',
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                  />
+                )}
+
+                {/* Favorite Button */}
+                <button
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (!product) return;
+
+                    const productId = product._id || product.id;
+                    if (!productId) {
+                      toast.error('Invalid product');
+                      return;
                     }
-                  } else {
-                    dispatch(toggleFavoriteAction(product));
-                    if (isFavorite) {
-                      toast.success(`${product.title || product.name} removed from favorites!`, {
-                        duration: 2000,
-                        position: 'top-right',
-                      });
+
+                    if (isAuthenticated) {
+                      if (isFavorite) {
+                        await dispatch(removeFromFavoritesAPI(productId));
+                        toast.success(`${product.title || product.name} removed from favorites!`, {
+                          duration: 2000,
+                          position: 'top-right',
+                        });
+                      } else {
+                        await dispatch(addToFavoritesAPI(productId));
+                        toast.success(`${product.title || product.name} added to favorites!`, {
+                          duration: 2000,
+                          position: 'top-right',
+                        });
+                      }
                     } else {
-                      toast.success(`${product.title || product.name} added to favorites!`, {
-                        duration: 2000,
-                        position: 'top-right',
-                      });
+                      dispatch(toggleFavoriteAction(product));
+                      if (isFavorite) {
+                        toast.success(`${product.title || product.name} removed from favorites!`, {
+                          duration: 2000,
+                          position: 'top-right',
+                        });
+                      } else {
+                        toast.success(`${product.title || product.name} added to favorites!`, {
+                          duration: 2000,
+                          position: 'top-right',
+                        });
+                      }
                     }
-                  }
-                }}
-                onMouseEnter={handleArrowMouseEnter}
-                onMouseLeave={handleArrowMouseLeave}
-                className={`absolute top-4 sm:right-4 left-4 w-fit p-2 rounded-full transition-all duration-200 z-10 ${
-                  isFavorite 
-                    ? 'bg-primary text-white' 
-                    : 'bg-white/90 text-black-light hover:bg-primary hover:text-white'
-                }`}
-              >
-                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-              </button>
+                  }}
+                  onMouseEnter={handleArrowMouseEnter}
+                  onMouseLeave={handleArrowMouseLeave}
+                  className={`absolute top-4 sm:right-4 left-4 w-fit p-2 rounded-full transition-all duration-200 z-10 ${isFavorite
+                      ? 'bg-primary text-white'
+                      : 'bg-white/90 text-black-light hover:bg-primary hover:text-white'
+                    }`}
+                >
+                  <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+                </button>
 
-              {/* Navigation Arrows */}
-              {totalImages > 1 && (
-                <>
-                  <button
-                    onClick={handlePreviousImage}
-                    onMouseEnter={handleArrowMouseEnter}
-                    onMouseLeave={handleArrowMouseLeave}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-1 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft className="w-6 h-6 text-black" />
-                  </button>
+                {/* Navigation Arrows */}
+                {totalImages > 1 && (
+                  <>
+                    <button
+                      onClick={handlePreviousImage}
+                      onMouseEnter={handleArrowMouseEnter}
+                      onMouseLeave={handleArrowMouseLeave}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-1 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-6 h-6 text-black" />
+                    </button>
 
-                  <button
-                    onClick={handleNextImage}
-                    onMouseEnter={handleArrowMouseEnter}
-                    onMouseLeave={handleArrowMouseLeave}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-1 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
-                    aria-label="Next image"
-                  >
-                    <ChevronRight className="w-6 h-6 text-black" />
-                  </button>
-                </>
-              )}
+                    <button
+                      onClick={handleNextImage}
+                      onMouseEnter={handleArrowMouseEnter}
+                      onMouseLeave={handleArrowMouseLeave}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-1 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-6 h-6 text-black" />
+                    </button>
+                  </>
+                )}
 
-              {/* Image Counter */}
-              {totalImages > 1 && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-black/70 text-white px-4 py-2 rounded-lg text-sm font-montserrat-medium-500">
-                  {selectedImage + 1} / {totalImages}
-                </div>
-              )}
+                {/* Image Counter */}
+                {totalImages > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-black/70 text-white px-4 py-2 rounded-lg text-sm font-montserrat-medium-500">
+                    {selectedImage + 1} / {totalImages}
+                  </div>
+                )}
               </div>
 
               {/* Thumbnail Images */}
@@ -623,9 +624,8 @@ const CartProductDetail = () => {
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors max-w-md duration-300 ${
-                        selectedImage === index ? 'border-primary ring-1 outline-none ring-primary ring-offset-2' : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                      className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors max-w-md duration-300 ${selectedImage === index ? 'border-primary ring-1 outline-none ring-primary ring-offset-2' : 'border-gray-200 hover:border-gray-300'
+                        }`}
                     >
                       <img
                         src={img}
@@ -655,78 +655,77 @@ const CartProductDetail = () => {
                 </h1>
 
                 {/* Description */}
-                <div 
+                <div
                   className="text-black-light font-montserrat-regular-400 text-base mb-6 leading-relaxed prose prose-sm max-w-none"
                   style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
                 >
                   {product.subDescription}
                 </div>
 
-              {/* Price */}
-              <div className="sm:flex block items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <PriceDisplay 
-                    price={getFinalPrice()}
-                    // originalPrice={product.price}
-                    showOriginalPrice={true}
-                    showSavings={true}
-                    className="text-3xl lg:text-4xl font-montserrat-bold-700 text-primary"
-                  />
-                  {selectedMetal && (
-                    <div className="text-sm font-montserrat-regular-400 text-black-light">
-                      ({selectedMetal.carat})
+                {/* Price */}
+                <div className="sm:flex block items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <PriceDisplay
+                      price={getFinalPrice()}
+                      // originalPrice={product.price}
+                      showOriginalPrice={true}
+                      showSavings={true}
+                      className="text-3xl lg:text-4xl font-montserrat-bold-700 text-primary"
+                    />
+                    {selectedMetal && (
+                      <div className="text-sm font-montserrat-regular-400 text-black-light">
+                        ({selectedMetal.carat})
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-lg font-montserrat-semibold-600 text-black">
+                      Made to order
                     </div>
-                  )}
-                </div>
-                <div>
-                  <div className="text-lg font-montserrat-semibold-600 text-black">
-                    Made to order
                   </div>
                 </div>
-              </div>
 
-              {/* Metal Selection */}
-              <div className="mb-6">
-                <MetalSelector
-                  selectedMetal={selectedMetal}
-                  onMetalChange={handleMetalChange}
-                />
-              </div>
-
-              {/* Center Stone Selection */}
-              {isRing && stones.length > 0 && (
+                {/* Metal Selection */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3 flex items-center gap-2">
-                    <Gem className="w-5 h-5 text-primary" />
-                    Center Stone
-                  </h3>
-                  
-                  <div className="mb-4">
-                    {stonesLoading ? (
-                      <div className="text-center py-4">
-                        <div className="animate-spin rounded-lg h-6 w-6 border-b-2 border-primary mx-auto"></div>
-                        <p className="text-sm text-black-light mt-2">Loading stones...</p>
-                      </div>
-                    ) : (
+                  <MetalSelector
+                    selectedMetal={selectedMetal}
+                    onMetalChange={handleMetalChange}
+                  />
+                </div>
+
+                {/* Center Stone Selection */}
+                {isRing && stones.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3 flex items-center gap-2">
+                      <Gem className="w-5 h-5 text-primary" />
+                      Center Stone
+                    </h3>
+
+                    <div className="mb-4">
+                      {stonesLoading ? (
+                        <div className="text-center py-4">
+                          <div className="animate-spin rounded-lg h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                          <p className="text-sm text-black-light mt-2">Loading stones...</p>
+                        </div>
+                      ) : (
                         <div className="flex flex-wrap gap-2">
                           {stones.filter(stone => stone.active).map((stone) => (
                             <button
                               key={stone._id}
                               onClick={() => handleCaratChange(stone.name)}
-                              className={`px-4 py-2 rounded-full border-2 transition-all duration-200 font-montserrat-medium-500 ${
-                                (selectedCarat?.name === stone.name || selectedCarat?.id === stone._id) || (typeof selectedCarat === 'string' && selectedCarat === stone.name)
+                              className={`px-4 py-2 rounded-full border-2 transition-all duration-200 font-montserrat-medium-500 ${(selectedCarat?.name === stone.name || selectedCarat?.id === stone._id) || (typeof selectedCarat === 'string' && selectedCarat === stone.name)
                                   ? 'border-primary bg-primary text-white'
                                   : 'border-gray-200 bg-white text-black hover:border-primary hover:bg-primary-light'
-                              }`}
+                                }`}
                             >
                               {stone.name}
                             </button>
                           ))}
                         </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
                 {/* Ring Size Selection */}
                 {isRing && (
@@ -751,40 +750,40 @@ const CartProductDetail = () => {
 
                 {/* Product Details Accordion */}
                 <div className="mb-0 space-y-3">
-                <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">
-                  Product Details
-                </h3>
-                
-                <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
-                  <div className="flex justify-between">
-                    <span>Material:</span>
-                    <span>{selectedMetal ? `${selectedMetal.carat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
-                  </div>
-                  {isRing && selectedCarat && (
+                  <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">
+                    Product Details
+                  </h3>
+
+                  <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
                     <div className="flex justify-between">
-                      <span>Center Stone:</span>
-                      <span>{typeof selectedCarat === 'string' ? selectedCarat : selectedCarat?.name}</span>
+                      <span>Material:</span>
+                      <span>{selectedMetal ? `${selectedMetal.carat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
                     </div>
-                  )}
-                  {isRing && selectedRingSize && (
+                    {isRing && selectedCarat && (
+                      <div className="flex justify-between">
+                        <span>Center Stone:</span>
+                        <span>{typeof selectedCarat === 'string' ? selectedCarat : selectedCarat?.name}</span>
+                      </div>
+                    )}
+                    {isRing && selectedRingSize && (
+                      <div className="flex justify-between">
+                        <span>Ring Size:</span>
+                        <span>{selectedRingSize}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
-                      <span>Ring Size:</span>
-                      <span>{selectedRingSize}</span>
+                      <span>Care:</span>
+                      <span>Professional Cleaning</span>
                     </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span>Care:</span>
-                    <span>Professional Cleaning</span>
                   </div>
-                </div>
 
                   {/* FAQ Style Accordions */}
                   <div className="space-y-2 ">
-                    <Accordion 
-                      title="More Details" 
+                    <Accordion
+                      title="More Details"
                       icon={<ListChevronsDownUp className="w-4 h-4 text-primary" />}
                     >
-                      <div 
+                      <div
                         dangerouslySetInnerHTML={{ __html: parseLexicalDescription(product.description) }}
                         style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
                       />
@@ -797,51 +796,51 @@ const CartProductDetail = () => {
               <div className="space-y-4 mt-[20px]">
                 {/* Quantity Selector */}
                 <div>
-                <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                  Quantity
-                </label>
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                    className="w-10 h-10 bg-primary-light hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors duration-300"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-16 text-center font-montserrat-medium-500 text-black">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(prev => prev + 1)}
-                    className="w-10 h-10 bg-primary-light hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors duration-300"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+                  <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                    Quantity
+                  </label>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                      className="w-10 h-10 bg-primary-light hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors duration-300"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="w-16 text-center font-montserrat-medium-500 text-black">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(prev => prev + 1)}
+                      className="w-10 h-10 bg-primary-light hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors duration-300"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Additional Info */}
+                <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
+                  <p>✓ Free shipping on orders over $100</p>
+                  <p>✓ 30-day return policy</p>
+                  <p>✓ Secure checkout</p>
+                </div>
+
+                {/* Update Cart Button */}
+                <button
+                  onClick={handleUpdateCart}
+                  className="w-full bg-primary text-white font-montserrat-medium-500 py-3 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  <span>Update Cart</span>
+                </button>
+                <ContactBox />
+                {/* Info Note */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800 font-montserrat-medium-500">
+                    Update your selections above and click "Update Cart" to save changes.
+                  </p>
                 </div>
               </div>
-
-              {/* Additional Info */}
-              <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
-                <p>✓ Free shipping on orders over $100</p>
-                <p>✓ 30-day return policy</p>
-                <p>✓ Secure checkout</p>
-              </div>
-
-              {/* Update Cart Button */}
-              <button
-                onClick={handleUpdateCart}
-                className="w-full bg-primary text-white font-montserrat-medium-500 py-3 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                <span>Update Cart</span>
-              </button>
-              <ContactBox />
-              {/* Info Note */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800 font-montserrat-medium-500">
-                  Update your selections above and click "Update Cart" to save changes.
-                </p>
-              </div>
-            </div>
             </div>
           </div>
         </div>
