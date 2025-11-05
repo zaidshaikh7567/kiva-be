@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Plus, Edit, Trash2, RefreshCw, Link2, Share2, Calendar } from 'lucide-react';
-import { fetchSocialHandles, createSocialHandle, updateSocialHandle, deleteSocialHandle, selectSocialHandles, selectSocialHandlesLoading } from '../store/slices/socialHandlesSlice';
+import { fetchSocialHandles, createSocialHandle, updateSocialHandle, deleteSocialHandle, selectSocialHandles, selectSocialHandlesLoading, selectSocialHandlesPagination } from '../store/slices/socialHandlesSlice';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import CustomDropdown from '../components/CustomDropdown';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
+import Pagination from '../components/Pagination';
 
 const PLATFORM_OPTIONS = ['Instagram', 'Facebook', 'Pinterest', 'LinkedIn'];
 
@@ -97,82 +98,64 @@ const SocialHandles = () => {
   const dispatch = useDispatch();
   const socialItems = useSelector(selectSocialHandles);
   const loading = useSelector(selectSocialHandlesLoading);
-  const USE_DUMMY = true;
-  const [localItems, setLocalItems] = useState([]);
+  const pagination = useSelector(selectSocialHandlesPagination);
+
+  // Pagination state
+  const currentPage = pagination?.currentPage || 1;
+  const limit = pagination?.limit || 10;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mode, setMode] = useState('add');
   const [current, setCurrent] = useState(null);
-  console.log('current :', current);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [toDelete, setToDelete] = useState(null);
 
-  // Seed dummy data when API not available
+  // Fetch social handles from API
   useEffect(() => {
-    if (USE_DUMMY) {
-      const seeded = [
-        { id: '1', platform: 'Instagram', url: 'https://instagram.com/yourbrand', image: 'https://via.placeholder.com/600x400?text=Instagram', isActive: true },
-        { id: '2', platform: 'Facebook', url: 'https://facebook.com/yourbrand', image: 'https://via.placeholder.com/600x400?text=Facebook', isActive: true },
-        { id: '3', platform: 'Pinterest', url: 'https://pinterest.com/yourbrand', image: 'https://via.placeholder.com/600x400?text=Pinterest', isActive: false },
-      ];
-      setLocalItems(seeded);
-    } else {
-      dispatch(fetchSocialHandles());
-    }
-  }, [dispatch, USE_DUMMY]);
-
-  const items = useMemo(() => (USE_DUMMY ? localItems : socialItems), [USE_DUMMY, localItems, socialItems]);
+    dispatch(fetchSocialHandles({ page: currentPage, limit }));
+  }, [dispatch, currentPage, limit]);
 
   const openAdd = () => { setMode('add'); setCurrent(null); setIsModalOpen(true); };
   const openEdit = (item) => { setMode('edit'); setCurrent(item); setIsModalOpen(true); };
   const closeModal = () => { setIsModalOpen(false); setCurrent(null); setMode('add'); };
 
   const submit = async (data) => {
-    if (USE_DUMMY) {
-      // Convert image File to data URL for preview/persistence
-      const toDataUrl = (file) => new Promise((resolve) => {
-        if (!file) return resolve('');
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
-      const imageUrl = data.image instanceof File ? await toDataUrl(data.image) : data.image || '';
-      if (mode === 'add') {
-        const newItem = { id: String(Date.now()), platform: data.platform, url: data.url, image: imageUrl, isActive: data.isActive };
-        setLocalItems(prev => [newItem, ...prev]);
-        closeModal();
-      } else {
-        const id = current._id || current.id;
-        setLocalItems(prev => prev.map(it => (it.id === id ? { ...it, platform: data.platform, url: data.url, image: imageUrl || it.image, isActive: data.isActive } : it)));
-        closeModal();
-      }
-      return;
-    }
     if (mode === 'add') {
       const res = await dispatch(createSocialHandle(data));
-      if (createSocialHandle.fulfilled.match(res)) closeModal();
+      if (createSocialHandle.fulfilled.match(res)) {
+        closeModal();
+        // Refresh the list after create
+        dispatch(fetchSocialHandles({ page: currentPage, limit }));
+      }
     } else {
-      const res = await dispatch(updateSocialHandle({ id: current._id || current.id, data }));
-      if (updateSocialHandle.fulfilled.match(res)) closeModal();
+      const res = await dispatch(updateSocialHandle({ id: current._id ,data }));
+      if (updateSocialHandle.fulfilled.match(res)) {
+        closeModal();
+        // Refresh the list after update
+        dispatch(fetchSocialHandles({ page: currentPage, limit }));
+      }
     }
   };
 
   const confirmDelete = async () => {
     if (!toDelete) return;
-    if (USE_DUMMY) {
-      const id = toDelete._id || toDelete.id;
-      setLocalItems(prev => prev.filter(it => (it.id !== id)));
-      setIsDeleteModalOpen(false); setToDelete(null);
-      return;
-    }
     const res = await dispatch(deleteSocialHandle(toDelete._id || toDelete.id));
-    if (deleteSocialHandle.fulfilled.match(res)) { setIsDeleteModalOpen(false); setToDelete(null); }
+    if (deleteSocialHandle.fulfilled.match(res)) { 
+      setIsDeleteModalOpen(false); 
+      setToDelete(null);
+      // Refresh the list after delete
+      dispatch(fetchSocialHandles({ page: currentPage, limit }));
+    }
+  };
+
+  const handlePageChange = (page) => {
+    dispatch(fetchSocialHandles({ page, limit }));
   };
 
   return (
     <div className="space-y-4">
       <div className="flex flex-row items-center justify-end gap-2">
-        <button onClick={() => { USE_DUMMY ? setLocalItems([...localItems]) : dispatch(fetchSocialHandles()); }} disabled={loading} className="flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50">
+        <button onClick={() => dispatch(fetchSocialHandles({ page: currentPage, limit }))} disabled={loading} className="flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50">
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh</span>
         </button>
@@ -183,7 +166,7 @@ const SocialHandles = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {items?.map((item) => (
+        {socialItems?.map((item) => (
           <div key={item._id || item.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="w-full h-40 bg-gray-50 overflow-hidden">
               {item.image ? (
@@ -226,6 +209,18 @@ const SocialHandles = () => {
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.totalRecords}
+          itemsPerPage={limit}
+          onPageChange={handlePageChange}
+          className="mt-4"
+        />
+      )}
 
       <SocialHandleModal
         key={`${mode}-${current?._id || current?.id || 'new'}`}

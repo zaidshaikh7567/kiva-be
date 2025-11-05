@@ -21,7 +21,11 @@ const seedProducts = async (categories, metals, stones) => {
       ],
       metals: [metals[0]._id],
       stoneType: stones[0]._id,
-      careInstruction: 'Clean with mild soap and warm water. Avoid ultrasonic cleaners. Store in a soft cloth pouch.'
+      careInstruction: 'Clean with mild soap and warm water. Avoid ultrasonic cleaners. Store in a soft cloth pouch.',
+      shape: 'Round',
+      color: 'D',
+      clarity: ['VS1', 'VS2'],
+      certificate: ['GIA', 'IGI']
     },
     {
       title: 'Pearl Necklace',
@@ -38,7 +42,11 @@ const seedProducts = async (categories, metals, stones) => {
         'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&h=600&fit=crop'
       ],
       metals: [metals[1]._id],
-      careInstruction: 'Avoid exposure to perfumes, hairsprays, and lotions. Wipe gently with a soft cloth after wearing.'
+      careInstruction: 'Avoid exposure to perfumes, hairsprays, and lotions. Wipe gently with a soft cloth after wearing.',
+      shape: 'Round',
+      color: 'White',
+      clarity: ['AAA'],
+      certificate: ['Certificate of Authenticity']
     },
     {
       title: 'Gold Bracelet',
@@ -55,7 +63,9 @@ const seedProducts = async (categories, metals, stones) => {
         'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop'
       ],
       metals: [metals[0]._id],
-      careInstruction: 'Polish with a soft cloth. Avoid contact with chemicals. Store in a jewelry box to prevent scratches.'
+      careInstruction: 'Polish with a soft cloth. Avoid contact with chemicals. Store in a jewelry box to prevent scratches.',
+      shape: 'Chain',
+      color: 'Yellow Gold'
     },
     {
       title: 'Diamond Stud Earrings',
@@ -73,7 +83,11 @@ const seedProducts = async (categories, metals, stones) => {
       ],
       metals: [metals[2]._id],
       stoneType: stones[0]._id,
-      careInstruction: 'Clean gently with a soft brush and mild detergent. Avoid harsh chemicals. Store in individual compartments.'
+      careInstruction: 'Clean gently with a soft brush and mild detergent. Avoid harsh chemicals. Store in individual compartments.',
+      shape: 'Round',
+      color: 'E',
+      clarity: ['VVS1', 'VVS2'],
+      certificate: ['GIA', 'AGS']
     }
   ];
 

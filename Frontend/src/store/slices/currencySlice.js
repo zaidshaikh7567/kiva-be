@@ -35,7 +35,6 @@ export const detectUserLocation = createAsyncThunk(
       
       const locationData = await response.json();
       const countryCode = locationData.countryCode;
-      console.log('countryCode :', countryCode);
       
       // Map country codes to currencies
       const countryToCurrency = {
@@ -59,7 +58,6 @@ export const detectUserLocation = createAsyncThunk(
       };
       
       const detectedCurrency = countryToCurrency[countryCode] || 'USD';
-      console.log('detectedCurrency :', detectedCurrency);
       
       return {
         countryCode,
@@ -72,7 +70,6 @@ export const detectUserLocation = createAsyncThunk(
       // Fallback: Try to detect from timezone
       try {
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        console.log('timezone :', timezone);
         const timezoneToCurrency = {
           'Asia/Kolkata': 'INR',
           'America/Toronto': 'CAD',
@@ -232,7 +229,6 @@ const currencySlice = createSlice({
         state.loading = false;
         state.exchangeRates = action.payload.rates;
         state.lastUpdated = action.payload.lastUpdated;
-        console.log('Exchange rates updated:', action.payload.rates);
       })
       .addCase(fetchExchangeRates.rejected, (state, action) => {
         state.loading = false;

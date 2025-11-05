@@ -6,6 +6,7 @@ import OvalVideo from "../../assets/video/oval-video.mp4";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { MoveRight } from "lucide-react";
+import { fetchMetals } from "../../store/slices/metalsSlice";
 const FavoriteSection = () => {
   const { categories, loading, error } = useSelector(
     (state) => state.categories
@@ -13,6 +14,7 @@ const FavoriteSection = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(fetchMetals());
     dispatch(fetchCategories());
   }, [dispatch]);
 

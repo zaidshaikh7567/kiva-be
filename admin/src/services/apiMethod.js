@@ -10,8 +10,9 @@ export const API_METHOD = {
   favorites: '/api/favorites',
   settings: '/api/settings',
   stones: '/api/stones',
-  socials: '/api/socials',
+  socials: '/api/social-handles',
   collections: '/api/collections',
+  contacts: '/api/contacts',
   auth: {
     login: '/api/admin/auth/login',
     google: '/api/admin/auth/google',

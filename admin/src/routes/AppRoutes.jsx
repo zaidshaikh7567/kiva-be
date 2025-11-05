@@ -13,6 +13,7 @@ import SocialHandles from '../pages/SocialHandles';
 import Metals from '../pages/Metals';
 import CenterStones from '../pages/CenterStones';
 import Collections from '../pages/Collections';
+import Contacts from '../pages/Contacts';
 import Profile from '../pages/Profile';
 import ChangePassword from '../pages/ChangePassword';
 import NotFound from '../pages/NotFound';
@@ -35,6 +36,7 @@ const AppRoutes = () => {
       <Route path="/metals" element={<Metals />} />
       <Route path="/center-stones" element={<CenterStones />} />
       <Route path="/collections" element={<Collections />} />
+      <Route path="/contacts" element={<Contacts />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/social-handles" element={<SocialHandles />} />
       <Route path="/profile" element={<Profile />} />

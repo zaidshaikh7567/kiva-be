@@ -1,8 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Heart, ShoppingBag, Eye, Trash2, X } from 'lucide-react';
-import { selectFavorites, selectFavoritesCount, removeFromFavorites, clearFavorites } from '../store/slices/favoritesSlice';
+import { 
+  selectFavorites, 
+  selectFavoritesCount, 
+  selectFavoritesLoading,
+  removeFromFavorites,
+  removeFromFavoritesAPI,
+  clearFavorites,
+  fetchFavorites 
+} from '../store/slices/favoritesSlice';
+import { selectIsAuthenticated } from '../store/slices/authSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import PriceDisplay from '../components/PriceDisplay';
 import ProductDetailsModal from '../components/ProductDetailsModal';
@@ -16,15 +25,25 @@ import AnimatedSection from '../components/home/AnimatedSection';
 
 const Favorites = () => {
   const favorites = useSelector(selectFavorites);
-  console.log('favorites :', favorites);
   const favoritesCount = useSelector(selectFavoritesCount);
+  const loading = useSelector(selectFavoritesLoading);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const dispatch = useDispatch();
   const categories = useSelector(selectCategories);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [showQuickView, setShowQuickView] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showRingSizeModal, setShowRingSizeModal] = useState(false);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [productForRingSize, setProductForRingSize] = useState(null);
+
+  // Fetch favorites from API when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchFavorites({ page: 1, limit: 100 }));
+    }
+  }, [isAuthenticated, dispatch]);
 
   // Check if product is a ring
   const isRing = (product) => {
@@ -90,9 +109,20 @@ const Favorites = () => {
     }
   };
 
-  const handleRemoveFromFavorites = (product) => {
-  console.log('product :', product);
-    dispatch(removeFromFavorites(product._id || product.id));
+  const handleRemoveFromFavorites = async (product) => {
+    const productId = product._id || product.id;
+    
+    if (!productId) {
+      toast.error('Invalid product');
+      return;
+    }
+
+    if (isAuthenticated) {
+      await dispatch(removeFromFavoritesAPI(productId));
+    } else {
+      dispatch(removeFromFavorites(productId));
+    }
+    
     toast.success(`${product.title || product.name} removed from favorites!`, {
       duration: 2000,
       position: 'top-right',
@@ -107,7 +137,8 @@ const Favorites = () => {
     });
   };
 
-  const handleQuickView = (product) => {
+  const handleQuickView = (e, product) => {
+    e.stopPropagation();
     setSelectedProduct(product);
     setShowQuickView(true);
   };
@@ -115,6 +146,18 @@ const Favorites = () => {
   const handleCloseQuickView = () => {
     setShowQuickView(false);
     setSelectedProduct(null);
+  };
+
+  const handleCardClick = (product) => {
+    const productId = product._id || product.id;
+    if (productId) {
+      // Pass current location with query params as state to preserve it when going back
+      const currentPath = location.pathname + location.search;
+      navigate(`/product/${productId}`, { 
+        state: { from: currentPath },
+        replace: false 
+      });
+    }
   };
 
   return (
@@ -164,10 +207,18 @@ const Favorites = () => {
 
         {/* Favorites Content */}
         <AnimatedSection animationType="scaleIn" delay={300}>
-        {favoritesCount > 0 ? (
+        {loading ? (
+          <div className="text-center py-16">
+            <p className="text-black-light font-montserrat-regular-400">Loading favorites...</p>
+          </div>
+        ) : favoritesCount > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {favorites.map((product) => (
-              <div key={product._id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group">
+              <div 
+                key={product._id} 
+                onClick={() => handleCardClick(product)}
+                className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer"
+              >
                 <div className="relative overflow-hidden">
                   <div className="aspect-square bg-primary-light">
                     {product.images && product.images.length > 0 ? (
@@ -185,28 +236,37 @@ const Favorites = () => {
                   
                   {/* Remove from Favorites Button */}
                   <button
-                    onClick={() => handleRemoveFromFavorites(product)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveFromFavorites(product);
+                    }}
                     className="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-primary hover:bg-primary hover:text-white transition-all duration-200 z-10"
                   >
                     <Heart className="w-4 h-4 fill-current" />
                   </button>
                   
                   {/* Quick Actions Overlay */}
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100">
+                  <div 
+                    className="absolute inset-0 bg-black/50 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="flex gap-2 sm:gap-3">
                       <button
-                        onClick={() => handleQuickView(product)}
+                        onClick={(e) => handleQuickView(e, product)}
                         className="px-3 sm:px-4 py-2 bg-white text-black rounded-lg hover:bg-primary-light transition-colors flex items-center gap-1 sm:gap-2 font-montserrat-medium-500 shadow-lg text-xs sm:text-sm whitespace-nowrap"
                       >
                         <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span className="hidden sm:inline">Quick View</span>
+                        {/* <span className="hidden sm:inline">Quick View</span> */}
                       </button>
                       <button
-                        onClick={() => handleAddToCart(product)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToCart(product);
+                        }}
                         className="px-3 sm:px-4 py-2 bg-primary-dark text-white rounded-lg hover:bg-primary transition-colors flex items-center gap-1 sm:gap-2 font-montserrat-medium-500 shadow-lg text-xs sm:text-sm whitespace-nowrap"
                       >
                         <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span className="hidden sm:inline">Add to Cart</span>
+                        {/* <span className="hidden sm:inline">Add to Cart</span> */}
                       </button>
                     </div>
                   </div>
@@ -217,7 +277,7 @@ const Favorites = () => {
                     {/* <Link to={`/product/${product._id || product.id}`} className="block"> */}
                       <h3 className="text-base sm:text-lg font-montserrat-semibold-600 text-black mb-2 line-clamp-1 hover:text-primary-dark transition-colors">{product.title || product.name}</h3>
                     {/* </Link> */}
-                    <p className="text-black-light text-xs sm:text-sm mb-3 line-clamp-2 font-montserrat-regular-400">{extractPlainText(product.description)}</p>
+                    <p className="text-black-light text-xs sm:text-sm mb-3 line-clamp-2 font-montserrat-regular-400">{extractPlainText(product.subDescription)}</p>
                   </div>
                   <div className="flex items-center justify-between mt-auto">
                     <PriceDisplay 

@@ -8,7 +8,6 @@ const Profile = () => {
   const dispatch = useDispatch();
   
   const user = useSelector(selectUser);
-  console.log('user!! :', user);
   const loading = useSelector(selectAuthLoading);
   const error = useSelector(selectAuthError);
   const success = useSelector(selectAuthSuccess);

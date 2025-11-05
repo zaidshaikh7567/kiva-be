@@ -12,15 +12,20 @@ import {
 import { 
   updateQuantity, 
   removeFromCart, 
-  clearCart
+  clearCart,
+  deleteCartItem,
+  closeCart,
+  updateCartItem
 } from '../store/slices/cartSlice';
 import PriceDisplay from '../components/PriceDisplay';
 import ProductDetailsModal from '../components/ProductDetailsModal';
+import toast from 'react-hot-toast';
 
 const ViewCart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalQuantity, totalPrice } = useSelector(state => state.cart);
+  console.log('items :', items);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   
@@ -29,12 +34,35 @@ const ViewCart = () => {
   const MAX_CART_ITEMS = 5;
   const remainingSlots = MAX_CART_ITEMS - items.length;
 
-  const handleQuantityChange = (id, newQuantity) => {
+  const handleQuantityChange = async (id, newQuantity) => {
     if (newQuantity < 1) return;
+    
+    // Store previous quantity for rollback on error
+    const item = items.find(item => item._id === id || item.id === id || item.cartId === id);
+    const previousQuantity = item?.quantity || item?.product?.quantity;
+    
+    // Optimistic update: Update UI immediately for fast UX
     dispatch(updateQuantity({ id, quantity: newQuantity }));
+    
+    if (isAuthenticated) {
+      // Sync with API in background (non-blocking)
+      dispatch(updateCartItem({ 
+        cartId: id, 
+        cartData: { quantity: newQuantity } 
+      })).unwrap()
+        .catch((error) => {
+          // Revert to previous quantity if API call fails
+          if (previousQuantity) {
+            dispatch(updateQuantity({ id, quantity: previousQuantity }));
+          }
+          toast.error(error || 'Failed to update quantity');
+        });
+    }
   };
 
   const handleRemoveItem = (id) => {
+  console.log('id :', id);
+    dispatch(deleteCartItem(id));
     dispatch(removeFromCart(id));
   };
 
@@ -49,8 +77,15 @@ const ViewCart = () => {
   };
 
   const handleViewProduct = (item) => {
-    setSelectedProduct(item);
-    setIsProductModalOpen(true);
+    console.log('item :', item);
+    // Close cart and navigate to cart product detail page
+    dispatch(closeCart());
+    const cartItemId = item._id || item.id || item.cartId;
+    if (cartItemId) {
+      navigate(`/cart/product/${cartItemId}`);
+    } else {
+      toast.error('Unable to view product details');
+    }
   };
 
   const handleCloseProductModal = () => {
@@ -145,8 +180,8 @@ const ViewCart = () => {
                         onClick={() => handleViewProduct(item)}
                       >
                         <img
-                          src={item.image}
-                          alt={item.name}
+                          src={item.product.images[0]}
+                          alt={item.product.title}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -159,18 +194,18 @@ const ViewCart = () => {
                             onClick={() => handleViewProduct(item)}
                           >
                             <h3 className="text-lg font-montserrat-semibold-600 text-black hover:text-primary transition-colors duration-300 mb-2">
-                              {item.name}
+                              {item.product.title}
                             </h3>
                             
                             {/* Show selected metal if available */}
-                            {item.selectedMetal && (
+                            {item.purityLevel && (
                               <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
-                                {item.selectedMetal.karat} {item.selectedMetal.color}
+                                {item.purityLevel.karat}K
                               </div>
                             )}
 
                             <PriceDisplay 
-                              price={item.price}
+                              price={item.calculatedPrice || item.product.price}
                               variant="small"
                               className="text-primary font-montserrat-bold-700 text-lg"
                             />
@@ -180,7 +215,7 @@ const ViewCart = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleRemoveItem(item.id);
+                              handleRemoveItem(item._id);
                             }}
                             className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors duration-300 ml-4 flex-shrink-0"
                             title="Remove Item"
@@ -193,16 +228,22 @@ const ViewCart = () => {
                         <div className="flex items-center justify-between mt-4">
                           <div className="flex items-center space-x-3">
                             <button
-                              onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                              onClick={() => {
+                                const currentQty = item.quantity || item.product?.quantity || 1;
+                                handleQuantityChange(item._id, currentQty - 1);
+                              }}
                               className="w-8 h-8 bg-gray-100 hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
                             >
                               <Minus className="w-4 h-4" />
                             </button>
                             <span className="text-lg font-montserrat-medium-500 text-black min-w-[30px] text-center">
-                              {item.quantity}
+                              {item.quantity || item.product?.quantity || 1}
                             </span>
                             <button
-                              onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                              onClick={() => {
+                                const currentQty = item.quantity || item.product?.quantity || 1;
+                                handleQuantityChange(item._id, currentQty + 1);
+                              }}
                               className="w-8 h-8 bg-gray-100 hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
                             >
                               <Plus className="w-4 h-4" />

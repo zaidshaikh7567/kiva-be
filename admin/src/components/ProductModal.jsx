@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon, ChevronDown, Check } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
+import CustomDropdown from './CustomDropdown';
+import MultiSelectDropdown from './MultiSelectDropdown';
 
 // Care instructions options
 const CARE_OPTIONS = [
@@ -11,6 +13,71 @@ const CARE_OPTIONS = [
   'Store Separately',
   'Remove Before Swimming',
   'Ultrasonic Cleaning Safe',
+];
+
+// Shape options
+const SHAPE_OPTIONS = [
+  { value: 'Round', label: 'Round' },
+  { value: 'Princess', label: 'Princess' },
+  { value: 'Oval', label: 'Oval' },
+  { value: 'Heart', label: 'Heart' },
+  { value: 'Pear', label: 'Pear' },
+  { value: 'Marquise', label: 'Marquise' },
+  { value: 'Cushion', label: 'Cushion' },
+  { value: 'Emerald', label: 'Emerald' },
+  { value: 'Asscher', label: 'Asscher' },
+  { value: 'Radiant', label: 'Radiant' },
+  { value: 'Chain', label: 'Chain' },
+  { value: 'Other', label: 'Other' }
+];
+
+// Color options
+const COLOR_OPTIONS = [
+  { value: 'D', label: 'D (Colorless)' },
+  { value: 'E', label: 'E (Colorless)' },
+  { value: 'F', label: 'F (Colorless)' },
+  { value: 'G', label: 'G (Near Colorless)' },
+  { value: 'H', label: 'H (Near Colorless)' },
+  { value: 'I', label: 'I (Near Colorless)' },
+  { value: 'J', label: 'J (Near Colorless)' },
+  { value: 'K', label: 'K (Faint Yellow)' },
+  { value: 'L', label: 'L (Faint Yellow)' },
+  { value: 'M', label: 'M (Faint Yellow)' },
+  { value: 'White', label: 'White' },
+  { value: 'Yellow Gold', label: 'Yellow Gold' },
+  { value: 'Rose Gold', label: 'Rose Gold' },
+  { value: 'Platinum', label: 'Platinum' },
+  { value: 'Silver', label: 'Silver' },
+  { value: 'Other', label: 'Other' }
+];
+
+// Clarity options
+const CLARITY_OPTIONS = [
+  { value: 'FL', label: 'FL (Flawless)' },
+  { value: 'IF', label: 'IF (Internally Flawless)' },
+  { value: 'VVS1', label: 'VVS1 (Very Very Slightly Included 1)' },
+  { value: 'VVS2', label: 'VVS2 (Very Very Slightly Included 2)' },
+  { value: 'VS1', label: 'VS1 (Very Slightly Included 1)' },
+  { value: 'VS2', label: 'VS2 (Very Slightly Included 2)' },
+  { value: 'SI1', label: 'SI1 (Slightly Included 1)' },
+  { value: 'SI2', label: 'SI2 (Slightly Included 2)' },
+  { value: 'I1', label: 'I1 (Included 1)' },
+  { value: 'I2', label: 'I2 (Included 2)' },
+  { value: 'I3', label: 'I3 (Included 3)' },
+  { value: 'AAA', label: 'AAA (Pearl Quality)' },
+  { value: 'AA', label: 'AA (Pearl Quality)' },
+  { value: 'A', label: 'A (Pearl Quality)' }
+];
+
+// Certificate options
+const CERTIFICATE_OPTIONS = [
+  { value: 'GIA', label: 'GIA (Gemological Institute of America)' },
+  { value: 'IGI', label: 'IGI (International Gemological Institute)' },
+  { value: 'AGS', label: 'AGS (American Gem Society)' },
+  { value: 'EGL', label: 'EGL (European Gemological Laboratory)' },
+  { value: 'HRD', label: 'HRD (Hoge Raad voor Diamant)' },
+  { value: 'Certificate of Authenticity', label: 'Certificate of Authenticity' },
+  { value: 'Other', label: 'Other' }
 ];
 
 
@@ -71,9 +138,13 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     stoneTypeId: '',
     careInstruction: '',
     images: [],
-    metalOptions: []
+    metalOptions: [],
+    shape: '',
+    color: '',
+    clarity: [],
+    certificate: []
   });
-  console.log('formData---PRODUCT MODAL :', formData  );
+  console.log('formData :', formData);
 
   const [imagePreviews, setImagePreviews] = useState([]);
   const [dragActive, setDragActive] = useState(false);
@@ -100,7 +171,11 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         stoneTypeId: productData.stoneType?._id || productData.stoneTypeId || '',
         careInstruction: productData.careInstruction || '',
         images: [],
-        metalOptions: productData.metals?.map(m => m._id) || []
+        metalOptions: productData.metals?.map(m => m._id) || [],
+        shape: productData.shape || '',
+        color: productData.color || '',
+        clarity: Array.isArray(productData.clarity) ? productData.clarity : [],
+        certificate: Array.isArray(productData.certificate) ? productData.certificate : []
       });
 
       // Set image previews for existing images
@@ -124,7 +199,11 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         stoneTypeId: '',
         careInstruction: '',
         images: [],
-        metalOptions: []
+        metalOptions: [],
+        shape: '',
+        color: '',
+        clarity: [],
+        certificate: []
       });
       setImagePreviews([]);
       // Reset dropdowns
@@ -279,7 +358,11 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         categoryId: formData.categoryId,
         metalIds: formData.metalOptions, // Map metalOptions to metalIds
         careInstruction: formData.careInstruction || '', // Use careInstruction directly
-        images: formData.images // Include images array
+        images: formData.images, // Include images array
+        shape: formData.shape || '',
+        color: formData.color || '',
+        clarity: formData.clarity.length > 0 ? JSON.stringify(formData.clarity) : undefined,
+        certificate: formData.certificate.length > 0 ? JSON.stringify(formData.certificate) : undefined
       };
 
       // Only add stoneTypeId if it's a valid ObjectId
@@ -318,7 +401,11 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
       stoneTypeId: '',
       careInstruction: '',
       images: [],
-      metalOptions: []
+      metalOptions: [],
+      shape: '',
+      color: '',
+      clarity: [],
+      certificate: []
     });
     setImagePreviews([]);
     // Reset dropdowns
@@ -741,6 +828,65 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Shape and Color */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Shape */}
+            <div className="space-y-2">
+              <label className="block text-sm font-montserrat-medium-500 text-black">
+                Shape
+              </label>
+              <CustomDropdown
+                options={SHAPE_OPTIONS}
+                value={formData.shape}
+                onChange={(value) => setFormData(prev => ({ ...prev, shape: value }))}
+                placeholder="Select shape"
+                disabled={loading}
+              />
+            </div>
+
+            {/* Color */}
+            <div className="space-y-2">
+              <label className="block text-sm font-montserrat-medium-500 text-black">
+                Color
+              </label>
+              <CustomDropdown
+                options={COLOR_OPTIONS}
+                value={formData.color}
+                onChange={(value) => setFormData(prev => ({ ...prev, color: value }))}
+                placeholder="Select color"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          {/* Clarity - Multi-select */}
+          <div className="space-y-2">
+            <label className="block text-sm font-montserrat-medium-500 text-black">
+              Clarity
+            </label>
+            <MultiSelectDropdown
+              options={CLARITY_OPTIONS}
+              value={formData.clarity}
+              onChange={(value) => setFormData(prev => ({ ...prev, clarity: value }))}
+              placeholder="Select clarity options"
+              disabled={loading}
+            />
+          </div>
+
+          {/* Certificate - Multi-select */}
+          <div className="space-y-2">
+            <label className="block text-sm font-montserrat-medium-500 text-black">
+              Certificate
+            </label>
+            <MultiSelectDropdown
+              options={CERTIFICATE_OPTIONS}
+              value={formData.certificate}
+              onChange={(value) => setFormData(prev => ({ ...prev, certificate: value }))}
+              placeholder="Select certificate options"
+              disabled={loading}
+            />
           </div>
 
           {/* Image Upload */}

@@ -23,8 +23,8 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
     const productPrice = cart.product.price || 0;
     const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
     const stonePrice = cart.stoneType?.price || 0;
-    const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
-    
+    const totalPrice = ((productPrice * metalMultiplier) + stonePrice) * (cart.quantity || 1);
+    // const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
     return {
       ...cart.toObject(),
       calculatedPrice: totalPrice
@@ -40,6 +40,19 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
 router.post('/', authenticate, validate(addToCartSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { productId, metalId, purityLevel, stoneTypeId, ringSize, quantity = 1 } = req.body;
+
+  // Check if product already exists in cart 05-11-2025
+  const existingCartItem = await Cart.findOne({
+    user: userId,
+    product: productId
+  });
+
+  if (existingCartItem) {
+    return res.status(400).json({
+      success: false,
+      message: 'This product is already in your cart'
+    });
+  }
 
   // Verify product exists
   const product = await Product.findById(productId);
@@ -78,15 +91,39 @@ router.post('/', authenticate, validate(addToCartSchema), asyncHandler(async (re
   const productPrice = cart.product?.price || 0;
   const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
   const stonePrice = cart.stoneType?.price || 0;
-  const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
-
+  const totalPrice = ((productPrice * metalMultiplier) + stonePrice) * (cart.quantity || 1);
+  // const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
   res.status(201).json({ success: true, message: 'Item added to cart successfully', data: { ...cart.toObject(), calculatedPrice: totalPrice } });
 }));
 
 router.put('/:id', authenticate, validate(cartIdSchema, 'params'), validate(updateCartSchema), asyncHandler(async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
-  const updateData = req.body;
+  const { stoneTypeId, metalId, ...updateData } = req.body;
+
+  // Verify metal exists if provided
+  if (metalId) {
+    const metal = await Metal.findById(metalId);
+    if (!metal) {
+      throw new Error('Metal not found');
+    }
+    updateData.metal = metalId;
+  }
+
+  // Verify stone exists if provided and map stoneTypeId to stoneType
+  if (stoneTypeId !== undefined) {
+    if (stoneTypeId) {
+      // If stoneTypeId is provided (not null/undefined), verify it exists
+      const stone = await Stone.findById(stoneTypeId);
+      if (!stone) {
+        throw new Error('Stone not found');
+      }
+      updateData.stoneType = stoneTypeId;
+    } else {
+      // If stoneTypeId is null/empty, remove the stoneType
+      updateData.stoneType = null;
+    }
+  }
 
   const cart = await Cart.findOneAndUpdate({ _id: id, user: userId }, updateData, { new: true }).populate(['product', 'metal', 'stoneType']);
   if (!cart) throw new Error('Cart item not found');
@@ -100,8 +137,8 @@ router.put('/:id', authenticate, validate(cartIdSchema, 'params'), validate(upda
   const productPrice = cart.product?.price || 0;
   const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
   const stonePrice = cart.stoneType?.price || 0;
-  const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
-
+  const totalPrice = ((productPrice * metalMultiplier) + stonePrice) * (cart.quantity || 1);
+  // const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
   res.json({ success: true, message: 'Cart item updated successfully', data: { ...cart.toObject(), calculatedPrice: totalPrice } });
 }));
 

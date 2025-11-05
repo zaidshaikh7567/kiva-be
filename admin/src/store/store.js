@@ -8,6 +8,8 @@ import usersReducer from './slices/usersSlice';
 import socialHandlesReducer from './slices/socialHandlesSlice';
 import reviewsReducer from './slices/reviewsSlice';
 import collectionsReducer from './slices/collectionsSlice';
+import contactsReducer from './slices/contactsSlice';
+import favoritesReducer from './slices/favoritesSlice';
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +22,8 @@ export const store = configureStore({
     socials: socialHandlesReducer,
     reviews: reviewsReducer,
     collections: collectionsReducer,
+    contacts: contactsReducer,
+    favorites: favoritesReducer,
     // Add other reducers here as needed
     // orders: ordersReducer,
     // etc.

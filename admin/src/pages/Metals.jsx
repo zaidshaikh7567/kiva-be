@@ -9,7 +9,6 @@ import Pagination from '../components/Pagination';
 const Metals = () => {
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
-  console.log('metals :', metals);
   const loading = useSelector(selectMetalsLoading);
   const pagination = useSelector(selectMetalsPagination);
   

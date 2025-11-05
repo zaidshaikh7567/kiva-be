@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon } from 'lucide-react';
+import CustomDropdown from './CustomDropdown';
 
 const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData, mode = 'add', categories = [] }) => {
   const [formData, setFormData] = useState({
@@ -38,10 +39,17 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
   }, [isOpen, categoryData, mode]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e?.target || {};
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleParentCategoryChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      parentId: value || null
     }));
   };
 
@@ -213,23 +221,19 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
             <label className="block text-sm font-montserrat-medium-500 text-black">
               Parent Category (Optional)
             </label>
-            <select
-              name="parentId"
-              value={formData.parentId || ''}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
-              disabled={loading}
-            >
-              <option value="">No parent category</option>
-              {categories
+            <CustomDropdown
+              options={categories
                 .filter(cat => !cat.parent) // Only show categories that don't have a parent (top-level categories)
                 .filter(cat => mode === 'add' || cat._id !== categoryData?._id) // In edit mode, don't show the current category as its own parent
-                .map(category => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                ))}
-            </select>
+                .map(category => ({
+                  value: category._id,
+                  label: category.name
+                }))}
+              value={formData.parentId || ''}
+              onChange={handleParentCategoryChange}
+              placeholder="Select parent category"
+              disabled={loading}
+            />
           </div>
 
           {/* Category Image */}

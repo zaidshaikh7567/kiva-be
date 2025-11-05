@@ -44,6 +44,22 @@ const productSchema = new mongoose.Schema({
   careInstruction: {
     type: String,
     trim: true
+  },
+  shape: {
+    type: String,
+    trim: true
+  },
+  color: {
+    type: String,
+    trim: true
+  },
+  clarity: {
+    type: [String],
+    default: []
+  },
+  certificate: {
+    type: [String],
+    default: []
   }
 }, {
   timestamps: true

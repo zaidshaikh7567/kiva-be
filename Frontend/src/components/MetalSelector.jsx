@@ -4,12 +4,13 @@ import { fetchMetals, selectMetals, selectMetalsLoading } from '../store/slices/
 import { useLocation } from 'react-router-dom';
 
 const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
+console.log('selectedMetal---- :', selectedMetal);
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
   const loading = useSelector(selectMetalsLoading);
 const pathname = useLocation();
-console.log('pathname :', pathname);
 const isProductDetail = pathname?.pathname?.includes('/product/');
+console.log('isProductDetail :', isProductDetail);
 const gridCols = isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-9' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6';
   useEffect(() => {
     dispatch(fetchMetals());
@@ -161,6 +162,7 @@ const gridCols = isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl
 
   // Use API data if available, otherwise use fallback
   const displayMetalOptions = metalOptions.length > 0 ? metalOptions : fallbackMetalOptions;
+  console.log('displayMetalOptions :', displayMetalOptions);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -181,42 +183,47 @@ const gridCols = isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl
         </div>
       ) : (
         <div className={`grid ${isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-9' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6'} gap-2`}>
-          {displayMetalOptions.map((metal) => (
-          <button
-            key={metal.id}
-            onClick={() => onMetalChange(metal)}
-            className={`
-              relative p-1 rounded-lg transition-all duration-300 
-              ${selectedMetal?.id === metal.id 
-                ? 'border-primary ring-1 ring-primary ring-opacity-30  bg-primary-light' 
-                : 'border-secondary hover:border-primary bg-white hover:bg-secondary '
-              }
-            `}
-          >
-            {/* Metal Color Preview with Carat Overlay */}
-            <div 
-              className={`w-full p-2  rounded-lg  bg-gradient-to-r ${metal.gradient} border border-gray-200 relative items-center justify-center `}
-              style={{ background: metal.backgroundColor }}
+          {displayMetalOptions.map((metal) => {
+          // console.log('metal :', metal);
+            return (
+              <button
+              key={metal.id}
+              onClick={() => onMetalChange(metal)}
+              className={`
+                relative p-1 rounded-lg transition-all duration-300 
+                ${selectedMetal?.metalId=== metal.metalId
+                  ? 'border-primary ring-1 ring-primary ring-opacity-30  bg-primary-light' 
+                  : 'border-secondary hover:border-primary bg-white hover:bg-secondary'
+                }
+              `}
             >
-              <div className="font-montserrat-bold-700 text-sm text-black ">
-                {metal.carat}
+              {/* Metal Color Preview with Carat Overlay */}
+              <div 
+                className={`w-full p-2  rounded-lg  bg-gradient-to-r ${metal.gradient} border border-gray-200 relative items-center justify-center `}
+                style={{ background: metal.backgroundColor }}
+              >
+                <div className="font-montserrat-bold-700 text-sm text-black ">
+                  {metal.carat}
+                </div>
+                <div className="font-montserrat-semibold-600 text-black text-sm leading-tight">
+                  {metal.color}
+                </div>
               </div>
-              <div className="font-montserrat-semibold-600 text-black text-sm leading-tight">
-                {metal.color}
-              </div>
-            </div>
-            
-            {/* Metal Info */}
-        
+              
+              {/* Metal Info */}
+          
+  
+              {/* Selected Indicator */}
+              {selectedMetal?.id === metal.id && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center ">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+              )}
+            </button>
+            )
+          })}
 
-            {/* Selected Indicator */}
-            {selectedMetal?.id === metal.id && (
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center ">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-              </div>
-            )}
-          </button>
-          ))}
+        
         </div>
       )}
 
@@ -228,9 +235,9 @@ const gridCols = isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl
               <div className="font-montserrat-semibold-600 text-black text-base">
                 {selectedMetal.carat} {selectedMetal.color}
               </div>
-              <div className="text-sm font-montserrat-regular-400 text-black-light">
+              {/* <div className="text-sm font-montserrat-regular-400 text-black-light">
                 Premium quality metal
-              </div>
+              </div> */}
             </div>
             <div className="text-right">
               <div className="text-sm font-montserrat-medium-500 text-primary-dark">

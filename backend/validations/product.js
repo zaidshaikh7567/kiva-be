@@ -26,6 +26,28 @@ const createProductSchema = zod.object({
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
   stoneTypeId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid stone ObjectId').optional(),
   careInstruction: zod.string().optional(),
+  shape: zod.string().optional(),
+  color: zod.string().optional(),
+  clarity: zod.string().optional().transform((val) => {
+    if (!val) return undefined;
+    try {
+      const parsed = JSON.parse(val);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      throw new Error('clarity must be a valid JSON array');
+    }
+  }).pipe(zod.array(zod.string()).optional()),
+  certificate: zod.string().optional().transform((val) => {
+    if (!val) return undefined;
+    try {
+      const parsed = JSON.parse(val);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      throw new Error('certificate must be a valid JSON array');
+    }
+  }).pipe(zod.array(zod.string()).optional()),
 });
 
 const updateProductSchema = zod.object({
@@ -54,6 +76,28 @@ const updateProductSchema = zod.object({
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
   stoneTypeId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid stone ObjectId').optional(),
   careInstruction: zod.string().optional(),
+  shape: zod.string().optional(),
+  color: zod.string().optional(),
+  clarity: zod.string().optional().transform((val) => {
+    if (!val) return undefined;
+    try {
+      const parsed = JSON.parse(val);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      throw new Error('clarity must be a valid JSON array');
+    }
+  }).pipe(zod.array(zod.string()).optional()),
+  certificate: zod.string().optional().transform((val) => {
+    if (!val) return undefined;
+    try {
+      const parsed = JSON.parse(val);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      throw new Error('certificate must be a valid JSON array');
+    }
+  }).pipe(zod.array(zod.string()).optional()),
 });
 
 const productIdSchema = zod.object({

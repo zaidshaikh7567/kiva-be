@@ -17,7 +17,8 @@ import {
   Zap,
   Diamond,
   Share2,
-  FolderOpen
+  FolderOpen,
+  Mail
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
@@ -86,6 +87,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       label: 'Reviews',
       icon: Star,
       path: '/reviews'
+    },
+    {
+      id: 'contacts',
+      label: 'Contacts',
+      icon: Mail,
+      path: '/contacts'
     },
     {
       id: 'social-handles',

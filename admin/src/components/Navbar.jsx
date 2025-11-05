@@ -45,7 +45,6 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
     if (searchQuery.trim()) {
       // Navigate to appropriate page based on search query
       // You can customize this logic based on your needs
-      console.log('Searching for:', searchQuery);
       // For now, we'll just log it. You can add actual search functionality later
     }
   };

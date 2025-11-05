@@ -6,6 +6,8 @@ import { FaFacebook,  } from "react-icons/fa";
 import { IoLogoWhatsapp } from "react-icons/io";
 import { RiInstagramFill } from "react-icons/ri";
 import AnimatedSection from "../components/home/AnimatedSection";
+import api from "../services/api";
+import { API_METHOD } from "../services/apiMethod";
 const SERVICE_OPTIONS = [
   { value: 'general', label: 'General Inquiry' },
   { value: 'custom', label: 'Custom Design' },
@@ -24,7 +26,6 @@ const Contact = () => {
     message: '',
     service: 'general'
   });
-  console.log('formData----Contact Form Data :', formData);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,8 +158,25 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare data for API (combine subject and message if subject exists)
+      const messageText = formData.subject 
+        ? `Subject: ${formData.subject}\n\n${formData.message}`
+        : formData.message;
+
+      const contactData = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: messageText.trim(),
+        service: formData.service || 'general'
+      };
+
+      // Add phone only if provided
+      if (formData.phone && formData.phone.trim()) {
+        contactData.phone = formData.phone.trim();
+      }
+
+      // Submit contact form
+      await api.post(API_METHOD.contacts, contactData);
       
       // Success
       setSubmitStatus('success');
@@ -172,7 +190,10 @@ const Contact = () => {
       });
       setErrors({});
       
-    } catch {
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to send message. Please try again.';
+      setErrors({ submit: errorMessage });
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -321,7 +342,7 @@ const Contact = () => {
                         </svg>
                       </div>
                       <p className="text-red-800 font-montserrat-medium-500">
-                        Please fix the errors below and try again.
+                        {errors.submit || 'Please fix the errors below and try again.'}
                       </p>
                     </div>
                   </div>

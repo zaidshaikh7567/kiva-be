@@ -9,7 +9,6 @@ import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 const CenterStones = () => {
   const dispatch = useDispatch();
   const centerStones = useSelector(selectCenterStones);
-  console.log('centerStones ---Response :', centerStones);
   
   const loading = useSelector(selectCenterStonesLoading);
   

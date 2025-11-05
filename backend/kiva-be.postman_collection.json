@@ -1084,7 +1084,7 @@
 								"type": "text"
 							}
 						],
-						"description": "Create a new product (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Request Body (Form Data):**\n- title (required): Product title\n- description (required): Product description (Lexical JSON format)\n- subDescription (optional): Short product description\n- price (required): Product price\n- quantity (required): Available quantity\n- categoryId (required): Category ID\n- metalIds (optional): Array of metal IDs as JSON string\n- stoneTypeId (optional): Stone type ID\n- careInstruction (optional): Care instructions\n- images (required): Product images (up to 10 files, jpg/png/jpeg)\n\n**Response:** Returns the created product object with populated references.",
+						"description": "Create a new product (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Request Body (Form Data):**\n- title (required): Product title\n- description (required): Product description (Lexical JSON format)\n- subDescription (optional): Short product description\n- price (required): Product price\n- quantity (required): Available quantity\n- categoryId (required): Category ID\n- metalIds (optional): Array of metal IDs as JSON string\n- stoneTypeId (optional): Stone type ID\n- careInstruction (optional): Care instructions\n- shape (optional): Product shape\n- color (optional): Product color\n- clarity (optional): Clarity array as JSON string (e.g., [\"VS1\", \"VS2\"])\n- certificate (optional): Certificate array as JSON string (e.g., [\"GIA\", \"IGI\"])\n- images (required): Product images (up to 10 files, jpg/png/jpeg)\n\n**Response:** Returns the created product object with populated references.",
 						"body": {
 							"mode": "formdata",
 							"formdata": [
@@ -1141,6 +1141,30 @@
 									"value": "Clean with mild soap and water. Avoid harsh chemicals.",
 									"type": "text",
 									"description": "Care instructions"
+								},
+								{
+									"key": "shape",
+									"value": "Round",
+									"type": "text",
+									"description": "Product shape (optional)"
+								},
+								{
+									"key": "color",
+									"value": "D",
+									"type": "text",
+									"description": "Product color (optional)"
+								},
+								{
+									"key": "clarity",
+									"value": "[\"VS1\", \"VS2\"]",
+									"type": "text",
+									"description": "Clarity array as JSON string (optional)"
+								},
+								{
+									"key": "certificate",
+									"value": "[\"GIA\", \"IGI\"]",
+									"type": "text",
+									"description": "Certificate array as JSON string (optional)"
 								},
 								{
 									"key": "images",
@@ -1201,7 +1225,7 @@
 								"type": "text"
 							}
 						],
-						"description": "Update an existing product by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- productId (required): The unique identifier of the product to update\n\n**Request Body (Form Data - all fields optional):**\n- title: Updated product title\n- description: Updated description (Lexical JSON format)\n- subDescription: Updated short description\n- price: Updated price\n- quantity: Updated quantity\n- categoryId: Updated category ID\n- metalIds: Updated array of metal IDs as JSON string\n- stoneTypeId: Updated stone type ID\n- careInstruction: Updated care instructions\n- images: New product images (up to 10 files)\n\n**Response:** Returns the updated product object with populated references.",
+						"description": "Update an existing product by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- productId (required): The unique identifier of the product to update\n\n**Request Body (Form Data - all fields optional):**\n- title: Updated product title\n- description: Updated description (Lexical JSON format)\n- subDescription: Updated short description\n- price: Updated price\n- quantity: Updated quantity\n- categoryId: Updated category ID\n- metalIds: Updated array of metal IDs as JSON string\n- stoneTypeId: Updated stone type ID\n- careInstruction: Updated care instructions\n- shape: Updated product shape (optional)\n- color: Updated product color (optional)\n- clarity: Updated clarity array as JSON string (optional)\n- certificate: Updated certificate array as JSON string (optional)\n- images: New product images (up to 10 files)\n\n**Response:** Returns the updated product object with populated references.",
 						"body": {
 							"mode": "formdata",
 							"formdata": [
@@ -1246,6 +1270,30 @@
 									"value": "Store in a cool, dry place. Avoid direct sunlight.",
 									"type": "text",
 									"description": "Updated care instructions"
+								},
+								{
+									"key": "shape",
+									"value": "Princess",
+									"type": "text",
+									"description": "Updated product shape (optional)"
+								},
+								{
+									"key": "color",
+									"value": "F",
+									"type": "text",
+									"description": "Updated product color (optional)"
+								},
+								{
+									"key": "clarity",
+									"value": "[\"VVS1\", \"VVS2\"]",
+									"type": "text",
+									"description": "Updated clarity array as JSON string (optional)"
+								},
+								{
+									"key": "certificate",
+									"value": "[\"GIA\", \"AGS\"]",
+									"type": "text",
+									"description": "Updated certificate array as JSON string (optional)"
 								},
 								{
 									"key": "images",

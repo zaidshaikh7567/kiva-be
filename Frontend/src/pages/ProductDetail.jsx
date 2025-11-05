@@ -4,11 +4,18 @@ import { Heart, Star, ShoppingBag, Minus, Plus, Gem, ChevronLeft, ChevronRight, 
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById, selectCurrentProduct, selectProductsLoading, selectProductsError } from '../store/slices/productsSlice';
 import { addCartItem } from '../store/slices/cartSlice';
-import { toggleFavorite as toggleFavoriteAction, selectIsFavorite } from '../store/slices/favoritesSlice';
+import { 
+  toggleFavorite as toggleFavoriteAction, 
+  addToFavoritesAPI, 
+  removeFromFavoritesAPI, 
+  selectIsFavorite 
+} from '../store/slices/favoritesSlice';
+import { selectIsAuthenticated } from '../store/slices/authSlice';
 import PriceDisplay from '../components/PriceDisplay';
 import MetalSelector from '../components/MetalSelector';
 import CustomDropdown from '../components/CustomDropdown';
 import Accordion from '../components/Accordion';
+import ContactBox from '../components/ContactBox';
 import { selectCurrentCurrency, selectCurrencySymbol, selectExchangeRate, convertPrice, formatPrice } from '../store/slices/currencySlice';
 import { fetchStones, selectStones, selectStonesLoading } from '../store/slices/stonesSlice';
 import { selectCategories } from '../store/slices/categoriesSlice';
@@ -27,7 +34,9 @@ const ProductDetail = () => {
   const [selectedMetal, setSelectedMetal] = useState(null);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedCenterStone, setSelectedCenterStone] = useState(null);
+  console.log('selectedCenterStone :', selectedCenterStone);
   const [selectedCarat, setSelectedCarat] = useState(null);
+  console.log('selectedCarat :', selectedCarat);
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const imageContainerRef = useRef(null);
@@ -45,6 +54,7 @@ const ProductDetail = () => {
   const stonesLoading = useSelector(selectStonesLoading);
   const categories = useSelector(selectCategories);
   const isFavorite = useSelector(state => product ? selectIsFavorite(state, product._id || product.id) : false);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   // Fetch product when component mounts or id changes
   useEffect(() => {
@@ -57,7 +67,13 @@ const ProductDetail = () => {
   // Set initial carat when product loads
   useEffect(() => {
     if (product?.stoneType?.name) {
-      setSelectedCarat(product.stoneType.name);
+      // Initialize selectedCarat with both name and ID
+      if (product.stoneType) {
+        setSelectedCarat({
+          name: product.stoneType.name,
+          id: product.stoneType._id || product.stoneType.id
+        });
+      }
     }
   }, [product]);
 
@@ -258,13 +274,22 @@ const ProductDetail = () => {
       if (selectedMetal) {
         cartData.metalId = selectedMetal.metalId;
         cartData.purityLevel = {
-          karat: selectedMetal.carat,
+          karat: Number(selectedMetal.carat.match(/\d+/)[0]),
           priceMultiplier: selectedMetal.priceMultiplier,
         };
       }
 
-      if (selectedCarat && product.stoneType) {
-        cartData.stoneTypeId = product.stoneType._id;
+      console.log('product :', product);
+      console.log('selectedCarat :', selectedCarat);
+      // Use selected stone ID if available, otherwise fallback to product stoneType
+      if (selectedCarat) {
+        if (selectedCarat.id) {
+          cartData.stoneTypeId = selectedCarat.id;
+        } else if (selectedCenterStone?._id) {
+          cartData.stoneTypeId = selectedCenterStone._id;
+        } else if (product.stoneType?._id) {
+          cartData.stoneTypeId = product.stoneType._id;
+        }
       }
 
       if (!isAuthenticated) {
@@ -281,11 +306,20 @@ const ProductDetail = () => {
         }
       }
 
-      await dispatch(addCartItem(cartData));
-      toast.success('Product added to cart!', {
-        duration: 2000,
-        position: 'top-right',
-      });
+     const response = await dispatch(addCartItem(cartData)).unwrap();
+     console.log('response :', response);
+      if (response.success) {
+        toast.success('Product added to cart!', {
+          duration: 3000,
+          position: 'top-right',
+        });
+      } else {
+        toast.error(response.message, {
+          duration: 3000,
+          position: 'top-right',
+        });
+      }
+      // Build success message with selected options
     } catch (error) {
       console.error('Failed to add item to cart:', error);
       toast.error('Failed to add item to cart. Please try again.', {
@@ -303,24 +337,53 @@ const ProductDetail = () => {
     setQuantity(prev => Math.max(1, prev - 1));
   };
 
-  const toggleFavorite = (e) => {
+  const toggleFavorite = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     
     if (!product) return;
     
-    dispatch(toggleFavoriteAction(product));
-    
-    if (isFavorite) {
-      toast.success(`${product.title || product.name} removed from favorites!`, {
-        duration: 2000,
-        position: 'top-right',
-      });
+    const productId = product._id || product.id;
+    if (!productId) {
+      toast.error('Invalid product');
+      return;
+    }
+
+    // Check if product is available
+    if (!product.quantity || product.quantity <= 0) {
+      toast.error('Product is not available');
+      return;
+    }
+
+    if (isAuthenticated) {
+      // Use API for authenticated users
+      if (isFavorite) {
+        await dispatch(removeFromFavoritesAPI(productId));
+        toast.success(`${product.title || product.name} removed from favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      } else {
+        await dispatch(addToFavoritesAPI(productId));
+        toast.success(`${product.title || product.name} added to favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      }
     } else {
-      toast.success(`${product.title || product.name} added to favorites!`, {
-        duration: 2000,
-        position: 'top-right',
-      });
+      // Use localStorage for non-authenticated users
+      dispatch(toggleFavoriteAction(product));
+      if (isFavorite) {
+        toast.success(`${product.title || product.name} removed from favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      } else {
+        toast.success(`${product.title || product.name} added to favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      }
     }
   };
 
@@ -333,12 +396,23 @@ const ProductDetail = () => {
   };
 
   const handleCaratChange = (carat) => {
-    setSelectedCarat(carat);
+    // Find stone by carat name
     const stone = stones.find(stone => 
       stone.name.toLowerCase().includes(carat.toLowerCase())
     );
     if (stone) {
+      // Save both name and ID in selectedCarat
+      setSelectedCarat({
+        name: stone.name,
+        id: stone._id || stone.id
+      });
       setSelectedCenterStone(stone);
+    } else {
+      // Fallback: if stone not found, just save the name
+      setSelectedCarat({
+        name: carat,
+        id: null
+      });
     }
   };
 
@@ -610,7 +684,7 @@ const ProductDetail = () => {
                               key={stone._id}
                               onClick={() => handleCaratChange(stone.name)}
                               className={`px-4 py-2 rounded-full border-2 transition-all duration-200 font-montserrat-medium-500 ${
-                                selectedCarat === stone.name
+                                (selectedCarat?.name === stone.name || selectedCarat?.id === stone._id) || (typeof selectedCarat === 'string' && selectedCarat === stone.name)
                                   ? 'border-primary bg-primary text-white'
                                   : 'border-gray-200 bg-white text-black hover:border-primary hover:bg-primary-light'
                               }`}
@@ -659,7 +733,7 @@ const ProductDetail = () => {
                     {isRing && selectedCarat && (
                       <div className="flex justify-between">
                         <span>Center Stone:</span>
-                        <span>{selectedCarat}</span>
+                        <span>{typeof selectedCarat === 'string' ? selectedCarat : selectedCarat.name}</span>
                       </div>
                     )}
                     {isRing && selectedRingSize && (
@@ -723,6 +797,9 @@ const ProductDetail = () => {
                   <ShoppingBag className="w-5 h-5" />
                   <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span>
                 </button>
+
+                {/* Contact Box */}
+                <ContactBox />
 
                 {/* Additional Info */}
                 <div className="text-xs font-montserrat-regular-400 text-black-light text-center">

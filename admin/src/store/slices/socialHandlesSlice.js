@@ -4,10 +4,20 @@ import { API_METHOD } from '../../services/apiMethod';
 
 export const fetchSocialHandles = createAsyncThunk(
   'socials/fetchAll',
-  async (_,{ rejectWithValue }) => {
+  async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
-      const res = await api.get(API_METHOD.socials);
-      return res.data.data || res.data;
+      const res = await api.get(API_METHOD.socials, {
+        params: { page, limit }
+      });
+      return {
+        data: res.data.data || [],
+        pagination: res.data.pagination || {
+          currentPage: page,
+          totalPages: 1,
+          totalRecords: res.data.data?.length || 0,
+          limit
+        }
+      };
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message);
     }
@@ -62,6 +72,12 @@ export const deleteSocialHandle = createAsyncThunk(
 
 const initialState = {
   items: [],
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalRecords: 0,
+    limit: 10
+  },
   loading: false,
   error: null,
 };
@@ -75,10 +91,18 @@ const socialHandlesSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchSocialHandles.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(fetchSocialHandles.fulfilled, (state, action) => { state.loading = false; state.items = action.payload; })
+      .addCase(fetchSocialHandles.fulfilled, (state, action) => { 
+        state.loading = false; 
+        state.items = action.payload.data || [];
+        state.pagination = action.payload.pagination || state.pagination;
+      })
       .addCase(fetchSocialHandles.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(createSocialHandle.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(createSocialHandle.fulfilled, (state, action) => { state.loading = false; state.items.unshift(action.payload); })
+      .addCase(createSocialHandle.fulfilled, (state, action) => { 
+        state.loading = false; 
+        state.items.unshift(action.payload);
+        state.pagination.totalRecords += 1;
+      })
       .addCase(createSocialHandle.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(updateSocialHandle.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(updateSocialHandle.fulfilled, (state, action) => {
@@ -89,7 +113,9 @@ const socialHandlesSlice = createSlice({
       .addCase(updateSocialHandle.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(deleteSocialHandle.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(deleteSocialHandle.fulfilled, (state, action) => {
-        state.loading = false; state.items = state.items.filter(s => (s._id || s.id) !== action.payload);
+        state.loading = false; 
+        state.items = state.items.filter(s => (s._id || s.id) !== action.payload);
+        state.pagination.totalRecords = Math.max(0, state.pagination.totalRecords - 1);
       })
       .addCase(deleteSocialHandle.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
   }
@@ -100,6 +126,7 @@ export const { clearSocialsError } = socialHandlesSlice.actions;
 export const selectSocialHandles = (state) => state.socials.items;
 export const selectSocialHandlesLoading = (state) => state.socials.loading;
 export const selectSocialHandlesError = (state) => state.socials.error;
+export const selectSocialHandlesPagination = (state) => state.socials.pagination;
 
 export default socialHandlesSlice.reducer;
 

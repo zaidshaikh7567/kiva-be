@@ -1,113 +1,27 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
+import api from '../../services/api';
+import { API_METHOD } from '../../services/apiMethod';
 
-// Dummy data
-const DUMMY_COLLECTIONS = [
-  {
-    _id: '1',
-    title: 'Youth Collection',
-    category: 'necklaces',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    images: [
-      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop'
-    ],
-    isNew: true,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    _id: '2',
-    title: 'Classic Collection',
-    category: 'rings',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    images: [
-      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop'
-    ],
-    isNew: false,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    _id: '3',
-    title: 'Luxury Collection',
-    category: 'bracelets',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    images: [],
-    isNew: true,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    _id: '4',
-    title: 'Elegant Earrings',
-    category: 'earrings',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-    images: [
-      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&h=600&fit=crop'
-    ],
-    isNew: false,
-    isActive: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    _id: '5',
-    title: 'Premium Watches',
-    category: 'watches',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
-    images: [
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop'
-    ],
-    isNew: true,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
-
-// Simulate API delay
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Helper to generate unique ID
-const generateId = () => {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-};
-
-// Helper to create image preview URLs from File objects
-const createImagePreview = (file) => {
-  return URL.createObjectURL(file);
-};
-
-// Async thunks with dummy data
+// Fetch collections with pagination
 export const fetchCollections = createAsyncThunk(
   'collections/fetchCollections',
   async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
-      await delay(500); // Simulate API delay
-      
-      // Get paginated data
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      const paginatedCollections = DUMMY_COLLECTIONS.slice(startIndex, endIndex);
-      const totalRecords = DUMMY_COLLECTIONS.length;
-      const totalPages = Math.ceil(totalRecords / limit);
-      
+      const res = await api.get(API_METHOD.collections, {
+        params: { page, limit }
+      });
       return {
-        collections: paginatedCollections,
-        pagination: {
+        collections: res.data.data || [],
+        pagination: res.data.pagination || {
           currentPage: page,
-          totalPages,
-          totalRecords,
+          totalPages: 1,
+          totalRecords: res.data.data?.length || 0,
           limit
         }
       };
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch collections');
+      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch collections');
     }
   }
 );
@@ -116,16 +30,10 @@ export const fetchSingleCollection = createAsyncThunk(
   'collections/fetchSingleCollection',
   async (collectionId, { rejectWithValue }) => {
     try {
-      await delay(300);
-      const collection = DUMMY_COLLECTIONS.find(c => c._id === collectionId);
-      
-      if (!collection) {
-        return rejectWithValue('Collection not found');
-      }
-      
-      return collection;
+      const res = await api.get(`${API_METHOD.collections}/${collectionId}`);
+      return res.data.data || res.data;
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch collection');
+      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch collection');
     }
   }
 );
@@ -134,38 +42,39 @@ export const createCollection = createAsyncThunk(
   'collections/createCollection',
   async (collectionData, { rejectWithValue }) => {
     try {
-      await delay(800); // Simulate API delay
+      const formData = new FormData();
       
-      // Create image previews for File objects
-      let imageUrls = [];
-      if (collectionData.images && collectionData.images.length > 0) {
-        imageUrls = collectionData.images.map(img => {
-          if (img instanceof File) {
-            return createImagePreview(img);
+      // Add text fields
+      if (collectionData.title) formData.append('title', collectionData.title);
+      if (collectionData.category) formData.append('category', collectionData.category);
+      if (collectionData.video && typeof collectionData.video === 'string') {
+        formData.append('video', collectionData.video);
+      }
+      if (typeof collectionData.isNew === 'boolean') formData.append('isNew', String(collectionData.isNew));
+      if (typeof collectionData.isActive === 'boolean') formData.append('isActive', String(collectionData.isActive));
+      
+      // Add images
+      if (collectionData.images && Array.isArray(collectionData.images)) {
+        collectionData.images.forEach((image) => {
+          if (image instanceof File) {
+            formData.append('images', image);
           }
-          return img;
         });
       }
       
-      const newCollection = {
-        _id: generateId(),
-        title: collectionData.title,
-        category: collectionData.category,
-        video: collectionData.video,
-        images: imageUrls,
-        isNew: collectionData.isNew || false,
-        isActive: collectionData.isActive !== undefined ? collectionData.isActive : true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      // Add video file if present
+      if (collectionData.videoFile && collectionData.videoFile instanceof File) {
+        formData.append('video', collectionData.videoFile);
+      }
       
-      // Add to dummy data (for this session)
-      DUMMY_COLLECTIONS.unshift(newCollection);
+      const res = await api.post(API_METHOD.collections, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       
       toast.success('Collection created successfully!');
-      return newCollection;
+      return res.data.data || res.data;
     } catch (error) {
-      const errorMessage = error.message || 'Failed to create collection';
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to create collection';
       toast.error(errorMessage);
       return rejectWithValue(errorMessage);
     }
@@ -176,39 +85,39 @@ export const updateCollection = createAsyncThunk(
   'collections/updateCollection',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await delay(800); // Simulate API delay
+      const formData = new FormData();
       
-      const index = DUMMY_COLLECTIONS.findIndex(c => c._id === id);
-      if (index === -1) {
-        return rejectWithValue('Collection not found');
+      // Add text fields only if they're provided
+      if (data.title !== undefined) formData.append('title', data.title);
+      if (data.category !== undefined) formData.append('category', data.category);
+      if (data.video !== undefined && typeof data.video === 'string') {
+        formData.append('video', data.video);
+      }
+      if (typeof data.isNew === 'boolean') formData.append('isNew', String(data.isNew));
+      if (typeof data.isActive === 'boolean') formData.append('isActive', String(data.isActive));
+      
+      // Add new images (only File objects)
+      if (data.images && Array.isArray(data.images)) {
+        data.images.forEach((image) => {
+          if (image instanceof File) {
+            formData.append('images', image);
+          }
+        });
       }
       
-      // Create image previews for new File objects, keep existing URLs
-      let imageUrls = [...(DUMMY_COLLECTIONS[index].images || [])];
-      if (data.images && data.images.length > 0) {
-        const newImageUrls = data.images
-          .filter(img => img instanceof File)
-          .map(img => createImagePreview(img));
-        imageUrls = [...imageUrls, ...newImageUrls];
+      // Add video file if present
+      if (data.videoFile && data.videoFile instanceof File) {
+        formData.append('video', data.videoFile);
       }
       
-      const updatedCollection = {
-        ...DUMMY_COLLECTIONS[index],
-        title: data.title !== undefined ? data.title : DUMMY_COLLECTIONS[index].title,
-        category: data.category !== undefined ? data.category : DUMMY_COLLECTIONS[index].category,
-        video: data.video !== undefined ? data.video : DUMMY_COLLECTIONS[index].video,
-        images: imageUrls,
-        isNew: data.isNew !== undefined ? data.isNew : DUMMY_COLLECTIONS[index].isNew,
-        isActive: data.isActive !== undefined ? data.isActive : DUMMY_COLLECTIONS[index].isActive,
-        updatedAt: new Date().toISOString()
-      };
-      
-      DUMMY_COLLECTIONS[index] = updatedCollection;
+      const res = await api.put(`${API_METHOD.collections}/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       
       toast.success('Collection updated successfully!');
-      return updatedCollection;
+      return res.data.data || res.data;
     } catch (error) {
-      const errorMessage = error.message || 'Failed to update collection';
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update collection';
       toast.error(errorMessage);
       return rejectWithValue(errorMessage);
     }
@@ -219,19 +128,11 @@ export const deleteCollection = createAsyncThunk(
   'collections/deleteCollection',
   async (collectionId, { rejectWithValue }) => {
     try {
-      await delay(500); // Simulate API delay
-      
-      const index = DUMMY_COLLECTIONS.findIndex(c => c._id === collectionId);
-      if (index === -1) {
-        return rejectWithValue('Collection not found');
-      }
-      
-      DUMMY_COLLECTIONS.splice(index, 1);
-      
+      await api.delete(`${API_METHOD.collections}/${collectionId}`);
       toast.success('Collection deleted successfully!');
       return collectionId;
     } catch (error) {
-      const errorMessage = error.message || 'Failed to delete collection';
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete collection';
       toast.error(errorMessage);
       return rejectWithValue(errorMessage);
     }
