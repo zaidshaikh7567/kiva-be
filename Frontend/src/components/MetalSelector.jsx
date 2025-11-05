@@ -3,14 +3,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMetals, selectMetals, selectMetalsLoading } from '../store/slices/metalsSlice';
 import { useLocation } from 'react-router-dom';
 
-const MetalSelector = ({ selectedMetal, onMetalChange, className = "" }) => {
-console.log('selectedMetal---- :', selectedMetal);
+const MetalSelector = ({ selectedMetal, onMetalChange, className = "",product }) => {
+// console.log('product---- :', product);
+// console.log('selectedMetal---- :', selectedMetal);
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
   const loading = useSelector(selectMetalsLoading);
 const pathname = useLocation();
 const isProductDetail = pathname?.pathname?.includes('/product/');
-console.log('isProductDetail :', isProductDetail);
+// console.log('isProductDetail :', isProductDetail);
 const gridCols = isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-9' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6';
   useEffect(() => {
     dispatch(fetchMetals());
@@ -162,7 +163,7 @@ const gridCols = isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl
 
   // Use API data if available, otherwise use fallback
   const displayMetalOptions = metalOptions.length > 0 ? metalOptions : fallbackMetalOptions;
-  console.log('displayMetalOptions :', displayMetalOptions);
+  // console.log('displayMetalOptions :', displayMetalOptions);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -191,7 +192,7 @@ const gridCols = isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl
               onClick={() => onMetalChange(metal)}
               className={`
                 relative p-1 rounded-lg transition-all duration-300 
-                ${selectedMetal?.metalId=== metal.metalId
+                ${selectedMetal?.id === metal.id  
                   ? 'border-primary ring-1 ring-primary ring-opacity-30  bg-primary-light' 
                   : 'border-secondary hover:border-primary bg-white hover:bg-secondary'
                 }
