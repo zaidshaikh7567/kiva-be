@@ -26,6 +26,7 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
         { path: 'stoneType' }
       ]
     })
+    .populate('user', 'name email')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);

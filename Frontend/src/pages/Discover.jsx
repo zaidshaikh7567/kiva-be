@@ -26,198 +26,63 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { BsInstagram } from "react-icons/bs";
-
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchActiveSocialHandles, selectActiveSocialHandles } from '../store/slices/socialHandlesSlice';
+import { fetchActiveCollections, selectActiveCollections, selectCollectionsLoading } from '../store/slices/collectionsSlice';
+import { FaFacebook, FaInstagram,FaWhatsapp  } from "react-icons/fa";
+// Platform icon mapping
+const getPlatformIcon = (platform) => {
+  const platformLower = platform?.toLowerCase() || '';
+  switch (platformLower.toLowerCase()) {
+    case 'instagram':
+      return <FaInstagram className="w-5 h-5" />;
+    case 'facebook':
+      return < FaFacebook className="w-5 h-5" />;
+    default:
+    // case 'twitter':
+    //   return <Twitter className="w-5 h-5" />;
+    // case 'linkedin':
+    //   return <Linkedin className="w-5 h-5" />;
+    // case 'pinterest':
+    //   return <Pinterest className="w-5 h-5" />;
+    // default:
+      return <Share2 className="w-5 h-5" />;
+  }
+};
 const Discover = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState(null);
   const [muted, setMuted] = useState(true);
-  const [likedItems, setLikedItems] = useState(new Set());
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
+  const dispatch = useDispatch();
+  const socialHandles = useSelector(selectActiveSocialHandles);
+  const collections = useSelector(selectActiveCollections);
+  const collectionsLoading = useSelector(selectCollectionsLoading);
 
-  // Collections data with real images and videos for testing
-  const collections = [
-    {
-      id: 1,
-      title: "Youth Collection",
-      subtitle: "Trendy & Delicate",
-      images: [
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=500&fit=crop&crop=center"
-      ],
-      video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      category: "necklaces",
-      isNew: true,
-      isFeatured: true,
-      description: "Trendy gold chains in bracelets and necklaces look very delicate"
-    },
-    {
-      id: 2,
-      title: "Elegance Series",
-      subtitle: "Sophisticated & Timeless",
-      images: [
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=500&fit=crop&crop=center"
-      ],
-      video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-      category: "rings",
-      isNew: false,
-      isFeatured: true,
-      description: "Sophisticated pieces for special occasions"
-    },
-    {
-      id: 3,
-      title: "Minimalist Gold",
-      subtitle: "Clean & Contemporary",
-      images: [
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=500&fit=crop&crop=center"
-      ],
-      video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-      category: "earrings",
-      isNew: true,
-      isFeatured: false,
-      description: "Clean lines and contemporary design"
-    },
-    {
-      id: 4,
-      title: "Vintage Revival",
-      subtitle: "Classic & Modern",
-      images: [
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=500&fit=crop&crop=center"
-      ],
-      video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-      category: "bracelets",
-      isNew: false,
-      isFeatured: false,
-      description: "Classic designs with modern twist"
-    },
-    {
-      id: 5,
-      title: "Pearl Dreams",
-      subtitle: "Timeless & Elegant",
-      images: [
-        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=500&fit=crop&crop=center"
-      ],
-      video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-      category: "necklaces",
-      isNew: true,
-      isFeatured: true,
-      description: "Timeless elegance with freshwater pearls"
-    },
-    {
-      id: 6,
-      title: "Diamond Sparkle",
-      subtitle: "Luxury & Brilliant",
-      images: [
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=500&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=500&fit=crop&crop=center"
-      ],
-      video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-      category: "rings",
-      isNew: false,
-      isFeatured: true,
-      description: "Brilliant diamonds in contemporary settings"
-    }
-  ];
+  useEffect(() => {
+    // Fetch active social handles
+    dispatch(fetchActiveSocialHandles({ page: 1, limit: 100 }));
+    // Fetch active collections
+    dispatch(fetchActiveCollections({ page: 1, limit: 100 }));
+  }, [dispatch]);
 
+  // Use API collections data only
+  const displayCollections = collections || [];
   const categories = [
-    { id: 'all', name: 'All Collections', count: collections.length },
-    { id: 'necklaces', name: 'Necklaces', count: collections.filter(c => c.category === 'necklaces').length },
-    { id: 'rings', name: 'Rings', count: collections.filter(c => c.category === 'rings').length },
-    { id: 'earrings', name: 'Earrings', count: collections.filter(c => c.category === 'earrings').length },
-    { id: 'bracelets', name: 'Bracelets', count: collections.filter(c => c.category === 'bracelets').length }
-  ];
-
-  // Social Media Gallery Data - Dynamic and easily configurable
-  const socialGalleryItems = [
-    {
-      id: 1,
-      image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop&crop=center",
-      alt: "Golden Hair Clip",
-      link: "#",
-      bgColor: "bg-white"
-    },
-    {
-      id: 2,
-      image: "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&h=400&fit=crop&crop=center",
-      alt: "Earrings Collection",
-      link: "#",
-      bgColor: "bg-[#F5F1E8]"
-    },
-    {
-      id: 3,
-      image: "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&h=400&fit=crop&crop=center",
-      alt: "Necklace Collection",
-      link: "#",
-      bgColor: "bg-[#F5F1E8]"
-    },
-    {
-      id: 4,
-      image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop&crop=center",
-      alt: "Bracelet Collection",
-      link: "#",
-      bgColor: "bg-gray-200"
-    },
-    {
-      id: 5,
-      image: "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=400&fit=crop&crop=center",
-      alt: "Fashion Portrait",
-      link: "#",
-      bgColor: "bg-gray-300"
-    },
-    {
-      id: 6,
-      image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop&crop=center",
-      alt: "Jewelry Showcase",
-      link: "#",
-      bgColor: "bg-gray-300"
-    },
-    {
-      id: 7,
-      image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop&crop=center",
-      alt: "Elegant Accessories",
-      link: "#",
-      bgColor: "bg-gray-300"
-    },
-    {
-      id: 8,
-      image: "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=400&fit=crop&crop=center",
-      alt: "Luxury Collection",
-      link: "#",
-      bgColor: "bg-gray-300"
-    },
-    {
-      id: 9,
-      image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop&crop=center",
-      alt: "Designer Pieces",
-      link: "#",
-      bgColor: "bg-gray-300"
-    }
+    { id: 'all', name: 'All Collections', count: displayCollections.length },
+    { id: 'necklaces', name: 'Necklaces', count: displayCollections.filter(c => c.category === 'necklaces').length },
+    { id: 'rings', name: 'Rings', count: displayCollections.filter(c => c.category === 'rings').length },
+    { id: 'earrings', name: 'Earrings', count: displayCollections.filter(c => c.category === 'earrings').length },
+    { id: 'bracelets', name: 'Bracelets', count: displayCollections.filter(c => c.category === 'bracelets').length }
   ];
 
   const filteredCollections = selectedCategory === 'all' 
-    ? collections 
-    : collections.filter(c => c.category === selectedCategory);
-
+    ? displayCollections 
+    : displayCollections.filter(c => c.category === selectedCategory);
   // Auto-advance video slider
   useEffect(() => {
     if (isVideoPlaying) {
@@ -257,18 +122,6 @@ const Discover = () => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [fullscreenImage]);
-
-  const toggleLike = (id) => {
-    setLikedItems(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
 
   const toggleVideo = (id) => {
     setActiveVideo(activeVideo === id ? null : id);
@@ -364,83 +217,104 @@ const Discover = () => {
       </section>
 
       {/* Video Slider Section */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl font-sorts-mill-gloudy font-thin text-gray-900 mb-2 sm:mb-4">
-              Collection Videos
-            </h2>
-            <p className="text-gray-600 font-montserrat-regular-400">
-              Watch our collections come to life
-            </p>
-          </div>
-
-          <div className="relative max-w-4xl mx-auto">
-            <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-black shadow-2xl">
-              <div className="aspect-video">
-                <video
-                  className="w-full h-full object-cover"
-                  src={filteredCollections[currentVideoIndex]?.video}
-                  muted
-                  loop
-                  autoPlay
-                />
-                <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                  <button
-                    onClick={() => setIsVideoPlaying(!isVideoPlaying)}
-                    className="w-12 h-12 sm:w-16 sm:h-16 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg"
-                  >
-                    {isVideoPlaying ? <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-primary-dark" /> : <Play className="w-5 h-5 sm:w-6 sm:h-6 text-primary-dark ml-1" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Video Info */}
-              <div className="absolute bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6">
-                <div className="bg-black/60 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4">
-                  <h3 className="text-white text-lg sm:text-xl font-sorts-mill-gloudy font-medium mb-1">
-                    {filteredCollections[currentVideoIndex]?.title}
-                  </h3>
-                  <p className="text-white/80 text-xs sm:text-sm font-montserrat-regular-400">
-                    {filteredCollections[currentVideoIndex]?.subtitle}
-                  </p>
-                </div>
-              </div>
-
-              {/* Navigation */}
-              <button
-                onClick={prevVideo}
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 backdrop-blur-sm"
-              >
-                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-              <button
-                onClick={nextVideo}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 backdrop-blur-sm"
-              >
-                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
+      {displayCollections.length > 0 && (
+        <section className="py-12 sm:py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl font-sorts-mill-gloudy font-thin text-gray-900 mb-2 sm:mb-4">
+                Collection Videos
+              </h2>
+              <p className="text-gray-600 font-montserrat-regular-400">
+                Watch our collections come to life
+              </p>
             </div>
 
-            {/* Video Thumbnails */}
-            <div className="flex justify-center gap-2 sm:gap-3 mt-4 sm:mt-6">
-              {filteredCollections.map((collection, index) => (
+            <div className="relative max-w-4xl mx-auto">
+              <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-black shadow-2xl">
+                <div className="aspect-video">
+                  <video
+                    className="w-full h-full object-cover"
+                    src={filteredCollections[currentVideoIndex]?.video || ''}
+                    muted
+                    loop
+                    autoPlay
+                  />
+                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                    <button
+                      onClick={() => setIsVideoPlaying(!isVideoPlaying)}
+                      className="w-12 h-12 sm:w-16 sm:h-16 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg"
+                    >
+                      {isVideoPlaying ? <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-primary-dark" /> : <Play className="w-5 h-5 sm:w-6 sm:h-6 text-primary-dark ml-1" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Video Info */}
+                <div className="absolute bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6">
+                  <div className="bg-black/60 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4">
+                    <h3 className="text-white text-lg sm:text-xl font-sorts-mill-gloudy font-medium mb-1">
+                      {filteredCollections[currentVideoIndex]?.title || 'Collection'}
+                    </h3>
+                    <p className="text-white/80 text-xs sm:text-sm font-montserrat-regular-400">
+                      {filteredCollections[currentVideoIndex]?.category || ''}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Navigation */}
                 <button
-                  key={index}
-                  onClick={() => setCurrentVideoIndex(index)}
-                  className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
-                    index === currentVideoIndex ? 'bg-primary' : 'bg-gray-300'
-                  }`}
-                />
-              ))}
+                  onClick={prevVideo}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 backdrop-blur-sm"
+                >
+                  <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+                <button
+                  onClick={nextVideo}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 backdrop-blur-sm"
+                >
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              </div>
+
+              {/* Video Thumbnails */}
+              <div className="flex justify-center gap-2 sm:gap-3 mt-4 sm:mt-6">
+                {filteredCollections.map((collection, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentVideoIndex(index)}
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
+                      index === currentVideoIndex ? 'bg-primary' : 'bg-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Beautiful Image Gallery */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
+          {collectionsLoading && displayCollections.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="font-montserrat-regular-400 text-black-light">Loading collections...</p>
+              </div>
+            </div>
+          ) : displayCollections.length === 0 ? (
+            <div className="text-center py-12">
+              <Video className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-sorts-mill-gloudy font-bold text-black mb-2">
+                No Collections Found
+              </h3>
+              <p className="font-montserrat-regular-400 text-black-light">
+                No active collections available at the moment.
+              </p>
+            </div>
+          ) : (
+            <>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-12 gap-6">
             <div className="text-center lg:text-left">
               <h2 className="text-2xl md:text-3xl font-sorts-mill-gloudy font-thin text-gray-900 mb-2">
@@ -494,17 +368,17 @@ const Discover = () => {
           {viewMode === 'grid' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {filteredCollections.map((collection) => (
-                <div key={collection.id} className="group bg-white  shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
+                <div key={collection._id || collection.id} className="group bg-white  shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
                   <div className="relative aspect-[4/5] overflow-hidden">
                     <img
-                      src={collection.images[0]}
-                      alt={collection.title}
+                      src={collection.images?.[0] || 'https://via.placeholder.com/400x500'}
+                      alt={collection.title || 'Collection'}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <button
-                        onClick={() => toggleVideo(collection.id)}
+                        onClick={() => toggleVideo(collection._id || collection.id)}
                         className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg"
                       >
                         <Play className="w-5 h-5 text-primary-dark ml-1" />
@@ -515,11 +389,6 @@ const Discover = () => {
                       {collection.isNew && (
                         <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-montserrat-medium-500">
                           NEW
-                        </span>
-                      )}
-                      {collection.isFeatured && (
-                        <span className="bg-primary text-white px-2 py-1 rounded-full text-xs font-montserrat-medium-500">
-                          FEATURED
                         </span>
                       )}
                     </div>
@@ -550,15 +419,15 @@ const Discover = () => {
                     </p> */}
                     
                     <div className="grid grid-cols-3 gap-1">
-                      {collection.images.slice(0, 3).map((image, index) => (
+                      {(collection.images || []).slice(0, 3).map((image, index) => (
                         <div
                           key={index}
                           className="relative aspect-square overflow-hidden cursor-pointer group/thumb"
-                          onClick={() => setFullscreenImage({ collection: collection.title, images: collection.images, image, index })}
+                          onClick={() => setFullscreenImage({ collection: collection.title || 'Collection', images: collection.images || [], image, index })}
                         >
                           <img
                             src={image}
-                            alt={`${collection.title} ${index + 1}`}
+                            alt={`${collection.title || 'Collection'} ${index + 1}`}
                             className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
                           />
                           
@@ -569,10 +438,10 @@ const Discover = () => {
                             </div>
                           </div>
 
-                          {index === 2 && collection.images.length > 3 && (
+                          {index === 2 && (collection.images || []).length > 3 && (
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
                               <span className="text-white text-xs font-montserrat-medium-500">
-                                +{collection.images.length - 3}
+                                +{(collection.images || []).length - 3}
                               </span>
                             </div>
                           )}
@@ -586,17 +455,17 @@ const Discover = () => {
           ) : (
             <div className="space-y-4 sm:space-y-6">
               {filteredCollections.map((collection) => (
-                <div key={collection.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
+                <div key={collection._id || collection.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
                   <div className="flex flex-col lg:flex-row">
                     <div className="w-full lg:w-80 aspect-square lg:aspect-auto relative">
                       <img
-                        src={collection.images[0]}
-                        alt={collection.title}
+                        src={collection.images?.[0] || 'https://via.placeholder.com/400x500'}
+                        alt={collection.title || 'Collection'}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                         <button
-                          onClick={() => toggleVideo(collection.id)}
+                          onClick={() => toggleVideo(collection._id || collection.id)}
                           className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg"
                         >
                           <Play className="w-5 h-5 text-primary-dark ml-1" />
@@ -606,22 +475,22 @@ const Discover = () => {
                     
                     <div className="flex-1 p-4 sm:p-6 lg:p-8">
                       <h3 className="text-xl sm:text-2xl font-sorts-mill-gloudy font-medium text-gray-900 mb-2">
-                        {collection.title}
+                        {collection.title || 'Collection'}
                       </h3>
                       <p className="text-gray-600 font-montserrat-regular-400 mb-4">
-                        {collection.subtitle}
+                        {collection.category || ''}
                       </p>
                       
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                        {collection.images.slice(0, 4).map((image, index) => (
+                        {(collection.images || []).slice(0, 4).map((image, index) => (
                           <div
                             key={index}
                             className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group/thumb"
-                            onClick={() => setFullscreenImage({ collection: collection.title, images: collection.images, image, index })}
+                            onClick={() => setFullscreenImage({ collection: collection.title || 'Collection', images: collection.images || [], image, index })}
                           >
                             <img
                               src={image}
-                              alt={`${collection.title} ${index + 1}`}
+                              alt={`${collection.title || 'Collection'} ${index + 1}`}
                               className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
                             />
                             
@@ -632,10 +501,10 @@ const Discover = () => {
                               </div>
                             </div>
 
-                            {index === 3 && collection.images.length > 4 && (
+                            {index === 3 && (collection.images || []).length > 4 && (
                               <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
                                 <span className="text-white text-xs sm:text-sm font-montserrat-medium-500">
-                                  +{collection.images.length - 4}
+                                  +{(collection.images || []).length - 4}
                                 </span>
                               </div>
                             )}
@@ -647,6 +516,8 @@ const Discover = () => {
                 </div>
               ))}
             </div>
+          )}
+            </>
           )}
         </div>
       </section>
@@ -724,10 +595,11 @@ const Discover = () => {
         }}
         className="social-gallery-slider"
       >
-        {socialGalleryItems.map((item) => (
-          <div key={item.id} className="px-1 md:px-2">
+        {socialHandles.map((item) => (
+          <div key={item._id} className="px-1 md:px-2">
             <div className="relative group h-full w-full overflow-hidden aspect-square shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer">
               {/* Background Image */}
+              <a href={item.url} target="_blank" rel="noopener noreferrer">
               <img
                 src={item.image}
                 alt={item.alt}
@@ -738,11 +610,13 @@ const Discover = () => {
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 {/* Instagram Icon - Shows on Hover */}
                 <div className="transform transition-transform duration-500 group-hover:scale-110 hover:rotate-90">
-                  <div className="rounded-2xl p-3 md:p-4 ">
-                   <BsInstagram className="w-6 h-6 text-white" />
+                  <div className="rounded-2xl p-3 md:p-4 text-white">
+                    {getPlatformIcon(item.platform)}
+                   {/* <BsInstagram className="w-6 h-6 text-white" /> */}
                   </div>
                 </div>
               </div>
+              </a>
             </div>
           </div>
         ))}
@@ -813,13 +687,13 @@ const Discover = () => {
                 muted={muted}
                 autoPlay
               >
-                <source src={collections.find(c => c.id === activeVideo)?.video} type="video/mp4" />
+                <source src={displayCollections.find(c => (c._id || c.id) === activeVideo)?.video} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
             <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
               <h3 className="text-white text-lg font-sorts-mill-gloudy font-medium">
-                {collections.find(c => c.id === activeVideo)?.title} - Collection Video
+                {displayCollections.find(c => (c._id || c.id) === activeVideo)?.title || 'Collection'} - Collection Video
               </h3>
               <button
                 onClick={toggleMute}

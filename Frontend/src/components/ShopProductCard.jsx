@@ -2,11 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Heart, ShoppingBag, Eye, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart } from '../store/slices/cartSlice';
-import { toggleFavorite, selectIsFavorite } from '../store/slices/favoritesSlice';
+import { addCartItem, addToCart } from '../store/slices/cartSlice';
+import { 
+  toggleFavorite, 
+  addToFavoritesAPI, 
+  removeFromFavoritesAPI, 
+  selectIsFavorite 
+} from '../store/slices/favoritesSlice';
+import { selectIsAuthenticated } from '../store/slices/authSlice';
 import PriceDisplay from './PriceDisplay';
 import ProductDetailsModal from './ProductDetailsModal';
 import CustomDropdown from './CustomDropdown';
+import MetalSelector from './MetalSelector';
 import { RING_SIZES } from '../services/centerStonesApi';
 import { selectCategories } from '../store/slices/categoriesSlice';
 import toast from 'react-hot-toast';
@@ -14,12 +21,14 @@ import { extractPlainText } from '../helpers/lexicalToHTML';
 
 const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }) => {
   const [showQuickView, setShowQuickView] = useState(false);
-  const [showRingSizeModal, setShowRingSizeModal] = useState(false);
+  const [showAddToCartModal, setShowAddToCartModal] = useState(false);
   const [selectedRingSize, setSelectedRingSize] = useState('');
+  const [selectedMetal, setSelectedMetal] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const isFavorite = useSelector(state => selectIsFavorite(state, product._id));
+  const isFavorite = useSelector(state => selectIsFavorite(state, product._id || product.id));
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const categories = useSelector(selectCategories);
 
   // Check if product is a ring
@@ -43,48 +52,115 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
     setSelectedRingSize(size);
   };
 
-  const handleConfirmRingSize = () => {
-    if (!selectedRingSize) {
-      toast.error('Please select a ring size', {
+  const handleMetalChange = (metal) => {
+    setSelectedMetal(metal);
+  };
+
+  const handleConfirmAddToCart = async () => {
+    try {
+      // Validate ring size for rings
+      if (isRing() && !selectedRingSize) {
+        toast.error('Please select a ring size', {
+          duration: 2000,
+          position: 'top-right',
+        });
+        return;
+      }
+
+      // Validate metal selection
+      if (!selectedMetal) {
+        toast.error('Please select a metal', {
+          duration: 2000,
+          position: 'top-right',
+        });
+        return;
+      }
+
+      const isAuth = !!localStorage.getItem('accessToken');
+      
+      // Prepare cart data according to API structure
+      const cartData = {
+        productId: product._id,
+        quantity: 1,
+      };
+
+      // Add ring size if product is a ring
+      if (isRing() && selectedRingSize) {
+        cartData.ringSize = selectedRingSize;
+      }
+
+      // Add metal information
+      if (selectedMetal) {
+        cartData.metalId = selectedMetal.metalId;
+        cartData.purityLevel = {
+          karat: Number(selectedMetal.carat.match(/\d+/)?.[0] || 18),
+          priceMultiplier: selectedMetal.priceMultiplier || 1,
+        };
+      }
+
+      // Add stone type if product has stone
+      if (product?.stoneType?._id) {
+        cartData.stoneTypeId = product.stoneType._id;
+      }
+
+      // For authenticated users, use API
+      if (isAuth) {
+        await dispatch(addCartItem(cartData));
+      } else {
+        // For non-authenticated users, use local storage
+        const productWithOptions = {
+          ...product,
+          ringSize: isRing() ? selectedRingSize : undefined,
+          selectedMetal: selectedMetal,
+          productId: product._id,
+          quantity: 1,
+        };
+        dispatch(addToCart(productWithOptions));
+        toast.success(`${product.title || product.name} added to cart!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      }
+      
+      // Build success message
+      let successMessage = `${product.title || product.name} added to cart!`;
+      const options = [];
+      if (selectedMetal) {
+        options.push(`${selectedMetal.carat} ${selectedMetal.color}`);
+      }
+      if (isRing() && selectedRingSize) {
+        options.push(`Size ${selectedRingSize}`);
+      }
+      if (options.length > 0) {
+        successMessage = `${product.title || product.name} added to cart (${options.join(', ')})!`;
+      }
+      
+      if (isAuth) {
+        toast.success(successMessage, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      }
+      
+      // Close modal and reset
+      setShowAddToCartModal(false);
+      setSelectedRingSize('');
+      setSelectedMetal(null);
+    } catch (error) {
+      console.error('Failed to add item to cart:', error);
+      toast.error('Failed to add item to cart. Please try again.', {
         duration: 2000,
         position: 'top-right',
       });
-      return;
     }
-    
-    // Add to cart with ring size
-    const productWithRingSize = {
-      ...product,
-      ringSize: selectedRingSize
-    };
-    
-    dispatch(addToCart(productWithRingSize));
-    // toast.success(`${product.title || product.name} added to cart with size ${selectedRingSize}!`, {
-    //   duration: 2000,
-    //   position: 'top-right',
-    // });
-    
-    // Close modal and reset
-    setShowRingSizeModal(false);
-    setSelectedRingSize('');
   };
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Check if product is a ring
-    if (isRing()) {
-      // Show ring size selection modal
-      setShowRingSizeModal(true);
-    } else {
-      // Add directly to cart
-      dispatch(addToCart(product));
-      toast.success(`${product.title || product.name} added to cart!`, {
-        duration: 2000,
-        position: 'top-right',
-      });
-    }
+    // Show modal with metal selection and ring size (if ring)
+    setShowAddToCartModal(true);
   };
 
   const handleQuickView = (e) => {
@@ -109,21 +185,51 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
     setShowQuickView(false);
   };
 
-  const handleToggleFavorite = (e) => {
+  const handleToggleFavorite = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(toggleFavorite(product));
     
-    if (isFavorite) {
-      toast.success(`${product.title} removed from favorites!`, {
-        duration: 2000,
-        position: 'top-right',
-      });
+    const productId = product._id || product.id;
+    if (!productId) {
+      toast.error('Invalid product');
+      return;
+    }
+
+    // Check if product is available
+    if (!product || !product.quantity || product.quantity <= 0) {
+      toast.error('Product is not available');
+      return;
+    }
+
+    if (isAuthenticated) {
+      // Use API for authenticated users
+      if (isFavorite) {
+        await dispatch(removeFromFavoritesAPI(productId));
+        toast.success(`${product.title || product.name} removed from favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      } else {
+        await dispatch(addToFavoritesAPI(productId));
+        toast.success(`${product.title || product.name} added to favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      }
     } else {
-      toast.success(`${product.title} added to favorites!`, {
-        duration: 2000,
-        position: 'top-right',
-      });
+      // Use localStorage for non-authenticated users
+      dispatch(toggleFavorite(product));
+      if (isFavorite) {
+        toast.success(`${product.title || product.name} removed from favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      } else {
+        toast.success(`${product.title || product.name} added to favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      }
     }
   };
 
@@ -300,19 +406,20 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
         />
       )}
 
-      {/* Ring Size Selection Modal */}
-      {showRingSizeModal && (
+      {/* Add to Cart Modal with Metal Selection and Ring Size */}
+      {showAddToCartModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in fade-in duration-200 max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-montserrat-semibold-600 text-black">
-                Select Ring Size
+                Add to Cart
               </h3>
               <button
                 onClick={() => {
-                  setShowRingSizeModal(false);
+                  setShowAddToCartModal(false);
                   setSelectedRingSize('');
+                  setSelectedMetal(null);
                 }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
               >
@@ -336,43 +443,55 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
                   </h4>
                   <PriceDisplay 
                     price={product.price}
-                    originalPrice={product.originalPrice}
                     variant="small"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Ring Size Selection */}
+            {/* Metal Selection */}
             <div className="mb-6">
               <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
-                Ring Size *
+                Select Metal *
               </label>
-              <CustomDropdown
-                options={RING_SIZES}
-                value={selectedRingSize}
-                onChange={handleRingSizeChange}
-                placeholder="Select your ring size"
-                searchable={false}
+              <MetalSelector
+                selectedMetal={selectedMetal}
+                onMetalChange={handleMetalChange}
               />
-              <p className="mt-2 text-xs text-gray-600 font-montserrat-regular-400">
-                Need help finding your size? Check our <a href="/size-guide" className="text-primary hover:underline">Size Guide</a>
-              </p>
             </div>
+
+            {/* Ring Size Selection (if ring) */}
+            {isRing() && (
+              <div className="mb-6">
+                <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
+                  Ring Size *
+                </label>
+                <CustomDropdown
+                  options={RING_SIZES}
+                  value={selectedRingSize}
+                  onChange={handleRingSizeChange}
+                  placeholder="Select your ring size"
+                />
+                <p className="mt-2 text-xs text-gray-600 font-montserrat-regular-400">
+                  Need help finding your size? Check our <a href="/size-guide" className="text-primary hover:underline">Size Guide</a>
+                </p>
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex space-x-3">
               <button
                 onClick={() => {
-                  setShowRingSizeModal(false);
+                  setShowAddToCartModal(false);
                   setSelectedRingSize('');
+                  setSelectedMetal(null);
                 }}
                 className="flex-1 border border-gray-300 text-gray-700 font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors duration-200"
               >
                 Cancel
               </button>
               <button
-                onClick={handleConfirmRingSize}
+                onClick={handleConfirmAddToCart}
                 className="flex-1 bg-primary text-white font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors duration-200"
               >
                 Add to Cart

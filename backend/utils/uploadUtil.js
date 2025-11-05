@@ -29,10 +29,17 @@ const createMulter = ({ storage = 'local', allowedFormats = ['jpg', 'png', 'jpeg
 
   // Map file extensions to mimetypes for validation
   const mimeTypeMap = {
+    // Images
     'jpg': ['image/jpeg', 'image/jpg'],
     'jpeg': ['image/jpeg', 'image/jpg'],
     'png': ['image/png'],
-    'webp': ['image/webp']
+    'webp': ['image/webp'],
+    // Videos
+    'mp4': ['video/mp4'],
+    'mov': ['video/quicktime'],
+    'avi': ['video/x-msvideo'],
+    'webm': ['video/webm'],
+    'mkv': ['video/x-matroska'],
   };
 
   return multer({

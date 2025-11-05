@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X, Minus, Plus, Trash2, ShoppingBag, Eye } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { closeCart, updateQuantity, removeFromCart, clearCart } from '../store/slices/cartSlice';
+import { closeCart, updateQuantity, removeFromCart, clearCart, deleteCartItem, updateCartItem } from '../store/slices/cartSlice';
 import PriceDisplay from './PriceDisplay';
-import ProductDetailsModal from './ProductDetailsModal';
+import toast from 'react-hot-toast';
 
 const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalQuantity, totalPrice, isOpen } = useSelector(state => state.cart);
+  console.log('totalPrice :', totalPrice);
+  console.log('totalQuantity :', totalQuantity);
   console.log('items :', items);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   
   // Check if user is authenticated
   const isAuthenticated = !!localStorage.getItem('accessToken');
@@ -21,11 +21,41 @@ const Cart = () => {
 
   if (!isOpen) return null;
 
-  const handleQuantityChange = (id, newQuantity) => {
+  const handleQuantityChange = async (id, newQuantity) => {
+    console.log('newQuantity :', newQuantity);
+    console.log('id :', id);
+    
+    // Ensure quantity is at least 1
+    if (newQuantity < 1) {
+      return;
+    }
+    
+    // Store previous quantity for rollback on error
+    const item = items.find(item => item._id === id || item.id === id || item.cartId === id);
+    const previousQuantity = item?.quantity || item?.product?.quantity;
+    
+    // Optimistic update: Update UI immediately for fast UX
     dispatch(updateQuantity({ id, quantity: newQuantity }));
+    
+    if (isAuthenticated) {
+      // Sync with API in background (non-blocking)
+      dispatch(updateCartItem({ 
+        cartId: id, 
+        cartData: { quantity: newQuantity } 
+      })).unwrap()
+        .catch((error) => {
+          // Revert to previous quantity if API call fails
+          if (previousQuantity) {
+            dispatch(updateQuantity({ id, quantity: previousQuantity }));
+          }
+          toast.error(error || 'Failed to update quantity');
+        });
+    }
   };
 
   const handleRemoveItem = (id) => {
+    dispatch(deleteCartItem(id));
+
     dispatch(removeFromCart(id));
   };
 
@@ -39,14 +69,17 @@ const Cart = () => {
   };
 
   const handleViewProduct = (item) => {
-    setSelectedProduct(item);
-    setIsProductModalOpen(true);
+  console.log('item :', item);
+    // Close cart and navigate to cart product detail page
+    dispatch(closeCart());
+    const cartItemId = item._id || item.id || item.cartId;
+    if (cartItemId) {
+      navigate(`/cart/product/${cartItemId}`);
+    } else {
+      toast.error('Unable to view product details');
+    }
   };
 
-  const handleCloseProductModal = () => {
-    setIsProductModalOpen(false);
-    setSelectedProduct(null);
-  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -124,15 +157,15 @@ const Cart = () => {
                 {/* Cart Items */}
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4 py-4 px-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-300">
+                    <div key={item._id} className="flex items-center space-x-4 py-4 px-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-300">
                       {/* Product Image - Clickable */}
                       <div 
                         className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity duration-300"
                         onClick={() => handleViewProduct(item)}
                       >
                         <img
-                          src={item.image}
-                          alt={item.name}
+                          src={item?.product?.images?.[0] || item?.product?.image}
+                          alt={item?.product?.title || item?.product?.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -143,17 +176,19 @@ const Cart = () => {
                         onClick={() => handleViewProduct(item)}
                       >
                         <h3 className="font-montserrat-semibold-600 text-black text-sm truncate hover:text-primary transition-colors duration-300">
-                          {item.name}
+                          {item?.product?.title}
                         </h3>
                         <PriceDisplay 
-                          price={item.price}
+                          price={item.calculatedPrice}
+                          variant="small"
                           className="text-primary font-montserrat-bold-700 text-sm"
                         />
+                      
                         
                         {/* Show selected metal if available */}
-                        {item.selectedMetal && (
+                        {item.metal && (
                           <div className="text-xs text-black-light font-montserrat-regular-400 mt-1">
-                            {item.selectedMetal.karat} {item.selectedMetal.color}
+                            {item.metal.purityLevels[0].karat}K 
                           </div>
                         )}
                         
@@ -162,7 +197,7 @@ const Cart = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleQuantityChange(item.id, item.quantity - 1);
+                              handleQuantityChange(item._id, item.quantity - 1);
                             }}
                             className="w-6 h-6 bg-primary-light hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
                           >
@@ -174,7 +209,7 @@ const Cart = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleQuantityChange(item.id, item.quantity + 1);
+                              handleQuantityChange(item._id, item.quantity + 1);
                             }}
                             className="w-6 h-6 bg-primary-light hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
                           >
@@ -198,7 +233,7 @@ const Cart = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleRemoveItem(item.id);
+                            handleRemoveItem(item._id);
                           }}
                           className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors duration-300"
                           title="Remove Item"
@@ -259,15 +294,6 @@ const Cart = () => {
           )}
         </div>
       </div>
-
-      {/* Product Details Modal */}
-      {selectedProduct && (
-        <ProductDetailsModal
-          product={selectedProduct}
-          isOpen={isProductModalOpen}
-          onClose={handleCloseProductModal}
-        />
-      )}
     </div>
   );
 };

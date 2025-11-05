@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
   const loading = useSelector(selectAuthLoading);
 
   const login = async (credentials) => {
-    console.log(login,'login');
     
     const result = await dispatch(loginUser(credentials));
     return result;

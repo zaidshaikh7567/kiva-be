@@ -10,6 +10,7 @@ export const API_METHOD = {
   reviews: '/api/reviews',
   favorites: '/api/favorites',
   settings: '/api/settings',
+  contacts: '/api/contacts',
   auth: {
     register: '/api/auth/register',
     login: '/api/auth/login',
@@ -23,4 +24,6 @@ export const API_METHOD = {
     updateProfile: '/api/auth/profile',
   },
   cart: '/api/cart',
+  socialHandles: '/api/social-handles',
+  collections: '/api/collections',
 };

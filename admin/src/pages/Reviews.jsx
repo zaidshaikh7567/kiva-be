@@ -468,8 +468,8 @@ const Reviews = () => {
                     <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 ">Email</th>
                     <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 ">Rating</th>
                     <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 ">Comment</th>
-                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600  min-w-[200px]">Created At</th>
-                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600  min-w-[200px]">Updated At</th>
+                    <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600  min-w-[230px]">Created At</th>
+                    {/* <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600  min-w-[200px]">Updated At</th> */}
                     <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 ">Actions</th>
                   </tr>
                 </thead>
@@ -508,17 +508,15 @@ const Reviews = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        {
-                          review.updatedAt
-                        }
+                      {/* <td className="px-6 py-4">
+                      
                         <div className="flex items-center space-x-2">
                           <Calendar className="w-4 h-4 text-black-light" />
                           <span className="font-montserrat-regular-400 text-black text-sm">
                             {review.updatedAt ? formatDate(review.updatedAt) : "-"}
                           </span>
                         </div>
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           <button

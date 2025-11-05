@@ -21,9 +21,7 @@ const CurrencyDropdown = () => {
   const dispatch = useDispatch();
   
   const currentCurrency = useSelector(selectCurrentCurrency);
-  console.log('currentCurrency :', currentCurrency);
   const currencyOptions = useSelector(selectCurrencyOptions);
-  console.log('currencyOptions :', currencyOptions);
   const loading = useSelector(selectCurrencyLoading);
   const error = useSelector(selectCurrencyError);
   const lastUpdated = useSelector(selectLastUpdated);

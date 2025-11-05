@@ -10,7 +10,6 @@ const TrendingSection = () => {
   // const { products, loading, error } = useSelector(state => state.products);
   // console.log('products :', products);
   const categories = useSelector(state => state.categories);
-  console.log('categories :', categories);
   const navigate = useNavigate();
   // 🔹 Dynamic products data
   const products = [

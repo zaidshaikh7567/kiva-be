@@ -15,7 +15,6 @@ export const fetchProducts = createAsyncThunk(
       
       const url = `${API_METHOD.products}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
       
-      console.log('API URL being called:', url); // Debug log
       const response = await api.get(url);
       return response.data.data;
     } catch (error) {
@@ -206,8 +205,6 @@ const productsSlice = createSlice({
     },
     applyFilters: (state) => {
       let filtered = [...state.allItems];
-      console.log('All products:', filtered);
-      console.log('Current filters:', state.filters);
 
       // Apply search filter
       if (state.filters.search) {
@@ -220,7 +217,6 @@ const productsSlice = createSlice({
 
       // Apply category filter
       if (state.filters.category && state.filters.category !== 'all') {
-        console.log('Filtering by category:', state.filters.category);
         // Products have a category object with _id and name
         filtered = filtered.filter(product => {
           const categoryId = product.category?._id || product.categoryId;

@@ -28,6 +28,7 @@ import NotFound from "../pages/NotFound";
 import Discover from "../pages/Discover";
 import Gallery from "../pages/Gallery";
 import ProductDetail from "../pages/ProductDetail";
+import CartProductDetail from "../pages/CartProductDetail";
 import ScrollToTop from "../helpers/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -45,6 +46,7 @@ const AppRoutes = () => {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/cart/product/:cartItemId" element={<CartProductDetail />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />

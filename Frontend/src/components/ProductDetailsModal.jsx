@@ -2,7 +2,13 @@ import React, { useEffect, useState, useRef } from 'react';
 import { X, Heart, Star, ShoppingBag, Minus, Plus, Gem, Shield, Truck, RotateCcw, Award, Info, ListChevronsDownUp, HelpCircle, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCartItem } from '../store/slices/cartSlice';
-import { toggleFavorite as toggleFavoriteAction, selectIsFavorite } from '../store/slices/favoritesSlice';
+import { 
+  toggleFavorite as toggleFavoriteAction, 
+  addToFavoritesAPI, 
+  removeFromFavoritesAPI, 
+  selectIsFavorite 
+} from '../store/slices/favoritesSlice';
+import { selectIsAuthenticated } from '../store/slices/authSlice';
 import PriceDisplay from './PriceDisplay';
 import MetalSelector from './MetalSelector';
 import CustomDropdown from './CustomDropdown';
@@ -13,15 +19,21 @@ import { selectCategories } from '../store/slices/categoriesSlice';
 import { RING_SIZES } from '../services/centerStonesApi';
 import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
+import ContactBox from './ContactBox';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
-console.log('product :', product);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  console.log('quantity----:', quantity);
   const [selectedMetal, setSelectedMetal] = useState(null);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedCenterStone, setSelectedCenterStone] = useState(null);
-  const [selectedCarat, setSelectedCarat] = useState(product?.stoneType?.name);
+  const [selectedCarat, setSelectedCarat] = useState(
+    product?.stoneType ? {
+      name: product.stoneType.name,
+      id: product.stoneType._id || product.stoneType.id
+    } : null
+  );
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const imageContainerRef = useRef(null);
@@ -42,6 +54,7 @@ console.log('product :', product);
   
   // Favorite status from Redux
   const isFavorite = useSelector(state => selectIsFavorite(state, product?._id || product?.id));
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   // Fetch stones when modal opens
   useEffect(() => {
@@ -145,7 +158,7 @@ console.log('product :', product);
   // Check if product is a ring (to show ring size and center stone options)
   // Check if category is ring or if parent category is ring
   const categoryName = product?.category?.name?.toLowerCase();
-  console.log('product555 :', product);
+
   
   // Find parent category from categories array if it exists
   let parentCategoryName = null;
@@ -158,7 +171,6 @@ console.log('product :', product);
   
   const isRing = (categoryName === 'ring' || categoryName === 'rings') ||
   (parentCategoryName === 'ring' || parentCategoryName === 'rings');
-  console.log('isRing :', isRing);
   const handleAddToCart = async () => {
     try {
       // Validate ring size for rings
@@ -188,18 +200,23 @@ console.log('product :', product);
       if (selectedMetal) {
         cartData.metalId = selectedMetal.metalId;
         cartData.purityLevel = {
-          karat: selectedMetal.carat,
+          karat: Number(selectedMetal.carat.match(/\d+/)[0]),
           priceMultiplier: selectedMetal.priceMultiplier,
         };
       }
 
-      // Add stone type if selected
-      if (selectedCarat && product.stoneType) {
-        cartData.stoneTypeId = product.stoneType._id;
+      // Add stone type if selected - use selected stone ID if available
+      if (selectedCarat) {
+        if (typeof selectedCarat === 'object' && selectedCarat.id) {
+          cartData.stoneTypeId = selectedCarat.id;
+        } else if (selectedCenterStone?._id) {
+          cartData.stoneTypeId = selectedCenterStone._id;
+        } else if (product.stoneType?._id) {
+          cartData.stoneTypeId = product.stoneType._id;
+        }
       }
 
       // For unauthenticated users, include full product details
-      console.log('!isAuthenticated :', !isAuthenticated);
       if (!isAuthenticated) {
         cartData.name = product.title || product.name;
         cartData.title = product.title || product.name;
@@ -217,12 +234,35 @@ console.log('product :', product);
       // Dispatch the async thunk
       await dispatch(addCartItem(cartData));
       
-      // Show success message
-      // toast.success(`${product.title || product.name} added to cart${isRing && selectedRingSize ? ` with size ${selectedRingSize}` : ''}!`, {
-      //   duration: 2000,
-      //   position: 'top-right',
-      // });
+      // Build success message with selected options
+      let successMessage = `${product.title || product.name} added to cart!`;
+      const options = [];
       
+      if (selectedMetal) {
+        options.push(`${selectedMetal.carat} ${selectedMetal.color}`);
+      }
+      if (isRing && selectedRingSize) {
+        options.push(`Size ${selectedRingSize}`);
+      }
+      if (selectedCarat) {
+        const stoneName = typeof selectedCarat === 'string' ? selectedCarat : selectedCarat.name;
+        options.push(`Stone: ${stoneName}`);
+      }
+      if (quantity > 1) {
+        options.push(`Qty: ${quantity}`);
+      }
+      
+      if (options.length > 0) {
+        successMessage = `${product.title || product.name} added to cart (${options.join(', ')})!`;
+      }
+      
+      // Show success message
+      toast.success(successMessage, {
+        duration: 3000,
+        position: 'top-right',
+      });
+      
+      // Close modal after successful add to cart
       onClose();
     } catch (error) {
       console.error('Failed to add item to cart:', error);
@@ -241,22 +281,53 @@ console.log('product :', product);
     setQuantity(prev => Math.max(1, prev - 1));
   };
 
-  const toggleFavorite = (e) => {
+  const toggleFavorite = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     
-    dispatch(toggleFavoriteAction(product));
+    if (!product) return;
     
-    if (isFavorite) {
-      toast.success(`${product.title || product.name} removed from favorites!`, {
-        duration: 2000,
-        position: 'top-right',
-      });
+    const productId = product._id || product.id;
+    if (!productId) {
+      toast.error('Invalid product');
+      return;
+    }
+
+    // Check if product is available
+    if (!product.quantity || product.quantity <= 0) {
+      toast.error('Product is not available');
+      return;
+    }
+
+    if (isAuthenticated) {
+      // Use API for authenticated users
+      if (isFavorite) {
+        await dispatch(removeFromFavoritesAPI(productId));
+        toast.success(`${product.title || product.name} removed from favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      } else {
+        await dispatch(addToFavoritesAPI(productId));
+        toast.success(`${product.title || product.name} added to favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      }
     } else {
-      toast.success(`${product.title || product.name} added to favorites!`, {
-        duration: 2000,
-        position: 'top-right',
-      });
+      // Use localStorage for non-authenticated users
+      dispatch(toggleFavoriteAction(product));
+      if (isFavorite) {
+        toast.success(`${product.title || product.name} removed from favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      } else {
+        toast.success(`${product.title || product.name} added to favorites!`, {
+          duration: 2000,
+          position: 'top-right',
+        });
+      }
     }
   };
 
@@ -269,13 +340,23 @@ console.log('product :', product);
   };
 
   const handleCaratChange = (carat) => {
-    setSelectedCarat(carat);
     // Find stone by carat name
     const stone = stones.find(stone => 
       stone.name.toLowerCase().includes(carat.toLowerCase())
     );
     if (stone) {
+      // Save both name and ID in selectedCarat
+      setSelectedCarat({
+        name: stone.name,
+        id: stone._id || stone.id
+      });
       setSelectedCenterStone(stone);
+    } else {
+      // Fallback: if stone not found, just save the name
+      setSelectedCarat({
+        name: carat,
+        id: null
+      });
     }
   };
 
@@ -527,7 +608,7 @@ console.log('product :', product);
                               key={stone._id}
                               onClick={() => handleCaratChange(stone.name)}
                               className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 font-montserrat-medium-500 ${
-                                selectedCarat === stone.name
+                                (selectedCarat?.name === stone.name || selectedCarat?.id === stone._id) || (typeof selectedCarat === 'string' && selectedCarat === stone.name)
                                   ? 'border-primary bg-primary text-white'
                                   : 'border-gray-200 bg-white text-black hover:border-primary hover:bg-primary-light'
                               }`}
@@ -604,7 +685,7 @@ console.log('product :', product);
                     {isRing && selectedCarat && (
                       <div className="flex justify-between">
                         <span>Center Stone:</span>
-                        <span>{selectedCarat}</span>
+                        <span>{typeof selectedCarat === 'string' ? selectedCarat : selectedCarat.name}</span>
                       </div>
                     )}
                     {isRing && selectedRingSize && (
@@ -676,7 +757,7 @@ console.log('product :', product);
                   <ShoppingBag className="w-5 h-5" />
                   <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span>
                 </button>
-
+                <ContactBox />
                 {/* Additional Info */}
                 <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
                   <p>✓ Free shipping on orders over $100</p>

@@ -8,6 +8,8 @@ import currencyReducer from './slices/currencySlice';
 import favoritesReducer from './slices/favoritesSlice';
 import authReducer from './slices/authSlice';
 import reviewsReducer from './slices/reviewsSlice';
+import socialHandlesReducer from './slices/socialHandlesSlice';
+import collectionsReducer from './slices/collectionsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +22,8 @@ export const store = configureStore({
     favorites: favoritesReducer,
     auth: authReducer,
     reviews: reviewsReducer,
+    socialHandles: socialHandlesReducer,
+    collections: collectionsReducer,
   },
 });
 

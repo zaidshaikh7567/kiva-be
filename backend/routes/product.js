@@ -34,7 +34,7 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 router.post('/', authenticate, authorize('super_admin'), upload.array('images', 10), validate(createProductSchema), asyncHandler(async (req, res) => {
-  const { title, description, subDescription, price, quantity, categoryId, metalIds, stoneTypeId, careInstruction } = req.body;
+  const { title, description, subDescription, price, quantity, categoryId, metalIds, stoneTypeId, careInstruction, shape, color, clarity, certificate } = req.body;
   const images = req.files ? req.files.map(file => file.path) : [];
 
   if (images.length === 0) {
@@ -42,6 +42,8 @@ router.post('/', authenticate, authorize('super_admin'), upload.array('images', 
   }
 
   const parsedDescription = JSON.parse(description);
+  const parsedClarity = clarity ? (typeof clarity === 'string' ? JSON.parse(clarity) : clarity) : [];
+  const parsedCertificate = certificate ? (typeof certificate === 'string' ? JSON.parse(certificate) : certificate) : [];
 
   const product = new Product({
     title,
@@ -53,7 +55,11 @@ router.post('/', authenticate, authorize('super_admin'), upload.array('images', 
     images,
     metals: metalIds || [],
     stoneType: stoneTypeId,
-    careInstruction
+    careInstruction,
+    shape,
+    color,
+    clarity: parsedClarity,
+    certificate: parsedCertificate
   });
 
   await product.save();
@@ -71,7 +77,7 @@ router.get('/:id', validate(productIdSchema, 'params'), asyncHandler(async (req,
 
 router.put('/:id', authenticate, authorize('super_admin'), upload.array('images', 10), validate(productIdSchema, 'params'), validate(updateProductSchema), asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { categoryId, description, metalIds, stoneTypeId, careInstruction, ...updateData } = req.body;
+  const { categoryId, description, metalIds, stoneTypeId, careInstruction, shape, color, clarity, certificate, ...updateData } = req.body;
 
   // Get existing product to preserve existing images
   const existingProduct = await Product.findById(id);
@@ -95,6 +101,22 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
 
   if (careInstruction !== undefined) {
     updateData.careInstruction = careInstruction;
+  }
+
+  if (shape !== undefined) {
+    updateData.shape = shape;
+  }
+
+  if (color !== undefined) {
+    updateData.color = color;
+  }
+
+  if (clarity !== undefined) {
+    updateData.clarity = clarity ? (typeof clarity === 'string' ? JSON.parse(clarity) : clarity) : [];
+  }
+
+  if (certificate !== undefined) {
+    updateData.certificate = certificate ? (typeof certificate === 'string' ? JSON.parse(certificate) : certificate) : [];
   }
 
   // Merge new images with existing images

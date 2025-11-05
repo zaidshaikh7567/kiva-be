@@ -52,6 +52,7 @@ const SignIn = () => {
   const loginWithGoogle = useGoogleLogin({
     flow: 'auth-code',
     onSuccess: async (codeResponse) => {
+    console.log('codeResponse :', codeResponse);
       try {
         console.log('Authorization code received:', codeResponse.code);
         

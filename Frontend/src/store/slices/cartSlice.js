@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 const isAuthenticated = () => {
   return !!localStorage.getItem('accessToken');
 };
+console.log('isAuthen ticated :', isAuthenticated());
 
 
 // Helper function to safely convert to number
@@ -37,8 +38,9 @@ export const fetchCartItems = createAsyncThunk(
 
 export const addCartItem = createAsyncThunk(
   'cart/addCartItem',
-  async (cartData, { rejectWithValue, dispatch }) => {
+  async (cartData, { rejectWithValue, dispatch, getState }) => {
     try {
+      console.log('isAuthenticated :', isAuthenticated);
       if (!isAuthenticated()) {
         // Redirect to login page if not authenticated
         toast.error('Please login to add items to cart', {
@@ -51,13 +53,32 @@ export const addCartItem = createAsyncThunk(
         return rejectWithValue('Authentication required');
       }
       
+      // Check if product already exists in cart
+      const currentState = getState();
+      const existingItem = currentState.cart.items.find(item => {
+        const itemProductId = item.product?._id || item.product?.id || item._id?.product || item.productId;
+        return itemProductId === cartData.productId;
+      });
+      
+      if (existingItem) {
+        toast.error('This product is already in your cart', {
+          duration: 3000,
+          position: 'top-right',
+        });
+        return rejectWithValue('Product already exists in cart');
+      }
+      
       const response = await api.post(API_METHOD.cart, cartData);
-      toast.success('Item added to cart!');
+      console.log('response********* :', response.data);
+      // toast.success('Item added to cart!');
       await dispatch(fetchCartItems()); // Refresh cart after adding
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to add item to cart';
-      toast.error(errorMessage);
+      // Only show error toast if it's not the duplicate product error we already handled
+      if (errorMessage !== 'Product already exists in cart') {
+        toast.error(errorMessage);
+      }
       return rejectWithValue(errorMessage);
     }
   }
@@ -70,7 +91,9 @@ export const updateCartItem = createAsyncThunk(
       if (!isAuthenticated()) {
         return rejectWithValue('Authentication required');
       }
-      const response = await api.put(API_METHOD.cart, { cartId, ...cartData });
+      // Include cartId in URL path: /api/cart/:id
+      const response = await api.put(`${API_METHOD.cart}/${cartId}`, cartData);
+      console.log('response********* :', response.data);
       await dispatch(fetchCartItems()); // Refresh cart after updating
       return response.data;
     } catch (error) {
@@ -189,18 +212,54 @@ const cartSlice = createSlice({
     updateQuantity: (state, action) => {
       const { id, quantity } = action.payload;
       const itemId = typeof id === 'object' ? (id._id || id.id) : id;
-      const existingItem = state.items.find(item => item.id === itemId);
+      
+      // Try to find item by both _id and id
+      const existingItem = state.items.find(item => 
+        item._id === itemId || item.id === itemId || item.cartId === itemId
+      );
       
       if (existingItem) {
         if (quantity <= 0) {
-          state.items = state.items.filter(item => item.id !== itemId);
+          state.items = state.items.filter(item => 
+            item._id !== itemId && item.id !== itemId && item.cartId !== itemId
+          );
         } else {
+          // Store original quantity and calculatedPrice before updating
+          const originalQuantity = existingItem.quantity || 1;
+          const originalCalculatedPrice = existingItem.calculatedPrice;
+          
+          // Update quantity
           existingItem.quantity = quantity;
+          
+          // Optimistically update calculatedPrice when quantity changes
+          // If calculatedPrice exists, recalculate it based on per-unit price
+          if (originalCalculatedPrice !== undefined && originalCalculatedPrice !== null && originalQuantity > 0) {
+            // Calculate per-unit price: original calculatedPrice / original quantity
+            const perUnitPrice = originalCalculatedPrice / originalQuantity;
+            existingItem.calculatedPrice = perUnitPrice * quantity;
+          } else {
+            // Fallback: calculate using backend formula if calculatedPrice doesn't exist
+            const productPrice = toNumber(existingItem.product?.price || existingItem.price || 0);
+            const metalMultiplier = toNumber(existingItem.purityLevel?.priceMultiplier || 1);
+            const stonePrice = toNumber(existingItem.stoneType?.price || 0);
+            existingItem.calculatedPrice = ((productPrice * metalMultiplier) + stonePrice) * quantity;
+          }
         }
         
-        // Update totals
-        state.totalQuantity = state.items.reduce((total, item) => total + item.quantity, 0);
-        state.totalPrice = state.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+        // Update totals - use calculatedPrice if available, otherwise calculate
+        state.totalQuantity = state.items.reduce((total, item) => total + toNumber(item.quantity), 0);
+        state.totalPrice = state.items.reduce((total, item) => {
+          // Use calculatedPrice if available (from backend), otherwise calculate
+          if (item.calculatedPrice !== undefined && item.calculatedPrice !== null) {
+            return total + toNumber(item.calculatedPrice);
+          }
+          // Fallback calculation
+          const productPrice = toNumber(item.product?.price || item.price || 0);
+          const metalMultiplier = toNumber(item.purityLevel?.priceMultiplier || 1);
+          const stonePrice = toNumber(item.stoneType?.price || 0);
+          const itemPrice = ((productPrice * metalMultiplier) + stonePrice) * toNumber(item.quantity || 1);
+          return total + itemPrice;
+        }, 0);
       }
     },
     
@@ -241,32 +300,44 @@ const cartSlice = createSlice({
         // Normalize cart items from API
         state.items = cartData.map(item => {
           // If item has nested product structure (from API)
-          if (item.product) {
-            return {
-              id: item._id || item.id,
-              _id: item._id,
-              name: item.product.title || item.product.name,
-              title: item.product.title || item.product.name,
-              price: toNumber(item.price || item.product.price),
-              image: item.product.images?.[0]?.url || item.product.images?.[0] || item.product.image,
-              images: item.product.images,
-              description: item.product.description,
-              quantity: toNumber(item.quantity || 1),
-              selectedMetal: item.metal ? {
-                metalId: item.metal._id,
-                karat: item.purityLevel?.karat,
-                color: item.metal.color,
-                priceMultiplier: item.purityLevel?.priceMultiplier,
-              } : null,
-              stoneTypeId: item.stoneType?._id,
-            };
-          }
+          // if (item.product) {
+          //   return {
+          //     id: item._id || item.id,
+          //     _id: item._id,
+          //     name: item.product.title || item.product.name,
+          //     title: item.product.title || item.product.name,
+          //     price: toNumber(item.price || item.product.price),
+          //     image: item.product.images?.[0]?.url || item.product.images?.[0] || item.product.image,
+          //     images: item.product.images,
+          //     description: item.product.description,
+          //     quantity: toNumber(item.quantity || 1),
+          //     selectedMetal: item.metal ? {
+          //       metalId: item.metal._id,
+          //       karat: item.purityLevel?.karat,
+          //       color: item.metal.color,
+          //       priceMultiplier: item.purityLevel?.priceMultiplier,
+          //     } : null,
+          //     stoneTypeId: item.stoneType?._id,
+          //   };
+          // }
           // If item is already in the correct format (from localStorage)
           return item;
         });
         
+        // Update totals - use calculatedPrice if available (from backend), otherwise calculate
         state.totalQuantity = state.items.reduce((total, item) => total + toNumber(item.quantity), 0);
-        state.totalPrice = state.items.reduce((total, item) => total + (toNumber(item.price) * toNumber(item.quantity)), 0);
+        state.totalPrice = state.items.reduce((total, item) => {
+          // Use calculatedPrice if available (from backend)
+          if (item.calculatedPrice !== undefined && item.calculatedPrice !== null) {
+            return total + toNumber(item.calculatedPrice);
+          }
+          // Fallback calculation using backend formula
+          const productPrice = toNumber(item.product?.price || item.price || 0);
+          const metalMultiplier = toNumber(item.purityLevel?.priceMultiplier || 1);
+          const stonePrice = toNumber(item.stoneType?.price || 0);
+          const itemPrice = ((productPrice * metalMultiplier) + stonePrice) * toNumber(item.quantity || 1);
+          return total + itemPrice;
+        }, 0);
       })
       .addCase(fetchCartItems.rejected, (state, action) => {
         state.loading = false;

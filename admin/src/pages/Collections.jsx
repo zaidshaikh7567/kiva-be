@@ -106,7 +106,7 @@ const Collections = () => {
 
   const handleSubmitCollection = async (data) => {
     if (modalMode === 'add') {
-      // Add mode
+      // Add mode - data is the collection data directly
       try {
         const result = await dispatch(createCollection(data));
         if (createCollection.fulfilled.match(result)) {
@@ -121,7 +121,7 @@ const Collections = () => {
         console.error('Error creating collection:', error);
       }
     } else {
-      // Edit mode
+      // Edit mode - data is { id, data }
       try {
         const result = await dispatch(updateCollection(data));
         if (updateCollection.fulfilled.match(result)) {
