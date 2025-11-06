@@ -2,26 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Save, AlertCircle, Edit2, Check } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
+import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
+import { METAL_COLOR_OPTIONS, KARAT_OPTIONS } from '../constants';
 
-// Color options with hex codes
-const colorOptions = [
-  { value: '#FFFFFF', label: 'White', colorName: 'White' },
-  { value: '#FFD700', label: 'Yellow', colorName: 'Yellow' },
-  { value: '#E8B4B8', label: 'Rose', colorName: 'Rose' },
-  // { value: '#C0C0C0', label: 'Silver', colorName: 'Silver' },
-  // { value: '#E5E4E2', label: 'Platinum', colorName: 'Platinum' },
-];
-
-// Karat options for purity levels
-const karatOptions = [
-  // { value: 10, label: '10K' },
-  { value: 14, label: '14K' },
-  { value: 18, label: '18K' },
-  { value: 22, label: '22K' },
-  { value: 24, label: '24K' },
-  // { value: 925, label: '925 Sterling' },
-  // { value: 950, label: '950 Platinum' },
-];
+// Use constants from constants file
+const colorOptions = METAL_COLOR_OPTIONS;
+const karatOptions = KARAT_OPTIONS;
 
 const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode = 'add' }) => {
   const [formData, setFormData] = useState({
@@ -34,13 +20,15 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
   
   const [newPurityLevel, setNewPurityLevel] = useState({
     karat: '',
-    priceMultiplier: 1
+    priceMultiplier: 1,
+    active: true
   });
   
   const [editingIndex, setEditingIndex] = useState(null);
   const [editPurityLevel, setEditPurityLevel] = useState({
     karat: '',
-    priceMultiplier: 1
+    priceMultiplier: 1,
+    active: true
   });
 
   // Update form data when modal opens or metalData changes
@@ -93,7 +81,7 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
         ...prev,
         purityLevels: [...prev.purityLevels, { ...newPurityLevel }]
       }));
-      setNewPurityLevel({ karat: '', priceMultiplier: 1 });
+      setNewPurityLevel({ karat: '', priceMultiplier: 1, active: true });
     }
   };
 
@@ -109,7 +97,8 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
     setEditingIndex(index);
     setEditPurityLevel({
       karat: level.karat,
-      priceMultiplier: level.priceMultiplier
+      priceMultiplier: level.priceMultiplier,
+      active: level.active !== undefined ? level.active : true
     });
   };
 
@@ -122,13 +111,13 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
         )
       }));
       setEditingIndex(null);
-      setEditPurityLevel({ karat: '', priceMultiplier: 1 });
+      setEditPurityLevel({ karat: '', priceMultiplier: 1, active: true });
     }
   };
 
   const handleCancelEdit = () => {
     setEditingIndex(null);
-    setEditPurityLevel({ karat: '', priceMultiplier: 1 });
+    setEditPurityLevel({ karat: '', priceMultiplier: 1, active: true });
   };
 
   const handleSubmit = (e) => {
@@ -140,7 +129,8 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
         ...formData,
         purityLevels: formData.purityLevels.map(level => ({
           karat: Number(level.karat),
-          priceMultiplier: Number(level.priceMultiplier)
+          priceMultiplier: Number(level.priceMultiplier),
+          active: level.active !== undefined ? level.active : true
         }))
       });
     }
@@ -156,9 +146,9 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
       purityLevels: [],
       active: true
     });
-    setNewPurityLevel({ karat: '', priceMultiplier: 1 });
+    setNewPurityLevel({ karat: '', priceMultiplier: 1, active: true });
     setEditingIndex(null);
-    setEditPurityLevel({ karat: '', priceMultiplier: 1 });
+    setEditPurityLevel({ karat: '', priceMultiplier: 1, active: true });
     onClose();
   };
 
@@ -257,45 +247,65 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                 <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                   {editingIndex === index ? (
                     // Edit Mode
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                      <div className="flex-1 min-w-0">
-                        <CustomDropdown
-                          options={karatOptions}
-                          value={editPurityLevel.karat}
-                          onChange={(value) => setEditPurityLevel(prev => ({ ...prev, karat: value }))}
-                          placeholder="Select Carat"
+                    <div className="space-y-3">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div className="flex-1 min-w-0">
+                          <CustomDropdown
+                            options={karatOptions}
+                            value={editPurityLevel.karat}
+                            onChange={(value) => setEditPurityLevel(prev => ({ ...prev, karat: value }))}
+                            placeholder="Select Carat"
+                            disabled={loading}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <input
+                            type="number"
+                            placeholder="Multiplier"
+                            value={editPurityLevel.priceMultiplier}
+                            onChange={(e) => setEditPurityLevel(prev => ({ ...prev, priceMultiplier: e.target.value }))}
+                            step="0.1"
+                            min="0.1"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary"
+                            disabled={loading}
+                          />
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <button
+                            type="button"
+                            onClick={handleSaveEdit}
+                            className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                            disabled={loading}
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                            disabled={loading}
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      {/* Active Checkbox for Edit Mode */}
+                      <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-200">
+                        <CustomCheckbox
+                          checked={editPurityLevel.active}
+                          onChange={(e) => setEditPurityLevel(prev => ({ ...prev, active: e.target.checked }))}
+                          label="Active"
+                          name={`edit-purity-active-${index}`}
+                          id={`edit-purity-active-${index}`}
                           disabled={loading}
                         />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <input
-                          type="number"
-                          placeholder="Multiplier"
-                          value={editPurityLevel.priceMultiplier}
-                          onChange={(e) => setEditPurityLevel(prev => ({ ...prev, priceMultiplier: e.target.value }))}
-                          step="0.1"
-                          min="0.1"
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary"
-                          disabled={loading}
-                        />
-                      </div>
-                      <div className="flex gap-2 flex-shrink-0">
-                        <button
-                          type="button"
-                          onClick={handleSaveEdit}
-                          className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                          disabled={loading}
-                        >
-                          <Check className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleCancelEdit}
-                          className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                          disabled={loading}
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          editPurityLevel.active 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {editPurityLevel.active ? 'ON' : 'OFF'}
+                        </span>
                       </div>
                     </div>
                   ) : (
@@ -303,6 +313,13 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium whitespace-nowrap">{level.karat}K</span>
                       <span className="text-sm text-gray-600 whitespace-nowrap">(x{level.priceMultiplier})</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        (level.active !== undefined ? level.active : true)
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {(level.active !== undefined ? level.active : true) ? 'Active' : 'Inactive'}
+                      </span>
                       <div className="ml-auto flex gap-2 flex-shrink-0">
                         <button
                           type="button"
@@ -327,36 +344,56 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
               ))}
               
               {/* Add New Purity Level */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex-1 min-w-0">
-                  <CustomDropdown
-                    options={karatOptions}
-                    value={newPurityLevel.karat}
-                    onChange={(value) => setNewPurityLevel(prev => ({ ...prev, karat: value }))}
-                    placeholder="Select Carat"
+              <div className="space-y-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <CustomDropdown
+                      options={karatOptions}
+                      value={newPurityLevel.karat}
+                      onChange={(value) => setNewPurityLevel(prev => ({ ...prev, karat: value }))}
+                      placeholder="Select Carat"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <input
+                      type="number"
+                      placeholder="Multiplier"
+                      value={newPurityLevel.priceMultiplier}
+                      onChange={(e) => setNewPurityLevel(prev => ({ ...prev, priceMultiplier: e.target.value }))}
+                      step="0.1"
+                      min="0.1"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary"
+                      disabled={loading}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddPurityLevel}
+                    className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors whitespace-nowrap"
+                    disabled={loading}
+                  >
+                    Add
+                  </button>
+                </div>
+                {/* Active Checkbox for Add Mode */}
+                <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-200">
+                  <CustomCheckbox
+                    checked={newPurityLevel.active}
+                    onChange={(e) => setNewPurityLevel(prev => ({ ...prev, active: e.target.checked }))}
+                    label="Active"
+                    name="new-purity-active"
+                    id="new-purity-active"
                     disabled={loading}
                   />
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    newPurityLevel.active 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {newPurityLevel.active ? 'ON' : 'OFF'}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <input
-                    type="number"
-                    placeholder="Multiplier"
-                    value={newPurityLevel.priceMultiplier}
-                    onChange={(e) => setNewPurityLevel(prev => ({ ...prev, priceMultiplier: e.target.value }))}
-                    step="0.1"
-                    min="0.1"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary"
-                    disabled={loading}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleAddPurityLevel}
-                  className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors whitespace-nowrap"
-                  disabled={loading}
-                >
-                  Add
-                </button>
               </div>
             </div>
           </div>

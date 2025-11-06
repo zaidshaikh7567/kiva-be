@@ -28,7 +28,7 @@ const ContactBox = () => {
           aria-label="Send Email"
         >
           {/* <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center group-hover:bg-primary-dark transition-colors duration-300"> */}
-            <Mail className="w-6 h-6 text-primary" />
+            <Mail className="w-6 h-6 text-blue-500" />
           {/* </div> */}
           {/* <span className="text-sm font-montserrat-medium-500 text-black">Email</span> */}
         </button>
@@ -40,7 +40,7 @@ const ContactBox = () => {
           aria-label="Contact via WhatsApp"
         >
           {/* <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center group-hover:bg-primary-dark transition-colors duration-300"> */}
-            <IoLogoWhatsapp className="w-7 h-7 text-primary" />
+            <IoLogoWhatsapp className="w-7 h-7 text-green-500" />
           {/* </div> */}
           {/* <span className="text-sm font-montserrat-medium-500 text-black">WhatsApp</span> */}
         </button>
@@ -52,7 +52,7 @@ const ContactBox = () => {
           aria-label="Call Us"
         >
           {/* <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center group-hover:bg-primary-dark transition-colors duration-300"> */}
-            <Phone className="w-6 h-6 text-primary" />
+            <Phone className="w-6 h-6  text-black" />
           {/* </div> */}
           {/* <span className="text-sm font-montserrat-medium-500 text-black">Call</span> */}
         </button>

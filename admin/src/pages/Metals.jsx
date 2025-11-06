@@ -166,7 +166,7 @@ const Metals = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-wrap gap-1">
                         {metal.purityLevels && metal.purityLevels.length > 0 ? (
-                          metal.purityLevels.map((level, idx) => (
+                          metal.purityLevels.filter(level => level.active !== false).map((level, idx) => (
                             <span key={idx} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                               {level.karat}K (x{level.priceMultiplier})
                             </span>

@@ -19,6 +19,7 @@ import ContactBox from '../components/ContactBox';
 import { selectCurrentCurrency, selectCurrencySymbol, selectExchangeRate, convertPrice, formatPrice } from '../store/slices/currencySlice';
 import { fetchStones, selectStones, selectStonesLoading } from '../store/slices/stonesSlice';
 import { selectCategories } from '../store/slices/categoriesSlice';
+import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
 import { RING_SIZES } from '../services/centerStonesApi';
 import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
@@ -45,6 +46,7 @@ const ProductDetail = () => {
   
   // Redux selectors
   const product = useSelector(selectCurrentProduct);
+  console.log('product :', product);
   const loading = useSelector(selectProductsLoading);
   const error = useSelector(selectProductsError);
   const currentCurrency = useSelector(selectCurrentCurrency);
@@ -53,6 +55,7 @@ const ProductDetail = () => {
   const stones = useSelector(selectStones);
   const stonesLoading = useSelector(selectStonesLoading);
   const categories = useSelector(selectCategories);
+  const metals = useSelector(selectMetals);
   const isFavorite = useSelector(state => product ? selectIsFavorite(state, product._id || product.id) : false);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
@@ -61,6 +64,7 @@ const ProductDetail = () => {
     if (id) {
       dispatch(fetchProductById(id));
       dispatch(fetchStones({ page: 1, limit: 10 }));
+      dispatch(fetchMetals());
     }
   }, [id, dispatch]);
 
@@ -76,6 +80,46 @@ const ProductDetail = () => {
       }
     }
   }, [product]);
+
+  // Auto-select first available metal when product and metals load
+  useEffect(() => {
+    // Only auto-select if no metal is currently selected
+    if (selectedMetal || !product || !metals || metals.length === 0) {
+      return;
+    }
+
+    // Check if product has metals configured
+    const hasProductMetals = product.metals && Array.isArray(product.metals) && product.metals.length > 0;
+    if (!hasProductMetals) {
+      // Product has no metals configured, don't auto-select
+      return;
+    }
+
+    // Get available metal IDs from product
+    const availableMetalIds = product.metals.map(metal => metal?._id || metal?.id || metal);
+
+    // Transform metals to options (same logic as MetalSelector)
+    const metalOptions = metals.flatMap(metal => {
+      return metal.purityLevels?.filter(purity => purity.active !== false).map(purity => ({
+        id: `${purity.karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
+        carat: `${purity.karat}K`,
+        color: metal.name,
+        priceMultiplier: purity.priceMultiplier || 1.0,
+        metalId: metal._id,
+        purityLevelId: purity._id
+      })) || [];
+    });
+
+    // Find first available metal option from product's metals
+    const firstAvailableMetal = metalOptions.find(metalOption => {
+      return availableMetalIds.includes(metalOption.metalId);
+    });
+
+    // Set the first available metal as selected
+    if (firstAvailableMetal) {
+      setSelectedMetal(firstAvailableMetal);
+    }
+  }, [product, metals, selectedMetal]);
 
   // Store previous path from location state or referrer on mount
   useEffect(() => {
@@ -252,6 +296,19 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     try {
+      // Check authentication first
+      const isAuthenticated = !!localStorage.getItem('accessToken');
+      if (!isAuthenticated) {
+        const currentPath = window.location.pathname + window.location.search;
+        toast.error('Please login to add items to cart', {
+          duration: 3000,
+          position: 'top-right',
+          icon: '🔒',
+        });
+        navigate(`/sign-in?redirect=${encodeURIComponent(currentPath)}`);
+        return;
+      }
+
       if (isRing && !selectedRingSize) {
         toast.error('Please select a ring size before adding to cart', {
           duration: 3000,
@@ -259,8 +316,6 @@ const ProductDetail = () => {
         });
         return;
       }
-
-      const isAuthenticated = !!localStorage.getItem('accessToken');
       
       const cartData = {
         productId: product._id,
@@ -292,40 +347,40 @@ const ProductDetail = () => {
         }
       }
 
-      if (!isAuthenticated) {
-        cartData.name = product.title || product.name;
-        cartData.title = product.title || product.name;
-        cartData.price = getFinalPrice();
-        cartData.image = product.images?.[0]?.url || product.images?.[0];
-        cartData.images = product.images;
-        cartData.description = product.description;
-        cartData._id = product._id;
-        cartData.selectedMetal = selectedMetal;
-        if (isRing && selectedRingSize) {
-          cartData.ringSize = selectedRingSize;
-        }
-      }
-
      const response = await dispatch(addCartItem(cartData)).unwrap();
      console.log('response :', response);
       if (response.success) {
-        toast.success('Product added to cart!', {
+        let successMessage = `${product.title || product.name} added to cart!`;
+        const options = [];
+        if (selectedMetal) {
+          options.push(`${selectedMetal.carat} ${selectedMetal.color}`);
+        }
+        if (isRing && selectedRingSize) {
+          options.push(`Size ${selectedRingSize}`);
+        }
+        if (selectedCarat) {
+          options.push(`Stone: ${selectedCarat.name}`);
+        }
+        if (quantity > 1) {
+          options.push(`Qty: ${quantity}`);
+        }
+        if (options.length > 0) {
+          successMessage = `${product.title || product.name} added to cart (${options.join(', ')})!`;
+        } 
+        toast.success(successMessage, {
           duration: 3000,
           position: 'top-right',
         });
       } else {
-        toast.error(response.message, {
-          duration: 3000,
-          position: 'top-right',
-        });
+        console.log('response.message :', response.message);    
+ 
       }
-      // Build success message with selected options
     } catch (error) {
       console.error('Failed to add item to cart:', error);
-      toast.error('Failed to add item to cart. Please try again.', {
-        duration: 3000,
-        position: 'top-right',
-      });
+      // toast.error('Failed to add item to cart. Please try again.', {
+      //   duration: 3000,
+      //   position: 'top-right',
+      // });
     }
   };
 
@@ -728,25 +783,49 @@ const ProductDetail = () => {
                   
                   <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
                     <div className="flex justify-between">
-                      <span>Material:</span>
+                      <span className="font-montserrat-medium-500 text-black">Material:</span>
                       <span>{selectedMetal ? `${selectedMetal.carat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
                     </div>
                     {isRing && selectedCarat && (
                       <div className="flex justify-between">
-                        <span>Center Stone:</span>
+                        <span className="font-montserrat-medium-500 text-black">Center Stone:</span>
                         <span>{typeof selectedCarat === 'string' ? selectedCarat : selectedCarat.name}</span>
                       </div>
                     )}
                     {isRing && selectedRingSize && (
                       <div className="flex justify-between">
-                        <span>Ring Size:</span>
+                        <span className="font-montserrat-medium-500 text-black">Ring Size:</span>
                         <span>{selectedRingSize}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span>Care:</span>
-                      <span>Professional Cleaning</span>
+                    <span className="font-montserrat-medium-500 text-black">Care:</span>
+                      <span>{product.careInstruction}</span>
                     </div>
+                    {product.shape && (
+                      <div className="flex justify-between">
+                        <span className="font-montserrat-medium-500 text-black">Shape:</span>
+                        <span>{product.shape}</span>
+                      </div>
+                    )}
+                    {product.color && (
+                      <div className="flex justify-between">
+                        <span className="font-montserrat-medium-500 text-black">Color:</span>
+                        <span>{product.color}</span>
+                      </div>
+                    )}
+                    {product.clarity.length > 0 && (
+                      <div className="flex justify-between">
+                       <span className="font-montserrat-medium-500 text-black">Clarity:</span>
+                        <span>{product.clarity.join(', ')}</span>
+                      </div>
+                    )}
+                    {product.certificate.length > 0 && (
+                      <div className="flex justify-between">
+                      <span className="font-montserrat-medium-500 text-black">Certificate:</span>
+                        <span>{product.certificate.join(', ')}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* FAQ Style Accordions */}

@@ -246,7 +246,7 @@ const Favorites = () => {
                   </button>
                   
                   {/* Quick Actions Overlay */}
-                  <div 
+                  {/* <div 
                     className="absolute inset-0 bg-black/50 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -256,7 +256,7 @@ const Favorites = () => {
                         className="px-3 sm:px-4 py-2 bg-white text-black rounded-lg hover:bg-primary-light transition-colors flex items-center gap-1 sm:gap-2 font-montserrat-medium-500 shadow-lg text-xs sm:text-sm whitespace-nowrap"
                       >
                         <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                        {/* <span className="hidden sm:inline">Quick View</span> */}
+     
                       </button>
                       <button
                         onClick={(e) => {
@@ -266,10 +266,10 @@ const Favorites = () => {
                         className="px-3 sm:px-4 py-2 bg-primary-dark text-white rounded-lg hover:bg-primary transition-colors flex items-center gap-1 sm:gap-2 font-montserrat-medium-500 shadow-lg text-xs sm:text-sm whitespace-nowrap"
                       >
                         <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
-                        {/* <span className="hidden sm:inline">Add to Cart</span> */}
+                       
                       </button>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 
                 <div className="p-3 sm:p-4 flex-1 flex flex-col">

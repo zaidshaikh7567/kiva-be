@@ -76,12 +76,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       icon: Users,
       path: '/customers'
     },
-    {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: BarChart3,
-      path: '/analytics'
-    },
+    // {
+    //   id: 'analytics',
+    //   label: 'Analytics',
+    //   icon: BarChart3,
+    //   path: '/analytics'
+    // },
     {
       id: 'reviews',
       label: 'Reviews',
@@ -100,18 +100,18 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       icon: Share2,
       path: '/social-handles'
     },
-    {
-      id: 'favorites',
-      label: 'Favorites',
-      icon: Heart,
-      path: '/favorites'
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: Settings,
-      path: '/settings'
-    }
+    // {
+    //   id: 'favorites',
+    //   label: 'Favorites',
+    //   icon: Heart,
+    //   path: '/favorites'
+    // },
+    // {
+    //   id: 'settings',
+    //   label: 'Settings',
+    //   icon: Settings,
+    //   path: '/settings'
+    // }
   ];
 
   const handleLogout = () => {

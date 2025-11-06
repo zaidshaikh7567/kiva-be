@@ -10,7 +10,6 @@ const CustomDropdown = ({
   disabled = false,
   searchable = true,
 }) => {
-  console.log(value,'value');
   
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

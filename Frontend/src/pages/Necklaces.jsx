@@ -1,235 +1,236 @@
-import React from "react";
-import { Clock, Bell, Mail, Sparkles, Heart } from "lucide-react";
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Grid, List } from "lucide-react";
+import ProductCard from "../components/ProductCard";
+import CustomDropdown from "../components/CustomDropdown";
+import { fetchProducts } from "../store/slices/productsSlice";
+import { selectProducts, selectProductsLoading, selectProductsLoadingMore, selectProductsError, selectPagination } from "../store/slices/productsSlice";
+import { selectCategories } from "../store/slices/categoriesSlice";
+import { fetchCategories } from "../store/slices/categoriesSlice";
 import AnimatedSection from "../components/home/AnimatedSection";
 
+const SORT_OPTIONS = [
+  { value: 'featured', label: 'Featured' },
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'rating', label: 'Highest Rated' },
+];
+
 const Necklaces = () => {
+  const dispatch = useDispatch();
+  const products = useSelector(selectProducts);
+  const productsLoading = useSelector(selectProductsLoading);
+  const productsLoadingMore = useSelector(selectProductsLoadingMore);
+  const productsError = useSelector(selectProductsError);
+  const pagination = useSelector(selectPagination);
+  const categories = useSelector(selectCategories);
+  
+  const [sortBy, setSortBy] = useState("featured");
+  const [viewMode, setViewMode] = useState("grid");
+
+  // Fetch products and categories on mount
+  useEffect(() => {
+    dispatch(fetchProducts({ page: 1, limit: 90, reset: true }));
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  // Handle load more
+  const handleLoadMore = () => {
+    const nextPage = pagination.currentPage + 1;
+    dispatch(fetchProducts({ page: nextPage, limit: 9, reset: false }));
+  };
+
+  // Find necklace category (main category without parent)
+  const necklaceCategory = useMemo(() => {
+    return categories?.find(cat => 
+      !cat.parent && (cat.name?.toLowerCase() === "necklace" || cat.name?.toLowerCase() === "necklaces")
+    );
+  }, [categories]);
+
+  // Filter necklaces based on necklace category
+  const filteredNecklaces = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    
+    // Filter by necklace category
+    let necklaceProducts = products.filter(product => {
+      if (!necklaceCategory) return false;
+      
+      const productCategoryId = product.category?._id;
+      const productCategoryName = product.category?.name?.toLowerCase();
+      
+      return productCategoryId === necklaceCategory._id || 
+             productCategoryName === "necklace" || 
+             productCategoryName === "necklaces";
+    });
+
+    // Map products to match ProductCard expected format
+    return necklaceProducts.map(product => ({
+      ...product,
+      id: product._id,
+      name: product.title || product.name || '',
+      image: Array.isArray(product.image) ? product.image[0] : product.image,
+      rating: product.rating || 4.5,
+      reviews: product.reviews || 0,
+      featured: product.featured || false,
+      originalPrice: product.originalPrice || null
+    }));
+  }, [products, necklaceCategory]);
+
+  const sortNecklaces = (necklaces) => {
+    switch (sortBy) {
+      case "price-low":
+        return [...necklaces].sort((a, b) => a.price - b.price);
+      case "price-high":
+        return [...necklaces].sort((a, b) => b.price - a.price);
+      case "rating":
+        return [...necklaces].sort((a, b) => b.rating - a.rating);
+      case "featured":
+      default:
+        return [...necklaces].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+    }
+  };
+
+  const sortedNecklaces = sortNecklaces(filteredNecklaces);
+
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}
       <AnimatedSection animationType="fadeInUp" delay={100}>
         <section className="py-8 md:py-16 lg:py-20 bg-secondary">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
-          <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
-            JEWELRY COLLECTION
-          </p>
-          <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
-            Necklace Collection<span className="text-primary">.</span>
-          </h1>
-          <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
-            Discover our stunning collection of necklaces, from delicate chains to statement pieces
-          </p>
-          <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
-        </div>
-      </section>
+          <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
+            <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
+              JEWELRY COLLECTION
+            </p>
+            <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
+              Necklace Collection<span className="text-primary">.</span>
+            </h1>
+            <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
+              Discover our stunning collection of necklaces, from delicate chains to statement pieces
+            </p>
+            <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
+          </div>
+        </section>
       </AnimatedSection>
 
-      {/* Coming Soon Section */}
-      <AnimatedSection animationType="scaleIn" delay={200}>
-        <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
-          {/* Coming Soon Icon */}
-          <div className="mb-8">
-            <div className="w-24 h-24 mx-auto bg-primary-light/20 rounded-full flex items-center justify-center mb-6">
-              <Clock className="w-12 h-12 text-primary" />
-            </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy text-black mb-4">
-              Coming Soon<span className="text-primary">.</span>
-            </h2>
-            <p className="text-lg md:text-xl font-montserrat-regular-400 text-black-light mb-8 max-w-2xl mx-auto">
-              We're crafting something truly special for you. Our exquisite necklace collection is being carefully curated and will be available soon.
-            </p>
-          </div>
-
-          {/* Features Preview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div className="text-center p-6 bg-secondary rounded-2xl">
-              <div className="w-16 h-16 mx-auto bg-primary-light/20 rounded-full flex items-center justify-center mb-4">
-                <Sparkles className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">
-                Handcrafted Excellence
-              </h3>
-              <p className="text-sm font-montserrat-regular-400 text-black-light">
-                Each piece is meticulously crafted by our master jewelers using the finest materials
-              </p>
+      {/* Simple Filter Section */}
+      <section className="py-4 md:py-8 bg-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          {/* Filters and Sorting */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-montserrat-medium-500 text-black-light">
+                {sortedNecklaces.length} necklaces available
+              </span>
             </div>
 
-            <div className="text-center p-6 bg-secondary rounded-2xl">
-              <div className="w-16 h-16 mx-auto bg-primary-light/20 rounded-full flex items-center justify-center mb-4">
-                <Heart className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">
-                Timeless Designs
-              </h3>
-              <p className="text-sm font-montserrat-regular-400 text-black-light">
-                From classic pearls to modern statement pieces, discover necklaces for every style
-              </p>
-            </div>
+            <div className="flex items-center space-x-4">
+              <CustomDropdown
+                options={SORT_OPTIONS}
+                value={sortBy}
+                onChange={setSortBy}
+                placeholder="Sort by"
+                className="min-w-[200px]"
+                searchable={false}
+              />
 
-            <div className="text-center p-6 bg-secondary rounded-2xl">
-              <div className="w-16 h-16 mx-auto bg-primary-light/20 rounded-full flex items-center justify-center mb-4">
-                <Mail className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">
-                Exclusive Preview
-              </h3>
-              <p className="text-sm font-montserrat-regular-400 text-black-light">
-                Be the first to know when our necklace collection launches with exclusive early access
-              </p>
-            </div>
-          </div>
-
-          {/* Notify Me Section */}
-          <div className="bg-black text-white rounded-2xl p-8 md:p-12">
-            <h3 className="text-2xl md:text-3xl font-sorts-mill-gloudy mb-4">
-              Get Notified First<span className="text-primary">.</span>
-            </h3>
-            <p className="text-lg font-montserrat-regular-400 text-gray-300 mb-8 max-w-2xl mx-auto">
-              Join our exclusive list to be the first to see our new necklace collection and receive special launch offers.
-            </p>
-
-            <div className="max-w-md mx-auto">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  className="flex-1 px-4 py-3 rounded-lg text-black font-montserrat-regular-400 focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <button className="px-8 py-3 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg flex items-center justify-center space-x-2">
-                  <Bell className="w-5 h-5" />
-                  <span>Notify Me</span>
+              <div className="flex items-center border border-gray-200 rounded-lg">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 ${viewMode === "grid" ? "bg-primary  rounded-tl-lg rounded-bl-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
+                >
+                  <Grid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 ${viewMode === "list" ? "bg-primary rounded-tr-lg rounded-br-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tr-lg rounded-br-lg"}`}
+                >
+                  <List className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-xs font-montserrat-regular-400 text-gray-400 mt-3">
-                We respect your privacy. Unsubscribe at any time.
-              </p>
-            </div>
-          </div>
-
-          {/* Timeline */}
-          <div className="mt-16">
-            <h3 className="text-2xl md:text-3xl font-sorts-mill-gloudy text-black mb-8">
-              What to Expect<span className="text-primary">.</span>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <div className="text-left">
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-sm font-montserrat-bold-700">1</span>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-montserrat-semibold-600 text-black mb-2">
-                      Collection Curation
-                    </h4>
-                    <p className="text-sm font-montserrat-regular-400 text-black-light">
-                      Our designers are carefully selecting and creating unique necklace pieces that reflect our brand's elegance and quality standards.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-left">
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-sm font-montserrat-bold-700">2</span>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-montserrat-semibold-600 text-black mb-2">
-                      Quality Assurance
-                    </h4>
-                    <p className="text-sm font-montserrat-regular-400 text-black-light">
-                      Each necklace undergoes rigorous quality checks to ensure it meets our premium standards before reaching our customers.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-left">
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-sm font-montserrat-bold-700">3</span>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-montserrat-semibold-600 text-black mb-2">
-                      Photography & Styling
-                    </h4>
-                    <p className="text-sm font-montserrat-regular-400 text-black-light">
-                      Professional photography sessions are capturing every detail of our necklaces to showcase their beauty and craftsmanship.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-left">
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-sm font-montserrat-bold-700">4</span>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-montserrat-semibold-600 text-black mb-2">
-                      Launch Preparation
-                    </h4>
-                    <p className="text-sm font-montserrat-regular-400 text-black-light">
-                      Final preparations including inventory management, pricing, and website integration are underway for a seamless launch.
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
-      </AnimatedSection>
+
+      {/* Products Grid */}
+      <section className="py-2 md:py-8 bg-secondary">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          {productsLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-black-light font-montserrat-regular-400">Loading necklaces...</p>
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-12">
+              <div className="text-red-500 mb-4">
+                <span className="text-4xl">⚠️</span>
+              </div>
+              <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Error loading necklaces</h3>
+              <p className="text-black-light font-montserrat-regular-400">
+                {productsError}
+              </p>
+            </div>
+          ) : sortedNecklaces.length > 0 ? (
+            <div className={`grid gap-4 md:gap-8 ${
+              viewMode === "grid" 
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
+                : "grid-cols-1"
+            }`}>
+              {sortedNecklaces.map((necklace) => (
+                <ProductCard
+                  key={necklace._id || necklace.id}
+                  product={necklace}
+                  viewMode={viewMode}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-black-light font-montserrat-regular-400">
+                No necklaces found.
+              </p>
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {sortedNecklaces.length > 0 && pagination.hasMore && (
+            <div className="text-center mt-8 md:mt-12">
+              <button
+                onClick={handleLoadMore}
+                disabled={productsLoadingMore}
+                className="px-8 md:px-12 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 rounded-lg hover:bg-primary-dark transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 mx-auto"
+              >
+                {productsLoadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Load More</span>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Call to Action */}
-      <AnimatedSection animationType="fadeInRight" delay={300}>
-        <section className="py-16 md:py-20 bg-black text-white">
+      <section className="py-16 md:py-20 bg-black text-white">
         <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
-            Explore Our Other Collections<span className="text-primary">.</span>
+            Need Help Choosing<span className="text-primary">?</span>
           </h2>
           <p className="text-base md:text-lg lg:text-xl font-montserrat-regular-400 text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto px-4">
-            While you wait for our necklace collection, discover our beautiful rings, earrings, and bracelets
+            Our jewelry experts can help you find the perfect necklace or create a custom design just for you
           </p>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            <Link
-              to="/rings"
-              className="group bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-2xl p-6 text-center"
-            >
-              <div className="text-4xl mb-3">💍</div>
-              <h3 className="text-lg font-montserrat-semibold-600 mb-2">Rings</h3>
-              <p className="text-sm font-montserrat-regular-400 text-gray-300">
-                Discover our exquisite ring collection
-              </p>
-            </Link>
-
-            <Link
-              to="/earrings"
-              className="group bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-2xl p-6 text-center"
-            >
-              <div className="text-4xl mb-3">💎</div>
-              <h3 className="text-lg font-montserrat-semibold-600 mb-2">Earrings</h3>
-              <p className="text-sm font-montserrat-regular-400 text-gray-300">
-                Browse our stunning earring collection
-              </p>
-            </Link>
-
-            <Link
-              to="/bracelets"
-              className="group bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-2xl p-6 text-center"
-            >
-              <div className="text-4xl mb-3">📿</div>
-              <h3 className="text-lg font-montserrat-semibold-600 mb-2">Bracelets</h3>
-              <p className="text-sm font-montserrat-regular-400 text-gray-300">
-                Explore our elegant bracelet collection
-              </p>
-            </Link>
+          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
+            <a href={"tel:+919106302269"} target="_blank" rel="noopener noreferrer" className="px-6 md:px-10 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg text-base md:text-lg">
+              Custom Design
+            </a>
           </div>
         </div>
       </section>
-      </AnimatedSection>
     </div>
   );
 };

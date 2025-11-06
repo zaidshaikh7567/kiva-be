@@ -60,6 +60,10 @@ const productSchema = new mongoose.Schema({
   certificate: {
     type: [String],
     default: []
+  },
+  isBand: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

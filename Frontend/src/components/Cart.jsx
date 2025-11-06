@@ -1,19 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, Minus, Plus, Trash2, ShoppingBag, Eye } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { closeCart, updateQuantity, removeFromCart, clearCart, deleteCartItem, updateCartItem } from '../store/slices/cartSlice';
+import { closeCart, updateQuantity, removeFromCart, clearCartItems, deleteCartItem, updateCartItem } from '../store/slices/cartSlice';
 import PriceDisplay from './PriceDisplay';
+import ConfirmationModal from './ConfirmationModal';
 import toast from 'react-hot-toast';
 
 const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items, totalQuantity, totalPrice, isOpen } = useSelector(state => state.cart);
-  console.log('totalPrice :', totalPrice);
-  console.log('totalQuantity :', totalQuantity);
-  console.log('items :', items);
-  
+  const { items, totalQuantity, totalPrice, isOpen, loading } = useSelector(state => state.cart);
+  const [showClearCartModal, setShowClearCartModal] = useState(false);
+
   // Check if user is authenticated
   const isAuthenticated = !!localStorage.getItem('accessToken');
   const MAX_CART_ITEMS = 5;
@@ -22,8 +21,6 @@ const Cart = () => {
   if (!isOpen) return null;
 
   const handleQuantityChange = async (id, newQuantity) => {
-    console.log('newQuantity :', newQuantity);
-    console.log('id :', id);
     
     // Ensure quantity is at least 1
     if (newQuantity < 1) {
@@ -60,7 +57,12 @@ const Cart = () => {
   };
 
   const handleClearCart = () => {
-    dispatch(clearCart());
+    setShowClearCartModal(true);
+  };
+
+  const handleConfirmClearCart = () => {
+    dispatch(clearCartItems());
+    setShowClearCartModal(false);
   };
 
   const handleCheckout = () => {
@@ -188,7 +190,21 @@ const Cart = () => {
                         {/* Show selected metal if available */}
                         {item.metal && (
                           <div className="text-xs text-black-light font-montserrat-regular-400 mt-1">
-                            {item.metal.purityLevels[0].karat}K 
+                            {item.metal.purityLevels?.[0]?.karat || item.purityLevel?.karat || ''}K 
+                          </div>
+                        )}
+                        
+                        {/* Show selected stone if available */}
+                        {item.stoneType && (
+                          <div className="text-xs text-black-light font-montserrat-regular-400 mt-1">
+                            Stone: {item.stoneType.name}
+                          </div>
+                        )}
+                        
+                        {/* Show ring size if available */}
+                        {item.ringSize && (
+                          <div className="text-xs text-black-light font-montserrat-regular-400 mt-1">
+                            Size: {item.ringSize}
                           </div>
                         )}
                         
@@ -253,12 +269,12 @@ const Cart = () => {
             <div className="border-t border-gray-200 p-6">
               {/* Total */}
               <div className="flex justify-between items-center mb-4">
-                <span className="text-lg font-montserrat-semibold-600 text-black">
+                <span className="md:text-lg text-base font-montserrat-semibold-600 text-black">
                   Total ({totalQuantity} items)
                 </span>
                 <PriceDisplay 
                   price={totalPrice}
-                  className="text-xl font-montserrat-bold-700 text-primary"
+                  className="sm:text-xl text-base font-montserrat-bold-700 text-primary"
                 />
               </div>
 
@@ -271,7 +287,7 @@ const Cart = () => {
                 className="w-full bg-white text-primary border-2 border-primary font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 flex items-center justify-center space-x-2 mb-3"
               >
                 <Eye className="w-5 h-5" />
-                <span>View Cart</span>
+                <span className="md:text-lg text-sm">View Cart</span>
               </button>
 
               {/* Checkout Button */}
@@ -280,13 +296,13 @@ const Cart = () => {
                 className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
               >
                 <ShoppingBag className="w-5 h-5" />
-                <span>Proceed to Checkout</span>
+                <span className="md:text-lg text-sm">Proceed to Checkout</span>
               </button>
 
               {/* Continue Shopping */}
               <button
                 onClick={() => dispatch(closeCart())}
-                className="w-full mt-3 text-primary border border-primary font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300"
+                className="w-full mt-3 md:text-lg text-sm text-primary border border-primary font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300"
               >
                 Continue Shopping
               </button>
@@ -294,6 +310,19 @@ const Cart = () => {
           )}
         </div>
       </div>
+
+      {/* Clear Cart Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showClearCartModal}
+        onClose={() => setShowClearCartModal(false)}
+        onConfirm={handleConfirmClearCart}
+        loading={loading}
+        title="Clear Cart"
+        message="Are you sure you want to clear your cart? All items will be removed and this action cannot be undone."
+        confirmText="Clear Cart"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 };

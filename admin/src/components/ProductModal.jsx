@@ -4,102 +4,15 @@ import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon, Chevro
 import RichTextEditor from './RichTextEditor';
 import CustomDropdown from './CustomDropdown';
 import MultiSelectDropdown from './MultiSelectDropdown';
-
-// Care instructions options
-const CARE_OPTIONS = [
-  'Professional Cleaning',
-  'Clean with Soft Cloth',
-  'Avoid Chemicals',
-  'Store Separately',
-  'Remove Before Swimming',
-  'Ultrasonic Cleaning Safe',
-];
-
-// Shape options
-const SHAPE_OPTIONS = [
-  { value: 'Round', label: 'Round' },
-  { value: 'Princess', label: 'Princess' },
-  { value: 'Oval', label: 'Oval' },
-  { value: 'Heart', label: 'Heart' },
-  { value: 'Pear', label: 'Pear' },
-  { value: 'Marquise', label: 'Marquise' },
-  { value: 'Cushion', label: 'Cushion' },
-  { value: 'Emerald', label: 'Emerald' },
-  { value: 'Asscher', label: 'Asscher' },
-  { value: 'Radiant', label: 'Radiant' },
-  { value: 'Chain', label: 'Chain' },
-  { value: 'Other', label: 'Other' }
-];
-
-// Color options
-const COLOR_OPTIONS = [
-  { value: 'D', label: 'D (Colorless)' },
-  { value: 'E', label: 'E (Colorless)' },
-  { value: 'F', label: 'F (Colorless)' },
-  { value: 'G', label: 'G (Near Colorless)' },
-  { value: 'H', label: 'H (Near Colorless)' },
-  { value: 'I', label: 'I (Near Colorless)' },
-  { value: 'J', label: 'J (Near Colorless)' },
-  { value: 'K', label: 'K (Faint Yellow)' },
-  { value: 'L', label: 'L (Faint Yellow)' },
-  { value: 'M', label: 'M (Faint Yellow)' },
-  { value: 'White', label: 'White' },
-  { value: 'Yellow Gold', label: 'Yellow Gold' },
-  { value: 'Rose Gold', label: 'Rose Gold' },
-  { value: 'Platinum', label: 'Platinum' },
-  { value: 'Silver', label: 'Silver' },
-  { value: 'Other', label: 'Other' }
-];
-
-// Clarity options
-const CLARITY_OPTIONS = [
-  { value: 'FL', label: 'FL (Flawless)' },
-  { value: 'IF', label: 'IF (Internally Flawless)' },
-  { value: 'VVS1', label: 'VVS1 (Very Very Slightly Included 1)' },
-  { value: 'VVS2', label: 'VVS2 (Very Very Slightly Included 2)' },
-  { value: 'VS1', label: 'VS1 (Very Slightly Included 1)' },
-  { value: 'VS2', label: 'VS2 (Very Slightly Included 2)' },
-  { value: 'SI1', label: 'SI1 (Slightly Included 1)' },
-  { value: 'SI2', label: 'SI2 (Slightly Included 2)' },
-  { value: 'I1', label: 'I1 (Included 1)' },
-  { value: 'I2', label: 'I2 (Included 2)' },
-  { value: 'I3', label: 'I3 (Included 3)' },
-  { value: 'AAA', label: 'AAA (Pearl Quality)' },
-  { value: 'AA', label: 'AA (Pearl Quality)' },
-  { value: 'A', label: 'A (Pearl Quality)' }
-];
-
-// Certificate options
-const CERTIFICATE_OPTIONS = [
-  { value: 'GIA', label: 'GIA (Gemological Institute of America)' },
-  { value: 'IGI', label: 'IGI (International Gemological Institute)' },
-  { value: 'AGS', label: 'AGS (American Gem Society)' },
-  { value: 'EGL', label: 'EGL (European Gemological Laboratory)' },
-  { value: 'HRD', label: 'HRD (Hoge Raad voor Diamant)' },
-  { value: 'Certificate of Authenticity', label: 'Certificate of Authenticity' },
-  { value: 'Other', label: 'Other' }
-];
-
-
-const EMPTY_LEXICAL_STATE = JSON.stringify({
-  root: {
-    children: [
-      {
-        children: [],
-        direction: "ltr",
-        format: "",
-        indent: 0,
-        type: "paragraph",
-        version: 1,
-      },
-    ],
-    direction: "ltr",
-    format: "",
-    indent: 0,
-    type: "root",
-    version: 1,
-  },
-});
+import {
+  CARE_OPTIONS,
+  SHAPE_OPTIONS,
+  COLOR_OPTIONS,
+  CLARITY_OPTIONS,
+  CERTIFICATE_OPTIONS,
+  EMPTY_LEXICAL_STATE
+} from '../constants';
+import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
 
 function getSafeLexicalState(val) {
   // If it's already an object, convert it to string first
@@ -142,7 +55,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     shape: '',
     color: '',
     clarity: [],
-    certificate: []
+    certificate: [],
+    isBand: false
   });
   console.log('formData :', formData);
 
@@ -160,6 +74,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     if (isOpen && mode === 'edit' && productData) {
       // Process description once during initialization
       const processedDescription = getSafeLexicalState(productData.description);
+      console.log('productData :', productData);
       
       setFormData({
         title: productData.title || '',
@@ -175,7 +90,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         shape: productData.shape || '',
         color: productData.color || '',
         clarity: Array.isArray(productData.clarity) ? productData.clarity : [],
-        certificate: Array.isArray(productData.certificate) ? productData.certificate : []
+        certificate: Array.isArray(productData.certificate) ? productData.certificate : [],
+        isBand: productData.isBand || false
       });
 
       // Set image previews for existing images
@@ -203,7 +119,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         shape: '',
         color: '',
         clarity: [],
-        certificate: []
+        certificate: [],
+        isBand: false
       });
       setImagePreviews([]);
       // Reset dropdowns
@@ -362,14 +279,15 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         shape: formData.shape || '',
         color: formData.color || '',
         clarity: formData.clarity.length > 0 ? JSON.stringify(formData.clarity) : undefined,
-        certificate: formData.certificate.length > 0 ? JSON.stringify(formData.certificate) : undefined
+        certificate: formData.certificate.length > 0 ? JSON.stringify(formData.certificate) : undefined,
+        stoneTypeId:formData.stoneTypeId,
+        isBand: formData.isBand
       };
 
       // Only add stoneTypeId if it's a valid ObjectId
-      if (formData.stoneTypeId && formData.stoneTypeId.length === 24 && /^[0-9a-fA-F]{24}$/.test(formData.stoneTypeId)) {
-        submitData.stoneTypeId = formData.stoneTypeId;
-      }
-console.log(submitData,'submitDatas');
+      // if (formData.stoneTypeId ) {
+      // }
+console.log(submitData,'submitDatas---');
 
       if (mode === 'edit' && productData) {
         // Edit mode - send ID and data
@@ -406,7 +324,8 @@ console.log(submitData,'submitDatas');
       shape: '',
       color: '',
       clarity: [],
-      certificate: []
+      certificate: [],
+      isBand: false
     });
     setImagePreviews([]);
     // Reset dropdowns
@@ -972,7 +891,7 @@ console.log(submitData,'submitDatas');
               <h3 className="text-lg font-montserrat-semibold-600 text-black">
                 Metal Options & Pricing
               </h3>
-              <button
+              {/* <button
                 type="button"
                 onClick={() => setMetalOptionsOpen(!metalOptionsOpen)}
                 className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-300"
@@ -985,10 +904,10 @@ console.log(submitData,'submitDatas');
                     metalOptionsOpen ? 'rotate-180' : ''
                   }`}
                 />
-              </button>
+              </button> */}
             </div>
 
-            {metalOptionsOpen && (
+            {/* {metalOptionsOpen && ( */}
               <div className="space-y-6 p-4 bg-gray-50 rounded-xl border border-gray-200 metal-options-container">
 
                 {/* Metal Options Grid */}
@@ -1030,7 +949,7 @@ console.log(submitData,'submitDatas');
                           </div>
                           <div className="text-xs font-montserrat-medium-500 text-primary mt-1">
                             {metal.purityLevels && metal.purityLevels.length > 0 && (
-                              <span>{metal.purityLevels.map(pl => `${pl.karat}K`).join(', ')}</span>
+                              <span>{metal.purityLevels.filter(pl => pl.active !== false).map(pl => `${pl.karat}K`).join(', ')}</span>
                             )}
                           </div>
                         </div>
@@ -1041,7 +960,7 @@ console.log(submitData,'submitDatas');
                             <div className="text-xs font-montserrat-regular-400 text-black-light">
                               Prices:
                             </div>
-                            {metal.purityLevels.map((pl, idx) => (
+                            {metal.purityLevels.filter(pl => pl.active !== false).map((pl, idx) => (
                               <div key={pl._id || idx} className="text-xs font-montserrat-semibold-600 text-primary">
                                 {pl.karat}K: ${calculateMetalPrice(metal._id, pl)}
                               </div>
@@ -1088,7 +1007,7 @@ console.log(submitData,'submitDatas');
                             </div>
                             {metal.purityLevels && metal.purityLevels.length > 0 && (
                               <div className="space-y-1 pl-11">
-                                {metal.purityLevels.map((pl, idx) => (
+                                {metal.purityLevels.filter(pl => pl.active !== false).map((pl, idx) => (
                                   <div key={pl._id || idx} className="flex items-center justify-between text-xs">
                                     <span className="font-montserrat-regular-400 text-black-light">
                                       {pl.karat}K (x{pl.priceMultiplier})
@@ -1109,7 +1028,22 @@ console.log(submitData,'submitDatas');
                   </div>
                 )}
               </div>
-            )}
+            {/* )} */}
+          </div>
+
+          {/* Is Band Checkbox */}
+          <div className="space-y-2">
+            <CustomCheckbox
+              checked={formData.isBand}
+              onChange={(e) => setFormData(prev => ({ ...prev, isBand: e.target.checked }))}
+              label="Is Band"
+              name="isBand"
+              id="isBand"
+              disabled={loading}
+            />
+            <p className="text-xs text-black-light font-montserrat-regular-400">
+              Check this if the product is a band (optional)
+            </p>
           </div>
 
           {/* Action Buttons */}

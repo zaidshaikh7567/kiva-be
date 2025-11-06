@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Cart from "../components/Cart";
 import StickyCartButton from "../components/StickyCartButton";
+import HelpSupportButton from "../components/HelpSupportButton";
 
 
 const MainLayout = () => {
@@ -15,6 +16,7 @@ const MainLayout = () => {
       <Footer />
       <Cart />
       <StickyCartButton />
+      <HelpSupportButton />
     </div>
   );
 };

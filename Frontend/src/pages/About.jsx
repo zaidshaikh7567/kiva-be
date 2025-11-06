@@ -9,11 +9,11 @@ const About = () => {
     <div className="bg-white">
       {/* Hero Banner Section */}
       <AnimatedSection animationType="fadeInUp" delay={100}>
-        <section className="relative h-[80vh] overflow-hidden">
+        <section className="relative h-[70vh] overflow-hidden">
         <div className="absolute inset-0">
           <img
             src={aboutImg1}
-            alt="About Aurora Jewelry"
+            alt="About Kiva Jewellery"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/50" />
@@ -21,10 +21,10 @@ const About = () => {
         
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center text-white max-w-5xl mx-auto px-6">
-            <h1 className="text-6xl md:text-8xl font-sorts-mill-gloudy leading-tight mb-8">
+            <h1 className="text-5xl md:text-7xl font-sorts-mill-gloudy leading-tight mb-8">
               About Kiva<span className="text-primary">.</span>
             </h1>
-            <p className="text-2xl md:text-3xl font-montserrat-regular-400 sm:mb-12 mb-6 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl font-montserrat-regular-400 sm:mb-12 mb-6 max-w-3xl mx-auto leading-relaxed">
               Crafting timeless jewelry pieces that celebrate life's most precious moments since 1985
             </p>
             <div className="sm:flex block  items-center justify-center sm:space-x-4 text-lg font-montserrat-medium-500">

@@ -14,10 +14,10 @@ export const API_METHOD = {
   collections: '/api/collections',
   contacts: '/api/contacts',
   auth: {
-    login: '/api/admin/auth/login',
-    google: '/api/admin/auth/google',
-    logout: '/api/admin/auth/logout',
-    profile: '/api/admin/auth/profile',
-    refreshToken: '/api/admin/auth/refresh-token',
+    login: '/api/auth/login',
+    google: '/api/auth/google',
+    logout: '/api/auth/logout',
+    profile: '/api/auth/profile',
+    refreshToken: '/api/auth/refresh',
   },
 };
