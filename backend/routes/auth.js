@@ -200,12 +200,16 @@ router.put('/profile', authenticate, upload.single('profileImage'), validate(upd
 
 // Google OAuth Login/Signup (handles both login and signup)
 router.post('/google', validate(googleAuthSchema), asyncHandler(async (req, res) => {
-  const { code } = req.body;
+  const { code, redirectUri } = req.body;
 
   // Validate environment variables
   if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REDIRECT_URL) {
     throw new Error('Google OAuth credentials are not configured. Please check environment variables.');
   }
+
+  // Use redirect URI from request if provided, otherwise use environment variable
+  // The redirect URI must match exactly what was used when obtaining the authorization code
+  const finalRedirectUri = redirectUri || GOOGLE_REDIRECT_URL;
 
   try {
     // 1. Exchange authorization code for access token
@@ -213,7 +217,7 @@ router.post('/google', validate(googleAuthSchema), asyncHandler(async (req, res)
       code,
       client_id: GOOGLE_CLIENT_ID,
       client_secret: GOOGLE_CLIENT_SECRET,
-      redirect_uri: GOOGLE_REDIRECT_URL,
+      redirect_uri: finalRedirectUri,
       grant_type: 'authorization_code',
     });
 

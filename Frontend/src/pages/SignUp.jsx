@@ -43,12 +43,15 @@ const SignUp = () => {
   // ✅ Google Login Handler
   const loginWithGoogle = useGoogleLogin({
     flow: 'auth-code',
+    redirect_uri: window.location.origin, // Explicitly set redirect URI to match backend
     onSuccess: async (codeResponse) => {
       try {
         console.log('Authorization code received:', codeResponse.code);
         
-        // Send authorization code to backend
-        const result = await handleGoogleLogin(codeResponse.code);
+        // Send authorization code to backend with redirect URI
+        // The redirect URI must match what was used in the OAuth flow
+        const redirectUri = window.location.origin;
+        const result = await handleGoogleLogin(codeResponse.code, redirectUri);
         console.log('result :', result);
         
         if (result.success && result.data?.data) {

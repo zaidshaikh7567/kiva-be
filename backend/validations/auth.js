@@ -31,7 +31,8 @@ const updateProfileSchema = zod.object({
 }).passthrough(); // Allow additional fields like profileImage (handled by multer)
 
 const googleAuthSchema = zod.object({
-  code: zod.string().min(1, 'Authorization code is required')
+  code: zod.string().min(1, 'Authorization code is required'),
+  redirectUri: zod.string().url('Invalid redirect URI').optional()
 });
 
 module.exports = {

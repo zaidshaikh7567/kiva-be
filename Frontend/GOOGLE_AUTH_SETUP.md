@@ -168,7 +168,7 @@ router.post('/google', async (req, res) => {
       code,
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URL,
       grant_type: 'authorization_code',
     });
 
@@ -238,7 +238,7 @@ Add these to your backend `.env` file:
 ```
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=http://localhost:5173
+GOOGLE_REDIRECT_URL=http://localhost:5173
 JWT_SECRET=your_jwt_secret
 ```
 
