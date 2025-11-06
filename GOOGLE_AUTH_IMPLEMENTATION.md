@@ -144,7 +144,7 @@ VITE_API_BASE_URL=your_backend_url
 ```
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=http://localhost:5173
+GOOGLE_REDIRECT_URL=http://localhost:5173
 JWT_SECRET=your_jwt_secret
 ```
 
