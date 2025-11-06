@@ -69,10 +69,10 @@ export const createProduct = createAsyncThunk(
         formData.append('color', productData.color);
       }
       if (productData.clarity) {
-        formData.append('clarity', JSON.stringify(productData.clarity));
+        formData.append('clarity', productData.clarity);
       }
       if (productData.certificate) {
-        formData.append('certificate', JSON.stringify(productData.certificate));
+        formData.append('certificate', productData.certificate);
       }
       // Add isBand if provided (always send, even if false)
       if (productData.isBand !== undefined) {
