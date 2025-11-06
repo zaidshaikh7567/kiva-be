@@ -86,21 +86,27 @@ api.interceptors.response.use(
           },
         });
 
-        const response = await refreshAxios.post('/api/auth/refresh-token', {
+        const response = await refreshAxios.post('/api/auth/refresh', {
           refreshToken
         });
 
         // Handle both response structures
         const accessToken = response.data?.data?.accessToken || response.data?.accessToken;
+        const newRefreshToken = response.data?.data?.refreshToken || response.data?.refreshToken;
         
         if (!accessToken) {
           throw new Error('No access token in response');
         }
 
+        // Update both tokens in localStorage
         localStorage.setItem('accessToken', accessToken);
+        if (newRefreshToken) {
+          localStorage.setItem('refreshToken', newRefreshToken);
+        }
 
         processQueue(null, accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        isRefreshing = false;
         
         return api(originalRequest);
       } catch (refreshError) {

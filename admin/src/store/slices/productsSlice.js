@@ -62,7 +62,22 @@ export const createProduct = createAsyncThunk(
           formData.append('images', image);
         });
       }
-      
+      if (productData.shape) {
+        formData.append('shape', productData.shape);
+      }
+      if (productData.color) {
+        formData.append('color', productData.color);
+      }
+      if (productData.clarity) {
+        formData.append('clarity', JSON.stringify(productData.clarity));
+      }
+      if (productData.certificate) {
+        formData.append('certificate', JSON.stringify(productData.certificate));
+      }
+      // Add isBand if provided (always send, even if false)
+      if (productData.isBand !== undefined) {
+        formData.append('isBand', productData.isBand.toString());
+      }
       const response = await api.post(API_METHOD.products, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -108,12 +123,13 @@ export const updateProduct = createAsyncThunk(
       // Add metalIds as JSON array string if provided
      if (data.metals && data.metals.length > 0) {
         formData.append('metalIds', JSON.stringify(data.metals));
-      }
+      }  
       
-      
-      // Add stoneTypeId if provided and is a valid ObjectId (24 char hex string)
-      if (data.stoneTypeId && data.stoneTypeId.length === 24 && /^[0-9a-fA-F]{24}$/.test(data.stoneTypeId)) {
-        formData.append('stoneTypeId', data.stoneTypeId);
+      // Add stoneTypeId if provided
+      // Empty string will be sent to clear the stone type, valid ObjectId will be sent as is
+      if (data.stoneTypeId !== undefined && data.stoneTypeId !== null) {
+        // Send empty string to clear, or the actual value if it exists
+        formData.append('stoneTypeId', data.stoneTypeId || '');
       }
       
       // Add careInstruction if provided
@@ -127,7 +143,22 @@ export const updateProduct = createAsyncThunk(
           formData.append('images', image);
         });
       }
-      
+      if (data.shape) {
+        formData.append('shape', data.shape);
+      }
+      if (data.color) {
+        formData.append('color', data.color);
+      }
+      if (data.clarity) {
+        formData.append('clarity', data.clarity);
+      }
+      if (data.certificate) {
+        formData.append('certificate',data.certificate);
+      }
+      // Add isBand if provided (always send, even if false)
+      if (data.isBand !== undefined) {
+        formData.append('isBand', data.isBand.toString());
+      }
       const response = await api.put(`${API_METHOD.products}/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',

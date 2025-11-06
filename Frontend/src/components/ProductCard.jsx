@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Heart, Star, ShoppingBag, Eye, X } from 'lucide-react';
+import { Heart, Star, ShoppingBag, Eye, X, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, addCartItem } from '../store/slices/cartSlice';
+import { addCartItem } from '../store/slices/cartSlice';
+import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
 import { 
   toggleFavorite, 
   addToFavoritesAPI, 
@@ -30,7 +31,9 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const isFavorite = useSelector(state => selectIsFavorite(state, product._id || product.id));
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const categories = useSelector(selectCategories);
-
+  const metals = useSelector(selectMetals);
+  const [loading, setLoading] = useState(false);
+  console.log('loading :', loading);
   // Check if product is a ring
   const isRing = () => {
     const categoryName = product?.category?.name?.toLowerCase();
@@ -58,6 +61,19 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
 
   const handleConfirmAddToCart = async () => {
     try {
+      // Check authentication first
+      const isAuth = !!localStorage.getItem('accessToken');
+      if (!isAuth) {
+        const currentPath = window.location.pathname + window.location.search;
+        toast.error('Please login to add items to cart', {
+          duration: 3000,
+          position: 'top-right',
+          icon: '🔒',
+        });
+        navigate(`/sign-in?redirect=${encodeURIComponent(currentPath)}`);
+        return;
+      }
+
       // Validate ring size for rings
       if (isRing() && !selectedRingSize) {
         toast.error('Please select a ring size', {
@@ -75,8 +91,6 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         });
         return;
       }
-
-      const isAuth = !!localStorage.getItem('accessToken');
       
       // Prepare cart data according to API structure
       const cartData = {
@@ -103,26 +117,12 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         cartData.stoneTypeId = product.stoneType._id;
       }
 
-      // For authenticated users, use API
-      if (isAuth) {
-        await dispatch(addCartItem(cartData));
-      } else {
-        // For non-authenticated users, use local storage
-        const productWithOptions = {
-          ...product,
-          ringSize: isRing() ? selectedRingSize : undefined,
-          selectedMetal: selectedMetal,
-          productId: product._id || product.id,
-          quantity: 1,
-        };
-        dispatch(addToCart(productWithOptions));
-        toast.success(`${product.name || product.title} added to cart!`, {
-          duration: 2000,
-          position: 'top-right',
-        });
-      }
-      
-      // Build success message
+      // Use API for authenticated users
+      setLoading(true);
+     const response=  await dispatch(addCartItem(cartData));
+     console.log('response$%^%^ :', response);
+      setLoading(false);
+     if (response.payload.success) {
       let successMessage = `${product.name || product.title} added to cart!`;
       const options = [];
       if (selectedMetal) {
@@ -135,30 +135,95 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         successMessage = `${product.name || product.title} added to cart (${options.join(', ')})!`;
       }
       
-      if (isAuth) {
+      console.log('isAuth :', isAuth);
+      // if (isAuth) {
         toast.success(successMessage, {
           duration: 2000,
           position: 'top-right',
         });
-      }
-      
-      // Close modal and reset
+      // }
       setShowAddToCartModal(false);
       setSelectedRingSize('');
       setSelectedMetal(null);
+    } else {
+      setShowAddToCartModal(false);
+      setSelectedRingSize('');
+      setSelectedMetal(null);
+    }
+      
+      // Build success message
+    
+      
+      // Close modal and reset
+ 
     } catch (error) {
       console.error('Failed to add item to cart:', error);
-      toast.error('Failed to add item to cart. Please try again.', {
-        duration: 2000,
-        position: 'top-right',
-      });
+      // toast.error('Failed to add item to cart. Please try again.', {
+      //   duration: 2000,
+      //   position: 'top-right',
+      // });
     }
   };
 
   const handleAddToCart = () => {
+    const isAuth = !!localStorage.getItem('accessToken');
+    if (!isAuth) {
+      const currentPath = window.location.pathname + window.location.search;
+      toast.error('Please login to add items to cart', {
+        duration: 3000,
+        position: 'top-right',
+        icon: '🔒',
+      });
+      navigate(`/sign-in?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+    // Fetch metals when opening modal if not already loaded
+    if (metals.length === 0) {
+      dispatch(fetchMetals());
+    }
     // Show modal with metal selection and ring size (if ring)
     setShowAddToCartModal(true);
   };
+
+  // Auto-select first available metal when modal opens and metals are loaded
+  useEffect(() => {
+    // Only auto-select if modal is open and no metal is currently selected
+    if (!showAddToCartModal || selectedMetal || !product || !metals || metals.length === 0) {
+      return;
+    }
+    
+    // Check if product has metals configured
+    const hasProductMetals = product.metals && Array.isArray(product.metals) && product.metals.length > 0;
+    if (!hasProductMetals) {
+      // Product has no metals configured, don't auto-select
+      return;
+    }
+
+    // Get available metal IDs from product
+    const availableMetalIds = product.metals.map(metal => metal?._id || metal?.id || metal);
+
+    // Transform metals to options (same logic as MetalSelector)
+    const metalOptions = metals.flatMap(metal => {
+      return metal.purityLevels?.filter(purity => purity.active !== false).map(purity => ({
+        id: `${purity.karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
+        carat: `${purity.karat}K`,
+        color: metal.name,
+        priceMultiplier: purity.priceMultiplier || 1.0,
+        metalId: metal._id,
+        purityLevelId: purity._id
+      })) || [];
+    });
+
+    // Find first available metal option from product's metals
+    const firstAvailableMetal = metalOptions.find(metalOption => {
+      return availableMetalIds.includes(metalOption.metalId);
+    });
+
+    // Set the first available metal as selected
+    if (firstAvailableMetal) {
+      setSelectedMetal(firstAvailableMetal);
+    }
+  }, [showAddToCartModal, product, metals, selectedMetal, dispatch]);
 
   const handleToggleFavorite = async (e) => {
     e.preventDefault();
@@ -459,6 +524,8 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               <MetalSelector
                 selectedMetal={selectedMetal}
                 onMetalChange={handleMetalChange}
+                product={product}
+                cartItem={null}
               />
             </div>
 
@@ -496,7 +563,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
                 onClick={handleConfirmAddToCart}
                 className="flex-1 bg-primary text-white font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors duration-200"
               >
-                Add to Cart
+                {loading ? <span className="flex items-center space-x-2w-full justify-center "><Loader2 className="w-4 h-4 animate-spin  mr-2 " /> Adding to Cart...</span> : 'Add to Cart'}
               </button>
             </div>
           </div>

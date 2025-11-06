@@ -34,7 +34,8 @@ const Shop = () => {
 
   // Fetch products and categories on mount
   useEffect(() => {
-    dispatch(fetchProducts());
+    // Ensure loading state is set before fetching
+    dispatch(fetchProducts({ page: 1, limit: 100, reset: true }));
     dispatch(fetchCategories());
   }, [dispatch]);
 
@@ -89,6 +90,9 @@ const Shop = () => {
     setSortBy('newest');
   };
 
+  // product load show loader
+
+  
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -396,10 +400,14 @@ const Shop = () => {
             </div>
 
             {/* Products Grid/List */}
-            {productsLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-black-light font-montserrat-regular-400">Loading products...</p>
+            {productsLoading || (products.length === 0 && !productsError) ? (
+              <div className="flex flex-col items-center justify-center py-20 min-h-[400px]">
+                <div className="relative">
+                  <div className="w-16 h-16 border-4 border-primary-light border-t-primary rounded-full animate-spin mb-6"></div>
+                  <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-primary rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                </div>
+                <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Loading Products</h3>
+                <p className="text-black-light font-montserrat-regular-400">Please wait while we fetch our collection...</p>
               </div>
             ) : productsError ? (
               <div className="text-center py-12">

@@ -18,7 +18,7 @@ export const API_METHOD = {
     forgotPassword: '/api/auth/forgot-password',
     resetPassword: '/api/auth/reset-password',
     changePassword: '/api/auth/change-password',
-    refreshToken: '/api/auth/refresh-token',
+    refreshToken: '/api/auth/refresh',
     logout: '/api/auth/logout',
     profile: '/api/auth/profile',
     updateProfile: '/api/auth/profile',

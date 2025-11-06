@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useSelector } from 'react-redux';
-import { selectIsAuthenticated } from './store/slices/authSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectIsAuthenticated, initializeAuth, refreshToken, getUserProfile } from './store/slices/authSlice';
+import { isAccessTokenExpired, hasValidRefreshToken } from './utils/tokenUtils';
 import LoginPage from './components/LoginPage';
 import ForgotPasswordPage from './components/ForgotPasswordPage';
 import ResetPasswordPage from './components/ResetPasswordPage';
@@ -46,15 +47,52 @@ function ResetPasswordWrapper() {
 function App() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    // Give time for Redux to initialize auth state from localStorage
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
+    // Initialize auth and validate tokens
+    const initializeAuthFlow = async () => {
+      // Initialize auth state from localStorage
+      dispatch(initializeAuth());
+      
+      const accessToken = localStorage.getItem('accessToken');
+      const refreshTokenValue = localStorage.getItem('refreshToken');
+      
+      // If we have tokens, validate them
+      if (accessToken || refreshTokenValue) {
+        // Check if access token is expired
+        if (isAccessTokenExpired()) {
+          // If access token is expired but refresh token is valid, refresh it
+          if (hasValidRefreshToken()) {
+            try {
+              await dispatch(refreshToken()).unwrap();
+              // After successful refresh, fetch user profile
+              dispatch(getUserProfile());
+            } catch (error) {
+              console.error('Token refresh failed on app load:', error);
+              // If refresh fails, user will be logged out by the interceptor
+            }
+          } else {
+            // Both tokens are invalid, clear them
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+            localStorage.removeItem('adminAuthenticated');
+          }
+        } else {
+          // Access token is still valid, fetch user profile
+          dispatch(getUserProfile());
+        }
+      }
+      
+      // Give time for Redux to initialize auth state
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
+    };
 
-    return () => clearTimeout(timer);
-  }, []);
+    initializeAuthFlow();
+  }, [dispatch]);
 
   if (isLoading) {
     return (

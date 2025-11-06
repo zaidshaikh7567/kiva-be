@@ -92,10 +92,13 @@ api.interceptors.response.use(
         );
 
         if (response.data.success) {
-          const { accessToken } = response.data.data;
+          const { accessToken, refreshToken: newRefreshToken } = response.data.data;
           
-          // Update tokens
+          // Update both tokens in localStorage
           localStorage.setItem('accessToken', accessToken);
+          if (newRefreshToken) {
+            localStorage.setItem('refreshToken', newRefreshToken);
+          }
           
           // Update the original request with new token
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;

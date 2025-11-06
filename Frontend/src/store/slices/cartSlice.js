@@ -40,16 +40,16 @@ export const addCartItem = createAsyncThunk(
   'cart/addCartItem',
   async (cartData, { rejectWithValue, dispatch, getState }) => {
     try {
-      console.log('isAuthenticated :', isAuthenticated);
       if (!isAuthenticated()) {
         // Redirect to login page if not authenticated
+        const currentPath = window.location.pathname + window.location.search;
         toast.error('Please login to add items to cart', {
           duration: 3000,
+          position: 'top-right',
           icon: '🔒',
         });
-        // Store the current URL to redirect back after login
-        // const currentPath = window.location.pathname;
-        // window.location.href = `/sign-in?redirect=${encodeURIComponent(currentPath)}`;
+        // Redirect to login page with return URL
+        window.location.href = `/sign-in?redirect=${encodeURIComponent(currentPath)}`;
         return rejectWithValue('Authentication required');
       }
       
@@ -60,13 +60,13 @@ export const addCartItem = createAsyncThunk(
         return itemProductId === cartData.productId;
       });
       
-      if (existingItem) {
-        toast.error('This product is already in your cart', {
-          duration: 3000,
-          position: 'top-right',
-        });
-        return rejectWithValue('Product already exists in cart');
-      }
+      // if (existingItem) {
+      //   toast.error('This product is already in your cart', {
+      //     duration: 3000,
+      //     position: 'top-right',
+      //   });
+      //   return rejectWithValue('Product already exists in cart');
+      // }
       
       const response = await api.post(API_METHOD.cart, cartData);
       console.log('response********* :', response.data);
@@ -76,9 +76,10 @@ export const addCartItem = createAsyncThunk(
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to add item to cart';
       // Only show error toast if it's not the duplicate product error we already handled
-      if (errorMessage !== 'Product already exists in cart') {
-        toast.error(errorMessage);
-      }
+      // if (errorMessage !== 'Product already exists in cart') {
+      //   toast.error(errorMessage);
+      // }
+      toast.error(errorMessage);
       return rejectWithValue(errorMessage);
     }
   }
@@ -156,18 +157,6 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      // Require authentication for adding to cart
-      if (!isAuthenticated()) {
-        toast.error('Please login to add items to cart', {
-          duration: 3000,
-          icon: '🔒',
-        });
-        // Store the current URL to redirect back after login
-        // const currentPath = window.location.pathname;
-        // window.location.href = `/sign-in?redirect=${encodeURIComponent(currentPath)}`;
-        return; // Don't add the item
-      }
-      
       const product = action.payload;
       const productId = product._id || product.id;
       const existingItem = state.items.find(item => item.id === productId);

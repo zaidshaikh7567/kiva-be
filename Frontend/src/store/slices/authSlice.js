@@ -102,11 +102,26 @@ export const refreshToken = createAsyncThunk(
   'auth/refreshToken',
   async (_, { rejectWithValue }) => {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshTokenValue = localStorage.getItem('refreshToken');
+      if (!refreshTokenValue) {
+        return rejectWithValue('No refresh token available');
+      }
+      
       const response = await api.post(API_METHOD.auth.refreshToken, {
-        refreshToken
+        refreshToken: refreshTokenValue
       });
-      return response.data.data || response.data;
+      
+      const data = response.data.data || response.data;
+      
+      // Update tokens in localStorage
+      if (data.accessToken) {
+        localStorage.setItem('accessToken', data.accessToken);
+      }
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
+      }
+      
+      return data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -314,8 +329,14 @@ const authSlice = createSlice({
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.loading = false;
         state.accessToken = action.payload.accessToken;
+        if (action.payload.refreshToken) {
+          state.refreshToken = action.payload.refreshToken;
+        }
         if (action.payload.accessToken) {
           localStorage.setItem('accessToken', action.payload.accessToken);
+        }
+        if (action.payload.refreshToken) {
+          localStorage.setItem('refreshToken', action.payload.refreshToken);
         }
       })
       .addCase(refreshToken.rejected, (state, action) => {

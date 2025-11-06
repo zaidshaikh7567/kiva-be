@@ -157,9 +157,9 @@ console.log('product :', product);
                     {metal.purityLevels && metal.purityLevels.length > 0 && (
                       <div className="text-sm text-yellow-700">
                         <span className="font-medium">Purity Levels: </span>
-                        {metal.purityLevels.map((pl, idx) => (
+                        {metal.purityLevels.filter(pl => pl.active !== false).map((pl, idx, filteredArray) => (
                           <span key={pl._id || idx}>
-                            {pl.karat}K {idx < metal.purityLevels.length - 1 ? ', ' : ''}
+                            {pl.karat}K {idx < filteredArray.length - 1 ? ', ' : ''}
                           </span>
                         ))}
                       </div>

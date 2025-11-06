@@ -127,7 +127,10 @@ const productsSlice = createSlice({
     builder
       // Fetch Products
       .addCase(fetchProducts.pending, (state, action) => {
-        if (action.meta.arg?.reset) {
+        // If reset is true or undefined (default), set loading to true
+        // Only set loadingMore if explicitly reset is false
+        const shouldReset = action.meta.arg?.reset !== false;
+        if (shouldReset) {
           state.loading = true;
         } else {
           state.loadingMore = true;

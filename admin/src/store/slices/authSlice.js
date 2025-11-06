@@ -88,12 +88,15 @@ export const refreshToken = createAsyncThunk(
       });
       
       if (response.data.success) {
-        const { accessToken } = response.data.data;
+        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
         
-        // Update access token in localStorage
+        // Update both tokens in localStorage
         localStorage.setItem('accessToken', accessToken);
+        if (newRefreshToken) {
+          localStorage.setItem('refreshToken', newRefreshToken);
+        }
         
-        return { accessToken };
+        return { accessToken, refreshToken: newRefreshToken };
       } else {
         return rejectWithValue(response.data.message || 'Token refresh failed');
       }
@@ -226,6 +229,20 @@ const authSlice = createSlice({
       state.accessToken = action.payload;
       localStorage.setItem('accessToken', action.payload);
     },
+    initializeAuth: (state) => {
+      // Load tokens and user from localStorage
+      const accessToken = localStorage.getItem('accessToken');
+      const refreshToken = localStorage.getItem('refreshToken');
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      if (accessToken && user) {
+        state.accessToken = accessToken;
+        state.refreshToken = refreshToken;
+        state.user = user;
+        state.isAuthenticated = true;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -279,6 +296,9 @@ const authSlice = createSlice({
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.accessToken = action.payload.accessToken;
+        if (action.payload.refreshToken) {
+          state.refreshToken = action.payload.refreshToken;
+        }
         state.error = null;
       })
       .addCase(refreshToken.rejected, (state, action) => {
@@ -342,7 +362,7 @@ const authSlice = createSlice({
 });
 
 // Export actions
-export const { logout, clearError, clearSuccess, setUser, setAccessToken } = authSlice.actions;
+export const { logout, clearError, clearSuccess, setUser, setAccessToken, initializeAuth } = authSlice.actions;
 
 // Export selectors
 export const selectAuth = (state) => state.auth;

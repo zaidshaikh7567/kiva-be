@@ -16,6 +16,7 @@ import Accordion from './Accordion';
 import { selectCurrentCurrency, selectCurrencySymbol, selectExchangeRate, convertPrice, formatPrice } from '../store/slices/currencySlice';
 import { fetchStones, selectStones, selectStonesLoading } from '../store/slices/stonesSlice';
 import { selectCategories } from '../store/slices/categoriesSlice';
+import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
 import { RING_SIZES } from '../services/centerStonesApi';
 import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
@@ -49,6 +50,9 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const stones = useSelector(selectStones);
   const stonesLoading = useSelector(selectStonesLoading);
   
+  // Metals selectors
+  const metals = useSelector(selectMetals);
+  
   // Categories selector
   const categories = useSelector(selectCategories);
   
@@ -56,12 +60,16 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const isFavorite = useSelector(state => selectIsFavorite(state, product?._id || product?.id));
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  // Fetch stones when modal opens
+  // Fetch stones and metals when modal opens
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
       // Fetch stones from API
       dispatch(fetchStones({ page: 1, limit: 10 }));
+      // Fetch metals from API if not already loaded
+      if (metals.length === 0) {
+        dispatch(fetchMetals());
+      }
     } else {
       document.body.style.overflow = "auto";
     }
@@ -69,7 +77,47 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [isOpen, dispatch]);
+  }, [isOpen, dispatch, metals.length]);
+
+  // Auto-select first available metal when modal opens and metals are loaded
+  useEffect(() => {
+    // Only auto-select if modal is open and no metal is currently selected
+    if (!isOpen || selectedMetal || !product || !metals || metals.length === 0) {
+      return;
+    }
+
+    // Check if product has metals configured
+    const hasProductMetals = product.metals && Array.isArray(product.metals) && product.metals.length > 0;
+    if (!hasProductMetals) {
+      // Product has no metals configured, don't auto-select
+      return;
+    }
+
+    // Get available metal IDs from product
+    const availableMetalIds = product.metals.map(metal => metal?._id || metal?.id || metal);
+
+    // Transform metals to options (same logic as MetalSelector)
+    const metalOptions = metals.flatMap(metal => {
+      return metal.purityLevels?.filter(purity => purity.active !== false).map(purity => ({
+        id: `${purity.karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
+        carat: `${purity.karat}K`,
+        color: metal.name,
+        priceMultiplier: purity.priceMultiplier || 1.0,
+        metalId: metal._id,
+        purityLevelId: purity._id
+      })) || [];
+    });
+
+    // Find first available metal option from product's metals
+    const firstAvailableMetal = metalOptions.find(metalOption => {
+      return availableMetalIds.includes(metalOption.metalId);
+    });
+
+    // Set the first available metal as selected
+    if (firstAvailableMetal) {
+      setSelectedMetal(firstAvailableMetal);
+    }
+  }, [isOpen, product, metals, selectedMetal, dispatch]);
 
   // Image navigation handlers
   const handleNextImage = (e) => {
@@ -173,6 +221,20 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   (parentCategoryName === 'ring' || parentCategoryName === 'rings');
   const handleAddToCart = async () => {
     try {
+      // Check authentication first
+      const isAuthenticated = !!localStorage.getItem('accessToken');
+      if (!isAuthenticated) {
+        const currentPath = window.location.pathname + window.location.search;
+        toast.error('Please login to add items to cart', {
+          duration: 3000,
+          position: 'top-right',
+          icon: '🔒',
+        });
+        // Use window.location to redirect and close modal
+        window.location.href = `/sign-in?redirect=${encodeURIComponent(currentPath)}`;
+        return;
+      }
+
       // Validate ring size for rings
       if (isRing && !selectedRingSize) {
         toast.error('Please select a ring size before adding to cart', {
@@ -181,9 +243,6 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
         });
         return;
       }
-
-      // Check if user is authenticated
-      const isAuthenticated = !!localStorage.getItem('accessToken');
       
       // Prepare cart data according to API structure
       const cartData = {
@@ -216,25 +275,9 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
         }
       }
 
-      // For unauthenticated users, include full product details
-      if (!isAuthenticated) {
-        cartData.name = product.title || product.name;
-        cartData.title = product.title || product.name;
-        cartData.price = getFinalPrice();
-        cartData.image = product.images?.[0]?.url || product.images?.[0];
-        cartData.images = product.images;
-        cartData.description = product.description;
-        cartData._id = product._id;
-        cartData.selectedMetal = selectedMetal;
-        if (isRing && selectedRingSize) {
-          cartData.ringSize = selectedRingSize;
-        }
-      }
-
       // Dispatch the async thunk
-      await dispatch(addCartItem(cartData));
-      
-      // Build success message with selected options
+     const response = await dispatch(addCartItem(cartData));
+     if (response.payload.success) {
       let successMessage = `${product.title || product.name} added to cart!`;
       const options = [];
       
@@ -261,15 +304,19 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
         duration: 3000,
         position: 'top-right',
       });
+     } 
+      
+      // Build success message with selected options
+   
       
       // Close modal after successful add to cart
       onClose();
     } catch (error) {
       console.error('Failed to add item to cart:', error);
-      toast.error('Failed to add item to cart. Please try again.', {
-        duration: 3000,
-        position: 'top-right',
-      });
+      // toast.error('Failed to add item to cart. Please try again.', {
+      //   duration: 3000,
+      //   position: 'top-right',
+      // });
     }
   };
 
@@ -583,6 +630,8 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                   <MetalSelector
                     selectedMetal={selectedMetal}
                     onMetalChange={handleMetalChange}
+                    product={product}
+                    cartItem={null}
                   />
                 </div>
 
@@ -675,7 +724,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
 
                   <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
                     <div className="flex justify-between">
-                      <span>Material:</span>
+                    <span className="font-montserrat-medium-500 text-black">Material:</span>
                       <span>{selectedMetal ? `${selectedMetal.carat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
                     </div>
                     {/* <div className="flex justify-between">
@@ -684,24 +733,44 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                     </div> */}
                     {isRing && selectedCarat && (
                       <div className="flex justify-between">
-                        <span>Center Stone:</span>
+                        <span className="font-montserrat-medium-500 text-black">Center Stone:</span>
                         <span>{typeof selectedCarat === 'string' ? selectedCarat : selectedCarat.name}</span>
                       </div>
                     )}
                     {isRing && selectedRingSize && (
                       <div className="flex justify-between">
-                        <span>Ring Size:</span>
+                         <span className="font-montserrat-medium-500 text-black">Ring Size:</span>
                         <span>{selectedRingSize}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span>Care:</span>
-                      <span>Professional Cleaning</span>
+                    <span className="font-montserrat-medium-500 text-black">Care:</span>
+                        <span>{product.careInstruction}</span>
                     </div>
-                    {/* <div className="flex justify-between">
-                      <span>Warranty:</span>
-                      <span>2 Years</span>
-                    </div> */}
+                    {product.shape && (
+                      <div className="flex justify-between">
+                         <span className="font-montserrat-medium-500 text-black">Shape:</span>
+                        <span>{product.shape}</span>
+                      </div>
+                    )}
+                    {product.color && (
+                      <div className="flex justify-between">
+                         <span className="font-montserrat-medium-500 text-black">Color:</span>
+                        <span>{product.color}</span>
+                      </div>
+                    )}
+                    {product.clarity.length > 0 && (
+                      <div className="flex justify-between">
+                        <span className="font-montserrat-medium-500 text-black">Clarity:</span>
+                        <span>{product.clarity.join(', ')}</span>
+                      </div>
+                    )}
+                    {product.certificate.length > 0 && (
+                      <div className="flex justify-between">
+                         <span className="font-montserrat-medium-500 text-black">Certificate:</span>
+                        <span>{product.certificate.join(', ')}</span>
+                      </div>
+                    )}
                   </div>
            
 

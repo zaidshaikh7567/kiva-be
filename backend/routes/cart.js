@@ -150,4 +150,14 @@ router.delete('/:id', authenticate, validate(cartIdSchema, 'params'), asyncHandl
   res.json({ success: true, message: 'Cart item removed successfully' });
 }));
 
+router.delete('/', authenticate, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const result = await Cart.deleteMany({ user: userId });
+  res.json({ 
+    success: true, 
+    message: 'Cart cleared successfully',
+    data: { deletedCount: result.deletedCount }
+  });
+}));
+
 module.exports = router;

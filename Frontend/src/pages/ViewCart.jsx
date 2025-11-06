@@ -12,22 +12,24 @@ import {
 import { 
   updateQuantity, 
   removeFromCart, 
-  clearCart,
+  clearCartItems,
   deleteCartItem,
   closeCart,
   updateCartItem
 } from '../store/slices/cartSlice';
 import PriceDisplay from '../components/PriceDisplay';
 import ProductDetailsModal from '../components/ProductDetailsModal';
+import ConfirmationModal from '../components/ConfirmationModal';
 import toast from 'react-hot-toast';
 
 const ViewCart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items, totalQuantity, totalPrice } = useSelector(state => state.cart);
+  const { items, totalQuantity, totalPrice, loading } = useSelector(state => state.cart);
   console.log('items :', items);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [showClearCartModal, setShowClearCartModal] = useState(false);
   
   // Check if user is authenticated
   const isAuthenticated = !!localStorage.getItem('accessToken');
@@ -67,9 +69,12 @@ const ViewCart = () => {
   };
 
   const handleClearCart = () => {
-    // if (window.confirm('Are you sure you want to clear your cart?')) {
-      dispatch(clearCart());
-    // }
+    setShowClearCartModal(true);
+  };
+
+  const handleConfirmClearCart = () => {
+    dispatch(clearCartItems());
+    setShowClearCartModal(false);
   };
 
   const handleCheckout = () => {
@@ -99,7 +104,7 @@ const ViewCart = () => {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/shop')}
             className="flex items-center text-black hover:text-primary transition-colors duration-300 mb-4 font-montserrat-medium-500"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -201,6 +206,20 @@ const ViewCart = () => {
                             {item.purityLevel && (
                               <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
                                 {item.purityLevel.karat}K
+                              </div>
+                            )}
+                            
+                            {/* Show selected stone if available */}
+                            {item.stoneType && (
+                              <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
+                                Stone: {item.stoneType.name}
+                              </div>
+                            )}
+                            
+                            {/* Show ring size if available */}
+                            {item.ringSize && (
+                              <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
+                                Size: {item.ringSize}
                               </div>
                             )}
 
@@ -348,6 +367,19 @@ const ViewCart = () => {
           onClose={handleCloseProductModal}
         />
       )}
+
+      {/* Clear Cart Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showClearCartModal}
+        onClose={() => setShowClearCartModal(false)}
+        onConfirm={handleConfirmClearCart}
+        loading={loading}
+        title="Clear Cart"
+        message="Are you sure you want to clear your cart? All items will be removed and this action cannot be undone."
+        confirmText="Clear Cart"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 };

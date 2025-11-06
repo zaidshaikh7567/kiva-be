@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, Star, ShoppingBag, Minus, Plus, Gem, ChevronLeft, ChevronRight, ListChevronsDownUp, ArrowLeft } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProductById, selectCurrentProduct, selectProductsLoading, selectProductsError } from '../store/slices/productsSlice';
-import { fetchCartItems, selectCartItems, selectCartLoading, updateCartItem, updateQuantity } from '../store/slices/cartSlice';
+import { fetchProductById, selectCurrentProduct, selectProductsError } from '../store/slices/productsSlice';
+import { fetchCartItems, selectCartItems, updateCartItem, updateQuantity } from '../store/slices/cartSlice';
 import {
   toggleFavorite as toggleFavoriteAction,
   addToFavoritesAPI,
@@ -17,6 +17,7 @@ import CustomDropdown from '../components/CustomDropdown';
 import Accordion from '../components/Accordion';
 import { fetchStones, selectStones, selectStonesLoading } from '../store/slices/stonesSlice';
 import { selectCategories } from '../store/slices/categoriesSlice';
+import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
 import { RING_SIZES } from '../services/centerStonesApi';
 import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
@@ -37,20 +38,19 @@ const CartProductDetail = () => {
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const [cartItem, setCartItem] = useState(null);
-  console.log('cartItem :', cartItem);
+  // console.log('cartItem :', cartItem);
   const imageContainerRef = useRef(null);
   const mousePositionRef = useRef({ x: 0, y: 0 });
 
   // Redux selectors
   const product = useSelector(selectCurrentProduct);
-  const loading = useSelector(selectProductsLoading);
   const error = useSelector(selectProductsError);
   const cartItems = useSelector(selectCartItems);
-  const cartLoading = useSelector(selectCartLoading);
   const stones = useSelector(selectStones);
-  console.log('stones :', stones);
+  // console.log('stones :', stones);
   const stonesLoading = useSelector(selectStonesLoading);
   const categories = useSelector(selectCategories);
+  const metals = useSelector(selectMetals);
   const isFavorite = useSelector(state => product ? selectIsFavorite(state, product._id || product.id) : false);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
@@ -58,12 +58,12 @@ const CartProductDetail = () => {
   useEffect(() => {
     dispatch(fetchCartItems());
     dispatch(fetchStones({ page: 1, limit: 10 }));
+    dispatch(fetchMetals());
   }, [dispatch]);
 
   // Find cart item by ID and set selections
   useEffect(() => {
     if (cartItems && cartItems.length > 0 && cartItemId) {
-      console.log('cartItems :', cartItems);
       const foundItem = cartItems.find(item =>
         item._id === cartItemId || item.id === cartItemId || item.cartId === cartItemId
       );
@@ -119,10 +119,21 @@ const CartProductDetail = () => {
           const stoneType = foundItem.stoneType;
           if (stoneType.name) {
             console.log('stoneType----------------->1 :', stoneType);
-            ({
-              name: stoneType.name,
-              id: stoneType._id || stoneType.id
-            });
+            // Only set selectedCarat if it's not already set or if it's different
+            const stoneId = stoneType._id || stoneType.id;
+            if (!selectedCarat || selectedCarat.id !== stoneId) {
+              setSelectedCarat({
+                name: stoneType.name,
+                id: stoneId
+              });
+            }
+            // Also set selectedCenterStone for price calculation if stones are loaded
+            if (stones.length > 0 && !selectedCenterStone) {
+              const stone = stones.find(s => s._id === stoneId);
+              if (stone) {
+                setSelectedCenterStone(stone);
+              }
+            }
           }
         } else if (foundItem.stoneTypeId) {
           // If we only have ID, we'll need to find it from stones
@@ -130,7 +141,7 @@ const CartProductDetail = () => {
         }
       }
     }
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cartItems, cartItemId, dispatch, stones]);
 
   // Set initial carat when product or stones load
@@ -142,14 +153,28 @@ const CartProductDetail = () => {
         name: cartItem.stoneType.name,
         id: cartItem.stoneType._id || cartItem.stoneType.id
       });
+      // Set selectedCenterStone if stones are loaded
+      if (stones.length > 0) {
+        const stone = stones.find(s => s._id === cartItem.stoneType._id || s._id === cartItem.stoneType.id);
+        if (stone) {
+          setSelectedCenterStone(stone);
+        }
+      }
     }
     // Otherwise, use product's default stoneType
-    else if (product?.stoneType?.name && !selectedCarat) {
+    else if (product?.stoneType?.name && !selectedCarat && !cartItem?.stoneType) {
       console.log('stoneType----------------->3 :', product);
       setSelectedCarat({
         name: product.stoneType.name,
         id: product.stoneType._id || product.stoneType.id
       });
+      // Set selectedCenterStone if stones are loaded
+      if (stones.length > 0) {
+        const stone = stones.find(s => s._id === product.stoneType._id || s._id === product.stoneType.id);
+        if (stone) {
+          setSelectedCenterStone(stone);
+        }
+      }
     }
     // If we have stoneTypeId but not name, find it from stones array
     else if (cartItem?.stoneTypeId && stones.length > 0 && !selectedCarat) {
@@ -160,9 +185,67 @@ const CartProductDetail = () => {
           name: stone.name,
           id: stone._id || stone.id
         });
+        setSelectedCenterStone(stone);
       }
     }
-  }, [product, cartItem, stones, selectedCarat]);
+    // Update selectedCenterStone if selectedCarat is set but selectedCenterStone is not
+    else if (selectedCarat && !selectedCenterStone && stones.length > 0) {
+      const stone = stones.find(s => 
+        s._id === selectedCarat.id || 
+        s.name?.toLowerCase() === selectedCarat.name?.toLowerCase()
+      );
+      if (stone) {
+        setSelectedCenterStone(stone);
+      }
+    }
+  }, [product, cartItem, stones, selectedCarat, selectedCenterStone]);
+
+  // Auto-select first available metal when product and metals load (only if not already set from cart item)
+  useEffect(() => {
+    // Only auto-select if no metal is currently selected
+    // Wait for cart item to be processed first (if cartItemId exists, wait for cartItem to be set)
+    if (selectedMetal || !product || !metals || metals.length === 0) {
+      return;
+    }
+    
+    // If we have a cartItemId, wait for cartItem to be processed before auto-selecting
+    // This ensures we don't auto-select before checking if cart item has a metal
+    if (cartItemId && !cartItem) {
+      return;
+    }
+
+    // Check if product has metals configured
+    const hasProductMetals = product.metals && Array.isArray(product.metals) && product.metals.length > 0;
+    if (!hasProductMetals) {
+      // Product has no metals configured, don't auto-select
+      return;
+    }
+
+    // Get available metal IDs from product
+    const availableMetalIds = product.metals.map(metal => metal?._id || metal?.id || metal);
+
+    // Transform metals to options (same logic as MetalSelector)
+    const metalOptions = metals.flatMap(metal => {
+      return metal.purityLevels?.filter(purity => purity.active !== false).map(purity => ({
+        id: `${purity.karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
+        carat: `${purity.karat}K`,
+        color: metal.name,
+        priceMultiplier: purity.priceMultiplier || 1.0,
+        metalId: metal._id,
+        purityLevelId: purity._id
+      })) || [];
+    });
+
+    // Find first available metal option from product's metals
+    const firstAvailableMetal = metalOptions.find(metalOption => {
+      return availableMetalIds.includes(metalOption.metalId);
+    });
+
+    // Set the first available metal as selected
+    if (firstAvailableMetal) {
+      setSelectedMetal(firstAvailableMetal);
+    }
+  }, [product, metals, selectedMetal, cartItemId, cartItem]);
 
   // Image navigation handlers
   const handleNextImage = (e) => {
@@ -416,7 +499,6 @@ const CartProductDetail = () => {
     const centerStonePrice = selectedCenterStone ? selectedCenterStone.price : 0;
     return (basePrice + centerStonePrice) * metalMultiplier;
   };
-  console.log('getFinalPrice :', getFinalPrice());
 
   // Magnifier handlers
   const handleMouseMove = (e) => {
@@ -690,6 +772,8 @@ const CartProductDetail = () => {
                   <MetalSelector
                     selectedMetal={selectedMetal}
                     onMetalChange={handleMetalChange}
+                    product={product}
+                    cartItem={cartItem}
                   />
                 </div>
 
@@ -756,25 +840,50 @@ const CartProductDetail = () => {
 
                   <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
                     <div className="flex justify-between">
-                      <span>Material:</span>
+                    <span className="font-montserrat-medium-500 text-black">Material:</span>
                       <span>{selectedMetal ? `${selectedMetal.carat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
                     </div>
                     {isRing && selectedCarat && (
                       <div className="flex justify-between">
-                        <span>Center Stone:</span>
+                        <span className="font-montserrat-medium-500 text-black">Center Stone:</span>
                         <span>{typeof selectedCarat === 'string' ? selectedCarat : selectedCarat?.name}</span>
                       </div>
                     )}
                     {isRing && selectedRingSize && (
                       <div className="flex justify-between">
-                        <span>Ring Size:</span>
+                        <span className="font-montserrat-medium-500 text-black">Ring Size:</span>
                         <span>{selectedRingSize}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span>Care:</span>
-                      <span>Professional Cleaning</span>
+                    <span className="font-montserrat-medium-500 text-black">Care:</span>
+                      <span>{product.careInstruction}</span>
                     </div>
+                    {product.shape && (
+                      <div className="flex justify-between">
+                        <span className="font-montserrat-medium-500 text-black">Shape:</span>
+                        <span>{product.shape}</span>
+                      </div>
+                    )}
+                    {product.color && (
+                      <div className="flex justify-between">
+                        <span className="font-montserrat-medium-500 text-black">Color:</span>
+                        <span>{product.color}</span>
+                      </div>
+                    )}
+                    
+                    {product.clarity.length > 0 && (
+                      <div className="flex justify-between">
+                        <span className="font-montserrat-medium-500 text-black">Clarity:</span>
+                        <span>{product.clarity.join(', ')}</span>
+                      </div>
+                    )}
+                    {product.certificate.length > 0 && (
+                      <div className="flex justify-between">
+                        <span className="font-montserrat-medium-500 text-black">Certificate:</span>
+                        <span>{product.certificate.join(', ')}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* FAQ Style Accordions */}
@@ -819,11 +928,11 @@ const CartProductDetail = () => {
                 </div>
 
                 {/* Additional Info */}
-                <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
+                {/* <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
                   <p>✓ Free shipping on orders over $100</p>
                   <p>✓ 30-day return policy</p>
                   <p>✓ Secure checkout</p>
-                </div>
+                </div> */}
 
                 {/* Update Cart Button */}
                 <button

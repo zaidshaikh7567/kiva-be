@@ -34,7 +34,7 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 router.post('/', authenticate, authorize('super_admin'), upload.array('images', 10), validate(createProductSchema), asyncHandler(async (req, res) => {
-  const { title, description, subDescription, price, quantity, categoryId, metalIds, stoneTypeId, careInstruction, shape, color, clarity, certificate } = req.body;
+  const { title, description, subDescription, price, quantity, categoryId, metalIds, stoneTypeId, careInstruction, shape, color, clarity, certificate, isBand } = req.body;
   const images = req.files ? req.files.map(file => file.path) : [];
 
   if (images.length === 0) {
@@ -54,12 +54,13 @@ router.post('/', authenticate, authorize('super_admin'), upload.array('images', 
     category: categoryId,
     images,
     metals: metalIds || [],
-    stoneType: stoneTypeId,
+    stoneType: (stoneTypeId && stoneTypeId !== '' && stoneTypeId !== 'null') ? stoneTypeId : undefined,
     careInstruction,
     shape,
     color,
     clarity: parsedClarity,
-    certificate: parsedCertificate
+    certificate: parsedCertificate,
+    isBand: isBand !== undefined ? isBand : false
   });
 
   await product.save();
@@ -77,7 +78,7 @@ router.get('/:id', validate(productIdSchema, 'params'), asyncHandler(async (req,
 
 router.put('/:id', authenticate, authorize('super_admin'), upload.array('images', 10), validate(productIdSchema, 'params'), validate(updateProductSchema), asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { categoryId, description, metalIds, stoneTypeId, careInstruction, shape, color, clarity, certificate, ...updateData } = req.body;
+  const { categoryId, description, metalIds, stoneTypeId, careInstruction, shape, color, clarity, certificate, isBand, ...updateData } = req.body;
 
   // Get existing product to preserve existing images
   const existingProduct = await Product.findById(id);
@@ -96,7 +97,9 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
   }
 
   if (stoneTypeId !== undefined) {
-    updateData.stoneType = stoneTypeId;
+    // If stoneTypeId is empty string or null, set to null to clear the stone type
+    // Otherwise, set to the provided stoneTypeId
+    updateData.stoneType = (stoneTypeId === '' || stoneTypeId === null || stoneTypeId === 'null') ? null : stoneTypeId;
   }
 
   if (careInstruction !== undefined) {
@@ -117,6 +120,10 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
 
   if (certificate !== undefined) {
     updateData.certificate = certificate ? (typeof certificate === 'string' ? JSON.parse(certificate) : certificate) : [];
+  }
+
+  if (isBand !== undefined) {
+    updateData.isBand = isBand;
   }
 
   // Merge new images with existing images

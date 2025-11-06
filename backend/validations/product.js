@@ -24,7 +24,18 @@ const createProductSchema = zod.object({
       throw new Error('metalIds must be a valid JSON array');
     }
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
-  stoneTypeId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid stone ObjectId').optional(),
+  stoneTypeId: zod.preprocess((val) => {
+    // If empty string or falsy, return undefined (no validation needed)
+    if (!val || (typeof val === 'string' && val.trim() === '') || val === 'null' || val === 'undefined') {
+      return undefined;
+    }
+    // If it's a valid ObjectId, return it
+    if (typeof val === 'string' && val.length === 24 && /^[0-9a-fA-F]{24}$/.test(val)) {
+      return val;
+    }
+    // If invalid format, return undefined (silently ignore invalid values)
+    return undefined;
+  }, zod.union([zod.string().regex(/^[0-9a-fA-F]{24}$/), zod.undefined()]).optional()),
   careInstruction: zod.string().optional(),
   shape: zod.string().optional(),
   color: zod.string().optional(),
@@ -48,6 +59,7 @@ const createProductSchema = zod.object({
       throw new Error('certificate must be a valid JSON array');
     }
   }).pipe(zod.array(zod.string()).optional()),
+  isBand: zod.coerce.boolean().optional(),
 });
 
 const updateProductSchema = zod.object({
@@ -74,7 +86,18 @@ const updateProductSchema = zod.object({
       throw new Error('metalIds must be a valid JSON array');
     }
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
-  stoneTypeId: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid stone ObjectId').optional(),
+  stoneTypeId: zod.preprocess((val) => {
+    // If empty string or falsy, return undefined (no validation needed)
+    if (!val || (typeof val === 'string' && val.trim() === '') || val === 'null' || val === 'undefined') {
+      return undefined;
+    }
+    // If it's a valid ObjectId, return it
+    if (typeof val === 'string' && val.length === 24 && /^[0-9a-fA-F]{24}$/.test(val)) {
+      return val;
+    }
+    // If invalid format, return undefined (silently ignore invalid values)
+    return undefined;
+  }, zod.union([zod.string().regex(/^[0-9a-fA-F]{24}$/), zod.undefined()]).optional()),
   careInstruction: zod.string().optional(),
   shape: zod.string().optional(),
   color: zod.string().optional(),
@@ -98,6 +121,7 @@ const updateProductSchema = zod.object({
       throw new Error('certificate must be a valid JSON array');
     }
   }).pipe(zod.array(zod.string()).optional()),
+  isBand: zod.coerce.boolean().optional(),
 });
 
 const productIdSchema = zod.object({
