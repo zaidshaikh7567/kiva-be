@@ -14,7 +14,7 @@ const FavoriteSection = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchMetals());
+    // dispatch(fetchMetals());
     dispatch(fetchCategories());
   }, [dispatch]);
 

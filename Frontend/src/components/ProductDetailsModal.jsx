@@ -66,10 +66,10 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
       // Fetch stones from API
-      dispatch(fetchStones({ page: 1, limit: 10 }));
+      // dispatch(fetchStones({ page: 1, limit: 10 }));
       // Fetch metals from API if not already loaded
       if (metals.length === 0) {
-        dispatch(fetchMetals());
+        // dispatch(fetchMetals());
       }
     } else {
       document.body.style.overflow = "auto";

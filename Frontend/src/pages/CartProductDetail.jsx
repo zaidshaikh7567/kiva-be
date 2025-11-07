@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, Star, ShoppingBag, Minus, Plus, Gem, ChevronLeft, ChevronRight, ListChevronsDownUp, ArrowLeft } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById, selectCurrentProduct, selectProductsError } from '../store/slices/productsSlice';
-import { fetchCartItems, selectCartItems, updateCartItem, updateQuantity } from '../store/slices/cartSlice';
+import { fetchCartItemById, selectCurrentCartItem, selectCurrentCartItemError, selectCurrentCartItemLoading, updateCartItem, updateQuantity } from '../store/slices/cartSlice';
 import {
   toggleFavorite as toggleFavoriteAction,
   addToFavoritesAPI,
@@ -35,7 +35,7 @@ const CartProductDetail = () => {
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedCenterStone, setSelectedCenterStone] = useState(null);
   const [selectedCarat, setSelectedCarat] = useState(null);
-  console.log('selectedCarat---- :', selectedCarat);
+
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const [cartItem, setCartItem] = useState(null);
@@ -46,7 +46,9 @@ const CartProductDetail = () => {
   // Redux selectors
   const product = useSelector(selectCurrentProduct);
   const error = useSelector(selectProductsError);
-  const cartItems = useSelector(selectCartItems);
+  const currentCartItem = useSelector(selectCurrentCartItem);
+  const cartItemLoading = useSelector(selectCurrentCartItemLoading);
+  const cartItemError = useSelector(selectCurrentCartItemError);
   const stones = useSelector(selectStones);
   // console.log('stones :', stones);
   const stonesLoading = useSelector(selectStonesLoading);
@@ -55,95 +57,106 @@ const CartProductDetail = () => {
   const isFavorite = useSelector(state => product ? selectIsFavorite(state, product._id || product.id) : false);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  // Fetch cart items when component mounts
+  // Fetch required data when component mounts
   useEffect(() => {
-    dispatch(fetchCartItems());
-    dispatch(fetchStones({ page: 1, limit: 10 }));
-    dispatch(fetchMetals());
-  }, [dispatch]);
+    if (cartItemId) {
+      dispatch(fetchCartItemById(cartItemId));
+    }
+    // dispatch(fetchStones({ page: 1, limit: 10 }));
+    // dispatch(fetchMetals());
+  }, [dispatch, cartItemId]);
 
   // Find cart item by ID and set selections
   useEffect(() => {
-    if (cartItems && cartItems.length > 0 && cartItemId) {
-      const foundItem = cartItems.find(item =>
-        item._id === cartItemId || item.id === cartItemId || item.cartId === cartItemId
-      );
+    if (currentCartItem && cartItemId) {
+      const foundItem = currentCartItem;
+      setCartItem(foundItem);
+      console.log('foundItem :', foundItem);
 
-      if (foundItem) {
-        setCartItem(foundItem);
-        console.log('foundItem :', foundItem);
+      // Extract product from cart item (API structure has nested product)
+      const cartProduct = foundItem.product || foundItem;
 
-        // Extract product from cart item (API structure has nested product)
-        const cartProduct = foundItem.product || foundItem;
+      // Fetch product details if we have productId
+      const productId = cartProduct._id || cartProduct.productId || foundItem.productId;
+      if (productId) {
+        dispatch(fetchProductById(productId));
+      }
 
-        // Fetch product details if we have productId
-        const productId = cartProduct._id || cartProduct.productId || foundItem.productId;
-        if (productId) {
-          dispatch(fetchProductById(productId));
-        }
+      // Set quantity from cart item
+      if (foundItem.quantity) {
+        setQuantity(foundItem.quantity);
+      }
 
-        // Set quantity from cart item
-        if (foundItem.quantity) {
-          setQuantity(foundItem.quantity);
-        }
+      // Set ring size if available
+      if (foundItem.ringSize) {
+        setSelectedRingSize(foundItem.ringSize);
+      }
 
-        // Set ring size if available
-        if (foundItem.ringSize) {
-          setSelectedRingSize(foundItem.ringSize);
-        }
+      // Set metal selection if available (API structure has metal and purityLevel)
+      console.log('foundItem :', foundItem);
+      if (foundItem.metal) {
+        const metal = foundItem.metal;
+        const purityLevel = foundItem.purityLevel || {};
 
-        // Set metal selection if available (API structure has metal and purityLevel)
-        console.log('foundItem :', foundItem);
-        if (foundItem.metal) {
-          const metal = foundItem.metal;
-          // console.log('metal :', metal);
-          const purityLevel = foundItem.purityLevel || {};
-          // console.log('purityLevel :', purityLevel);
-
-          if (metal._id) {
-            const karat = purityLevel.karat || metal.karat || 18;
-            setSelectedMetal({
-              id: `${karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
+        if (metal._id) {
+          const karat = purityLevel.karat || metal.karat || 18;
+          setSelectedMetal(prev => {
+            const nextMetal = {
+              id: `${karat}-${(metal.name || '').toLowerCase().replace(/\s+/g, '-')}`,
               metalId: metal._id,
               carat: `${karat}K`,
               color: metal.name || 'Gold',
               priceMultiplier: purityLevel.priceMultiplier || 1
-            });
-          }
-        } else if (foundItem.selectedMetal) {
-          // Fallback for localStorage structure
-          setSelectedMetal(foundItem.selectedMetal);
-        }
-
-        // Set stone selection if available (API structure has stoneType)
-        if (foundItem.stoneType) {
-          const stoneType = foundItem.stoneType;
-          if (stoneType.name) {
-            console.log('stoneType----------------->1 :', stoneType);
-            // Only set selectedCarat if it's not already set or if it's different
-            const stoneId = stoneType._id || stoneType.id;
-            if (!selectedCarat || selectedCarat.id !== stoneId) {
-              setSelectedCarat({
-                name: stoneType.name,
-                id: stoneId
-              });
+            };
+            if (prev && prev.metalId === nextMetal.metalId && prev.carat === nextMetal.carat) {
+              return prev;
             }
-            // Also set selectedCenterStone for price calculation if stones are loaded
-            if (stones.length > 0 && !selectedCenterStone) {
-              const stone = stones.find(s => s._id === stoneId);
-              if (stone) {
-                setSelectedCenterStone(stone);
-              }
-            }
-          }
-        } else if (foundItem.stoneTypeId) {
-          // If we only have ID, we'll need to find it from stones
-          // This will be handled when stones are loaded
+            return nextMetal;
+          });
         }
+      } else if (foundItem.selectedMetal) {
+        // Fallback for localStorage structure
+        setSelectedMetal(foundItem.selectedMetal);
       }
+
+      // Set stone selection if available (API structure has stoneType)
+      if (foundItem.stoneType) {
+        const stoneType = foundItem.stoneType;
+        if (stoneType.name) {
+          console.log('stoneType----------------->1 :', stoneType);
+          const stoneId = stoneType._id || stoneType.id;
+          setSelectedCarat(prev => {
+            if (prev && prev.id === stoneId && prev.name === stoneType.name) {
+              return prev;
+            }
+            return {
+              name: stoneType.name,
+              id: stoneId
+            };
+          });
+          if (stones.length > 0 && !selectedCenterStone) {
+            const stone = stones.find(s => s._id === stoneId);
+            if (stone) {
+              setSelectedCenterStone(stone);
+            }
+          }
+        }
+      } else if (foundItem.stoneTypeId) {
+        setSelectedCarat(prev => {
+          if (prev && prev.id === foundItem.stoneTypeId) {
+            return prev;
+          }
+          return {
+            name: prev?.name || '',
+            id: foundItem.stoneTypeId
+          };
+        });
+      }
+    } else {
+      setCartItem(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cartItems, cartItemId, dispatch, stones]);
+  }, [currentCartItem, cartItemId, dispatch, stones]);
 
   // Set initial carat when product or stones load
   useEffect(() => {
@@ -539,12 +552,23 @@ const CartProductDetail = () => {
   //     );
   //   }
 
-  if (error || !product || !cartItem) {
+  if (cartItemLoading || (!cartItem && !cartItemError)) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-black-light font-montserrat-regular-400">Loading cart item...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (cartItemError || error) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 font-montserrat-medium-500 mb-4">
-            {error || 'Product not found in cart'}
+            {cartItemError || error || 'Product not found in cart'}
           </p>
           <button
             onClick={handleBack}
@@ -552,6 +576,17 @@ const CartProductDetail = () => {
           >
             Back to Cart
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-black-light font-montserrat-regular-400">Loading product details...</p>
         </div>
       </div>
     );

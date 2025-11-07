@@ -64,8 +64,8 @@ const ProductDetail = () => {
   useEffect(() => {
     if (id) {
       dispatch(fetchProductById(id));
-      dispatch(fetchStones({ page: 1, limit: 10 }));
-      dispatch(fetchMetals());
+      // dispatch(fetchStones({ page: 1, limit: 10 }));
+      // dispatch(fetchMetals());
     }
   }, [id, dispatch]);
 

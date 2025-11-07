@@ -180,7 +180,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
     
     // Fetch metals when opening modal if not already loaded
     if (metals.length === 0) {
-      dispatch(fetchMetals());
+      // dispatch(fetchMetals());
     }
     // Show modal with metal selection and ring size (if ring)
     setShowAddToCartModal(true);

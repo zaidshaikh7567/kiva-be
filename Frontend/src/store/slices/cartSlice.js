@@ -36,9 +36,25 @@ export const fetchCartItems = createAsyncThunk(
   }
 );
 
+export const fetchCartItemById = createAsyncThunk(
+  'cart/fetchCartItemById',
+  async (cartId, { rejectWithValue }) => {
+    try {
+      if (!isAuthenticated()) {
+        return rejectWithValue('Authentication required');
+      }
+      const response = await api.get(`${API_METHOD.cart}/${cartId}`);
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch cart item';
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const addCartItem = createAsyncThunk(
   'cart/addCartItem',
-  async (cartData, { rejectWithValue, dispatch, getState }) => {
+  async (cartData, { rejectWithValue, dispatch }) => {
     try {
       if (!isAuthenticated()) {
         // Redirect to login page if not authenticated
@@ -52,21 +68,6 @@ export const addCartItem = createAsyncThunk(
         window.location.href = `/sign-in?redirect=${encodeURIComponent(currentPath)}`;
         return rejectWithValue('Authentication required');
       }
-      
-      // Check if product already exists in cart
-      const currentState = getState();
-      const existingItem = currentState.cart.items.find(item => {
-        const itemProductId = item.product?._id || item.product?.id || item._id?.product || item.productId;
-        return itemProductId === cartData.productId;
-      });
-      
-      // if (existingItem) {
-      //   toast.error('This product is already in your cart', {
-      //     duration: 3000,
-      //     position: 'top-right',
-      //   });
-      //   return rejectWithValue('Product already exists in cart');
-      // }
       
       const response = await api.post(API_METHOD.cart, cartData);
       console.log('response********* :', response.data);
@@ -95,7 +96,7 @@ export const updateCartItem = createAsyncThunk(
       // Include cartId in URL path: /api/cart/:id
       const response = await api.put(`${API_METHOD.cart}/${cartId}`, cartData);
       console.log('response********* :', response.data);
-      await dispatch(fetchCartItems()); // Refresh cart after updating
+      await dispatch(fetchCartItemById(cartId)); // Refresh specific cart item after updating
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to update cart item';
@@ -150,6 +151,9 @@ const initialState = {
   isOpen: false,
   loading: false,
   error: null,
+  currentItem: null,
+  currentItemLoading: false,
+  currentItemError: null,
 };
 
 const cartSlice = createSlice({
@@ -332,6 +336,29 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      // Fetch single cart item
+      .addCase(fetchCartItemById.pending, (state) => {
+        state.currentItemLoading = true;
+        state.currentItemError = null;
+      })
+      .addCase(fetchCartItemById.fulfilled, (state, action) => {
+        state.currentItemLoading = false;
+        const cartItem = action.payload?.data;
+        state.currentItem = cartItem || null;
+
+        if (cartItem && cartItem._id) {
+          const existingIndex = state.items.findIndex(item => item._id === cartItem._id || item.id === cartItem._id);
+          if (existingIndex > -1) {
+            state.items[existingIndex] = cartItem;
+          } else {
+            state.items.push(cartItem);
+          }
+        }
+      })
+      .addCase(fetchCartItemById.rejected, (state, action) => {
+        state.currentItemLoading = false;
+        state.currentItemError = action.payload;
+      })
       // Add cart item
       .addCase(addCartItem.pending, (state) => {
         state.loading = true;
@@ -350,8 +377,18 @@ const cartSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateCartItem.fulfilled, (state) => {
+      .addCase(updateCartItem.fulfilled, (state, action) => {
         state.loading = false;
+        const updatedItem = action.payload?.data;
+        if (updatedItem && updatedItem._id) {
+          state.currentItem = updatedItem;
+          const existingIndex = state.items.findIndex(item => item._id === updatedItem._id || item.id === updatedItem._id);
+          if (existingIndex > -1) {
+            state.items[existingIndex] = updatedItem;
+          } else {
+            state.items.push(updatedItem);
+          }
+        }
       })
       .addCase(updateCartItem.rejected, (state, action) => {
         state.loading = false;
@@ -404,5 +441,8 @@ export const selectCartTotalPrice = (state) => state.cart.totalPrice;
 export const selectCartIsOpen = (state) => state.cart.isOpen;
 export const selectCartLoading = (state) => state.cart.loading;
 export const selectCartError = (state) => state.cart.error;
+export const selectCurrentCartItem = (state) => state.cart.currentItem;
+export const selectCurrentCartItemLoading = (state) => state.cart.currentItemLoading;
+export const selectCurrentCartItemError = (state) => state.cart.currentItemError;
 
 export default cartSlice.reducer;

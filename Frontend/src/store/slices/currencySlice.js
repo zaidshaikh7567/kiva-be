@@ -266,14 +266,31 @@ export const convertPrice = (price, fromCurrency = 'USD', toCurrency, exchangeRa
 
 // Helper function to format price
 export const formatPrice = (price, currency, symbol) => {
-  const formattedPrice = price?.toFixed(2);
-  
+  if (price === undefined || price === null || Number.isNaN(price)) {
+    return `${symbol}0`;
+  }
+
+  const numericPrice = Number(price);
+
   // Special formatting for different currencies
   if (currency === 'JPY') {
-    return `${symbol}${Math.round(price)}`;
+    return `${symbol}${Math.round(numericPrice)}`;
   }
-  
-  return `${symbol}${formattedPrice}`;
+
+  if (currency === 'INR') {
+    const formatter = new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: Number.isInteger(numericPrice) ? 0 : 2,
+      maximumFractionDigits: 2,
+    });
+    return `${symbol}${formatter.format(numericPrice)}`;
+  }
+
+  const formatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  return `${symbol}${formatter.format(numericPrice)}`;
 };
 
 export default currencySlice.reducer;

@@ -5,7 +5,9 @@ import { X, Gem, Edit } from 'lucide-react';
 import { selectCategories } from '../store/slices/categoriesSlice';
 
 const CenterStoneViewModal = ({ isOpen, onClose, centerStone, onEdit }) => {
+console.log('centerStone :', centerStone);
   const categories = useSelector(selectCategories);
+  console.log('categories :', categories);
   
   if (!isOpen || !centerStone) return null;
 
@@ -58,7 +60,7 @@ const CenterStoneViewModal = ({ isOpen, onClose, centerStone, onEdit }) => {
                 <Gem className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-sorts-mill-gloudy font-bold text-black mb-2">
-                {centerStone.name}
+                {centerStone.name} CT
               </h3>
               <div className="text-4xl font-sorts-mill-gloudy font-bold text-primary mb-2">
                 ${centerStone.price?.toFixed(2) || '0.00'}
@@ -76,15 +78,16 @@ const CenterStoneViewModal = ({ isOpen, onClose, centerStone, onEdit }) => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-3 border-b border-gray-200">
                   <span className="font-montserrat-medium-500 text-black-light">Name:</span>
-                  <span className="font-montserrat-semibold-600 text-black">{centerStone.name}</span>
+                  <span className="font-montserrat-semibold-600 text-black">{centerStone.name} CT</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200">
                   <span className="font-montserrat-medium-500 text-black-light">Category:</span>
                   <span className="font-montserrat-semibold-600 text-black capitalize">
-                    {(() => {
-                      const categoryObj = categories.find(cat => cat._id === centerStone.categoryId);
+                    {centerStone.shape}
+                    {/* {(() => {
+                      const categoryObj = categories.find(cat => cat._id === centerStone.category._id);
                       return categoryObj ? categoryObj.name : 'N/A';
-                    })()}
+                    })()} */}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200">
@@ -94,11 +97,11 @@ const CenterStoneViewModal = ({ isOpen, onClose, centerStone, onEdit }) => {
                 <div className="flex justify-between items-center py-3">
                   <span className="font-montserrat-medium-500 text-black-light">Status:</span>
                   <span className={`inline-flex px-3 py-1 text-sm font-montserrat-medium-500 rounded-full ${
-                    centerStone.status === 'active'
+                    centerStone.active
                       ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
                   }`}>
-                    {centerStone.status === 'active' ? 'Active' : 'Inactive'}
+                    {centerStone.active ? 'Active' : 'Inactive'}
                   </span>
                 </div>
               </div>
