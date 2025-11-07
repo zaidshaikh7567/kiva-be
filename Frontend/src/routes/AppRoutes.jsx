@@ -4,12 +4,14 @@ import AuthLayout from "../layouts/AuthLayout";
 import Home from "../pages/Home";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
+import Custom from "../pages/Custom";
 import Shop from "../pages/Shop";
 import Favorites from "../pages/Favorites";
 import Rings from "../pages/Rings";
 import Earrings from "../pages/Earrings";
 import Bracelets from "../pages/Bracelets";
 import Necklaces from "../pages/Necklaces";
+import WeddingBand from "../pages/WeddingBand";
 import ViewCart from "../pages/ViewCart";
 import Checkout from "../pages/Checkout";
 import OrderSuccess from "../pages/OrderSuccess";
@@ -50,10 +52,12 @@ const AppRoutes = () => {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/custom" element={<Custom />} />
           <Route path="/rings" element={<Rings />} />
           <Route path="/earrings" element={<Earrings />} />
           <Route path="/bracelets" element={<Bracelets />} />
           <Route path="/necklaces" element={<Necklaces />} />
+          <Route path="/wedding-band" element={<WeddingBand />} />
           <Route path="/view-cart" element={<ViewCart />} />
           <Route path="/size-guide" element={<SizeGuide />} />
           <Route path="/jewelry-care" element={<JewelryCare />} />

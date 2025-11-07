@@ -6,6 +6,16 @@ const createContactSchema = zod.object({
   phone: zod.string().optional(),
   message: zod.string().min(10, 'Message is required'),
   service: zod.string().optional(),
+  designDescription: zod.string().optional(),
+  preferredMetal: zod.string().optional(),
+  preferredStone: zod.string().optional(),
+  budget: zod.string().optional(),
+  timeline: zod.string().optional(),
+  size: zod.string().optional(),
+  mediaUrls: zod.array(zod.object({
+    type: zod.enum(['image', 'video']),
+    url: zod.string().url('Invalid URL format')
+  })).optional(),
 });
 
 const contactIdSchema = zod.object({

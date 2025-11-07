@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, Settings, LogOut, Package, ChevronDown } from 'lucide-react';
 
 const UserProfile = ({ user, onLogout }) => {
+console.log('user :', user);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -42,15 +43,16 @@ const UserProfile = ({ user, onLogout }) => {
       {/* Profile Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-300"
+        className="flex items-center outline-none space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-300"
       >
-        <div className="w-8 h-8 min-w-8 min-h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-montserrat-semibold-600">
-        {user.name?.charAt(0)}
+        <div className="w-10 h-10 min-w-10 min-h-10 bg-primary rounded-full flex items-center justify-center text-white text-sm font-montserrat-semibold-600">
+          {user.profileImage ? <img src={user.profileImage} alt="User" className="w-full h-full object-cover rounded-full" /> : user.name?.charAt(0)}
+        {/* {user.name?.charAt(0)} */}
         </div>
-        <span className="hidden md:block font-montserrat-medium-500 text-black text-sm">
+        {/* <span className="hidden md:block font-montserrat-medium-500 text-black text-sm">
           {user?.name || 'User'}
-        </span>
-        <ChevronDown className={`w-4 h-4 text-black-light transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        </span> */}
+        {/* <ChevronDown className={`w-4 h-4 text-black-light transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} /> */}
       </button>
 
       {/* Dropdown Menu */}

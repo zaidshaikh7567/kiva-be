@@ -19,6 +19,7 @@ import { RING_SIZES } from '../services/centerStonesApi';
 import { selectCategories } from '../store/slices/categoriesSlice';
 import toast from 'react-hot-toast';
 import { extractPlainText } from '../helpers/lexicalToHTML';
+import { transformMetalsToSelectorOptions } from '../constants';
 
 const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }) => {
   const [showQuickView, setShowQuickView] = useState(false);
@@ -203,16 +204,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
     const availableMetalIds = product.metals.map(metal => metal?._id || metal?.id || metal);
 
     // Transform metals to options (same logic as MetalSelector)
-    const metalOptions = metals.flatMap(metal => {
-      return metal.purityLevels?.filter(purity => purity.active !== false).map(purity => ({
-        id: `${purity.karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
-        carat: `${purity.karat}K`,
-        color: metal.name,
-        priceMultiplier: purity.priceMultiplier || 1.0,
-        metalId: metal._id,
-        purityLevelId: purity._id
-      })) || [];
-    });
+    const metalOptions = transformMetalsToSelectorOptions(metals);
 
     // Find first available metal option from product's metals
     const firstAvailableMetal = metalOptions.find(metalOption => {

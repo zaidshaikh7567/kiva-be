@@ -25,7 +25,42 @@ const contactSchema = new mongoose.Schema({
     type: String,
     default: 'general',
     trim: true
-  }
+  },
+  designDescription: {
+    type: String,
+    trim: true
+  },
+  preferredMetal: {
+    type: String,
+    trim: true
+  },
+  preferredStone: {
+    type: String,
+    trim: true
+  },
+  budget: {
+    type: String,
+    trim: true
+  },
+  timeline: {
+    type: String,
+    trim: true
+  },
+  size: {
+    type: String,
+    trim: true
+  },
+  media: [{
+    type: {
+      type: String,
+      enum: ['image', 'video'],
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    }
+  }]
 }, {
   timestamps: true
 });
