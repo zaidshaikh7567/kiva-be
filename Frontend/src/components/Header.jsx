@@ -21,7 +21,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
-      <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 xl:px-32 py-4">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
         {/* Logo */}
         <div className="  rounded-md">
           <Link to="/" className="flex-shrink-0 ">
@@ -46,7 +46,7 @@ const Header = () => {
         <nav className="hidden xl:flex items-center space-x-6 text-[#1e2b38] font-medium">
           {/* Category Dropdown */}
      
-           <CategoryDropdown />
+           {/* <CategoryDropdown /> */}
           <Link
             to="/shop"
             className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
@@ -55,13 +55,21 @@ const Header = () => {
           >
             Shop
           </Link>
-          {/* <Link
+          <Link
             to="/rings"
             className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
               isActive('/rings') ? 'text-primary' : 'text-black-light'
             }`}
           >
             Rings
+          </Link>
+          <Link
+            to="/wedding-band"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+              isActive('/wedding-band') ? 'text-primary' : 'text-black-light'
+            }`}
+          >
+            Wedding Band
           </Link>
           <Link
             to="/earrings"
@@ -86,7 +94,7 @@ const Header = () => {
             }`}
           >
             Necklaces
-          </Link> */}
+          </Link>
          
           <Link
             to="/favorites"
@@ -116,7 +124,15 @@ const Header = () => {
               isActive('/contact') ? 'text-primary' : 'text-black-light'
             }`}
           >
-            Contact Us
+            Contact
+          </Link>
+          <Link
+            to="/custom"
+            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+              isActive('/custom') ? 'text-primary' : 'text-black-light'
+            }`}
+          >
+            Custom
           </Link>
         </nav>
 
@@ -233,6 +249,17 @@ const Header = () => {
                 Rings
               </Link>
               <Link
+                to="/wedding-band"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center px-4 py-3 rounded-lg font-montserrat-medium-500 text-base transition-all duration-200 ${
+                  isActive('/wedding-band') 
+                    ? 'bg-primary text-white shadow-md' 
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-primary'
+                }`}
+              >
+                Wedding Band
+              </Link>
+              <Link
                 to="/earrings"
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center px-4 py-3 rounded-lg font-montserrat-medium-500 text-base transition-all duration-200 ${
@@ -305,6 +332,17 @@ const Header = () => {
                 }`}
               >
                 Contact Us
+              </Link>
+              <Link
+                to="/custom"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center px-4 py-3 rounded-lg font-montserrat-medium-500 text-base transition-all duration-200 ${
+                  isActive('/custom') 
+                    ? 'bg-primary text-white shadow-md' 
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-primary'
+                }`}
+              >
+                Custom
               </Link>
             </nav>
 

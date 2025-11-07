@@ -8,13 +8,8 @@ import { selectProducts, selectProductsLoading, selectProductsLoadingMore, selec
 import { selectCategories } from "../store/slices/categoriesSlice";
 import { fetchCategories } from "../store/slices/categoriesSlice";
 import AnimatedSection from "../components/home/AnimatedSection";
-
-const SORT_OPTIONS = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'price-low', label: 'Price: Low to High' },
-  { value: 'price-high', label: 'Price: High to Low' },
-  { value: 'rating', label: 'Highest Rated' },
-];
+import { SORT_OPTIONS } from "../constants";
+import { Link } from "react-router-dom";
 
 const Earrings = () => {
   const dispatch = useDispatch();
@@ -126,7 +121,7 @@ const Earrings = () => {
 
               <div className="flex items-center space-x-4">
                 <CustomDropdown
-                  options={SORT_OPTIONS}
+                  options={SORT_OPTIONS.CATEGORY}
                   value={sortBy}
                   onChange={setSortBy}
                   placeholder="Sort by"
@@ -230,9 +225,9 @@ const Earrings = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
-            <a  href={"tel:+919106302269"} target="_blank"  rel="noopener noreferrer" className="px-6 md:px-10 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg text-base md:text-lg">
+            <Link to="/custom" className="px-6 md:px-10 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg text-base md:text-lg">
               Custom Design
-            </a>
+            </Link>
               {/* <button className="px-6 md:px-10 py-3 md:py-4 border-2 border-primary text-primary font-montserrat-medium-500 hover:bg-primary hover:text-white transition-colors duration-300 rounded-lg text-base md:text-lg">
                 Book Consultation
               </button> */}

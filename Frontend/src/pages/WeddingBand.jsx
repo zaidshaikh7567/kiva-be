@@ -1,32 +1,28 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Grid, List } from "lucide-react";
+import { Grid, List, Heart } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import CustomDropdown from "../components/CustomDropdown";
 import { fetchProducts } from "../store/slices/productsSlice";
 import { selectProducts, selectProductsLoading, selectProductsLoadingMore, selectProductsError, selectPagination } from "../store/slices/productsSlice";
-import { selectCategories } from "../store/slices/categoriesSlice";
-import { fetchCategories } from "../store/slices/categoriesSlice";
 import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
 import { Link } from "react-router-dom";
 
-const Necklaces = () => {
+const WeddingBand = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
   const productsLoading = useSelector(selectProductsLoading);
   const productsLoadingMore = useSelector(selectProductsLoadingMore);
   const productsError = useSelector(selectProductsError);
   const pagination = useSelector(selectPagination);
-  const categories = useSelector(selectCategories);
   
   const [sortBy, setSortBy] = useState("featured");
   const [viewMode, setViewMode] = useState("grid");
 
-  // Fetch products and categories on mount
+  // Fetch products on mount
   useEffect(() => {
     dispatch(fetchProducts({ page: 1, limit: 90, reset: true }));
-    dispatch(fetchCategories());
   }, [dispatch]);
 
   // Handle load more
@@ -35,57 +31,42 @@ const Necklaces = () => {
     dispatch(fetchProducts({ page: nextPage, limit: 9, reset: false }));
   };
 
-  // Find necklace category (main category without parent)
-  const necklaceCategory = useMemo(() => {
-    return categories?.find(cat => 
-      !cat.parent && (cat.name?.toLowerCase() === "necklace" || cat.name?.toLowerCase() === "necklaces")
-    );
-  }, [categories]);
-
-  // Filter necklaces based on necklace category
-  const filteredNecklaces = useMemo(() => {
+  // Filter wedding bands based on isBand === true
+  const filteredWeddingBands = useMemo(() => {
     if (!products || products.length === 0) return [];
     
-    // Filter by necklace category
-    let necklaceProducts = products.filter(product => {
-      if (!necklaceCategory) return false;
-      
-      const productCategoryId = product.category?._id;
-      const productCategoryName = product.category?.name?.toLowerCase();
-      
-      return productCategoryId === necklaceCategory._id || 
-             productCategoryName === "necklace" || 
-             productCategoryName === "necklaces";
+    // Filter by isBand === true
+    const bandProducts = products.filter(product => {
+      return product.isBand === true;
     });
 
     // Map products to match ProductCard expected format
-    return necklaceProducts.map(product => ({
+    return bandProducts.map(product => ({
       ...product,
       id: product._id,
       name: product.title || product.name || '',
-      image: Array.isArray(product.image) ? product.image[0] : product.image,
+      image: Array.isArray(product.images) ? product.images[0] : (Array.isArray(product.image) ? product.image[0] : product.image),
       rating: product.rating || 4.5,
       reviews: product.reviews || 0,
       featured: product.featured || false,
       originalPrice: product.originalPrice || null
     }));
-  }, [products, necklaceCategory]);
+  }, [products]);
 
-  const sortNecklaces = (necklaces) => {
+  const sortedWeddingBands = useMemo(() => {
+    const bands = filteredWeddingBands;
     switch (sortBy) {
       case "price-low":
-        return [...necklaces].sort((a, b) => a.price - b.price);
+        return [...bands].sort((a, b) => a.price - b.price);
       case "price-high":
-        return [...necklaces].sort((a, b) => b.price - a.price);
+        return [...bands].sort((a, b) => b.price - a.price);
       case "rating":
-        return [...necklaces].sort((a, b) => b.rating - a.rating);
+        return [...bands].sort((a, b) => b.rating - a.rating);
       case "featured":
       default:
-        return [...necklaces].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+        return [...bands].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     }
-  };
-
-  const sortedNecklaces = sortNecklaces(filteredNecklaces);
+  }, [filteredWeddingBands, sortBy]);
 
   return (
     <div className="bg-secondary min-h-screen">
@@ -94,27 +75,27 @@ const Necklaces = () => {
         <section className="py-8 md:py-16 lg:py-20 bg-secondary">
           <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
             <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
-              JEWELRY COLLECTION
+              WEDDING COLLECTION
             </p>
             <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
-              Necklace Collection<span className="text-primary">.</span>
+              Wedding Bands<span className="text-primary">.</span>
             </h1>
             <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
-              Discover our stunning collection of necklaces, from delicate chains to statement pieces
+              Discover our exquisite collection of wedding bands, symbolizing eternal love and commitment
             </p>
             <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
           </div>
         </section>
       </AnimatedSection>
 
-      {/* Simple Filter Section */}
+      {/* Filter Section */}
       <section className="py-4 md:py-8 bg-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           {/* Filters and Sorting */}
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
             <div className="flex items-center space-x-4">
               <span className="text-sm font-montserrat-medium-500 text-black-light">
-                {sortedNecklaces.length} necklaces available
+                {sortedWeddingBands.length} wedding band{sortedWeddingBands.length !== 1 ? 's' : ''} available
               </span>
             </div>
 
@@ -131,7 +112,7 @@ const Necklaces = () => {
               <div className="flex items-center border border-gray-200 rounded-lg">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 ${viewMode === "grid" ? "bg-primary  rounded-tl-lg rounded-bl-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
+                  className={`p-2 ${viewMode === "grid" ? "bg-primary rounded-tl-lg rounded-bl-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
@@ -153,42 +134,48 @@ const Necklaces = () => {
           {productsLoading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-black-light font-montserrat-regular-400">Loading necklaces...</p>
+              <p className="text-black-light font-montserrat-regular-400">Loading wedding bands...</p>
             </div>
           ) : productsError ? (
             <div className="text-center py-12">
               <div className="text-red-500 mb-4">
                 <span className="text-4xl">⚠️</span>
               </div>
-              <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Error loading necklaces</h3>
+              <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Error loading wedding bands</h3>
               <p className="text-black-light font-montserrat-regular-400">
                 {productsError}
               </p>
             </div>
-          ) : sortedNecklaces.length > 0 ? (
-            <div className={`grid gap-4 md:gap-8 ${
-              viewMode === "grid" 
-                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
-                : "grid-cols-1"
-            }`}>
-              {sortedNecklaces.map((necklace) => (
+          ) : sortedWeddingBands.length > 0 ? (
+            <div 
+              className={`grid gap-4 md:gap-8 ${
+                viewMode === "grid" 
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
+                  : "grid-cols-1"
+              }`}
+            >
+              {sortedWeddingBands.map((band) => (
                 <ProductCard
-                  key={necklace._id || necklace.id}
-                  product={necklace}
+                  key={band._id || band.id}
+                  product={band}
                   viewMode={viewMode}
                 />
               ))}
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-black-light font-montserrat-regular-400">
-                No necklaces found.
+              <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-black-light font-montserrat-regular-400 text-lg">
+                No wedding bands found at the moment.
+              </p>
+              <p className="text-black-light font-montserrat-regular-400 mt-2">
+                Check back soon for our latest collection!
               </p>
             </div>
           )}
 
           {/* Load More Button */}
-          {sortedNecklaces.length > 0 && pagination.hasMore && (
+          {sortedWeddingBands.length > 0 && pagination.hasMore && (
             <div className="text-center mt-8 md:mt-12">
               <button
                 onClick={handleLoadMore}
@@ -210,24 +197,31 @@ const Necklaces = () => {
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 md:py-20 bg-black text-white">
-        <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
-            Need Help Choosing<span className="text-primary">?</span>
-          </h2>
-          <p className="text-base md:text-lg lg:text-xl font-montserrat-regular-400 text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto px-4">
-            Our jewelry experts can help you find the perfect necklace or create a custom design just for you
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
-            <Link to="/custom" className="px-6 md:px-10 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg text-base md:text-lg">
-              Custom Design
-            </Link>
+      <AnimatedSection animationType="fadeInUp" delay={400}>
+        <section className="py-16 md:py-20 bg-black text-white">
+          <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
+              Looking for a Custom Wedding Band<span className="text-primary">?</span>
+            </h2>
+            <p className="text-base md:text-lg lg:text-xl font-montserrat-regular-400 text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto px-4">
+              Our jewelry experts can help you create a custom wedding band that perfectly matches your engagement ring or stands alone as a symbol of your commitment
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
+              <Link 
+                to="/custom" 
+                className="px-6 md:px-10 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg text-base md:text-lg"
+              >
+                Custom Design
+              </Link>
+             
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </AnimatedSection>
     </div>
   );
 };
 
-export default Necklaces;
+export default WeddingBand;
+

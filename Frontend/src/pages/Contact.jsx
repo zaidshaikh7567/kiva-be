@@ -18,14 +18,7 @@ import { RiInstagramFill } from "react-icons/ri";
 import AnimatedSection from "../components/home/AnimatedSection";
 import api from "../services/api";
 import { API_METHOD } from "../services/apiMethod";
-const SERVICE_OPTIONS = [
-  { value: "general", label: "General Inquiry" },
-  { value: "custom", label: "Custom Design" },
-  { value: "repair", label: "Jewelry Repair" },
-  { value: "appraisal", label: "Jewelry Appraisal" },
-  { value: "consultation", label: "Personal Consultation" },
-  { value: "wholesale", label: "Wholesale Inquiry" },
-];
+import { SERVICE_OPTIONS } from "../constants";
 
 const Contact = () => {
   const [formData, setFormData] = useState({

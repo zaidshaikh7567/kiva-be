@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMetals, selectMetals, selectMetalsLoading } from '../store/slices/metalsSlice';
 import { useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
+import { transformMetalsToSelectorOptions, getMetalColorStyles } from '../constants';
 
 const MetalSelector = ({ selectedMetal, onMetalChange, className = "", product, cartItem }) => {
 console.log('product@@@ :', product);
@@ -18,62 +19,18 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
 
   // Transform API metals data to match component format
   // Expand metals to show all purity levels as separate options
-  const metalOptions = metals.flatMap(metal => {
-    // Generate gradient colors based on metal color
-    const getColorStyles = (color, karat) => {
-      const lowerColor = color.toLowerCase();
-      const karatStr = String(karat); // Convert to string
-      
-      if (lowerColor?.includes('white')) {
-        return {
-          gradient: karatStr.includes('14') ? 'from-gray-200 to-gray-300' : 'from-gray-100 to-gray-200',
-          borderColor: karatStr.includes('14') ? 'border-gray-200' : 'border-gray-100',
-          textColor: karatStr.includes('14') ? 'text-gray-700' : 'text-gray-600',
-          backgroundColor: karatStr.includes('14') 
-            ? 'linear-gradient(to right, #e5e7eb, #d1d5db)' 
-            : 'linear-gradient(to right, #f3f4f6, #e5e7eb)'
-        };
-      } else if (lowerColor.includes('gold')) {
-        return {
-          gradient: karatStr.includes('14') ? 'from-yellow-50 to-yellow-100' : 'from-yellow-25 to-yellow-50',
-          borderColor: karatStr.includes('14') ? 'border-yellow-100' : 'border-yellow-50',
-          textColor: karatStr.includes('14') ? 'text-yellow-600' : 'text-yellow-500',
-          backgroundColor: karatStr.includes('14')
-            ? 'linear-gradient(to right, #fffbeb, #fefce8)'
-            : 'linear-gradient(to right, #fffbeb, #fffbeb)'
-        };
-      } else if (lowerColor.includes('rose')) {
-        return {
-          gradient: karatStr.includes('14') ? 'from-pink-50 to-pink-100' : 'from-pink-25 to-pink-50',
-          borderColor: karatStr.includes('14') ? 'border-pink-100' : 'border-pink-50',
-          textColor: karatStr.includes('14') ? 'text-pink-600' : 'text-pink-500',
-          backgroundColor: 'linear-gradient(to right, #fdf2f8, #fdf2f8)'
-        };
-      }
-      
-      // Default gray for other colors
-      return {
-        gradient: 'from-gray-200 to-gray-300',
-        borderColor: 'border-gray-200',
-        textColor: 'text-gray-700',
-        backgroundColor: 'linear-gradient(to right, #e5e7eb, #d1d5db)'
-      };
+  const baseMetalOptions = transformMetalsToSelectorOptions(metals);
+  
+  // Add color styles to each metal option
+  const metalOptions = baseMetalOptions.map(option => {
+    const karat = parseInt(option.carat.replace('K', ''));
+    const styles = getMetalColorStyles(option.color, karat);
+    
+    return {
+      ...option,
+      carat: option.carat, // Already has 'K' suffix from transformMetalsToSelectorOptions
+      ...styles
     };
-
-    // Map each purity level to a separate metal option (only active ones)
-    return metal.purityLevels?.filter(purity => purity.active !== false).map(purity => {
-      const styles = getColorStyles(metal.name, purity.karat);
-      
-      return {
-        id: `${purity.karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
-        carat: `${purity.karat}K`, // Add 'K' suffix for display
-        color: metal.name,
-        priceMultiplier: purity.priceMultiplier || 1.0,
-        metalId: metal._id,
-        purityLevelId: purity._id,
-        ...styles
-      };
-    }) || [];
   });
 
   // Fallback mock data if API hasn't loaded yet

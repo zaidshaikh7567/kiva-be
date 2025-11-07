@@ -9,13 +9,7 @@ import { fetchProducts, selectProducts, selectProductsLoading, selectProductsErr
 import { fetchCategories } from '../store/slices/categoriesSlice';
 import { selectCategories } from '../store/slices/categoriesSlice';
 import AnimatedSection from '../components/home/AnimatedSection';
-
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest First' },
-  { value: 'price-low', label: 'Price: Low to High' },
-  { value: 'price-high', label: 'Price: High to Low' },
-  { value: 'name', label: 'Name A-Z' },
-];
+import { SORT_OPTIONS } from '../constants';
 
 const Shop = () => {
   const dispatch = useDispatch();
@@ -373,7 +367,7 @@ const Shop = () => {
               <div className="flex items-center gap-4">
                 {/* Sort Dropdown */}
                 <CustomDropdown
-                  options={SORT_OPTIONS}
+                  options={SORT_OPTIONS.SHOP}
                   value={sortBy}
                   onChange={setSortBy}
                   placeholder="Sort by"
