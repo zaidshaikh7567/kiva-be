@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Gem, Save, AlertCircle, Plus } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCategories, selectCategories, selectCategoriesLoading } from '../store/slices/categoriesSlice';
 
 const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerStoneData, mode = 'add' }) => {
+  const dispatch = useDispatch();
+  const categories = useSelector(selectCategories);
+  const categoriesLoading = useSelector(selectCategoriesLoading);
+
   const [formData, setFormData] = useState({
     name: '',
     price: '',
     shape: '',
-    active: true
+    active: true,
+    categoryId: ''
   });
 
 
@@ -20,7 +27,8 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
         name: centerStoneData.name || '',
         price: centerStoneData.price?.toString() || '',
         shape: centerStoneData.shape || '',
-        active: centerStoneData.active !== undefined ? centerStoneData.active : true
+        active: centerStoneData.active !== undefined ? centerStoneData.active : true,
+        categoryId: centerStoneData.category?._id || centerStoneData.category?.id || centerStoneData.category || ''
       });
     } else if (isOpen && mode === 'add') {
       // Reset form for add mode when modal opens
@@ -28,10 +36,67 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
         name: '',
         price: '',
         shape: '',
-        active: true
+        active: true,
+        categoryId: ''
       });
     }
   }, [isOpen, centerStoneData, mode]);
+
+  // Fetch categories when modal opens if not already loaded
+  useEffect(() => {
+    if (isOpen && (!categories || categories.length === 0)) {
+      dispatch(fetchCategories());
+    }
+  }, [isOpen, categories, dispatch]);
+
+  const ringRelatedCategories = useMemo(() => {
+    if (!Array.isArray(categories)) {
+      return { parents: new Set(), subcategories: [] };
+    }
+
+    const ringParentIds = new Set(
+      categories
+        .filter((category) => {
+          const name = category?.name?.toLowerCase();
+          const isParent = !category?.parent;
+          return isParent && name && (name.includes('ring') || name.includes('band'));
+        })
+        .map((category) => category?._id || category?.id)
+        .filter(Boolean)
+    );
+
+    const subcategories = categories.filter((category) => {
+      if (!category?.parent) return false;
+      const parentId = category?.parent?._id || category?.parent?.id || category?.parent;
+      return ringParentIds.has(parentId);
+    });
+
+    return { parents: ringParentIds, subcategories };
+  }, [categories]);
+
+  const shapeOptions = useMemo(() => {
+    const optionsMap = new Map();
+
+    ringRelatedCategories.subcategories.forEach((subcategory) => {
+      const id = subcategory?._id || subcategory?.id;
+      const name = subcategory?.name;
+      if (id && name && !optionsMap.has(id)) {
+        optionsMap.set(id, {
+          value: id,
+          label: name,
+        });
+      }
+    });
+
+    if (formData.categoryId && formData.shape && !optionsMap.has(formData.categoryId)) {
+      optionsMap.set(formData.categoryId, {
+        value: formData.categoryId,
+        label: formData.shape,
+      });
+    }
+
+    return Array.from(optionsMap.values());
+  }, [ringRelatedCategories, formData.shape, formData.categoryId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,12 +108,13 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.name.trim() && formData.price && formData.shape) {
+    if (formData.name.trim() && formData.price && formData.shape && formData.categoryId) {
       const submitData = {
         name: formData.name,
         price: parseFloat(formData.price),
         shape: formData.shape,
-        active: formData.active
+        active: formData.active,
+        categoryId: formData.categoryId
       };
 
       if (mode === 'edit' && centerStoneData) {
@@ -69,7 +135,8 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
       name: '',
       price: '',
       shape: '',
-      active: true
+      active: true,
+      categoryId: ''
     });
     onClose();
   };
@@ -149,16 +216,20 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
               <label className="block text-sm font-montserrat-medium-500 text-black">
                 Shape *
               </label>
-              <input
-                type="text"
-                name="shape"
-                value={formData.shape}
-                onChange={handleInputChange}
-                placeholder="Enter stone shape (e.g., Round, Oval, Princess)"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none
-                 focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
-                required
-                disabled={loading}
+              <CustomDropdown
+                options={shapeOptions}
+                value={formData.categoryId}
+                onChange={(value) => {
+                  const selectedOption = shapeOptions.find(option => option.value === value);
+                  setFormData(prev => ({
+                    ...prev,
+                    categoryId: value,
+                    shape: selectedOption?.label || ''
+                  }));
+                }}
+                placeholder={categoriesLoading ? 'Loading shapes...' : 'Select shape'}
+                className="w-full"
+                disabled={loading || categoriesLoading}
               />
             </div>
 
@@ -212,7 +283,7 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
             </button>
             <button
               type="submit"
-              disabled={loading || !formData.name.trim() || !formData.price || !formData.shape}
+              disabled={loading || !formData.name.trim() || !formData.price || !formData.shape || !formData.categoryId}
               className={`flex items-center space-x-2 px-6 py-3 bg-gradient-to-r ${iconColor} text-white rounded-lg font-montserrat-medium-500 hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading ? (

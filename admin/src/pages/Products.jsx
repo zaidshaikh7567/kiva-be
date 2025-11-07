@@ -515,7 +515,7 @@ const Products = () => {
               <tbody className="divide-y divide-gray-200">
                 {products.map((product) => (
                   <tr key={product?._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 min-w-[250px]">
+                    <td className="px-6 py-4 max-w-[450px]">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center flex-shrink-0">
                           {/* <Package className="w-5 h-5 text-white" /> */}
@@ -524,7 +524,7 @@ const Products = () => {
                         <div className="min-w-0 flex-1">
                           <h3 
                             onClick={() => handleOpenViewModal(product)}
-                            className="text-sm font-montserrat-medium-500 font-bold text-black capitalize cursor-pointer hover:text-primary transition-colors truncate"
+                            className="text-sm font-montserrat-medium-500 font-bold text-black capitalize cursor-pointer hover:text-primary transition-colors truncate max-w-[450px]"
                           >
                             {product?.title || 'Unnamed Product'}
                           </h3>

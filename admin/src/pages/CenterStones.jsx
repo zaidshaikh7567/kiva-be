@@ -40,8 +40,6 @@ const CenterStones = () => {
     dispatch(fetchCenterStones());
   };
 
-
-
   const handleDeleteCenterStone = (centerStone) => {
     setCenterStoneToDelete(centerStone);
     setIsDeleteModalOpen(true);
@@ -113,6 +111,7 @@ const CenterStones = () => {
   };
 
   const handleSubmitCenterStone = async (data) => {
+  console.log('data :', data);
     if (modalMode === 'add') {
       // Add mode
       try {
@@ -246,7 +245,7 @@ const CenterStones = () => {
               <tbody className="divide-y divide-gray-200">
                 {centerStones.map((centerStone) => (
                   <tr key={centerStone._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 min-w-[250px]">
+                    <td className="px-6 py-4 min-w-[100px]">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center flex-shrink-0">
                           <Gem className="w-5 h-5 text-white" />
@@ -256,7 +255,7 @@ const CenterStones = () => {
                             onClick={() => handleOpenViewModal(centerStone)}
                             className="text-sm font-montserrat-medium-500 font-bold text-black capitalize cursor-pointer hover:text-primary transition-colors truncate"
                           >
-                            {centerStone.name || 'Unnamed Center Stone'}
+                            {centerStone.name || 'Unnamed Center Stone'} CT
                           </h3>
                         </div>
                       </div>

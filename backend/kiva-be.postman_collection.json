@@ -1400,6 +1400,39 @@
 					"response": []
 				},
 				{
+					"name": "Get Cart Item by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get a single cart item by its ID with populated relationships and calculated price.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Path Parameters:**\n- cartId (required): Unique identifier of the cart item\n\n**Response:** Returns the cart item object with calculatedPrice.",
+						"url": {
+							"raw": "{{baseUrl}}/api/cart/:cartId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								":cartId"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the cart item"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Add to Cart",
 					"request": {
 						"method": "POST",

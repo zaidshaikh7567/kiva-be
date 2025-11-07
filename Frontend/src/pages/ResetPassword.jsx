@@ -9,6 +9,7 @@ const ResetPassword = () => {
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthLoading);
   const success = useSelector(selectAuthSuccess);
+  console.log('success :', success);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   
   const [searchParams] = useSearchParams();
@@ -22,6 +23,7 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
+  console.log('passwordReset :', passwordReset);
 
   // Redirect if already authenticated
   useEffect(() => {

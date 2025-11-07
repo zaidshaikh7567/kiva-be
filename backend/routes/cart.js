@@ -37,6 +37,35 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
   });
 }));
 
+router.get('/:id', authenticate, validate(cartIdSchema, 'params'), asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  const cart = await Cart.findOne({ _id: id, user: userId }).populate(['product', 'metal', 'stoneType']);
+
+  if (!cart) {
+    return res.status(404).json({
+      success: false,
+      message: 'Cart item not found'
+    });
+  }
+
+  if (!cart.product) {
+    throw new Error('Product not found for this cart item');
+  }
+
+  const productPrice = cart.product?.price || 0;
+  const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
+  const stonePrice = cart.stoneType?.price || 0;
+  const totalPrice = ((productPrice * metalMultiplier) + stonePrice) * (cart.quantity || 1);
+
+  res.json({
+    success: true,
+    message: 'Cart item retrieved successfully',
+    data: { ...cart.toObject(), calculatedPrice: totalPrice }
+  });
+}));
+
 router.post('/', authenticate, validate(addToCartSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { productId, metalId, purityLevel, stoneTypeId, ringSize, quantity = 1 } = req.body;

@@ -13,9 +13,9 @@ console.log('product@@@ :', product);
 const pathname = useLocation();
 const isProductDetail = pathname?.pathname?.includes('/product/');
 // console.log('isProductDetail :', isProductDetail);
-  useEffect(() => {
-    dispatch(fetchMetals());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchMetals());
+  // }, [dispatch]);
 
   // Transform API metals data to match component format
   // Expand metals to show all purity levels as separate options

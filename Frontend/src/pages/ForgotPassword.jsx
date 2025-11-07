@@ -20,7 +20,7 @@ const ForgotPassword = () => {
     if (isAuthenticated) {
       navigate('/dashboard', { replace: true });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   // Clear errors on unmount
   useEffect(() => {
@@ -60,6 +60,7 @@ const ForgotPassword = () => {
       setErrors({
         email: result.payload?.message || 'Failed to send reset email. Please try again.'
       });
+      setEmailSent(false);
     }
   };
 

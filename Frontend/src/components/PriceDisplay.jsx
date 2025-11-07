@@ -14,7 +14,9 @@ const PriceDisplay = ({
   variant = "default" // "default" or "small"
 }) => {
   const currentCurrency = useSelector(selectCurrentCurrency);
+  console.log('currentCurrency :', currentCurrency);
   const currencySymbol = useSelector(selectCurrencySymbol);
+  console.log('currencySymbol :', currencySymbol);
   const exchangeRate = useSelector(selectExchangeRate);
   
   // Handle undefined or null prices
@@ -24,6 +26,7 @@ const PriceDisplay = ({
   
   // Convert prices from USD to current currency
   const convertedPrice = convertPrice(price, 'USD', currentCurrency, { [currentCurrency]: exchangeRate });
+  console.log('price :', price);
   const formattedPrice = formatPrice(convertedPrice, currentCurrency, currencySymbol);
 
   // Define styling based on variant

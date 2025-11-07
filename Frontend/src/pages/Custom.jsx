@@ -60,8 +60,8 @@ const Custom = () => {
 
   // Fetch metals and stones when component mounts
   useEffect(() => {
-    dispatch(fetchMetals());
-    dispatch(fetchStones({ page: 1, limit: 100 })); // Fetch more stones for dropdown
+    // dispatch(fetchMetals());
+    // dispatch(fetchStones({ page: 1, limit: 100 })); // Fetch more stones for dropdown
   }, [dispatch]);
 
   // Transform metals to dropdown options (only active metals and purity levels)
