@@ -18,7 +18,7 @@ import { RiInstagramFill } from "react-icons/ri";
 import AnimatedSection from "../components/home/AnimatedSection";
 import api from "../services/api";
 import { API_METHOD } from "../services/apiMethod";
-import { SERVICE_OPTIONS } from "../constants";
+  import { SERVICE_OPTIONS } from "../constants";
 
 const Contact = () => {
   const [formData, setFormData] = useState({

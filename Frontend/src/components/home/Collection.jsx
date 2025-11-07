@@ -66,7 +66,7 @@ const Collection = () => {
           </button>
 
           {/* Social Media Links */}
-          {socialHandles && socialHandles.length > 0 && (
+          {/* {socialHandles && socialHandles.length > 0 && (
             <div className="mt-8 flex items-center justify-center md:justify-start gap-4">
               <span className="text-sm font-montserrat-medium-500 text-black-light">Follow us:</span>
               <div className="flex items-center gap-3">
@@ -85,7 +85,7 @@ const Collection = () => {
                 ))}
               </div>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Right section */}
