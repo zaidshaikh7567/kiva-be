@@ -138,7 +138,10 @@ const Cart = () => {
                   Add some beautiful jewelry to get started
                 </p>
                 <button
-                  onClick={() => dispatch(closeCart())}
+                  onClick={() =>{
+                   dispatch(closeCart());
+                   navigate('/shop')
+                  }}
                   className="px-6 py-3 bg-primary text-white font-montserrat-medium-500 rounded-lg hover:bg-primary-dark transition-colors duration-300"
                 >
                   Continue Shopping

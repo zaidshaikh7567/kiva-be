@@ -712,7 +712,7 @@ const ProductDetail = () => {
                 </div>
 
                 {/* Center Stone Selection */}
-                {isRing && stones.length > 0 && (
+                {isRing && stones.length > 0 && !product.isBand && (
                   <div className="mb-6">
                     <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3 flex items-center gap-2">
                       <Gem className="w-5 h-5 text-primary" />
@@ -778,7 +778,7 @@ const ProductDetail = () => {
                       <span className="font-montserrat-medium-500 text-black">Material:</span>
                       <span>{selectedMetal ? `${selectedMetal.carat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
                     </div>
-                    {isRing && selectedCarat && (
+                    {isRing && selectedCarat && !product.isBand&& (
                       <div className="flex justify-between">
                         <span className="font-montserrat-medium-500 text-black">Center Stone:</span>
                         <span>{typeof selectedCarat === 'string' ? selectedCarat : selectedCarat.name}</span>

@@ -233,7 +233,7 @@ const FavoriteSection = () => {
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
                 <Link
                   to="/earrings"
-                  className="flex items-center justify-center w-28 h-28 md:w-32 md:h-32 bg-white/80 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300"
+                  className="flex items-center  justify-center w-28 h-28 md:w-32 md:h-32 bg-white/80 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300"
                 >
                   <div className="text-center leading-tight">
                     <span className="block text-black font-semibold text-sm uppercase tracking-wide">
@@ -250,7 +250,7 @@ const FavoriteSection = () => {
 
           {/* RIGHT SIDE - TEXT CONTENT */}
           <div className="w-full lg:w-[55%] flex flex-col justify-center bg-[#F5F1E8] pl-0 lg:pl-8">
-            <p className="text-xs uppercase tracking-[0.3em] text-black font-montserrat-medium-500">
+            <p className="text-sm uppercase tracking-widest text-primary-dark font-montserrat-medium-500 mb-3">
               Timeless Earings Treasures
             </p>
 
@@ -268,7 +268,7 @@ const FavoriteSection = () => {
             <div className="pt-6">
               <Link
                 to="/earrings"
-                className="inline-flex items-center px-8 py-4 bg-primary-dark text-white font-medium hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="inline-flex  rounded-md items-center px-8 py-4 bg-primary-dark text-white font-medium hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 <span className="mr-3 uppercase tracking-wide">Shop Now</span>
                 <MoveRight className="w-5 h-5" />

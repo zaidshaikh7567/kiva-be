@@ -104,10 +104,10 @@ const contactInfo = [
 
             {/* Quick Links */}
             <div className="mt-8 sm:mt-0 mx-auto text-center">
-              <h3 className="text-base sm:text-lg font-montserrat-semibold-600 mb-4 sm:mb-6 text-white">
+              <h3 className="text-base sm:text-lg font-montserrat-semibold-600 mb-4 sm:mb-4 text-white">
                 Quick Links
               </h3>
-              <ul className="space-y-2 sm:space-y-3">
+              <ul className="space-y-2 sm:space-y-2">
                 {quickLinks.map((link, index) => (
                   <li key={index}>
                     <Link
@@ -123,10 +123,10 @@ const contactInfo = [
 
             {/* Customer Service */}
             <div className="mt-8 sm:mt-0 mx-auto text-center">
-              <h3 className="text-base sm:text-lg font-montserrat-semibold-600 mb-4 sm:mb-6 text-white">
+              <h3 className="text-base sm:text-lg font-montserrat-semibold-600 mb-4 sm:mb-4 text-white">
                 Customer Service
               </h3>
-              <ul className="space-y-2 sm:space-y-3">
+              <ul className="space-y-2 sm:space-y-2">
                 {customerLinks.map((link, index) => (
                   <li key={index}>
                     <Link
@@ -142,7 +142,7 @@ const contactInfo = [
           </div>
 
           {/* Contact Information */}
-          <div className="mt-8 sm:mt-8 pt-6 sm:pt-8 border-t border-black-light flex justify-center md:justify-between w-full">
+          <div className="mt-8 sm:mt-6 pt-4 sm:pt-4 border-t border-black-light flex justify-center md:justify-between w-full">
     <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 items-center md:w-full">
       {contactInfo.map((info, index) => (
         <div key={index} className="flex items-center space-x-3">
@@ -170,9 +170,9 @@ const contactInfo = [
   </div>
 
           {/* Certifications */}
-          <div className="mt-4 sm:mt-8 pt-6 sm:pt-6 border-t border-black-light">
+          <div className="mt-4 pt-4 sm:pt-4 border-t border-black-light">
             <div className="text-center">
-              <h3 className="text-xs sm:text-sm font-montserrat-semibold-600 text-black-light mb-4">
+              <h3 className="text-xs sm:text-sm font-montserrat-semibold-600 text-black-light mb-2">
                 Certified & Trusted
               </h3>
               <div className="flex items-center justify-center gap-4 sm:gap-8">
@@ -180,14 +180,14 @@ const contactInfo = [
                   <img 
                     src={giaLogo} 
                     alt="GIA Certified" 
-                    className="h-10 sm:h-12 md:h-16 w-auto opacity-70 hover:opacity-100 transition-opacity duration-300 filter hover:grayscale-0"
+                    className="h-10 sm:h-10 w-auto opacity-70 hover:opacity-100 transition-opacity duration-300 filter hover:grayscale-0"
                   />
                 </div>
                 <div className="group">
                   <img 
                     src={igiLogo} 
                     alt="IGI Certified" 
-                    className="h-10 sm:h-12 md:h-16 w-auto opacity-70 hover:opacity-100 transition-opacity duration-300 filter hover:grayscale-0"
+                    className="h-10 sm:h-10 w-auto opacity-70 hover:opacity-100 transition-opacity duration-300 filter hover:grayscale-0"
                   />
                 </div>
               </div>
