@@ -60,7 +60,7 @@ const Collection = () => {
           </p>
           <button 
             onClick={() => navigate('/discover')} 
-            className="w-fit mt-8 px-6 py-3 bg-primary-dark text-white font-medium hover:bg-primary transition mx-auto md:mx-0"
+            className="w-fit mt-8 px-6 py-3  rounded-md bg-primary-dark text-white font-medium hover:bg-primary transition mx-auto md:mx-0"
           >
             — Discover the collection
           </button>

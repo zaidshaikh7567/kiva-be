@@ -114,7 +114,7 @@ const HeroSection = () => {
           Every day is your special day with our fine jewelry!
         </p>
          <Link to="/shop" 
-           className={`w-fit mt-8 px-6 py-3 bg-primary-dark text-white font-medium hover:bg-primary transition mx-auto lg:mx-0 duration-700 ${
+           className={`w-fit  rounded-md mt-8 px-6 py-3 bg-primary-dark text-white font-medium hover:bg-primary transition mx-auto lg:mx-0 duration-700 ${
              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
            }`}
            style={{ transitionDelay: '700ms' }}
