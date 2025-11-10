@@ -63,7 +63,27 @@ const Custom = () => {
     // dispatch(fetchMetals());
     // dispatch(fetchStones({ page: 1, limit: 100 })); // Fetch more stones for dropdown
   }, [dispatch]);
-
+  const stepsData = [
+    {
+      id: 1,
+      title: "Submit Your Request",
+      description:
+        "Fill out the form with your design ideas, preferences, and any reference images",
+    },
+    {
+      id: 2,
+      title: "Design Consultation",
+      description:
+        "Our expert designers will review your request and contact you within 24-48 hours",
+    },
+    {
+      id: 3,
+      title: "Creation & Delivery",
+      description:
+        "Once approved, our master craftsmen will create your unique piece",
+    },
+  ];
+  
   // Transform metals to dropdown options (only active metals and purity levels)
   // Each purity level becomes a separate option with format "18K Gold", "22K Gold", etc.
   const metalOptions = transformMetalsToDropdownOptions(metals);
@@ -680,7 +700,7 @@ const Custom = () => {
                     <button
                       type="button"
                       onClick={() => setShowUrlInput(false)}
-                      className={`flex-1 py-2 px-4 rounded-lg font-montserrat-medium-500 transition-colors ${
+                      className={`flex-1 py-2 px-4 rounded-lg font-montserrat-medium-500 transition-colors sm:text-lg text-sm ${
                         !showUrlInput
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-black hover:bg-gray-300'
@@ -692,7 +712,7 @@ const Custom = () => {
                     <button
                       type="button"
                       onClick={() => setShowUrlInput(true)}
-                      className={`flex-1 py-2 px-4 rounded-lg font-montserrat-medium-500 transition-colors ${
+                      className={`flex-1 py-2 px-4 rounded-lg font-montserrat-medium-500 transition-colors sm:text-lg text-sm ${
                         showUrlInput
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-black hover:bg-gray-300'
@@ -853,7 +873,7 @@ const Custom = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full font-montserrat-semibold-600 py-2 px-8 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 text-lg ${
+                  className={`w-full font-montserrat-semibold-600 py-2 px-8 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 sm:text-lg text-sm ${
                     isSubmitting
                       ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                       : "bg-primary text-white hover:bg-primary-dark shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -879,56 +899,36 @@ const Custom = () => {
 
       {/* Info Section */}
       <AnimatedSection animationType="fadeInUp" delay={300}>
-        <section className="py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-sorts-mill-gloudy text-black mb-6">
-                How It Works
-              </h2>
-              <p className="text-lg font-montserrat-regular-400 text-black-light max-w-2xl mx-auto">
-                Our custom design process is simple and collaborative
+      <section className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto sm:px-6 px-4">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-sorts-mill-gloudy text-black mb-6">
+            How It Works
+          </h2>
+          <p className="text-lg font-montserrat-regular-400 text-black-light max-w-2xl mx-auto">
+            Our custom design process is simple and collaborative
+          </p>
+        </div>
+
+        {/* Steps */}
+        <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-8 gap-4">
+          {stepsData.map((step) => (
+            <div key={step.id} className="text-center sm:p-6 p-0">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-primary">{step.id}</span>
+              </div>
+              <h3 className="text-xl font-montserrat-semibold-600 text-black mb-3">
+                {step.title}
+              </h3>
+              <p className="text-black-light font-montserrat-regular-400">
+                {step.description}
               </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-primary">1</span>
-                </div>
-                <h3 className="text-xl font-montserrat-semibold-600 text-black mb-3">
-                  Submit Your Request
-                </h3>
-                <p className="text-black-light font-montserrat-regular-400">
-                  Fill out the form with your design ideas, preferences, and any reference images
-                </p>
-              </div>
-
-              <div className="text-center p-6">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-primary">2</span>
-                </div>
-                <h3 className="text-xl font-montserrat-semibold-600 text-black mb-3">
-                  Design Consultation
-                </h3>
-                <p className="text-black-light font-montserrat-regular-400">
-                  Our expert designers will review your request and contact you within 24-48 hours
-                </p>
-              </div>
-
-              <div className="text-center p-6">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-primary">3</span>
-                </div>
-                <h3 className="text-xl font-montserrat-semibold-600 text-black mb-3">
-                  Creation & Delivery
-                </h3>
-                <p className="text-black-light font-montserrat-regular-400">
-                  Once approved, our master craftsmen will create your unique piece
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+          ))}
+        </div>
+      </div>
+    </section>
       </AnimatedSection>
     </div>
   );

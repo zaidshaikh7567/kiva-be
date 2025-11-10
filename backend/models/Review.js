@@ -1,5 +1,28 @@
 const mongoose = require('mongoose');
 
+const mediaSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ['image', 'video'],
+      required: true,
+    },
+    url: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    publicId: {
+      type: String,
+      trim: true,
+    },
+  },
+  {
+    _id: false,
+    id: false,
+  }
+);
+
 const reviewSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -22,6 +45,10 @@ const reviewSchema = new mongoose.Schema({
     required: true,
     min: 1,
     max: 5
+  },
+  media: {
+    type: [mediaSchema],
+    default: [],
   }
 }, {
   timestamps: true

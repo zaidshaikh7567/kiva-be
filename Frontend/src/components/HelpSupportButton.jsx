@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HelpCircle, X, MessageCircle, Package, Send, User, Mail, Phone, Plus, Minus, Truck } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import api from '../services/api';
@@ -10,6 +10,14 @@ const HelpSupportButton = () => {
   const [activeTab, setActiveTab] = useState('help');
   const [openFAQIndex, setOpenFAQIndex] = useState(0);
 
+
+  useEffect(() => {
+    if(isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [isOpen]);
   // Contact Form State
   const [formData, setFormData] = useState({
     name: '',
@@ -272,13 +280,13 @@ const HelpSupportButton = () => {
           }}
         >
           <div 
-            className={`fixed sm:bottom-24 bottom-[68px] left-4 right-4 sm:left-auto sm:right-6 max-h-[70vh]  bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-transform duration-300 ${
+            className={`fixed sm:bottom-24 bottom-[68px] left-4 right-6 sm:left-auto sm:right-6 max-h-[70vh]  bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-transform duration-300 ${
               isClosing ? 'animate-[slideDown_0.3s_ease-out]' : 'animate-[slideUp_0.3s_ease-out]'
             }`}
             onClick={(e) => e.stopPropagation()}
             style={{ 
               maxWidth: '350px',
-              width: '100%'
+              // width: '100%'
             }}
           >
             {/* Header */}
@@ -707,7 +715,7 @@ const HelpSupportButton = () => {
             </div>
              {/* Tabs - Compact Navigation Bar */}
              <div className="flex w-full justify-center items-center p-4 bg-white sticky top-[88px] z-10">
-              <div className="relative bg-gradient-to-r from-primary to-primary-light rounded-full px-2 py-2 flex items-center space-x-1">
+              <div className="relative bg-gradient-to-r from-primary to-primary-light rounded-full  py-2 flex items-center space-x-1 w-full justify-between px-6">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;

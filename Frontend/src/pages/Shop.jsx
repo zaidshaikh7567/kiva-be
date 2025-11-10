@@ -13,10 +13,14 @@ import { SORT_OPTIONS } from '../constants';
 
 const Shop = () => {
   const dispatch = useDispatch();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const products = useSelector(selectProducts);
+  console.log('products :', products);
   const productsLoading = useSelector(selectProductsLoading);
+  console.log('productsLoading :', productsLoading);
+  console.log('products.length === 0 :', products.length === 0);
   const productsError = useSelector(selectProductsError);
+  console.log('productsError :', productsError);
   const categories = useSelector(selectCategories);
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,25 +37,89 @@ const Shop = () => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  // Get parent categories only
-  const parentCategories = categories?.filter(category => !category.parent) || [];
+  const parentCategories = useMemo(
+    () => categories?.filter(category => !category.parent) || [],
+    [categories]
+  );
+
+  const categoryHierarchy = useMemo(() => {
+    const parentsByName = {};
+    const childrenByParentId = {};
+
+    parentCategories.forEach((parent) => {
+      if (parent?.name && parent?._id) {
+        parentsByName[parent.name.toLowerCase()] = parent._id;
+      }
+    });
+
+    categories?.forEach((category) => {
+      if (!category?.parent || !category?._id) return;
+
+      const parentId = typeof category.parent === 'object'
+        ? category.parent?._id
+        : category.parent;
+
+      if (!parentId) return;
+
+      if (!childrenByParentId[parentId]) {
+        childrenByParentId[parentId] = new Set();
+      }
+
+      childrenByParentId[parentId].add(category._id);
+    });
+
+    return { parentsByName, childrenByParentId };
+  }, [categories, parentCategories]);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
     let filtered = products.filter(product => {
       // Safely extract description text for search
       const descriptionText = typeof product.description === 'string' 
-        ? product.description.toLowerCase() 
-        : '';
+      ? product.description.toLowerCase() 
+      : '';
+      console.log('descriptionText :', descriptionText);
 
       const matchesSearch = product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            descriptionText.includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || 
-                             product.category?.name?.toLowerCase() === selectedCategory.toLowerCase();
+
+      let matchesCategory = selectedCategory === 'all';
+
+      if (!matchesCategory) {
+        const selectedCategoryLower = selectedCategory.toLowerCase();
+        const productCategoryName = product.category?.name?.toLowerCase();
+        const productParent = product.category?.parent;
+        const productParentName = typeof productParent === 'object'
+          ? productParent?.name?.toLowerCase()
+          : null;
+
+        const productCategoryId = product.category?._id;
+        const productParentId = typeof productParent === 'object'
+          ? productParent?._id
+          : productParent;
+
+        const selectedParentId = categoryHierarchy.parentsByName[selectedCategoryLower];
+
+        if (productCategoryName === selectedCategoryLower || productParentName === selectedCategoryLower) {
+          matchesCategory = true;
+        } else if (selectedParentId) {
+          const childSet = categoryHierarchy.childrenByParentId[selectedParentId];
+
+          if (productCategoryId === selectedParentId) {
+            matchesCategory = true;
+          } else if (productParentId && productParentId === selectedParentId) {
+            matchesCategory = true;
+          } else if (childSet && productCategoryId && childSet.has(productCategoryId)) {
+            matchesCategory = true;
+          }
+        }
+      }
+
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
       
       return matchesSearch && matchesCategory && matchesPrice;
     });
+    console.log('filtered :', filtered);
 
     // Sort products
     switch (sortBy) {
@@ -71,18 +139,51 @@ const Shop = () => {
     }
 
     return filtered;
-  }, [products, searchTerm, selectedCategory, priceRange, sortBy]);
+  }, [products, searchTerm, selectedCategory, priceRange, sortBy, categoryHierarchy]);
 
+
+  console.log('filteredProducts :', filteredProducts);
   const handlePriceRangeChange = (newRange) => {
     setPriceRange(newRange);
   };
 
+  const handleCategoryChange = (value) => {
+    setSelectedCategory(value);
+
+    const nextParams = new URLSearchParams(searchParams);
+    if (value === 'all') {
+      nextParams.delete('category');
+    } else {
+      nextParams.set('category', value.toLowerCase());
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
+
   const clearFilters = () => {
     setSearchTerm('');
-    setSelectedCategory('all');
+    handleCategoryChange('all');
     setPriceRange([0, 5000]);
     setSortBy('newest');
   };
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+
+    if (!categoryParam || categoryParam.toLowerCase() === 'all') {
+      if (selectedCategory !== 'all') {
+        setSelectedCategory('all');
+      }
+      return;
+    }
+
+    const normalizedParam = categoryParam.toLowerCase();
+    const matchedParent = parentCategories.find(
+      (category) => category?.name?.toLowerCase() === normalizedParam
+    );
+
+    if (matchedParent && matchedParent.name !== selectedCategory) {
+      setSelectedCategory(matchedParent.name);
+    }
+  }, [searchParams, parentCategories, selectedCategory]);
 
   // product load show loader
 
@@ -151,7 +252,7 @@ const Shop = () => {
                         name="category"
                         value="all"
                         checked={selectedCategory === 'all'}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        onChange={(e) => handleCategoryChange(e.target.value)}
                         className="sr-only"
                       />
                       <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
@@ -180,7 +281,7 @@ const Shop = () => {
                           name="category"
                           value={category.name}
                           checked={selectedCategory === category.name}
-                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          onChange={(e) => handleCategoryChange(e.target.value)}
                           className="sr-only"
                         />
                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
@@ -278,7 +379,7 @@ const Shop = () => {
                             name="category"
                             value="all"
                             checked={selectedCategory === 'all'}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            onChange={(e) => handleCategoryChange(e.target.value)}
                             className="sr-only"
                           />
                           <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${

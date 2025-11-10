@@ -139,7 +139,7 @@ const Rings = () => {
   // Filter rings based on ring category and subcategory
   const filteredRings = useMemo(() => {
     if (!products || products.length === 0) return [];
-    
+
     // First filter by ring category and its subcategories
     let ringProducts = products.filter(product => {
       if (!ringCategory) return false;
@@ -160,6 +160,9 @@ const Rings = () => {
       
       return ringSubcategoryIds.includes(productCategoryId);
     });
+
+    // Exclude wedding bands from ring listings
+    ringProducts = ringProducts.filter(product => product.isBand !== true);
 
     // Filter by selected subcategory
     if (selectedCategory) {
@@ -341,7 +344,7 @@ const Rings = () => {
       <section className="py-4 md:py-8 bg-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           {/* Filters and Sorting */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-0">
             <div className="flex items-center space-x-4">
               <span className="text-sm font-montserrat-medium-500 text-black-light">
                 {sortedRings.length} rings available

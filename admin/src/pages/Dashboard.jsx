@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Users, ShoppingBag, DollarSign, Gem, Zap, Diamond, RefreshCw } from 'lucide-react';
+import { Users, ShoppingBag, DollarSign, Gem, Zap, Diamond, RefreshCw, Star, Mail } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUsers, selectUsers } from '../store/slices/usersSlice';
 import { fetchProducts, selectAllProducts } from '../store/slices/productsSlice';
 import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
 import { fetchCenterStones, selectCenterStones } from '../store/slices/centerStonesSlice';
 import { selectUser } from '../store/slices/authSlice';
-
+import { fetchReviews, selectReviews } from '../store/slices/reviewsSlice';
+import { fetchContacts, selectContacts } from '../store/slices/contactsSlice';
+import { Link } from 'react-router-dom';
 const Dashboard = () => {
   const dispatch = useDispatch();
   const customers = useSelector(selectUsers);
   const adminData = useSelector(selectUser);
   const products = useSelector(selectAllProducts);
+  console.log('products :', products);
   const metals = useSelector(selectMetals);
   const centerStones = useSelector(selectCenterStones);
-  
+  const reviews = useSelector(selectReviews);
+  const contacts = useSelector(selectContacts);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchAllData = async () => {
@@ -24,7 +28,9 @@ const Dashboard = () => {
         dispatch(fetchUsers({ page: 1, limit: 1000 })),
         dispatch(fetchProducts()),
         dispatch(fetchMetals({ page: 1, limit: 1000 })),
-        dispatch(fetchCenterStones({ page: 1, limit: 1000 }))
+        dispatch(fetchCenterStones({ page: 1, limit: 1000 })),
+        dispatch(fetchReviews({ page: 1, limit: 1000 })),
+        dispatch(fetchContacts({ page: 1, limit: 1000 }))
       ]);
     } finally {
       setRefreshing(false);
@@ -39,7 +45,9 @@ const Dashboard = () => {
           dispatch(fetchUsers({ page: 1, limit: 1000 })),
           dispatch(fetchProducts()),
           dispatch(fetchMetals({ page: 1, limit: 1000 })),
-          dispatch(fetchCenterStones({ page: 1, limit: 1000 }))
+          dispatch(fetchCenterStones({ page: 1, limit: 1000 })),
+          dispatch(fetchReviews({ page: 1, limit: 1000 })),
+          dispatch(fetchContacts({ page: 1, limit: 1000 })),
         ]);
       } finally {
         setRefreshing(false);
@@ -50,53 +58,75 @@ const Dashboard = () => {
 
   const stats = [
     {
-      title: 'Total Revenue',
-      value: '$0',
+      title: 'Total Cost',
+      value: products.reduce((total, product) => total + product.price, 0),
       changeType: 'positive',
       icon: DollarSign,
-      color: 'from-green-500 to-green-600'
+      color: 'from-green-500 to-green-600',
+      link: '/products'
     },
     {
       title: 'Total Orders',
       value: '0',
       changeType: 'positive',
       icon: ShoppingBag,
-      color: 'from-blue-500 to-blue-600'
+      color: 'from-blue-500 to-blue-600',
+      link: '/orders'
     },
     {
       title: 'Total Customers',
       value: customers.length,
       changeType: 'positive',
       icon: Users,
-      color: 'from-purple-500 to-purple-600'
+      color: 'from-purple-500 to-purple-600',
+      link: '/customers'
     },
     {
       title: 'Total Products',
       value: products.length,
       changeType: 'positive',
       icon: Gem,
-      color: 'from-primary to-primary-dark'
+      color: 'from-primary to-primary-dark',
+      link: '/products'
     },
     {
       title: 'Total Metals',
       value: metals.length,
       changeType: 'positive',
       icon: Zap,
-      color: 'from-orange-500 to-orange-600'
+      color: 'from-orange-500 to-orange-600',
+      link: '/metals'
     },
     {
       title: 'Total Center Stones',
       value: centerStones.length,
       changeType: 'positive',
       icon: Diamond,
-      color: 'from-pink-500 to-pink-600'
+      color: 'from-pink-500 to-pink-600',
+      link: '/center-stones'
+    },
+    {
+      title: 'Total Reviews',
+      value: reviews.length,
+      changeType: 'positive',
+      icon: Star,
+      color: 'from-yellow-400 to-yellow-400',
+      link: '/reviews'
+    },
+    {
+      title: 'Total Contacts Inquiries',
+      value: contacts.length,
+      changeType: 'positive',
+      icon: Mail,
+      color: 'from-gray-500 to-gray-600',
+      link: '/contacts'
     }
   ];
 
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-4 text-white mb-8">
+      <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-4 text-white mb-8 bg-">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-sorts-mill-gloudy font-bold ">
@@ -122,6 +152,7 @@ const Dashboard = () => {
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
+            <Link to={stat.link} key={index}>
             <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
@@ -138,6 +169,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
+            </Link>
           );
         })}
       </div>

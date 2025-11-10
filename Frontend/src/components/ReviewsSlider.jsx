@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Star, Send, User, Calendar, X, Plus, ChevronLeft, ChevronRight, Share2, Check } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import Slider from 'react-slick';
@@ -35,13 +36,41 @@ const ReviewsSlider = () => {
     email: '',
     comment: ''
   });
-  console.log('formData----Reviews Form Data :', formData);
   
+  const MAX_MEDIA_ITEMS = 10;
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [mediaPreviews, setMediaPreviews] = useState([]);
+  const [isDraggingMedia, setIsDraggingMedia] = useState(false);
   const [errors, setErrors] = useState({});
+  const latestMediaPreviewsRef = useRef([]);
 
   useEffect(() => {
     dispatch(fetchReviews());
   }, [dispatch]);
+
+  useEffect(() => {
+    latestMediaPreviewsRef.current = mediaPreviews;
+  }, [mediaPreviews]);
+
+  useEffect(() => {
+    return () => {
+      latestMediaPreviewsRef.current.forEach((preview) => {
+        if (preview?.url) {
+          URL.revokeObjectURL(preview.url);
+        }
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    if (showReviewForm) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = previousOverflow;
+      };
+    }
+  }, [showReviewForm]);
 
   // Check if URL has #reviews hash and scroll to reviews section
   useEffect(() => {
@@ -204,6 +233,114 @@ const ReviewsSlider = () => {
     setErrors({ ...errors, [e.target.name]: '' });
   };
 
+  const processMediaFiles = (files) => {
+    if (!files || files.length === 0) return;
+
+    const availableSlots = MAX_MEDIA_ITEMS - mediaFiles.length;
+    if (availableSlots <= 0) {
+      setErrors((prev) => ({
+        ...prev,
+        media: `You can upload up to ${MAX_MEDIA_ITEMS} files.`,
+      }));
+      return;
+    }
+
+    const selectedFiles = Array.from(files).slice(0, availableSlots);
+
+    const validFiles = [];
+    const generatedPreviews = [];
+    let errorMessage = '';
+
+    selectedFiles.forEach((file) => {
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+
+      if (!isImage && !isVideo) {
+        errorMessage = 'Please upload only image or video files.';
+        return;
+      }
+
+      if (file.size > 50 * 1024 * 1024) {
+        errorMessage = 'Each file must be 50MB or less.';
+        return;
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+      validFiles.push(file);
+      generatedPreviews.push({
+        url: previewUrl,
+        type: isVideo ? 'video' : 'image',
+        name: file.name,
+      });
+    });
+
+    if (Array.from(files).length > availableSlots) {
+      errorMessage = `You can upload up to ${MAX_MEDIA_ITEMS} files.`;
+    }
+
+    if (validFiles.length) {
+      setMediaFiles((prev) => [...prev, ...validFiles]);
+      setMediaPreviews((prev) => [...prev, ...generatedPreviews]);
+    }
+
+    setErrors((prev) => ({
+      ...prev,
+      media: errorMessage,
+    }));
+  };
+
+  const handleMediaChange = (event) => {
+    processMediaFiles(event.target.files);
+    event.target.value = '';
+  };
+
+  const handleRemoveMedia = (index) => {
+    setMediaFiles((prev) => prev.filter((_, i) => i !== index));
+    setMediaPreviews((prev) => {
+      const next = [...prev];
+      const [removed] = next.splice(index, 1);
+      if (removed?.url) {
+        URL.revokeObjectURL(removed.url);
+      }
+      return next;
+    });
+    setErrors((prev) => ({ ...prev, media: '' }));
+  };
+
+  const clearMediaState = () => {
+    mediaPreviews.forEach((preview) => {
+      if (preview?.url) {
+        URL.revokeObjectURL(preview.url);
+      }
+    });
+    setMediaFiles([]);
+    setMediaPreviews([]);
+    setIsDraggingMedia(false);
+    setErrors((prev) => ({ ...prev, media: '' }));
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDraggingMedia(true);
+  };
+
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDraggingMedia(false);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDraggingMedia(false);
+
+    if (event.dataTransfer?.files?.length) {
+      processMediaFiles(event.dataTransfer.files);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -223,6 +360,10 @@ const ReviewsSlider = () => {
       newErrors.comment = 'Comment must be at least 10 characters';
     }
 
+    if (errors.media) {
+      newErrors.media = errors.media;
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -232,21 +373,31 @@ const ReviewsSlider = () => {
     
     if (!validateForm()) return;
 
-    const reviewData = {
-      name: formData.name,
-      email: formData.email,
-      rating,
-      comment: formData.comment,
-      userId: user?._id || null
-    };
+    const payload = new FormData();
+    payload.append('name', formData.name.trim());
+    payload.append('email', formData.email.trim());
+    payload.append('comment', formData.comment.trim());
+    payload.append('rating', rating);
 
-    const result = await dispatch(addReview(reviewData));
+    if (user?._id) {
+      payload.append('userId', user._id);
+    }
+
+    if (mediaFiles.length) {
+      mediaFiles.forEach((file) => {
+        payload.append('media', file);
+      });
+    }
+
+    const result = await dispatch(addReview(payload));
 
     if (addReview.fulfilled.match(result)) {
       toast.success('Review submitted successfully!');
       setShowReviewForm(false);
       setFormData({ name: '', email: '', comment: '' });
       setRating(5);
+      clearMediaState();
+      setErrors({});
       dispatch(clearSuccess());
     } else {
       toast.error('Failed to submit review. Please try again.');
@@ -257,6 +408,7 @@ const ReviewsSlider = () => {
     setShowReviewForm(false);
     setFormData({ name: '', email: '', comment: '' });
     setRating(5);
+    clearMediaState();
     setErrors({});
   };
 
@@ -359,6 +511,37 @@ const ReviewsSlider = () => {
                         "{review.comment}"
                       </p>
 
+                      {/* Media */}
+                      {(() => {
+                        const mediaItems = Array.isArray(review.media)
+                          ? review.media
+                          : review.media
+                          ? [review.media]
+                          : [];
+                        if (!mediaItems.length) return null;
+                        return (
+                        <div className="mb-6 sm:mb-8 grid gap-4 sm:grid-cols-2">
+                          {mediaItems.map((mediaItem, mediaIndex) => (
+                            <div key={mediaItem.publicId || mediaItem.url || mediaIndex} className="overflow-hidden rounded-lg shadow-md">
+                              {mediaItem.type === 'video' ? (
+                                <video
+                                  src={mediaItem.url}
+                                  controls
+                                  className="w-full max-h-72 bg-black"
+                                />
+                              ) : (
+                                <img
+                                  src={mediaItem.url}
+                                  alt={`Review from ${review.name}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        );
+                      })()}
+
                       {/* Author Info */}
                       <div className="flex flex-col items-center space-y-2">
                         <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3">
@@ -405,137 +588,223 @@ const ReviewsSlider = () => {
         </div>
 
         {/* Review Form Modal */}
-        {showReviewForm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4 animate-fadeIn">
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full p-4 sm:p-6 md:p-8 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slideUp">
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h3 className="text-xl sm:text-2xl font-sorts-mill-gloudy font-bold text-black">
-                  Write a Review
-                </h3>
-                <button
-                  onClick={handleCloseForm}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5 sm:w-6 sm:h-6 text-black-light" />
-                </button>
-              </div>
+        {showReviewForm &&
+          typeof document !== 'undefined' &&
+          createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-2 sm:p-4 animate-fadeIn">
+              <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full p-4 sm:p-6 md:p-8 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slideUp">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h3 className="text-xl sm:text-2xl font-sorts-mill-gloudy font-bold text-black">
+                    Write a Review
+                  </h3>
+                  <button
+                    onClick={handleCloseForm}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    aria-label="Close review form"
+                  >
+                    <X className="w-5 h-5 sm:w-6 sm:h-6 text-black-light" />
+                  </button>
+                </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                {/* Rating */}
-                <div>
-                  <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
-                    Rating *
-                  </label>
-                  <div className="flex space-x-1 sm:space-x-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setRating(star)}
-                        onMouseEnter={() => setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(0)}
-                        className="transition-transform duration-200 hover:scale-125"
-                      >
-                        <Star
-                          className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 ${
-                            star <= (hoverRating || rating)
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      </button>
-                    ))}
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                  {/* Rating */}
+                  <div>
+                    <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
+                      Rating *
+                    </label>
+                    <div className="flex space-x-1 sm:space-x-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(star)}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="transition-transform duration-200 hover:scale-125"
+                          aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                        >
+                          <Star
+                            className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 ${
+                              star <= (hoverRating || rating)
+                                ? 'text-yellow-400 fill-current'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Name */}
-                <div>
-                  <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                    Your Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base ${
-                      errors.name
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                    }`}
-                    placeholder="Enter your name"
-                  />
-                  {errors.name && (
-                    <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-                  )}
-                </div>
+                  {/* Name */}
+                  <div>
+                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                      Your Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base ${
+                        errors.name
+                          ? 'border-red-500 focus:ring-red-500'
+                          : 'border-gray-200 focus:ring-primary focus:border-transparent'
+                      }`}
+                      placeholder="Enter your name"
+                    />
+                    {errors.name && (
+                      <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                    )}
+                  </div>
 
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                    Your Email *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base ${
-                      errors.email
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                    }`}
-                    placeholder="Enter your email"
-                  />
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                  )}
-                </div>
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                      Your Email *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base ${
+                        errors.email
+                          ? 'border-red-500 focus:ring-red-500'
+                          : 'border-gray-200 focus:ring-primary focus:border-transparent'
+                      }`}
+                      placeholder="Enter your email"
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                    )}
+                  </div>
 
-                {/* Comment */}
-                <div>
-                  <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                    Your Review *
-                  </label>
-                  <textarea
-                    name="comment"
-                    value={formData.comment}
-                    onChange={handleInputChange}
-                    rows={4}
-                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base resize-none ${
-                      errors.comment
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                    }`}
-                    placeholder="Share your experience with us..."
-                  />
-                  {errors.comment && (
-                    <p className="mt-1 text-sm text-red-500">{errors.comment}</p>
-                  )}
-                </div>
+                  {/* Comment */}
+                  <div>
+                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                      Your Review *
+                    </label>
+                    <textarea
+                      name="comment"
+                      value={formData.comment}
+                      onChange={handleInputChange}
+                      rows={4}
+                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base resize-none ${
+                        errors.comment
+                          ? 'border-red-500 focus:ring-red-500'
+                          : 'border-gray-200 focus:ring-primary focus:border-transparent'
+                      }`}
+                      placeholder="Share your experience with us..."
+                    />
+                    {errors.comment && (
+                      <p className="mt-1 text-sm text-red-500">{errors.comment}</p>
+                    )}
+                  </div>
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full bg-gradient-to-r from-primary to-primary-dark text-white py-3 sm:py-4 rounded-lg font-montserrat-semibold-600 hover:from-primary-dark hover:to-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm sm:text-base"
-                >
-                  {submitting ? (
-                    <>
-                      <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Submitting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span>Submit Review</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
+                  {/* Media */}
+                  <div>
+                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                      Photo or Video (optional)
+                    </label>
+                    <div
+                      className={`border border-dashed rounded-lg p-4 flex flex-col space-y-3 transition-colors ${
+                        isDraggingMedia ? 'border-primary bg-primary/5' : 'border-gray-300 bg-gray-50'
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragEnter={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                    >
+                      <label className="flex flex-col items-center justify-center cursor-pointer">
+                        <span className="text-sm font-montserrat-medium-500 text-primary mb-2">
+                          Click to upload an image or video
+                        </span>
+                        <span className="text-xs font-montserrat-regular-400 text-black-light text-center">
+                          {`Supported: JPG, PNG, WEBP, MP4, MOV • up to ${MAX_MEDIA_ITEMS} files • 50MB each`}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*,video/*"
+                          onChange={handleMediaChange}
+                          className="hidden"
+                          multiple
+                        />
+                      </label>
+
+                      {mediaPreviews.length > 0 && (
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {mediaPreviews.map((preview, index) => (
+                            <div key={preview.url} className="relative rounded-md overflow-hidden shadow-sm group">
+                              {preview.type === 'video' ? (
+                                <video
+                                  src={preview.url}
+                                  controls
+                                  className="w-full max-h-56 bg-black"
+                                />
+                              ) : (
+                                <img
+                                  src={preview.url}
+                                  alt={`Selected review media ${index + 1}`}
+                                  className="w-full h-48 object-cover"
+                                />
+                              )}
+                              {/* <button
+                                type="button"
+                                onClick={() => handleRemoveMedia(index)}
+                                className="absolute top-2 right-2 text-xs font-montserrat-medium-500 text-white bg-black/60 hover:bg-black px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                Remove
+                              </button> */}
+                              <div className='flex items-center justify-between'>
+                              <div className="mt-2 px-1">
+                                <p className="text-xs font-montserrat-regular-400 text-black-light  break-words">
+                                  {preview.name}
+                                </p>
+                                <p className="text-[10px] font-montserrat-regular-400 text-black-light/70 capitalize">
+                                  {preview.type}
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveMedia(index)}
+                                className="  text-xs font-montserrat-medium-500 text-red-500   px-2 py-1 rounded-md"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {errors.media && (
+                      <p className="mt-1 text-sm text-red-500">{errors.media}</p>
+                    )}
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full bg-gradient-to-r from-primary to-primary-dark text-white py-3 sm:py-4 rounded-lg font-montserrat-semibold-600 hover:from-primary-dark hover:to-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm sm:text-base"
+                  >
+                    {submitting ? (
+                      <>
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Submitting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span>Submit Review</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div>,
+            document.body
+          )}
       </div>
 
       {/* Add animations and custom slider styles */}

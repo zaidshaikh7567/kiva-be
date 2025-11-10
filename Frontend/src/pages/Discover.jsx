@@ -239,14 +239,14 @@ const Discover = () => {
                     loop
                     autoPlay
                   />
-                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                  {/* <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                     <button
                       onClick={() => setIsVideoPlaying(!isVideoPlaying)}
                       className="w-12 h-12 sm:w-16 sm:h-16 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg"
                     >
                       {isVideoPlaying ? <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-primary-dark" /> : <Play className="w-5 h-5 sm:w-6 sm:h-6 text-primary-dark ml-1" />}
                     </button>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Video Info */}
@@ -344,20 +344,17 @@ const Discover = () => {
               </div>
 
               {/* View Toggle */}
-              <div className="flex bg-gray-200 rounded-lg p-1">
+              <div className="flex items-center border border-gray-200 rounded-lg">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-md transition-all duration-300 ${
-                    viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-100'
-                  }`}
+                  className={`p-2 ${viewMode === "grid" ? "bg-primary rounded-tl-lg rounded-bl-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
+
                 >
                   <Grid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-all duration-300 ${
-                    viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-100'
-                  }`}
+                  className={`p-2 ${viewMode === "list" ? "bg-primary rounded-tr-lg rounded-br-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tr-lg rounded-br-lg"}`}
                 >
                   <List className="w-4 h-4" />
                 </button>
