@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Users, 
   Search, 
@@ -25,7 +25,8 @@ import {
   fetchUsers, 
   selectUsers, 
   selectUsersLoading, 
-  selectUsersError, 
+  selectUsersError,
+  selectUsersPagination,
   toggleUserStatus,
   deleteUser
 } from '../store/slices/usersSlice';
@@ -47,25 +48,42 @@ const dispatch = useDispatch();
   const users = useSelector(selectUsers);
   const loading = useSelector(selectUsersLoading);
   const error = useSelector(selectUsersError);
+  const pagination = useSelector(selectUsersPagination);
 
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 300); // 500ms debounce delay
+    }, 300); // 300ms debounce delay
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch users when debounced search term or status filter changes
+  // Reset to first page when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchTerm, statusFilter]);
+
+  // Fetch users when debounced search term, status filter, or page changes
   useEffect(() => {
     dispatch(fetchUsers({ 
-      page: 1, 
-      limit: 10, // Fetch more users for client-side filtering
+      page: currentPage, 
+      limit: itemsPerPage,
       search: debouncedSearchTerm,
       active: statusFilter === 'all' ? '' : statusFilter === 'active' ? 'true' : 'false'
     }));
-  }, [dispatch, debouncedSearchTerm, statusFilter]);
+  }, [dispatch, currentPage, itemsPerPage, debouncedSearchTerm, statusFilter]);
+
+  // Sync currentPage with pagination from Redux if it's out of bounds
+  useEffect(() => {
+    const totalPages = pagination?.totalPages;
+    if (totalPages && totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+    if (totalPages === 0 && currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [pagination?.totalPages, currentPage]);
 
   const getStatusColor = (active) => {
     return active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
@@ -111,11 +129,9 @@ const dispatch = useDispatch();
     setUserToDelete(null);
   };
 
-  // Handle page change (client-side pagination)
+  // Handle page change (server-side pagination)
   const handlePageChange = (page) => {
-    // Update pagination state for client-side pagination
-    // The actual pagination is handled by the paginatedUsers useMemo
-    // We can store the current page in local state if needed
+    if (page === currentPage) return;
     setCurrentPage(page);
   };
 
@@ -137,55 +153,28 @@ const dispatch = useDispatch();
     { value: 'inactive', label: 'Inactive' }
   ];
 
-  // Reset to first page when search or filter changes
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, statusFilter]);
+  // Use users directly since server-side filtering is already applied
+  const paginatedUsers = users;
 
-  // Client-side filtering for better performance
-  const filteredUsers = useMemo(() => {
-    let filtered = [...users];
-
-    // Apply search filter
-    if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(user => 
-        user.name.toLowerCase().includes(searchLower) ||
-        user.email.toLowerCase().includes(searchLower) ||
-        user._id.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      const isActive = statusFilter === 'active';
-      filtered = filtered.filter(user => user.active === isActive);
-    }
-
-    return filtered;
-  }, [users, searchTerm, statusFilter]);
-
-  // Pagination for filtered results
-  const paginatedUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredUsers.slice(startIndex, endIndex);
-  }, [filteredUsers, currentPage, itemsPerPage]);
-
+  // Calculate statistics from all users (we might need a separate endpoint for this)
   const customerStats = {
-    total: filteredUsers.length,
-    active: filteredUsers.filter(u => u.active).length,
-    inactive: filteredUsers.filter(u => !u.active).length,
+    total: pagination?.totalRecords ?? users.length,
+    active: users.filter(u => u.active).length,
+    inactive: users.filter(u => !u.active).length,
     totalRevenue: 0 // This would need to be calculated from orders data
   };
+
+  // Get pagination info from Redux
+  const totalPages = pagination?.totalPages ?? Math.max(1, Math.ceil((pagination?.totalRecords ?? users.length) / itemsPerPage));
+  const totalRecords = pagination?.totalRecords ?? users.length;
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      {/* <div> */}
         {/* <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">Customers</h1> */}
-        <p className="font-montserrat-regular-400 text-black-light">Manage your customer database and track customer activity</p>
-      </div>
+        {/* <p className="font-montserrat-regular-400 text-black-light">Manage your customer database and track customer activity</p> */}
+      {/* </div> */}
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -193,7 +182,7 @@ const dispatch = useDispatch();
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-montserrat-medium-500 text-black-light">Total Customers</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-black">{users.length}</p>
+              <p className="text-2xl font-sorts-mill-gloudy font-bold text-black">{totalRecords}</p>
             </div>
             <div className="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center">
               <Users className="w-6 h-6 text-primary" />
@@ -364,7 +353,7 @@ const dispatch = useDispatch();
                     Error: {error}
                   </td>
                 </tr>
-              ) : filteredUsers.length === 0 ? (
+              ) : paginatedUsers.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="px-6 py-8 text-center text-black-light">
                     No users found
@@ -376,9 +365,16 @@ const dispatch = useDispatch();
                     <td className="px-4 py-4">
                     <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 min-w-10 min-h-10 bg-primary-light rounded-full flex items-center justify-center">
-                        <span className="text-sm font-montserrat-semibold-600 text-primary">
+                          {
+                            user.profileImage && user.profileImage !== null ? (
+                              <img src={user.profileImage} alt={user.name} className="w-10 h-10 rounded-full" />
+                            ) : (
+                               <span className="text-sm font-montserrat-semibold-600 text-primary">
                             {user.name.split(' ').map(n => n[0]).join('')}
-                        </span>
+                        </span> 
+                            )
+                          }                        
+                       
                         </div>
                         <div>
                           <p className="font-montserrat-semibold-600 text-black">{user.name}</p>
@@ -468,11 +464,11 @@ const dispatch = useDispatch();
       </div>
 
       {/* Pagination */}
-      {Math.ceil(filteredUsers.length / itemsPerPage) > 1 && (
+      {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={Math.ceil(filteredUsers.length / itemsPerPage)}
-          totalItems={filteredUsers.length}
+          totalPages={totalPages}
+          totalItems={totalRecords}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           className="mt-6"

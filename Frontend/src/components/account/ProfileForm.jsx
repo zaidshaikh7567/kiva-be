@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Edit2, Save, X, Upload, User as UserIcon, Camera } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectAuthUser, selectAuthLoading, selectAuthError, selectAuthSuccess, updateUserProfile, clearError, clearSuccess } from '../../store/slices/authSlice';
+import {
+  selectAuthUser,
+  selectAuthLoading,
+  selectAuthError,
+  selectAuthSuccess,
+  selectAuthSuccessType,
+  updateUserProfile,
+  clearError,
+  clearSuccess,
+} from '../../store/slices/authSlice';
 import toast from 'react-hot-toast';
 
 const ProfileForm = () => {
@@ -10,6 +19,7 @@ const ProfileForm = () => {
   const loading = useSelector(selectAuthLoading);
   const error = useSelector(selectAuthError);
   const success = useSelector(selectAuthSuccess);
+  const successType = useSelector(selectAuthSuccessType);
   
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -41,7 +51,7 @@ const ProfileForm = () => {
 
   // Handle success/error messages
   useEffect(() => {
-    if (success) {
+    if (success && successType === 'updateProfile') {
       toast.success(success);
       dispatch(clearSuccess());
       setIsEditing(false);
@@ -50,7 +60,7 @@ const ProfileForm = () => {
       toast.error(error);
       dispatch(clearError());
     }
-  }, [success, error, dispatch]);
+  }, [success, successType, error, dispatch]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -93,7 +103,7 @@ const ProfileForm = () => {
 
    const response = await dispatch(updateUserProfile(submitData));
    if (updateUserProfile.fulfilled.match(response)) {
-    toast.success('Profile updated successfully!');
+    // toast.success('Profile updated successfully!');
     setIsEditing(false);
   }else{
     toast.error(response.payload.message);

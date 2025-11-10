@@ -21,6 +21,7 @@ import {
   selectReviews,
   selectReviewsLoading,
   selectReviewsDeleting,
+  selectReviewsPagination,
   fetchReviews,
   deleteReview,
   clearError
@@ -31,6 +32,7 @@ const Reviews = () => {
   const reviews = useSelector(selectReviews);
   const loading = useSelector(selectReviewsLoading);
   const deleting = useSelector(selectReviewsDeleting);
+  const pagination = useSelector(selectReviewsPagination);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [ratingFilter, setRatingFilter] = useState('all');
@@ -39,114 +41,21 @@ const Reviews = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-
-  // Mock reviews data for testing
-  const mockReviews = [
-    {
-      _id: '1',
-      name: 'Emily Johnson',
-      email: 'emily.johnson@example.com',
-      rating: 5,
-      comment: 'Absolutely stunning jewelry! The craftsmanship is exceptional and the customer service was outstanding. I will definitely be ordering more pieces in the future.',
-      createdAt: new Date(Date.now() - 259200000).toISOString()
-    },
-    {
-      _id: '2',
-      name: 'Michael Chen',
-      email: 'michael.chen@example.com',
-      rating: 5,
-      comment: 'I ordered a custom ring for my wife and it exceeded all expectations. The quality is amazing and the design was exactly what we wanted. Highly recommend!',
-      createdAt: new Date(Date.now() - 86400000).toISOString()
-    },
-    {
-      _id: '3',
-      name: 'Sarah Williams',
-      email: 'sarah.williams@example.com',
-      rating: 4,
-      comment: 'Fast shipping, gorgeous pieces, and attention to detail. The packaging was beautiful too. Will definitely order again.',
-      createdAt: new Date(Date.now() - 172800000).toISOString()
-    },
-    {
-      _id: '4',
-      name: 'David Brown',
-      email: 'david.brown@example.com',
-      rating: 5,
-      comment: 'The most beautiful necklace I have ever owned. Everyone compliments me on it. Worth every penny!',
-      createdAt: new Date(Date.now() - 345600000).toISOString()
-    },
-    {
-      _id: '5',
-      name: 'Lisa Davis',
-      email: 'lisa.davis@example.com',
-      rating: 4,
-      comment: 'Great quality and fast delivery. The earrings are so elegant and comfortable to wear. Very satisfied with my purchase.',
-      createdAt: new Date(Date.now() - 518400000).toISOString()
-    },
-    {
-      _id: '6',
-      name: 'Robert Taylor',
-      email: 'robert.taylor@example.com',
-      rating: 3,
-      comment: 'The jewelry is nice but shipping took longer than expected. Otherwise, good quality.',
-      createdAt: new Date(Date.now() - 691200000).toISOString()
-    },
-    {
-      _id: '7',
-      name: 'Maria Garcia',
-      email: 'maria.garcia@example.com',
-      rating: 5,
-      comment: 'Perfect! The bracelet is exactly as described and looks even better in person. Customer service was very helpful with sizing questions.',
-      createdAt: new Date(Date.now() - 864000000).toISOString()
-    },
-    {
-      _id: '8',
-      name: 'James Wilson',
-      email: 'james.wilson@example.com',
-      rating: 4,
-      comment: 'Beautiful craftsmanship. The ring fits perfectly and the stone is stunning. Would purchase again.',
-      createdAt: new Date(Date.now() - 1036800000).toISOString()
-    },
-    {
-      _id: '9',
-      name: 'Jennifer Lee',
-      email: 'jennifer.lee@example.com',
-      rating: 5,
-      comment: 'I am in love with my new pendant! The detail work is incredible and it arrived so quickly. Best jewelry purchase I have made.',
-      createdAt: new Date(Date.now() - 1209600000).toISOString()
-    },
-    {
-      _id: '10',
-      name: 'Michael Chen',
-      email: 'michael.chen2@example.com',
-      rating: 2,
-      comment: 'The product was okay but not as shiny as shown in the photos. Also had some scratches on delivery.',
-      createdAt: new Date(Date.now() - 1382400000).toISOString()
-    },
-    {
-      _id: '11',
-      name: 'Amanda Rodriguez',
-      email: 'amanda.rodriguez@example.com',
-      rating: 5,
-      comment: 'Exceptional quality and service. The custom engraving turned out beautifully. Thank you for making my special occasion perfect!',
-      createdAt: new Date(Date.now() - 2 * 86400000).toISOString()
-    },
-    {
-      _id: '12',
-      name: 'Christopher Martinez',
-      email: 'christopher.martinez@example.com',
-      rating: 4,
-      comment: 'Very pleased with my purchase. The necklace is elegant and well-made. Fast shipping and great customer service.',
-      createdAt: new Date(Date.now() - 3 * 86400000).toISOString()
-    }
-  ];
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    // Try to fetch reviews, but use mock data if API fails
-    dispatch(fetchReviews()).catch(() => {
-      // API call failed, will use mock data
-    });
-  }, [dispatch]);
+    dispatch(fetchReviews({ page: currentPage, limit: itemsPerPage }));
+  }, [dispatch, currentPage, itemsPerPage]);
+
+  useEffect(() => {
+    const totalPages = pagination?.totalPages;
+    if (totalPages && totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+    if (totalPages === 0 && currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [pagination?.totalPages, currentPage]);
 
   useEffect(() => {
     return () => {
@@ -154,11 +63,9 @@ const Reviews = () => {
     };
   }, [dispatch]);
 
-  // Use mock data if reviews array is empty (API not working)
-  const displayReviews = reviews && reviews.length > 0 ? reviews : mockReviews;
-
   // Filter reviews based on search and rating filter
-  const filteredReviews = displayReviews.filter(review => {
+  const reviewsList = Array.isArray(reviews) ? reviews : [];
+  const filteredReviews = reviewsList.filter(review => {
     const matchesSearch = 
       review.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       review.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -170,13 +77,11 @@ const Reviews = () => {
   });
 
   // Pagination logic
-  const totalItems = filteredReviews.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedReviews = filteredReviews.slice(startIndex, endIndex);
+  const totalRecords = pagination?.totalRecords ?? reviewsList.length;
+  const totalPages = pagination?.totalPages ?? Math.max(1, Math.ceil(totalRecords / itemsPerPage));
 
   const handlePageChange = (page) => {
+    if (page === currentPage) return;
     setCurrentPage(page);
   };
 
@@ -188,15 +93,15 @@ const Reviews = () => {
 
   // Calculate statistics (commented out since stats cards are commented)
   // const reviewStats = {
-  //   total: displayReviews.length,
-  //   averageRating: displayReviews.length > 0
-  //     ? (displayReviews.reduce((sum, review) => sum + (review.rating || 0), 0) / displayReviews.length).toFixed(1)
+  //   total: reviewsList.length,
+  //   averageRating: reviewsList.length > 0
+  //     ? (reviewsList.reduce((sum, review) => sum + (review.rating || 0), 0) / reviewsList.length).toFixed(1)
   //     : 0,
-  //   fiveStar: displayReviews.filter(r => r.rating === 5).length,
-  //   fourStar: displayReviews.filter(r => r.rating === 4).length,
-  //   threeStar: displayReviews.filter(r => r.rating === 3).length,
-  //   twoStar: displayReviews.filter(r => r.rating === 2).length,
-  //   oneStar: displayReviews.filter(r => r.rating === 1).length,
+  //   fiveStar: reviewsList.filter(r => r.rating === 5).length,
+  //   fourStar: reviewsList.filter(r => r.rating === 4).length,
+  //   threeStar: reviewsList.filter(r => r.rating === 3).length,
+  //   twoStar: reviewsList.filter(r => r.rating === 2).length,
+  //   oneStar: reviewsList.filter(r => r.rating === 1).length,
   // };
 
   const getRatingColor = (rating) => {
@@ -227,25 +132,27 @@ const Reviews = () => {
   };
 
   const handleConfirmDelete = async () => {
-    if (reviewToDelete) {
-      // If using mock data, just show success message
-      // Otherwise, dispatch the delete action
-      if (reviews && reviews.length > 0) {
-        const result = await dispatch(deleteReview(reviewToDelete._id));
-        
-        if (deleteReview.fulfilled.match(result)) {
-          toast.success('Review deleted successfully');
-          setShowDeleteModal(false);
-          setReviewToDelete(null);
-        } else {
-          toast.error('Failed to delete review');
-        }
+    if (!reviewToDelete) return;
+
+    const result = await dispatch(deleteReview(reviewToDelete._id));
+
+    if (deleteReview.fulfilled.match(result)) {
+      toast.success('Review deleted successfully');
+      setShowDeleteModal(false);
+      setReviewToDelete(null);
+
+      const totalRecordsBefore = pagination?.totalRecords ?? reviewsList.length;
+      const adjustedTotalRecords = Math.max(0, totalRecordsBefore - 1);
+      const adjustedTotalPages = Math.max(1, Math.ceil(adjustedTotalRecords / itemsPerPage));
+      const nextPage = Math.min(currentPage, adjustedTotalPages);
+
+      if (nextPage !== currentPage) {
+        setCurrentPage(nextPage);
       } else {
-        // Using mock data - just show success (actual deletion would require state update)
-        toast.success('Review would be deleted (using mock data)');
-        setShowDeleteModal(false);
-        setReviewToDelete(null);
+        dispatch(fetchReviews({ page: nextPage, limit: itemsPerPage }));
       }
+    } else {
+      toast.error('Failed to delete review');
     }
   };
 
@@ -284,7 +191,7 @@ const Reviews = () => {
             key={i}
             className={`w-4 h-4 ${
               i < rating
-                ? 'text-yellow-400 fill-current'
+                ? 'text-yellow-400 fill-yellow-400'
                 : 'text-gray-300'
             }`}
           />
@@ -294,72 +201,7 @@ const Reviews = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      {/* <div>
-        <p className="font-montserrat-regular-400 text-black-light">Manage customer reviews and ratings</p>
-      </div> */}
-
-      {/* Statistics Cards */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-montserrat-medium-500 text-black-light">Total Reviews</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-black">{reviewStats.total}</p>
-            </div>
-            <div className="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center">
-              <MessageSquare className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-montserrat-medium-500 text-black-light">Average Rating</p>
-              <div className="flex items-center space-x-2">
-                <p className="text-2xl font-sorts-mill-gloudy font-bold text-black">{reviewStats.averageRating}</p>
-                <Star className="w-5 h-5 text-yellow-400 fill-current" />
-              </div>
-            </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <Star className="w-6 h-6 text-yellow-600 fill-current" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-montserrat-medium-500 text-black-light">5 Star Reviews</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-green-600">{reviewStats.fiveStar}</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <Star className="w-6 h-6 text-green-600 fill-current" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-montserrat-medium-500 text-black-light">Recent Reviews</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-blue-600">
-                {displayReviews.filter(r => {
-                  const reviewDate = new Date(r.createdAt);
-                  const weekAgo = new Date();
-                  weekAgo.setDate(weekAgo.getDate() - 7);
-                  return reviewDate >= weekAgo;
-                }).length}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-      </div> */}
+    <div className="space-y-6">     
 
       {/* Filters and Search */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
@@ -474,14 +316,14 @@ const Reviews = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {paginatedReviews.map((review) => (
+                  {filteredReviews.map((review) => (
                     <tr key={review._id} className="hover:bg-gray-50 transition-colors duration-300">
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 min-w-10 min-h-10 bg-primary-light rounded-full flex items-center justify-center">
+                          <div className="w-8 h-8 min-w-8 min-h-8 bg-primary-light rounded-full flex items-center justify-center">
                             <User className="w-5 h-5 min-w-5 min-h-5 text-primary" />
                           </div>
-                          <span className="font-montserrat-medium-500 text-black">{review.name || 'Anonymous'}</span>
+                          <span className="font-montserrat-medium-500 text-black text-sm">{review.name || 'Anonymous'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -490,9 +332,9 @@ const Reviews = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-2">
                           {renderStars(review.rating || 0)}
-                          <span className={`px-2 py-1 rounded-full text-xs font-montserrat-medium-500 ${getRatingColor(review.rating || 0)}`}>
+                          {/* <span className={`px-2 py-1 rounded-full text-xs font-montserrat-medium-500 ${getRatingColor(review.rating || 0)}`}>
                             {review.rating || 0}
-                          </span>
+                          </span> */}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -547,8 +389,8 @@ const Reviews = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
+          totalItems={totalRecords}
+          itemsPerPage={pagination?.limit ?? itemsPerPage}
           onPageChange={handlePageChange}
           className="mt-6"
         />
@@ -608,6 +450,52 @@ const Reviews = () => {
                   </p>
                 </div>
               </div>
+
+              {/* Media */}
+              {(() => {
+                const mediaItems = Array.isArray(selectedReview.media)
+                  ? selectedReview.media
+                  : selectedReview.media
+                  ? [selectedReview.media]
+                  : [];
+                if (!mediaItems.length) return null;
+                return (
+                <div>
+                  <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">Attached Media</h3>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {mediaItems.map((mediaItem, index) => (
+                      <div key={mediaItem.publicId || mediaItem.url || index} className="w-full bg-gray-50 rounded-lg p-3 border border-gray-200">
+                        {mediaItem.type === 'video' ? (
+                          <video
+                            src={mediaItem.url}
+                            controls
+                            className="w-full rounded-lg bg-black"
+                          />
+                        ) : (
+                          <img
+                            src={mediaItem.url}
+                            alt={`Review media ${index + 1} from ${selectedReview.name}`}
+                            className="w-full rounded-lg object-cover"
+                          />
+                        )}
+                        <div className="mt-3 flex items-center justify-between text-xs font-montserrat-regular-400 text-black-light">
+                          <span className="capitalize">{mediaItem.type}</span>
+                          <a
+                            href={mediaItem.url}
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary font-montserrat-medium-500 hover:text-primary-dark"
+                          >
+                            Download
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                );
+              })()}
 
               {/* Date */}
               <div>

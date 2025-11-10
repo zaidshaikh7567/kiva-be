@@ -15,7 +15,7 @@ const StickyCartButton = () => {
   return (
     <button 
       onClick={() => dispatch(openCart())}
-      className="fixed top-24 right-4 z-50 bg-primary text-white p-2 sm:p-4 rounded-full shadow-lg hover:bg-primary-dark hover:shadow-xl transition-all duration-300 group"
+      className="fixed top-24 right-4 z-40 bg-primary text-white p-2 sm:p-4 rounded-full shadow-lg hover:bg-primary-dark hover:shadow-xl transition-all duration-300 group"
     >
       <ShoppingBag className="sm:w-6 sm:h-6 w-4 h-4" />
       {totalQuantity > 0 && (

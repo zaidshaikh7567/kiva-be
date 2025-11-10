@@ -1955,15 +1955,37 @@
 					"request": {
 						"method": "POST",
 						"header": [],
-						"description": "Create a new review (Public - no authentication required).\n\n**Request Body (JSON):**\n- name (required): Reviewer name\n- email (required): Reviewer email address\n- comment (required): Review comment\n- rating (required): Rating value (1-5)\n\n**Response:** Returns the created review object.",
+						"description": "Create a new review (Public - no authentication required).\n\n**Request Body (multipart/form-data):**\n- name (required, text): Reviewer name\n- email (required, text): Reviewer email address\n- comment (required, text): Review comment\n- rating (required, text/number): Rating value (1-5)\n- media (optional, file): Up to 10 image/video files (repeat key for multiple uploads). Each file must be ≤ 50 MB.\n\n**Response:** Returns the created review object including any uploaded media metadata.",
 						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"comment\": \"Absolutely stunning jewelry! The quality is exceptional and the craftsmanship is outstanding.\",\n    \"rating\": 5\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "John Doe",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "john.doe@example.com",
+									"type": "text"
+								},
+								{
+									"key": "comment",
+									"value": "Absolutely stunning jewelry! The quality is exceptional and the craftsmanship is outstanding.",
+									"type": "text"
+								},
+								{
+									"key": "rating",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "Optional image/video upload. Repeat this key to attach multiple files (max 10)."
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/reviews",
@@ -2016,15 +2038,43 @@
 								"type": "text"
 							}
 						],
-						"description": "Update an existing review by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- reviewId (required): The unique identifier of the review to update\n\n**Request Body (JSON - all fields optional):**\n- name: Updated reviewer name\n- email: Updated reviewer email address\n- comment: Updated review comment\n- rating: Updated rating value (1-5)\n\n**Response:** Returns the updated review object.",
+						"description": "Update an existing review by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- reviewId (required): The unique identifier of the review to update\n\n**Request Body (multipart/form-data - all fields optional):**\n- name (text)\n- email (text)\n- comment (text)\n- rating (text/number)\n- media (file, repeatable): New image/video uploads to append\n- existingMedia (text): JSON array describing media to retain (e.g. `[ { \"publicId\": \"reviews/media/abc123\", \"type\": \"image\", \"url\": \"https://...\" } ]`). Omit or send `[]` to remove all existing media.\n\n**Response:** Returns the updated review object including current media array.",
 						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Updated Name\",\n    \"email\": \"updated@example.com\",\n    \"comment\": \"Updated comment about the jewelry quality and service.\",\n    \"rating\": 4\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Updated Name",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "updated@example.com",
+									"type": "text"
+								},
+								{
+									"key": "comment",
+									"value": "Updated comment about the jewelry quality and service.",
+									"type": "text"
+								},
+								{
+									"key": "rating",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "existingMedia",
+									"value": "[\n  {\n    \"publicId\": \"reviews/media/sample_public_id\",\n    \"type\": \"image\",\n    \"url\": \"https://res.cloudinary.com/demo/image/upload/sample.jpg\"\n  }\n]",
+									"type": "text",
+									"description": "Optional. Provide JSON array of media objects to keep. Leave empty or set to [] to remove all previous media."
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "Optional new image/video upload. Repeat this key for multiple files (max 10 total)."
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/reviews/:reviewId",

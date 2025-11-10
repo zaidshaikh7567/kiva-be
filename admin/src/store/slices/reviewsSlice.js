@@ -5,10 +5,27 @@ import { API_METHOD } from '../../services/apiMethod';
 // Async thunks for API calls
 export const fetchReviews = createAsyncThunk(
   'reviews/fetchReviews',
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get(API_METHOD.reviews);
-      return response.data.data || response.data;
+      const response = await api.get(API_METHOD.reviews, {
+        params: { page, limit },
+      });
+
+      const payload = response.data || {};
+      const reviews = Array.isArray(payload.data)
+        ? payload.data
+        : Array.isArray(payload.reviews)
+        ? payload.reviews
+        : [];
+
+      const pagination = payload.pagination || {
+        currentPage: page,
+        totalPages: 1,
+        totalRecords: reviews.length,
+        limit,
+      };
+
+      return { reviews, pagination };
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -44,6 +61,12 @@ const initialState = {
   loading: false,
   deleting: false,
   error: null,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalRecords: 0,
+    limit: 10,
+  },
 };
 
 const reviewsSlice = createSlice({
@@ -63,7 +86,11 @@ const reviewsSlice = createSlice({
       })
       .addCase(fetchReviews.fulfilled, (state, action) => {
         state.loading = false;
-        state.reviews = action.payload || [];
+        state.reviews = action.payload.reviews || [];
+        state.pagination = {
+          ...state.pagination,
+          ...(action.payload.pagination || {}),
+        };
       })
       .addCase(fetchReviews.rejected, (state, action) => {
         state.loading = false;
@@ -74,9 +101,8 @@ const reviewsSlice = createSlice({
         state.deleting = true;
         state.error = null;
       })
-      .addCase(deleteReview.fulfilled, (state, action) => {
+      .addCase(deleteReview.fulfilled, (state) => {
         state.deleting = false;
-        state.reviews = state.reviews.filter(review => review._id !== action.payload._id);
       })
       .addCase(deleteReview.rejected, (state, action) => {
         state.deleting = false;
@@ -105,6 +131,7 @@ export const selectReviews = (state) => state.reviews.reviews;
 export const selectReviewsLoading = (state) => state.reviews.loading;
 export const selectReviewsDeleting = (state) => state.reviews.deleting;
 export const selectReviewsError = (state) => state.reviews.error;
+export const selectReviewsPagination = (state) => state.reviews.pagination;
 
 export default reviewsSlice.reducer;
 

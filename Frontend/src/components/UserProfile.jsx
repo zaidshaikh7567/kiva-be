@@ -57,7 +57,7 @@ console.log('user :', user);
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 " style={{ zIndex: '9999999999 !important' }}>
           {/* User Info */}
           <div className="px-4 py-3 border-b border-gray-100">
             <p className="text-sm font-montserrat-semibold-600 text-black">

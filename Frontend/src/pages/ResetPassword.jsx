@@ -2,14 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetPassword, clearError, selectAuthLoading, selectAuthSuccess, selectIsAuthenticated } from '../store/slices/authSlice';
+import {
+  resetPassword,
+  clearError,
+  clearSuccess,
+  selectAuthLoading,
+  selectAuthSuccess,
+  selectAuthSuccessType,
+  selectIsAuthenticated,
+} from '../store/slices/authSlice';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthLoading);
   const success = useSelector(selectAuthSuccess);
-  console.log('success :', success);
+  const successType = useSelector(selectAuthSuccessType);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   
   const [searchParams] = useSearchParams();
@@ -23,7 +31,6 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
-  console.log('passwordReset :', passwordReset);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -36,15 +43,19 @@ const ResetPassword = () => {
   useEffect(() => {
     return () => {
       dispatch(clearError());
+      dispatch(clearSuccess());
     };
   }, [dispatch]);
 
   // Handle success state
   useEffect(() => {
-    if (success) {
+    if (success && successType === 'resetPassword') {
       setPasswordReset(true);
+      dispatch(clearSuccess());
+    } else if (success && successType && successType !== 'resetPassword') {
+      dispatch(clearSuccess());
     }
-  }, [success]);
+  }, [success, successType, dispatch]);
 
   // password regex: 8+ chars, upper, lower, number, special
   const passwordRegex =

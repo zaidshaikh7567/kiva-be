@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { changePassword, clearError, clearSuccess, selectAuthError, selectAuthLoading, selectAuthSuccess } from '../../store/slices/authSlice';
+import {
+  changePassword,
+  clearError,
+  clearSuccess,
+  selectAuthError,
+  selectAuthLoading,
+  selectAuthSuccess,
+  selectAuthSuccessType,
+} from '../../store/slices/authSlice';
 import toast from 'react-hot-toast';
 
 const ChangePasswordForm = ({ onSuccess }) => {
@@ -9,6 +17,7 @@ const ChangePasswordForm = ({ onSuccess }) => {
   const error = useSelector(selectAuthError);
   const loading = useSelector(selectAuthLoading);
   const success = useSelector(selectAuthSuccess);
+  const successType = useSelector(selectAuthSuccessType);
 
   const [formData, setFormData] = useState({
     currentPassword: '',
@@ -33,12 +42,12 @@ const ChangePasswordForm = ({ onSuccess }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (success) {
+    if (success && successType === 'changePassword') {
       toast.success(success);
       setPasswordChanged(true);
       dispatch(clearSuccess());
     }
-  }, [success, dispatch]);
+  }, [success, successType, dispatch]);
 
   useEffect(() => {
     if (error) {

@@ -7,7 +7,7 @@ import CustomDropdown from '../components/CustomDropdown';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
 import Pagination from '../components/Pagination';
 
-const PLATFORM_OPTIONS = ['Instagram', 'Facebook', 'Pinterest', 'LinkedIn'];
+const PLATFORM_OPTIONS = ['Instagram', 'Facebook'];
 
 const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) => {
   const [preview, setPreview] = useState(data?.image || '');

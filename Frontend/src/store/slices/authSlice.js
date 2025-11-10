@@ -197,6 +197,7 @@ const authSlice = createSlice({
     loading: false,
     error: null,
     success: null,
+    successType: null,
   },
   reducers: {
     clearError: (state) => {
@@ -204,6 +205,7 @@ const authSlice = createSlice({
     },
     clearSuccess: (state) => {
       state.success = null;
+      state.successType = null;
     },
     setUser: (state, action) => {
       state.user = action.payload;
@@ -234,6 +236,7 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.success = null;
+        state.successType = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
@@ -242,6 +245,7 @@ const authSlice = createSlice({
         state.refreshToken = action.payload.refreshToken;
         state.isAuthenticated = true;
         state.success = 'Login successful!';
+        state.successType = 'login';
         
         // Store in localStorage
         if (action.payload.accessToken) {
@@ -265,10 +269,12 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.success = null;
+        state.successType = null;
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.loading = false;
         state.success = 'Registration successful!';
+        state.successType = 'register';
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -280,10 +286,12 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.success = null;
+        state.successType = null;
       })
       .addCase(forgotPassword.fulfilled, (state) => {
         state.loading = false;
         state.success = 'Password reset email sent successfully!';
+        state.successType = 'forgotPassword';
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false;
@@ -295,10 +303,12 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.success = null;
+        state.successType = null;
       })
       .addCase(resetPassword.fulfilled, (state) => {
         state.loading = false;
         state.success = 'Password reset successfully!';
+        state.successType = 'resetPassword';
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
@@ -310,10 +320,12 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.success = null;
+        state.successType = null;
       })
       .addCase(changePassword.fulfilled, (state) => {
         state.loading = false;
         state.success = 'Password changed successfully!';
+        state.successType = 'changePassword';
       })
       .addCase(changePassword.rejected, (state, action) => {
       console.log('action :', action);
@@ -353,6 +365,7 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.success = null;
+        state.successType = null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.loading = false;
@@ -361,6 +374,7 @@ const authSlice = createSlice({
         state.refreshToken = null;
         state.isAuthenticated = false;
         state.success = 'Logged out successfully!';
+        state.successType = 'logout';
       })
       .addCase(logoutUser.rejected, (state) => {
         // Fallback: clear state even if something goes wrong
@@ -392,11 +406,13 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.success = null;
+        state.successType = null;
       })
       .addCase(updateUserProfile.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
         state.success = 'Profile updated successfully!';
+        state.successType = 'updateProfile';
         localStorage.setItem('user', JSON.stringify(action.payload));
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
@@ -414,6 +430,7 @@ export const selectAuthUser = (state) => state.auth.user;
 export const selectAuthLoading = (state) => state.auth.loading;
 export const selectAuthError = (state) => state.auth.error;
 export const selectAuthSuccess = (state) => state.auth.success;
+export const selectAuthSuccessType = (state) => state.auth.successType;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 
 export default authSlice.reducer;
