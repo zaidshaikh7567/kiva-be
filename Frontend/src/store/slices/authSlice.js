@@ -328,9 +328,8 @@ const authSlice = createSlice({
         state.successType = 'changePassword';
       })
       .addCase(changePassword.rejected, (state, action) => {
-      console.log('action :', action);
         state.loading = false;
-        state.error = action.payload || 'Failed to change password';
+        state.error = action.payload?.message || (typeof action.payload === 'string' ? action.payload : 'Failed to change password');
       })
       
       // Refresh Token
