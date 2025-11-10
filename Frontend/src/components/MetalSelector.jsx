@@ -133,7 +133,7 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
       return metal?._id || metal?.id || metal;
     });
   }, [product]);
-  console.log('availableMetalIds :', availableMetalIds);
+  
   
   // Check if product has any metals configured
   const hasProductMetals = product?.metals && Array.isArray(product.metals) && product.metals.length > 0;

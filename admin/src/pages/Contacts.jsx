@@ -362,7 +362,7 @@ const Contacts = () => {
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-          <div className="relative col-span-3">
+          <div className="relative col-span-3 md:col-span-2 xl:col-span-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
             <input
               type="text"
@@ -372,7 +372,7 @@ const Contacts = () => {
               className=" w-full h-full pl-10 pr-4 py-2 border border-gray-300 outline-none rounded-lg focus:ring-primary focus:border-primary transition-all duration-200"
             />
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1 md:col-span-2 xl:col-span-1">
             <CustomDropdown
               options={SERVICE_OPTIONS}
               value={serviceFilter}
@@ -383,7 +383,7 @@ const Contacts = () => {
           {/* reset filters button */}
           <button
             onClick={handleResetFilters}
-            className="col-span-1 flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50"
+            className="col-span-1 md:col-span-2 xl:col-span-1 flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Reset Filters</span>

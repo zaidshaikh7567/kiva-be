@@ -171,7 +171,7 @@ const Categories = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-row items-center justify-end gap-2">
+      <div className="flex flex-col sm:flex-row items-center justify-end gap-4 w-full">
         {/* <div>
           <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">
             Categories
@@ -180,11 +180,11 @@ const Categories = () => {
             Organize your jewelry products
           </p>
         </div> */}
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleRefresh}
             disabled={loading}
-            className="flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50"
+            className="flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50 w-full sm:w-auto"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
@@ -192,7 +192,7 @@ const Categories = () => {
          
           <button 
             onClick={handleOpenAddModal}
-            className="flex items-center space-x-2 bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-2 rounded-lg font-montserrat-medium-500 hover:shadow-lg transition-all"
+            className="flex items-center justify-center sm:justify-start space-x-2 bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-2 rounded-lg font-montserrat-medium-500 hover:shadow-lg transition-all w-full sm:w-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Add Category</span>

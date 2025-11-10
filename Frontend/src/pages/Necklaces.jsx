@@ -20,7 +20,7 @@ const Necklaces = () => {
   const pagination = useSelector(selectPagination);
   const categories = useSelector(selectCategories);
   
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState("price-low");
   const [viewMode, setViewMode] = useState("grid");
 
   // Fetch products and categories on mount
