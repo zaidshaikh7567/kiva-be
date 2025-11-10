@@ -2,10 +2,10 @@
 export const SORT_OPTIONS = {
   // For category pages (Rings, Earrings, Bracelets, Necklaces, WeddingBand)
   CATEGORY: [
-    { value: 'featured', label: 'Featured' },
+    // { value: 'featured', label: 'Featured' },
     { value: 'price-low', label: 'Price: Low to High' },
     { value: 'price-high', label: 'Price: High to Low' },
-    { value: 'rating', label: 'Highest Rated' },
+    // { value: 'rating', label: 'Highest Rated' },
   ],
   // For Shop page
   SHOP: [

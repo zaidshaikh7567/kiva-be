@@ -468,7 +468,7 @@ const ProductDetail = () => {
     const basePrice = product.price;
     const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
     const centerStonePrice = selectedCenterStone ? selectedCenterStone.price : 0;
-    return (basePrice + centerStonePrice) * metalMultiplier;
+    return (basePrice * metalMultiplier) + centerStonePrice;
   };
 
   // Magnifier handlers

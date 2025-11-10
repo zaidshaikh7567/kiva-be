@@ -17,7 +17,7 @@ const WeddingBand = () => {
   const productsError = useSelector(selectProductsError);
   const pagination = useSelector(selectPagination);
   
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState("price-low");
   const [viewMode, setViewMode] = useState("grid");
 
   // Fetch products on mount

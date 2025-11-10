@@ -22,7 +22,7 @@ const Rings = () => {
   const categories = useSelector(selectCategories);
   
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState("price-low");
   const [viewMode, setViewMode] = useState("grid");
   const [isPending, startTransition] = useTransition();
   const isManualChange = useRef(false);
@@ -139,7 +139,7 @@ const Rings = () => {
   // Filter rings based on ring category and subcategory
   const filteredRings = useMemo(() => {
     if (!products || products.length === 0) return [];
-
+    
     // First filter by ring category and its subcategories
     let ringProducts = products.filter(product => {
       if (!ringCategory) return false;
@@ -160,17 +160,17 @@ const Rings = () => {
       
       return ringSubcategoryIds.includes(productCategoryId);
     });
-
+    
     // Exclude wedding bands from ring listings
     ringProducts = ringProducts.filter(product => product.isBand !== true);
-
+    
     // Filter by selected subcategory
     if (selectedCategory) {
       ringProducts = ringProducts.filter(product => {
         return product.category?._id === selectedCategory;
       });
     }
-
+    
     // Map products to match ProductCard expected format
     return ringProducts.map(product => ({
       ...product,
@@ -189,16 +189,17 @@ const Rings = () => {
     switch (sortBy) {
       case "price-low":
         return [...rings].sort((a, b) => a.price - b.price);
-      case "price-high":
-        return [...rings].sort((a, b) => b.price - a.price);
+        case "price-high":
+          return [...rings].sort((a, b) => b.price - a.price);
       case "rating":
         return [...rings].sort((a, b) => b.rating - a.rating);
       case "featured":
       default:
         return [...rings].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-    }
-  }, [filteredRings, sortBy]);
+      }
+    }, [filteredRings, sortBy]);
 
+    console.log('filteredRings :', filteredRings);
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}

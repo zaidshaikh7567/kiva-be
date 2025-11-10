@@ -126,7 +126,7 @@ const CustomDropdown = ({
 
       {/* --- Dropdown Menu --- */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-primary-light rounded-lg shadow-lg overflow-hidden">
+        <div className="absolute z-40 w-full mt-2 bg-white border border-primary-light rounded-lg shadow-lg overflow-hidden">
           {/* --- Search Input (optional) --- */}
           {searchable && options.length > 0 && (
             <div className="p-2 border-b border-primary-light bg-gray-50">

@@ -501,8 +501,12 @@ const CartProductDetail = () => {
   const getFinalPrice = () => {
     const basePrice = product?.price || 0;
     const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
+    console.log('metalMultiplier :', metalMultiplier);
+    console.log('basePrice :', basePrice);
     const centerStonePrice = selectedCenterStone ? selectedCenterStone.price : 0;
-    return (basePrice + centerStonePrice) * metalMultiplier;
+    console.log('centerStonePrice :', centerStonePrice);
+    console.log('(basePrice * metalMultiplier) :', (basePrice * metalMultiplier));
+    return (basePrice * metalMultiplier) + centerStonePrice;
   };
 
   // Magnifier handlers
