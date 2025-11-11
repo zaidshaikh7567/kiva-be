@@ -91,12 +91,12 @@ const Shop = () => {
       const descriptionText = typeof product.description === 'string' 
       ? product.description.toLowerCase() 
       : '';
-      console.log('descriptionText :', descriptionText);
 
       const matchesSearch = product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            descriptionText.includes(searchTerm.toLowerCase());
 
       let matchesCategory = selectedCategory === 'all';
+      
 
       if (!matchesCategory) {
         const selectedCategoryLower = selectedCategory.toLowerCase();
@@ -133,6 +133,7 @@ const Shop = () => {
       return matchesSearch && matchesCategory && matchesPrice;
     });
     console.log('filtered :', filtered);
+    
 
     // Sort products
     switch (sortBy) {

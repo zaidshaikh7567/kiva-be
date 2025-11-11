@@ -28,7 +28,8 @@ const uploadReviewMedia = multer({
     if (imageExtensions.includes(fileExtension) || videoExtensions.includes(fileExtension)) {
       cb(null, true);
     } else {
-      cb(new Error(`File type not allowed. Allowed image formats: ${imageExtensions.join(', ')}. Allowed video formats: ${videoExtensions.join(', ')}`));
+      req.fileValidationError = `File type not allowed. Allowed image formats: ${imageExtensions.join(', ')}. Allowed video formats: ${videoExtensions.join(', ')}`;
+      cb(null, false);
     }
   },
 }).array('media', MAX_MEDIA_ITEMS);
