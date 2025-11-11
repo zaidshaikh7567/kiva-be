@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, Grid, List, SlidersHorizontal, X } from 'lucide-react';
 import ShopProductCard from '../components/ShopProductCard';
@@ -29,6 +29,10 @@ const Shop = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Ref to track if category change is from user action (prevents flicker)
+  const isUserActionRef = useRef(false);
+  const timeoutRef = useRef(null);
 
   // Fetch products and categories on mount
   useEffect(() => {
@@ -36,6 +40,15 @@ const Shop = () => {
     dispatch(fetchProducts({ page: 1, limit: 100, reset: true }));
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const parentCategories = useMemo(
     () => categories?.filter(category => !category.parent) || [],
@@ -148,8 +161,18 @@ const Shop = () => {
   };
 
   const handleCategoryChange = (value) => {
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Mark as user action to prevent useEffect from causing flicker
+    isUserActionRef.current = true;
+    
+    // Update state first
     setSelectedCategory(value);
 
+    // Update URL
     const nextParams = new URLSearchParams(searchParams);
     if (value === 'all') {
       nextParams.delete('category');
@@ -157,6 +180,13 @@ const Shop = () => {
       nextParams.set('category', value.toLowerCase());
     }
     setSearchParams(nextParams, { replace: true });
+    
+    // Reset the ref after React processes the updates
+    // This prevents the useEffect from triggering and causing flicker
+    timeoutRef.current = setTimeout(() => {
+      isUserActionRef.current = false;
+      timeoutRef.current = null;
+    }, 50);
   };
 
   const clearFilters = () => {
@@ -165,25 +195,33 @@ const Shop = () => {
     setPriceRange([0, 5000]);
     setSortBy('newest');
   };
+  // Sync category from URL (only when URL changes externally, not from user action)
   useEffect(() => {
-    const categoryParam = searchParams.get('category');
-
-    if (!categoryParam || categoryParam.toLowerCase() === 'all') {
-      if (selectedCategory !== 'all') {
-        setSelectedCategory('all');
-      }
+    // Skip if this is a user-initiated change to prevent flicker
+    if (isUserActionRef.current) {
       return;
     }
 
-    const normalizedParam = categoryParam.toLowerCase();
-    const matchedParent = parentCategories.find(
-      (category) => category?.name?.toLowerCase() === normalizedParam
-    );
+    const categoryParam = searchParams.get('category');
+    const normalizedParam = categoryParam ? categoryParam.toLowerCase() : 'all';
 
-    if (matchedParent && matchedParent.name !== selectedCategory) {
-      setSelectedCategory(matchedParent.name);
+    // Determine what the category should be based on URL
+    let targetCategory = 'all';
+    if (normalizedParam !== 'all' && parentCategories.length > 0) {
+      const matchedParent = parentCategories.find(
+        (category) => category?.name?.toLowerCase() === normalizedParam
+      );
+      if (matchedParent) {
+        targetCategory = matchedParent.name;
+      }
     }
-  }, [searchParams, parentCategories, selectedCategory]);
+
+    // Use functional update to compare with current state without needing it in deps
+    setSelectedCategory((currentCategory) => {
+      // Only update if different to prevent unnecessary re-renders
+      return currentCategory !== targetCategory ? targetCategory : currentCategory;
+    });
+  }, [searchParams, parentCategories]);
 
   // product load show loader
 
@@ -408,7 +446,7 @@ const Shop = () => {
                               name="category"
                               value={category.name}
                               checked={selectedCategory === category.name}
-                              onChange={(e) => setSelectedCategory(e.target.value)}
+                              onChange={(e) => handleCategoryChange(e.target.value)}
                               className="sr-only"
                             />
                             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
