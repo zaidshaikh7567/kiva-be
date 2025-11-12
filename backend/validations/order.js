@@ -11,6 +11,7 @@ const addressSchema = zod.object({
 const createOrderSchema = zod.object({
   shippingAddress: addressSchema,
   billingAddress: addressSchema.optional(),
+  phone: zod.string().min(1, 'Phone is required').trim(),
   paymentMethod: zod.string().min(1, 'Payment method is required').trim(),
   notes: zod.string().trim().optional()
 });

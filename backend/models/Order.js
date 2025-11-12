@@ -123,6 +123,11 @@ const orderSchema = new mongoose.Schema({
   },
   shippingAddress: addressSchema,
   billingAddress: addressSchema,
+  phone: {
+    type: String,
+    required: true,
+    trim: true
+  },
   paymentMethod: {
     type: String,
     required: true,

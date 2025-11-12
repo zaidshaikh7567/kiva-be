@@ -20,7 +20,7 @@ const router = express.Router();
 
 router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { shippingAddress, billingAddress, paymentMethod, notes } = req.body;
+  const { shippingAddress, billingAddress, phone, paymentMethod, notes } = req.body;
 
   const cartItems = await Cart.find({ user: userId }).populate(['product', 'metal', 'stoneType']);
 
@@ -71,6 +71,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     total: subtotal,
     shippingAddress: shippingAddress,
     billingAddress: billingAddress || shippingAddress,
+    phone: phone,
     paymentMethod: paymentMethod,
     notes: notes
   });

@@ -2323,10 +2323,10 @@
 								"type": "text"
 							}
 						],
-						"description": "Create a new order from the user's cart items (User only). Automatically clears the cart after successful order creation.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Request Body (JSON):**\n- shippingAddress (required): Object with street, city, state, zipCode, country\n- billingAddress (optional): Object with street, city, state, zipCode, country (defaults to shipping address if not provided)\n- paymentMethod (required): Payment method string\n- notes (optional): Additional order notes\n\n**Response:** Returns the created order object with populated user data.",
+						"description": "Create a new order from the user's cart items (User only). Automatically clears the cart after successful order creation.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Request Body (JSON):**\n- shippingAddress (required): Object with street, city, state, zipCode, country\n- billingAddress (optional): Object with street, city, state, zipCode, country (defaults to shipping address if not provided)\n- phone (required): Customer phone number\n- paymentMethod (required): Payment method string\n- notes (optional): Additional order notes\n\n**Response:** Returns the created order object with populated user data.",
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"shippingAddress\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10001\",\n        \"country\": \"USA\"\n    },\n    \"billingAddress\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10001\",\n        \"country\": \"USA\"\n    },\n    \"paymentMethod\": \"Credit Card\",\n    \"notes\": \"Please handle with care\"\n}",
+							"raw": "{\n    \"shippingAddress\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10001\",\n        \"country\": \"USA\"\n    },\n    \"billingAddress\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10001\",\n        \"country\": \"USA\"\n    },\n    \"phone\": \"+1-555-123-4567\",\n    \"paymentMethod\": \"Credit Card\",\n    \"notes\": \"Please handle with care\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
