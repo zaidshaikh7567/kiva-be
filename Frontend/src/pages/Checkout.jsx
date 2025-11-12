@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, Package, MapPin, CreditCard, CheckCircle } from 'lucide-react';
+import { Country, State } from 'country-state-city';
 import { clearCart, clearCartItems } from '../store/slices/cartSlice';
 import { createOrder as createOrderAction } from '../store/slices/ordersSlice';
 import ShippingStep from '../components/checkout/ShippingStep';
@@ -30,6 +31,7 @@ const Checkout = () => {
     zipCode: '',
     country: ''
   });
+  console.log('shippingInfo :', shippingInfo);
   
   const [useBillingAddress, setUseBillingAddress] = useState(false);
   
@@ -44,6 +46,7 @@ const Checkout = () => {
     zipCode: '',
     country: ''
   });
+  console.log('billingInfo :', billingInfo);
   
   const [paymentInfo, setPaymentInfo] = useState({
     cardNumber: '',
@@ -100,32 +103,57 @@ const Checkout = () => {
 
   const handlePlaceOrder = async () => {
     try {
-      // Prepare order data
-      const orderData = {
-        shippingAddress: {
-          // firstName: shippingInfo.firstName,
-          // lastName: shippingInfo.lastName,
-          // email: shippingInfo.email,
-          // phone: shippingInfo.phone,
-          street: shippingInfo.address,
-          city: shippingInfo.city,
-          state: shippingInfo.state,
-          zipCode: shippingInfo.zipCode,
-          country: shippingInfo.country
-        },
-        billingAddress: useBillingAddress ? {
+      // Helper function to get country name from code
+      const getCountryName = (countryCode) => {
+        if (!countryCode) return '';
+        const country = Country.getAllCountries().find(c => c.isoCode === countryCode);
+        return country ? country.name : countryCode;
+      };
+
+      // Helper function to get state name from code
+      const getStateName = (stateCode, countryCode) => {
+        if (!stateCode || !countryCode) return '';
+        const states = State.getStatesOfCountry(countryCode);
+        const state = states.find(s => s.isoCode === stateCode);
+        return state ? state.name : stateCode;
+      };
+
+      // Convert shipping address codes to names
+      const shippingCountryName = getCountryName(shippingInfo.country);
+      const shippingStateName = getStateName(shippingInfo.state, shippingInfo.country);
+
+      // Prepare shipping address with actual names
+      const shippingAddress = {
+        street: shippingInfo.address,
+        city: shippingInfo.city,
+        state: shippingStateName,
+        zipCode: shippingInfo.zipCode,
+        country: shippingCountryName
+      };
+
+      // Prepare billing address
+      let billingAddress;
+      if (useBillingAddress) {
+        // Convert billing address codes to names
+        const billingCountryName = getCountryName(billingInfo.country);
+        console.log('billingCountryName :', billingCountryName);
+        const billingStateName = getStateName(billingInfo.state, billingInfo.country);
+        billingAddress = {
           street: billingInfo.address,
           city: billingInfo.city,
-          state: billingInfo.state,
+          state: billingStateName,
           zipCode: billingInfo.zipCode,
-          country: billingInfo.country
-        } : {
-          street: shippingInfo.address,
-          city: shippingInfo.city,
-          state: shippingInfo.state,
-          zipCode: shippingInfo.zipCode,
-          country: shippingInfo.country
-        },
+          country: billingCountryName
+        };
+      } else {
+        // Use shipping address (already converted to names)
+        billingAddress = { ...shippingAddress };
+      }
+
+      // Prepare order data
+      const orderData = {
+        shippingAddress: shippingAddress,
+        billingAddress: billingAddress,
         phone: shippingInfo.phone,
         paymentMethod: "Credit Card",
         notes: "Please handle with care"

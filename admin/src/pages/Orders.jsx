@@ -557,7 +557,7 @@ const Orders = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-primary-light">
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Order ID</th>
                 <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black">Customer</th>

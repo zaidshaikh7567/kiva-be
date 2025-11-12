@@ -15,7 +15,9 @@ const ShippingStep = ({
   loading 
 }) => {
   const [selectedCountry, setSelectedCountry] = useState(null);
+  console.log('selectedCountry :', selectedCountry);
   const [selectedState, setSelectedState] = useState(null);
+  console.log('selectedState :', selectedState);
   const [selectedBillingCountry, setSelectedBillingCountry] = useState(null);
   const [selectedBillingState, setSelectedBillingState] = useState(null);
   const [errors, setErrors] = useState({});
@@ -155,6 +157,7 @@ const countryOptions = useMemo(() => {
 
   const handleBillingCountryChange = (value) => {
     const country = Country.getAllCountries().find(c => c.isoCode === value);
+    console.log('country :', country);
     setSelectedBillingCountry(country);
     setSelectedBillingState(null); // Reset state when country changes
     
