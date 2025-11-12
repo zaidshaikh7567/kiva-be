@@ -527,13 +527,13 @@ const ReviewsSlider = () => {
                                 <video
                                   src={mediaItem.url}
                                   controls
-                                  className="w-full max-h-72 bg-black"
+                                  className="w-full max-h-36 bg-black"
                                 />
                               ) : (
                                 <img
                                   src={mediaItem.url}
                                   alt={`Review from ${review.name}`}
-                                  className="w-full h-full object-cover"
+                                  className="w-full max-h-36 object-cover"
                                 />
                               )}
                             </div>

@@ -10,6 +10,7 @@ import reviewsReducer from './slices/reviewsSlice';
 import collectionsReducer from './slices/collectionsSlice';
 import contactsReducer from './slices/contactsSlice';
 import favoritesReducer from './slices/favoritesSlice';
+import ordersReducer from './slices/ordersSlice';
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     collections: collectionsReducer,
     contacts: contactsReducer,
     favorites: favoritesReducer,
+    orders: ordersReducer,
     // Add other reducers here as needed
     // orders: ordersReducer,
     // etc.

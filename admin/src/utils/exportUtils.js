@@ -14,51 +14,146 @@ const generateUniqueFilename = (filename = 'orders', extension = 'csv') => {
   return `${filename}_${date}_${time}.${extension}`;
 };
 
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD'
+});
+
+const formatCurrency = (value = 0) => currencyFormatter.format(Number(value) || 0);
+
+const parseCurrency = (value = '') => {
+  if (typeof value === 'number') return value;
+  if (!value) return 0;
+  const parsed = parseFloat(String(value).replace(/[^0-9.-]+/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const normalizeOrder = (order = {}) => {
+  if (!order || typeof order !== 'object') {
+    return {
+      OrderID: '',
+      Customer: '',
+      Email: '',
+      Phone: '',
+      Date: '',
+      Status: '',
+      Total: formatCurrency(0),
+      PaymentMethod: '',
+      PaymentStatus: '',
+      ShippingAddress: '',
+      Items: '',
+      Notes: '',
+      ItemCount: 0,
+      TotalAmount: 0,
+    };
+  }
+
+  // If already in normalized shape (OrderID etc.)
+  if (order.OrderID || order.Customer || order.Total) {
+    const totalAmount =
+      order.TotalAmount !== undefined
+        ? order.TotalAmount
+        : parseCurrency(order.Total || order.total);
+
+    return {
+      OrderID: order.OrderID || order.id || '',
+      Customer: order.Customer || order.customer || '',
+      Email: order.Email || order.email || '',
+      Phone: order.Phone || order.phone || '',
+      Date: order.Date || order.date || '',
+      Status: order.Status || order.status || '',
+      Total: order.Total || formatCurrency(totalAmount),
+      PaymentMethod: order.PaymentMethod || order.paymentMethod || '',
+      PaymentStatus: order.PaymentStatus || order.paymentStatus || '',
+      ShippingAddress: order.ShippingAddress || order.shippingAddress || '',
+      Items: order.Items || order.items || '',
+      Notes: order.Notes || order.notes || '',
+      ItemCount: order.ItemCount || order.itemCount || 0,
+      TotalAmount: totalAmount,
+    };
+  }
+
+  // Raw order object from API
+  const shipping = order.shippingAddress || order.shipping || {};
+  const items = Array.isArray(order.items) ? order.items : [];
+  const customerName =
+    order.user?.name ||
+    [shipping.firstName, shipping.lastName].filter(Boolean).join(' ') ||
+    'Customer';
+  const customerEmail = order.user?.email || shipping.email || '';
+  const customerPhone = order.user?.phone || shipping.phone || '';
+  const orderDate = order.createdAt || order.date || '';
+  const status = order.status || 'pending';
+  const paymentMethod = order.payment?.method || order.paymentMethod || '';
+  const paymentStatus = order.payment?.status || order.paymentStatus || '';
+  const totalAmount =
+    order.totals?.total ||
+    order.finalTotal ||
+    order.total ||
+    parseCurrency(order.Total);
+
+  const shippingAddress = [
+    shipping.street,
+    shipping.city,
+    shipping.state,
+    shipping.zipCode,
+    shipping.country,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  const itemsSummary = items
+    .map((item) => {
+      const product = item.product || {};
+      const name = item.productName || product.title || product.name || 'Product';
+      const quantity = item.quantity || 1;
+      const unitPrice = item.unitPrice || item.price || product.price || 0;
+      const totalPrice =
+        item.totalPrice || item.calculatedPrice || unitPrice * quantity;
+      return `${name} (Qty: ${quantity}, Total: ${formatCurrency(totalPrice)})`;
+    })
+    .join('; ');
+
+  return {
+    OrderID: order.orderNumber || order._id || order.id || '',
+    Customer: customerName,
+    Email: customerEmail,
+    Phone: customerPhone,
+    Date: orderDate ? new Date(orderDate).toLocaleDateString() : '',
+    Status: status,
+    Total: formatCurrency(totalAmount),
+    PaymentMethod: paymentMethod,
+    PaymentStatus: paymentStatus,
+    ShippingAddress: shippingAddress,
+    Items: itemsSummary,
+    Notes: order.notes || '',
+    ItemCount: items.length,
+    TotalAmount: totalAmount,
+  };
+};
+
+const normalizeOrders = (orders = []) =>
+  orders.map((order) => normalizeOrder(order));
+
 /**
  * Export orders data to CSV format
- * @param {Array} orders - Array of order objects
+ * @param {Array} orders - Array of order objects (raw or normalized)
  * @param {string} filename - Name of the file to download
  */
 export const exportToCSV = (orders, filename = 'orders') => {
-  if (!orders || orders.length === 0) {
+  if (!Array.isArray(orders) || orders.length === 0) {
     alert('No orders to export');
     return;
   }
 
-  // Define CSV headers
-  const headers = [
-    'Order ID',
-    'Customer Name',
-    'Customer Email',
-    'Customer Phone',
-    'Date',
-    'Status',
-    'Total',
-    'Payment Method',
-    'Payment Status',
-    'Shipping Address',
-    'Shipping Method',
-    'Items'
-  ];
+  const normalizedOrders = normalizeOrders(orders);
+  const headers = Object.keys(normalizedOrders[0]).filter(
+    (key) => key !== 'TotalAmount'
+  );
 
-  // Convert orders to CSV rows
-  const rows = orders.map(order => {
-    const items = order.items.map(item => `${item.name} (Qty: ${item.quantity})`).join('; ');
-    return [
-      order.id || '',
-      order.customer?.name || '',
-      order.customer?.email || '',
-      order.customer?.phone || '',
-      order.date || '',
-      order.status || '',
-      `$${order.total?.toFixed(2) || '0.00'}`,
-      order.payment?.method || '',
-      order.payment?.status || '',
-      order.shipping?.address || '',
-      order.shipping?.method || '',
-      items
-    ];
-  });
+  const rows = normalizedOrders.map((order) =>
+    headers.map((header) => order[header] ?? '')
+  );
 
   // Create CSV content
   const csvContent = [
@@ -92,10 +187,12 @@ export const exportToCSV = (orders, filename = 'orders') => {
  * @param {string} filename - Name of the file to download
  */
 export const exportToPDF = (orders, filename = 'orders') => {
-  if (!orders || orders.length === 0) {
+  if (!Array.isArray(orders) || orders.length === 0) {
     alert('No orders to export');
     return;
   }
+
+  const normalizedOrders = normalizeOrders(orders);
 
   // Create new PDF document
   const doc = new jsPDF();
@@ -110,14 +207,14 @@ export const exportToPDF = (orders, filename = 'orders') => {
   doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
   
   // Prepare table data
-  const tableData = orders.map(order => [
-    order.id || '',
-    order.customer?.name || '',
-    order.customer?.email || '',
-    new Date(order.date).toLocaleDateString() || '',
-    order.status || '',
-    `$${order.total?.toFixed(2) || '0.00'}`,
-    order.payment?.status || ''
+  const tableData = normalizedOrders.map((order) => [
+    order.OrderID,
+    order.Customer,
+    order.Email,
+    order.Date,
+    order.Status,
+    order.Total,
+    order.PaymentStatus,
   ]);
 
   // Calculate available width for table (page width - margins)
@@ -163,9 +260,13 @@ export const exportToPDF = (orders, filename = 'orders') => {
   });
 
   // Add summary statistics
-  const totalAmount = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-  const statusCounts = orders.reduce((acc, order) => {
-    acc[order.status] = (acc[order.status] || 0) + 1;
+  const totalAmount = normalizedOrders.reduce(
+    (sum, order) => sum + (order.TotalAmount || 0),
+    0
+  );
+  const statusCounts = normalizedOrders.reduce((acc, order) => {
+    const status = order.Status || 'unknown';
+    acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
 

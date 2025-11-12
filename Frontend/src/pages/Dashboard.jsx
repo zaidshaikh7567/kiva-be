@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Package, MapPin, CreditCard } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectAuthUser } from '../store/slices/authSlice';
@@ -7,8 +8,16 @@ import ProfileForm from '../components/account/ProfileForm';
 import OrdersList from '../components/account/OrdersList';
 
 const Dashboard = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('profile');
   const user = useSelector(selectAuthUser);
+
+  // Check if we should show orders tab (from navigation state or URL param)
+  useEffect(() => {
+    if (location.state?.tab === 'orders' || new URLSearchParams(location.search).get('tab') === 'orders') {
+      setActiveTab('orders');
+    }
+  }, [location]);
 
   return (
     <div className="min-h-screen bg-secondary py-8">

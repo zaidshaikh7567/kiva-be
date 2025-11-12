@@ -1,14 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { 
-  ShoppingBag, 
-  Search, 
-  Filter, 
-  Eye, 
-  Package, 
-  Truck, 
-  CheckCircle, 
-  Clock, 
+import {
+  ShoppingBag,
+  Search,
+  Filter,
+  Eye,
+  Package,
+  Truck,
+  CheckCircle,
+  Clock,
   XCircle,
   Download,
   MoreVertical,
@@ -21,12 +21,56 @@ import {
   RotateCcw,
   FileText,
   FileSpreadsheet,
-  ChevronDown
+  ChevronDown,
+  Loader2,
 } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 import Pagination from '../components/Pagination';
 import CustomDropdown from '../components/CustomDropdown';
 import { exportToPDF, exportToCSV } from '../utils/exportUtils';
 import { ORDER_STATUS_COLORS } from '../constants';
+import { 
+  fetchOrders, 
+  fetchOrderById, 
+  updateOrderStatus, 
+  selectAdminOrders, 
+  selectAdminOrdersLoading, 
+  selectAdminOrdersPagination, 
+  selectAdminCurrentOrder, 
+  selectAdminOrdersUpdating,
+  clearCurrentOrder
+} from '../store/slices/ordersSlice';
+
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
+const formatCurrency = (value = 0) => currencyFormatter.format(Number(value) || 0);
+
+const formatOrderDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  try {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+const formatOrderNumber = (order) => {
+  if (!order) return 'N/A';
+  return (
+    order.orderNumber ||
+    order._id ||
+    (order.id ? `ORD-${order.id}` : null) ||
+    'N/A'
+  );
+};
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,286 +81,67 @@ const Orders = () => {
   const [itemsPerPage] = useState(10);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef(null);
+  const dispatch = useDispatch();
+  const orders = useSelector(selectAdminOrders);
+  const loading = useSelector(selectAdminOrdersLoading);
+  const pagination = useSelector(selectAdminOrdersPagination);
+  const currentOrder = useSelector(selectAdminCurrentOrder);
+  const updatingStatus = useSelector(selectAdminOrdersUpdating);
+  const [selectedStatus, setSelectedStatus] = useState('');
 
-  // Mock orders data - expanded for pagination demo
-  const orders = [
-    {
-      id: 'ORD-001',
-      customer: {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 (555) 123-4567'
-      },
-      date: '2024-01-15',
-      status: 'delivered',
-      total: 299.99,
-      items: [
-        { name: 'Diamond Ring', quantity: 1, price: 299.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '123 Main Street, New York, NY 10001',
-        method: 'Standard Shipping'
-      },
-      payment: {
-        method: 'Credit Card',
-        status: 'paid'
-      }
-    },
-    {
-      id: 'ORD-002',
-      customer: {
-        name: 'Jane Smith',
-        email: 'jane.smith@example.com',
-        phone: '+1 (555) 987-6543'
-      },
-      date: '2024-01-14',
-      status: 'shipped',
-      total: 199.99,
-      items: [
-        { name: 'Gold Earrings', quantity: 1, price: 199.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '456 Oak Avenue, Los Angeles, CA 90210',
-        method: 'Express Shipping'
-      },
-      payment: {
-        method: 'PayPal',
-        status: 'paid'
-      }
-    },
-    {
-      id: 'ORD-003',
-      customer: {
-        name: 'Mike Johnson',
-        email: 'mike.johnson@example.com',
-        phone: '+1 (555) 456-7890'
-      },
-      date: '2024-01-13',
-      status: 'processing',
-      total: 149.99,
-      items: [
-        { name: 'Silver Bracelet', quantity: 1, price: 149.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '789 Pine Street, Chicago, IL 60601',
-        method: 'Standard Shipping'
-      },
-      payment: {
-        method: 'Credit Card',
-        status: 'pending'
-      }
-    },
-    {
-      id: 'ORD-004',
-      customer: {
-        name: 'Sarah Wilson',
-        email: 'sarah.wilson@example.com',
-        phone: '+1 (555) 321-0987'
-      },
-      date: '2024-01-12',
-      status: 'cancelled',
-      total: 89.99,
-      items: [
-        { name: 'Pearl Necklace', quantity: 1, price: 89.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '321 Elm Street, Miami, FL 33101',
-        method: 'Standard Shipping'
-      },
-      payment: {
-        method: 'Credit Card',
-        status: 'refunded'
-      }
-    },
-    {
-      id: 'ORD-005',
-      customer: {
-        name: 'David Brown',
-        email: 'david.brown@example.com',
-        phone: '+1 (555) 654-3210'
-      },
-      date: '2024-01-11',
-      status: 'delivered',
-      total: 399.99,
-      items: [
-        { name: 'Platinum Watch', quantity: 1, price: 399.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '654 Maple Drive, Seattle, WA 98101',
-        method: 'Express Shipping'
-      },
-      payment: {
-        method: 'Credit Card',
-        status: 'paid'
-      }
-    },
-    {
-      id: 'ORD-006',
-      customer: {
-        name: 'Lisa Davis',
-        email: 'lisa.davis@example.com',
-        phone: '+1 (555) 789-0123'
-      },
-      date: '2024-01-10',
-      status: 'shipped',
-      total: 179.99,
-      items: [
-        { name: 'Ruby Pendant', quantity: 1, price: 179.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '987 Cedar Lane, Boston, MA 02101',
-        method: 'Standard Shipping'
-      },
-      payment: {
-        method: 'PayPal',
-        status: 'paid'
-      }
-    },
-    {
-      id: 'ORD-007',
-      customer: {
-        name: 'Robert Taylor',
-        email: 'robert.taylor@example.com',
-        phone: '+1 (555) 234-5678'
-      },
-      date: '2024-01-09',
-      status: 'processing',
-      total: 249.99,
-      items: [
-        { name: 'Emerald Ring', quantity: 1, price: 249.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '147 Birch Street, Denver, CO 80201',
-        method: 'Standard Shipping'
-      },
-      payment: {
-        method: 'Credit Card',
-        status: 'pending'
-      }
-    },
-    {
-      id: 'ORD-008',
-      customer: {
-        name: 'Maria Garcia',
-        email: 'maria.garcia@example.com',
-        phone: '+1 (555) 345-6789'
-      },
-      date: '2024-01-08',
-      status: 'delivered',
-      total: 129.99,
-      items: [
-        { name: 'Sapphire Earrings', quantity: 1, price: 129.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '258 Spruce Avenue, Phoenix, AZ 85001',
-        method: 'Express Shipping'
-      },
-      payment: {
-        method: 'Credit Card',
-        status: 'paid'
-      }
-    },
-    {
-      id: 'ORD-009',
-      customer: {
-        name: 'James Wilson',
-        email: 'james.wilson@example.com',
-        phone: '+1 (555) 456-7890'
-      },
-      date: '2024-01-07',
-      status: 'cancelled',
-      total: 199.99,
-      items: [
-        { name: 'Gold Chain', quantity: 1, price: 199.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '369 Willow Road, Austin, TX 73301',
-        method: 'Standard Shipping'
-      },
-      payment: {
-        method: 'Credit Card',
-        status: 'refunded'
-      }
-    },
-    {
-      id: 'ORD-010',
-      customer: {
-        name: 'Jennifer Lee',
-        email: 'jennifer.lee@example.com',
-        phone: '+1 (555) 567-8901'
-      },
-      date: '2024-01-06',
-      status: 'shipped',
-      total: 349.99,
-      items: [
-        { name: 'Diamond Necklace', quantity: 1, price: 349.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '741 Pine Street, Portland, OR 97201',
-        method: 'Express Shipping'
-      },
-      payment: {
-        method: 'PayPal',
-        status: 'paid'
-      }
-    },
-    {
-      id: 'ORD-011',
-      customer: {
-        name: 'Michael Chen',
-        email: 'michael.chen@example.com',
-        phone: '+1 (555) 678-9012'
-      },
-      date: '2024-01-05',
-      status: 'processing',
-      total: 89.99,
-      items: [
-        { name: 'Silver Ring', quantity: 1, price: 89.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '852 Oak Drive, San Francisco, CA 94101',
-        method: 'Standard Shipping'
-      },
-      payment: {
-        method: 'Credit Card',
-        status: 'pending'
-      }
-    },
-    {
-      id: 'ORD-012',
-      customer: {
-        name: 'Amanda Rodriguez',
-        email: 'amanda.rodriguez@example.com',
-        phone: '+1 (555) 789-0123'
-      },
-      date: '2024-01-04',
-      status: 'delivered',
-      total: 279.99,
-      items: [
-        { name: 'Pearl Earrings', quantity: 1, price: 279.99, image: '/api/placeholder/60/60' }
-      ],
-      shipping: {
-        address: '963 Elm Street, San Diego, CA 92101',
-        method: 'Express Shipping'
-      },
-      payment: {
-        method: 'Credit Card',
-        status: 'paid'
-      }
+  const handleStatusChange = (value) => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      dispatch(
+        fetchOrders({
+          page: currentPage,
+          limit: itemsPerPage,
+          status: statusFilter === 'all' ? '' : statusFilter,
+          search: searchTerm.trim(),
+        })
+      );
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [dispatch, currentPage, itemsPerPage, statusFilter, searchTerm]);
+
+  useEffect(() => {
+    if (currentOrder) {
+      setSelectedOrder(currentOrder);
+      setSelectedStatus(currentOrder.status || '');
     }
-  ];
+  }, [currentOrder]);
 
   const getStatusColor = (status) => {
-    return ORDER_STATUS_COLORS[status] || ORDER_STATUS_COLORS.default;
+    const normalized = (status || '').toLowerCase();
+    if (normalized === 'completed') {
+      return ORDER_STATUS_COLORS.delivered || ORDER_STATUS_COLORS.default;
+    }
+    if (normalized === 'pending') {
+      return ORDER_STATUS_COLORS.processing || ORDER_STATUS_COLORS.default;
+    }
+    return ORDER_STATUS_COLORS[normalized] || ORDER_STATUS_COLORS.default;
   };
 
   const getStatusIcon = (status) => {
-    switch (status) {
+    const normalized = (status || '').toLowerCase();
+    switch (normalized) {
       case 'delivered':
+      case 'completed':
         return <CheckCircle className="w-4 h-4" />;
       case 'shipped':
         return <Truck className="w-4 h-4" />;
       case 'processing':
+      case 'pending':
         return <Clock className="w-4 h-4" />;
       case 'cancelled':
         return <XCircle className="w-4 h-4" />;
@@ -324,21 +149,6 @@ const Orders = () => {
         return <Clock className="w-4 h-4" />;
     }
   };
-
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  // Pagination logic
-  const totalItems = filteredOrders.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -353,28 +163,125 @@ const Orders = () => {
   // Status filter options
   const statusOptions = [
     { value: 'all', label: 'All Status' },
+    { value: 'pending', label: 'Pending' },
     { value: 'processing', label: 'Processing' },
     { value: 'shipped', label: 'Shipped' },
     { value: 'delivered', label: 'Delivered' },
-    { value: 'cancelled', label: 'Cancelled' }
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' },
   ];
+  const statusUpdateOptions = statusOptions.filter((option) => option.value !== 'all');
 
-  // Reset to first page when search or filter changes
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, statusFilter]);
+  const orderStats = useMemo(() => {
+    const list = Array.isArray(orders) ? orders : [];
+    const counts = {
+      delivered: 0,
+      shipped: 0,
+      processing: 0,
+      cancelled: 0,
+    };
 
-  const orderStats = {
-    total: orders.length,
-    delivered: orders.filter(o => o.status === 'delivered').length,
-    shipped: orders.filter(o => o.status === 'shipped').length,
-    processing: orders.filter(o => o.status === 'processing').length,
-    cancelled: orders.filter(o => o.status === 'cancelled').length
+    list.forEach((order) => {
+      const status = (order.status || '').toLowerCase();
+      if (status === 'delivered' || status === 'completed') {
+        counts.delivered += 1;
+      } else if (status === 'shipped') {
+        counts.shipped += 1;
+      } else if (status === 'processing' || status === 'pending') {
+        counts.processing += 1;
+      } else if (status === 'cancelled') {
+        counts.cancelled += 1;
+      }
+    });
+
+    return {
+      total: pagination.total || list.length,
+      ...counts,
+    };
+  }, [orders, pagination]);
+
+  const totalPages = pagination.totalPages || 1;
+  const totalItems = pagination.total || orders.length;
+  const isInitialLoading = loading && (!orders || orders.length === 0);
+
+  const modalData = useMemo(() => {
+    if (!selectedOrder) return null;
+
+    const order = selectedOrder;
+    const statusLower = (order.status || 'pending').toLowerCase();
+    const shippingAddress = order.shippingAddress || {};
+    const billingAddress = order.billingAddress || null;
+    const orderItems = Array.isArray(order.items) ? order.items : [];
+    const customerName =
+      order.user?.name ||
+      [shippingAddress.firstName, shippingAddress.lastName].filter(Boolean).join(' ') ||
+      'Customer';
+    const customerEmail = order.user?.email || shippingAddress.email || '—';
+    const customerPhone = order.user?.phone || shippingAddress.phone || '—';
+    const paymentMethodLabel = order.payment?.method || order.paymentMethod || 'N/A';
+    const paymentStatusLabel = (order.payment?.status || order.paymentStatus || 'pending').toLowerCase();
+    const orderTotalAmount =
+      order.totals?.total || order.finalTotal || order.total || 0;
+    const orderIdDisplay = formatOrderNumber(order);
+
+    return {
+      order,
+      statusLower,
+      shippingAddress,
+      billingAddress,
+      orderItems,
+      customerName,
+      customerEmail,
+      customerPhone,
+      paymentMethodLabel,
+      paymentStatusLabel,
+      orderTotalAmount,
+      orderIdDisplay,
+    };
+  }, [selectedOrder]);
+
+  const handleViewOrder = async (order) => {
+    const orderId = order._id || order.id;
+    setSelectedOrder(order);
+    setSelectedStatus(order.status || '');
+    setShowOrderModal(true);
+
+    if (orderId) {
+      const result = await dispatch(fetchOrderById(orderId));
+      if (fetchOrderById.rejected.match(result)) {
+        toast.error(result.payload || 'Failed to load order details');
+      }
+    }
   };
 
-  const handleViewOrder = (order) => {
-    setSelectedOrder(order);
-    setShowOrderModal(true);
+  const handleUpdateStatus = async () => {
+    if (!selectedOrder) return;
+    const orderId = selectedOrder._id || selectedOrder.id;
+    if (!orderId) return;
+
+    if (!selectedStatus || selectedStatus === selectedOrder.status) {
+      toast.error('Select a different status to update.');
+      return;
+    }
+
+    const result = await dispatch(updateOrderStatus({ orderId, status: selectedStatus }));
+    if (updateOrderStatus.fulfilled.match(result)) {
+      dispatch(
+        fetchOrders({
+          page: currentPage,
+          limit: itemsPerPage,
+          status: statusFilter === 'all' ? '' : statusFilter,
+          search: searchTerm.trim(),
+        })
+      );
+    }
+  };
+
+  const closeOrderModal = () => {
+    setShowOrderModal(false);
+    setSelectedOrder(null);
+    setSelectedStatus('');
+    dispatch(clearCurrentOrder());
   };
 
   // Close export menu when clicking outside
@@ -395,16 +302,70 @@ const Orders = () => {
   }, [showExportMenu]);
 
   // Export handlers
+  const formatOrderForExport = (order) => {
+    if (!order) return {};
+    const shipping = order.shippingAddress || {};
+    const items = Array.isArray(order.items) ? order.items : [];
+
+    return {
+      OrderID: formatOrderNumber(order),
+      Status: (order.status || 'Pending'),
+      Customer:
+        order.user?.name ||
+        [shipping.firstName, shipping.lastName].filter(Boolean).join(' ') ||
+        'Customer',
+      Email: order.user?.email || shipping.email || '',
+      Phone: order.user?.phone || shipping.phone || '',
+      Date: formatOrderDate(order.createdAt || order.date),
+      Total: formatCurrency(order.totals?.total || order.finalTotal || order.total || 0),
+      ItemCount: items.length,
+      Items: items
+        .map((item) => {
+          const product = item.product || {};
+          const name = item.productName || product.title || product.name || 'Product';
+          const quantity = item.quantity || 1;
+          const unitPrice = item.unitPrice || item.price || product.price || 0;
+          const totalPrice =
+            item.totalPrice || item.calculatedPrice || unitPrice * quantity;
+          return `${name} (Qty: ${quantity}, Total: ${formatCurrency(totalPrice)})`;
+        })
+        .join('; '),
+      ShippingAddress: [
+        shipping.street,
+        shipping.city,
+        shipping.state,
+        shipping.zipCode,
+        shipping.country,
+      ]
+        .filter(Boolean)
+        .join(', '),
+      Notes: order.notes || '',
+    };
+  };
+
   const handleExportPDF = () => {
-    exportToPDF(filteredOrders, 'orders');
+    const formattedData = orders.map(formatOrderForExport);
+    exportToPDF(formattedData, 'orders');
     setShowExportMenu(false);
   };
 
   const handleExportCSV = () => {
-    exportToCSV(filteredOrders, 'orders');
+    const formattedData = orders.map(formatOrderForExport);
+    exportToCSV(formattedData, 'orders');
     setShowExportMenu(false);
   };
 
+
+  if (isInitialLoading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center bg-secondary rounded-xl border border-gray-200">
+        <div className="flex flex-col items-center space-y-3 text-black-light">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          <p className="font-montserrat-medium-500">Loading orders...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -488,7 +449,7 @@ const Orders = () => {
                 type="text"
                 placeholder="Search orders by ID, customer name, or email..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary !focus:border-primary font-montserrat-regular-400 text-black"
               />
             </div>
@@ -499,7 +460,7 @@ const Orders = () => {
             <CustomDropdown
               options={statusOptions}
               value={statusFilter}
-              onChange={setStatusFilter}
+              onChange={handleStatusChange}
               placeholder="All Status"
               className="w-full"
             />
@@ -573,7 +534,7 @@ const Orders = () => {
                     <Filter className="w-4 h-4" />
                     <span className="capitalize">{statusFilter}</span>
                     <button
-                      onClick={() => setStatusFilter('all')}
+                      onClick={() => handleStatusChange('all')}
                       className="ml-1 hover:text-primary-dark transition-colors duration-300"
                     >
                       <XCircle className="w-4 h-4" />
@@ -607,50 +568,72 @@ const Orders = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {paginatedOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 transition-colors duration-300">
-                  <td className="px-6 py-4">
-                    <span className="font-montserrat-semibold-600 text-black">{order.id}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-montserrat-medium-500 text-black">{order.customer.name}</p>
-                      <p className="text-sm font-montserrat-regular-400 text-black-light">{order.customer.email}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4 text-black-light" />
-                      <span className="font-montserrat-regular-400 text-black">
-                        {new Date(order.date).toLocaleDateString()}
+              {orders.map((order) => {
+                const orderIdDisplay = formatOrderNumber(order);
+                const shippingAddress = order.shippingAddress || {};
+                const customerName =
+                  order.user?.name ||
+                  [shippingAddress.firstName, shippingAddress.lastName].filter(Boolean).join(' ') ||
+                  'Customer';
+                const customerEmail = order.user?.email || shippingAddress.email || '—';
+                const orderDate = order.createdAt || order.date;
+                const status = (order.status || 'pending').toLowerCase();
+                const totalAmount = order.totals?.total || order.finalTotal || order.total || 0;
+
+                return (
+                  <tr
+                    key={order._id || order.id || order.orderNumber}
+                    className="hover:bg-gray-50 transition-colors duration-300"
+                  >
+                    <td className="px-6 py-4">
+                      <span className="font-montserrat-semibold-600 text-black">
+                        {orderIdDisplay}
                       </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-montserrat-medium-500 ${getStatusColor(order.status)}`}>
-                      {getStatusIcon(order.status)}
-                      <span className="capitalize">{order.status}</span>
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-montserrat-semibold-600 text-black">${order.total}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleViewOrder(order)}
-                        className="flex items-center space-x-1 px-3 py-2 text-sm font-montserrat-medium-500 text-primary hover:bg-primary-light rounded-lg transition-colors duration-300"
+                    </td>
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="font-montserrat-medium-500 text-black">{customerName}</p>
+                        <p className="text-sm font-montserrat-regular-400 text-black-light">
+                          {customerEmail}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-black-light" />
+                        <span className="font-montserrat-regular-400 text-black">
+                          {formatOrderDate(orderDate)}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-montserrat-medium-500 ${getStatusColor(
+                          status
+                        )}`}
                       >
-                        <Eye className="w-4 h-4" />
-                        {/* <span>View</span> */}
-                      </button>
-                      {/* <button className="p-2 text-black-light hover:text-black hover:bg-gray-100 rounded-lg transition-colors duration-300">
-                        <MoreVertical className="w-4 h-4" />
-                      </button> */}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {getStatusIcon(status)}
+                        <span className="capitalize">{status}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="font-montserrat-semibold-600 text-black">
+                        {formatCurrency(totalAmount)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleViewOrder(order)}
+                          className="flex items-center space-x-1 px-3 py-2 text-sm font-montserrat-medium-500 text-primary hover:bg-primary-light rounded-lg transition-colors duration-300"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -669,16 +652,16 @@ const Orders = () => {
       )}
   
       {/* Order Details Modal */}
-      {showOrderModal && selectedOrder && createPortal(
+      {showOrderModal && modalData && createPortal(
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
           <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-sorts-mill-gloudy font-bold text-black">
-                  Order Details - {selectedOrder.id}
+                  Order Details - {modalData.orderIdDisplay}
                 </h2>
                 <button
-                  onClick={() => setShowOrderModal(false)}
+                  onClick={closeOrderModal}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-300"
                 >
                   <XCircle className="w-6 h-6 text-black-light" />
@@ -688,17 +671,37 @@ const Orders = () => {
 
             <div className="p-6 space-y-4">
               {/* Order Status */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-montserrat-semibold-600 text-black">Order Status</h3>
-                  <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-montserrat-medium-500 ${getStatusColor(selectedOrder.status)}`}>
-                    {getStatusIcon(selectedOrder.status)}
-                    <span className="capitalize">{selectedOrder.status}</span>
+                  <span
+                    className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-montserrat-medium-500 ${getStatusColor(
+                      modalData.statusLower
+                    )}`}
+                  >
+                    {getStatusIcon(modalData.statusLower)}
+                    <span className="capitalize">{modalData.statusLower}</span>
                   </span>
                 </div>
-                <div className="flex space-x-2">
-                  <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark font-montserrat-medium-500 transition-colors duration-300">
-                    Update Status
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                  <CustomDropdown
+                    options={statusUpdateOptions}
+                    value={selectedStatus}
+                    onChange={setSelectedStatus}
+                    placeholder="Select status"
+                    className="w-full sm:w-48"
+                    searchable={false}
+                  />
+                  <button
+                    onClick={handleUpdateStatus}
+                    disabled={
+                      updatingStatus ||
+                      !selectedStatus ||
+                      selectedStatus === modalData.order.status
+                    }
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark font-montserrat-medium-500 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {updatingStatus ? 'Updating...' : 'Update Status'}
                   </button>
                 </div>
               </div>
@@ -710,15 +713,15 @@ const Orders = () => {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3">
                       <User className="w-5 h-5 text-black-light" />
-                      <span className="font-montserrat-medium-500 text-black">{selectedOrder.customer.name}</span>
+                      <span className="font-montserrat-medium-500 text-black">{modalData.customerName}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Mail className="w-5 h-5 text-black-light" />
-                      <span className="font-montserrat-regular-400 text-black">{selectedOrder.customer.email}</span>
+                      <span className="font-montserrat-regular-400 text-black">{modalData.customerEmail}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Phone className="w-5 h-5 text-black-light" />
-                      <span className="font-montserrat-regular-400 text-black">{selectedOrder.customer.phone}</span>
+                      <span className="font-montserrat-regular-400 text-black">{modalData.customerPhone}</span>
                     </div>
                   </div>
                 </div>
@@ -729,8 +732,21 @@ const Orders = () => {
                     <div className="flex items-start space-x-3">
                       <MapPin className="w-5 h-5 text-black-light mt-1" />
                       <div>
-                        <p className="font-montserrat-medium-500 text-black">{selectedOrder.shipping.method}</p>
-                        <p className="font-montserrat-regular-400 text-black-light">{selectedOrder.shipping.address}</p>
+                        <p className="font-montserrat-medium-500 text-black">
+                          {[modalData.shippingAddress.street, modalData.shippingAddress.city]
+                            .filter(Boolean)
+                            .join(', ')}
+                        </p>
+                        <p className="font-montserrat-regular-400 text-black-light">
+                          {[modalData.shippingAddress.state, modalData.shippingAddress.zipCode]
+                            .filter(Boolean)
+                            .join(' ')}
+                        </p>
+                        {modalData.shippingAddress.country && (
+                          <p className="font-montserrat-regular-400 text-black-light">
+                            {modalData.shippingAddress.country}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -741,44 +757,121 @@ const Orders = () => {
               <div>
                 <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">Order Items</h3>
                 <div className="space-y-3">
-                  {selectedOrder.items.map((item, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 border border-primary-light rounded-lg">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Package className="w-6 h-6 text-gray-400" />
+                  {modalData.orderItems.map((item, index) => {
+                    const product = item.product || item;
+                    const productName =
+                      item.productName || product.title || product.name || 'Product';
+                    const productImage =
+                      item.productImage ||
+                      product.images?.[0]?.url ||
+                      product.images?.[0] ||
+                      product.image;
+                    const quantity = item.quantity || 1;
+                    const unitPrice = item.unitPrice || item.price || product.price || 0;
+                    const totalPrice =
+                      item.totalPrice || item.calculatedPrice || unitPrice * quantity;
+                    const metalName = item.metalName || item.metal?.name || '';
+                    const purityLevelValue = item.purityLevel?.karat || item.metal?.karat;
+                    const purityLevel = purityLevelValue ? `${purityLevelValue}K` : '';
+                    const stoneName = item.stoneName || item.stoneType?.name || '';
+                    const stonePrice = item.stonePrice || item.stoneType?.price || 0;
+                    const ringSize = item.ringSize || '';
+
+                    return (
+                      <div
+                        key={item._id || index}
+                        className="flex items-start space-x-3 p-3 border border-primary-light rounded-lg"
+                      >
+                        {productImage ? (
+                          <img
+                            src={productImage}
+                            alt={productName}
+                            className="w-12 h-12 object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <Package className="w-6 h-6 text-gray-400" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h4 className="font-montserrat-semibold-600 text-black">{productName}</h4>
+                          <div className="text-sm font-montserrat-regular-400 text-black-light space-y-1 mt-1">
+                            <p>
+                              Quantity: {quantity} × {formatCurrency(unitPrice)}
+                            </p>
+                            {(metalName || purityLevel) && (
+                              <p>
+                                Metal: {metalName}
+                                {metalName && purityLevel ? ` (${purityLevel})` : purityLevel}
+                              </p>
+                            )}
+                            {stoneName && <p>Stone: {stoneName}</p>}
+                            {stonePrice > 0 && <p>Stone Price: {formatCurrency(stonePrice)}</p>}
+                            {ringSize && <p>Size: {ringSize}</p>}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-montserrat-semibold-600 text-black">
+                            {formatCurrency(totalPrice)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-montserrat-semibold-600 text-black">{item.name}</h4>
-                        <p className="font-montserrat-regular-400 text-black-light">Quantity: {item.quantity}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-montserrat-semibold-600 text-black">${item.price}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
+              {/* Billing Address */}
+              {modalData.billingAddress && (
+                <div>
+                  <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">
+                    Billing Address
+                  </h3>
+                  <div className="space-y-1 text-sm font-montserrat-regular-400 text-black-light">
+                    <p>
+                      {[modalData.billingAddress.street, modalData.billingAddress.city]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </p>
+                    <p>
+                      {[modalData.billingAddress.state, modalData.billingAddress.zipCode]
+                        .filter(Boolean)
+                        .join(' ')}
+                    </p>
+                    {modalData.billingAddress.country && <p>{modalData.billingAddress.country}</p>}
+                  </div>
+                </div>
+              )}
+
               {/* Payment Information */}
               <div>
-                <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">Payment Information</h3>
+                <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">
+                  Payment Information
+                </h3>
                 <div className="flex items-center space-x-3">
                   <CreditCard className="w-5 h-5 text-black-light" />
-                  <span className="font-montserrat-medium-500 text-black">{selectedOrder.payment.method}</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-montserrat-medium-500 ${
-                    selectedOrder.payment.status === 'paid' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {selectedOrder.payment.status}
+                  <span className="font-montserrat-medium-500 text-black">
+                    {modalData.paymentMethodLabel}
+                  </span>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-montserrat-medium-500 ${
+                      modalData.paymentStatusLabel === 'paid'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {modalData.paymentStatusLabel}
                   </span>
                 </div>
               </div>
 
               {/* Order Total */}
-              <div className="border-t border-gray-200 pt-3">
+              <div className="border-top border-gray-200 pt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-montserrat-semibold-600 text-black">Total</span>
-                  <span className="text-2xl font-sorts-mill-gloudy font-bold text-black">${selectedOrder.total}</span>
+                  <span className="text-2xl font-sorts-mill-gloudy font-bold text-black">
+                    {formatCurrency(modalData.orderTotalAmount)}
+                  </span>
                 </div>
               </div>
             </div>
