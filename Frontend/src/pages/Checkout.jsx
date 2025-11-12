@@ -126,6 +126,7 @@ const Checkout = () => {
           zipCode: shippingInfo.zipCode,
           country: shippingInfo.country
         },
+        phone: shippingInfo.phone,
         paymentMethod: "Credit Card",
         notes: "Please handle with care"
       };
