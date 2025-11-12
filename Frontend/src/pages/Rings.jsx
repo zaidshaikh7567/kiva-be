@@ -200,6 +200,8 @@ const Rings = () => {
     }, [filteredRings, sortBy]);
 
     console.log('filteredRings :', filteredRings);
+    console.log(sortedRings,'sortedRings');
+    
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}

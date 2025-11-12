@@ -616,7 +616,7 @@ const Contact = () => {
                 </div>
 
                 {/* Emergency Contact */}
-                <div className="border-2 border-primary rounded-2xl p-6">
+                {/* <div className="border-2 border-primary rounded-2xl p-6">
                   <h4 className="text-lg font-montserrat-semibold-600 text-black mb-3">
                     Emergency Jewelry Repair
                   </h4>
@@ -626,12 +626,12 @@ const Contact = () => {
                   </p>
                   <div className="flex items-center space-x-2 text-primary font-montserrat-medium-500">
                     <Phone className="w-4 h-4" />
-                    {/* <span className="text-sm">+91 9106302269</span> */}
+
                     <a href="tel:+919106302269" className="text-sm">
                       +91 9106302269
                     </a>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

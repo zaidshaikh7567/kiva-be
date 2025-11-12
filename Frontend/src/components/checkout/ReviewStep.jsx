@@ -1,7 +1,26 @@
 import React from 'react';
 import { CreditCard, MapPin, ShoppingBag } from 'lucide-react';
-
+import { Country, State } from 'country-state-city';
 const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, onEditShipping, onEditPayment, onPlaceOrder, loading }) => {
+
+    const getCountryName = (countryCode) => {
+        if (!countryCode) return '';
+        const country = Country.getAllCountries().find(c => c.isoCode === countryCode);
+        return country ? country.name : countryCode;
+      };
+
+      // Helper function to get state name from code
+      const getStateName = (stateCode, countryCode) => {
+        if (!stateCode || !countryCode) return '';
+        const states = State.getStatesOfCountry(countryCode);
+        const state = states.find(s => s.isoCode === stateCode);
+        return state ? state.name : stateCode;
+      };
+
+         const shippingCountryName = getCountryName(shippingInfo.country);
+      const shippingStateName = getStateName(shippingInfo.state, shippingInfo.country);
+         const billingCountryName = getCountryName(billingInfo.country);
+      const billingStateName = getStateName(billingInfo.state, billingInfo.country);
   return (
     <div className="space-y-6">
       {/* Shipping Details */}
@@ -27,8 +46,8 @@ const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, onEditShipping, on
           <p>{shippingInfo.email}</p>
           <p>{shippingInfo.phone}</p>
           <p>{shippingInfo.address}</p>
-          <p>{shippingInfo.city}, {shippingInfo.state} {shippingInfo.zipCode}</p>
-          <p>{shippingInfo.country}</p>
+          <p>{shippingInfo.city}, {shippingStateName} {shippingInfo.zipCode}</p>
+          <p>{shippingCountryName}</p>
         </div>
       </div>
 
@@ -56,8 +75,8 @@ const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, onEditShipping, on
             <p>{shippingInfo.email}</p>
             <p>{shippingInfo.phone}</p>
             <p>{billingInfo.address}</p>
-            <p>{billingInfo.city}, {billingInfo.state} {billingInfo.zipCode}</p>
-            <p>{billingInfo.country}</p>
+            <p>{billingInfo.city}, {billingStateName} {billingInfo.zipCode}</p>
+            <p>{billingCountryName}</p>
           </div>
         </div>
       )}

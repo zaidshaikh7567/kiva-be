@@ -292,7 +292,7 @@ const OrdersList = () => {
         {!loading && pagination.totalPages > 1 && (
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 pt-6 border-t border-primary-light">
             <p className="text-sm font-montserrat-regular-400 text-black-light">
-              Page {localPagination.page} of {pagination.totalPages} ({pagination.total} orders)
+              Page {localPagination.page} of {pagination.totalPages} ({pagination.totalOrders} orders)
             </p>
             <div className="flex items-center space-x-2">
               <button
