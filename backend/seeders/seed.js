@@ -5,6 +5,7 @@ const Metal = require('../models/Metal');
 const Stone = require('../models/Stone');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
+const Order = require('../models/Order');
 const SocialHandle = require('../models/SocialHandle');
 const Contact = require('../models/Contact');
 const Review = require('../models/Review');
@@ -17,6 +18,7 @@ const seedMetals = require('./metals');
 const seedStones = require('./stones');
 const seedProducts = require('./products');
 const seedCarts = require('./carts');
+const seedOrders = require('./orders');
 const seedSocialHandles = require('./socialHandles');
 const seedContacts = require('./contacts');
 const seedReviews = require('./reviews');
@@ -30,6 +32,7 @@ const seedData = async () => {
     logger.info('Database connected successfully');
 
     logger.info('Clearing existing data...');
+    await Order.deleteMany({});
     await Cart.deleteMany({});
     await Favorite.deleteMany({});
     await Product.deleteMany({});
@@ -66,6 +69,10 @@ const seedData = async () => {
     logger.info('Seeding carts...');
     const carts = await seedCarts(users, products, metals, stones);
     logger.info(`Carts seeded successfully: ${carts.length} carts created`);
+
+    logger.info('Seeding orders...');
+    const orders = await seedOrders(users, carts);
+    logger.info(`Orders seeded successfully: ${orders.length} orders created`);
 
     logger.info('Seeding social handles...');
     const socialHandles = await seedSocialHandles();

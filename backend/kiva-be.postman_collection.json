@@ -2310,6 +2310,277 @@
 			]
 		},
 		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create Order from Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Create a new order from the user's cart items (User only). Automatically clears the cart after successful order creation.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Request Body (JSON):**\n- shippingAddress (required): Object with street, city, state, zipCode, country\n- billingAddress (optional): Object with street, city, state, zipCode, country (defaults to shipping address if not provided)\n- paymentMethod (required): Payment method string\n- notes (optional): Additional order notes\n\n**Response:** Returns the created order object with populated user data.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shippingAddress\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10001\",\n        \"country\": \"USA\"\n    },\n    \"billingAddress\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10001\",\n        \"country\": \"USA\"\n    },\n    \"paymentMethod\": \"Credit Card\",\n    \"notes\": \"Please handle with care\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get paginated list of current user's orders (User only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Query Parameters:**\n- page (optional): Page number (default: 1)\n- limit (optional): Items per page (default: 10, max: 100)\n- status (optional): Filter by order status (pending, processing, shipped, delivered, cancelled)\n- sortBy (optional): Sort field (createdAt, updatedAt, total) (default: createdAt)\n- sortOrder (optional): Sort order (asc, desc) (default: desc)\n\n**Response:** Returns paginated orders with user data.",
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/my-orders?page=1&limit=10&sortBy=createdAt&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"my-orders"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								},
+								{
+									"key": "status",
+									"value": "",
+									"description": "Filter by order status"
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt",
+									"description": "Sort field"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc",
+									"description": "Sort order"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get a single order by its ID (User can access own orders, Admin can access all orders).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Path Parameters:**\n- orderId (required): Order ID\n\n**Response:** Returns the order object with populated user data.",
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/:orderId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								":orderId"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the order"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order by Order Number",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.success && response.data && response.data.orderNumber) {",
+									"        pm.collectionVariables.set('orderNumber', response.data.orderNumber);",
+									"        console.log('Order number stored:', response.data.orderNumber);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get a single order by its order number (User can access own orders, Admin can access all orders).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Path Parameters:**\n- orderNumber (required): Order number (format: ORD-{timestamp}-{random3digits})\n\n**Response:** Returns the order object with populated user data.\n\n**Test Script:** Automatically stores the order number in collection variables for use in other requests.",
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/number/:orderNumber",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"number",
+								":orderNumber"
+							],
+							"variable": [
+								{
+									"key": "orderNumber",
+									"value": "{{orderNumber}}",
+									"description": "Order number (use from seeded data or previous request)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Orders (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Get paginated list of all orders (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Query Parameters:**\n- page (optional): Page number (default: 1)\n- limit (optional): Items per page (default: 10, max: 100)\n- status (optional): Filter by order status (pending, processing, shipped, delivered, cancelled)\n- sortBy (optional): Sort field (createdAt, updatedAt, total) (default: createdAt)\n- sortOrder (optional): Sort order (asc, desc) (default: desc)\n\n**Response:** Returns paginated orders with user data.",
+						"url": {
+							"raw": "{{baseUrl}}/api/orders?page=1&limit=10&sortBy=createdAt&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of items per page"
+								},
+								{
+									"key": "status",
+									"value": "",
+									"description": "Filter by order status"
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt",
+									"description": "Sort field"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc",
+									"description": "Sort order"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Order Status (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"description": "Update order status (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- orderId (required): Order ID\n\n**Request Body (JSON):**\n- status (required): New order status (pending, processing, shipped, delivered, cancelled)\n\n**Response:** Returns the updated order object.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"shipped\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/:orderId/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								":orderId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "60f7b3b3b3b3b3b3b3b3b3b3",
+									"description": "Unique identifier of the order"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Collections",
 			"item": [
 				{
