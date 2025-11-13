@@ -123,7 +123,8 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
   }
 
   if (isBand !== undefined) {
-    updateData.isBand = isBand;
+    // Explicitly convert to boolean to handle string "true"/"false" from FormData
+    updateData.isBand = isBand === true || isBand === 'true' || isBand === '1';
   }
 
   // Merge new images with existing images
