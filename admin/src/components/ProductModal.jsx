@@ -91,7 +91,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         color: productData.color || '',
         clarity: Array.isArray(productData.clarity) ? productData.clarity : [],
         certificate: Array.isArray(productData.certificate) ? productData.certificate : [],
-        isBand: productData.isBand || false
+        isBand: productData.isBand !== undefined ? Boolean(productData.isBand) : false
       });
 
       // Set image previews for existing images
