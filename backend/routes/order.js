@@ -7,6 +7,8 @@ const Metal = require('../models/Metal');
 const Stone = require('../models/Stone');
 const asyncHandler = require('../middleware/asyncErrorHandler');
 const { authenticate, authorize } = require('../middleware/auth');
+const { sendEmail } = require('../utils/emailUtil');
+const { getOrderConfirmationEmailTemplate } = require('../utils/emailTemplates');
 const {
   createOrderSchema,
   orderIdSchema,
@@ -78,6 +80,21 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
 
   await order.save();
   await order.populate('user', 'name email');
+
+  // Send order confirmation email
+  try {
+    if (order.user?.email) {
+      const orderEmailHtml = getOrderConfirmationEmailTemplate(order);
+      await sendEmail(
+        order.user.email,
+        `Thank You for Your Order #${order.orderNumber} - Kiva Jewelry`,
+        orderEmailHtml
+      );
+    }
+  } catch (emailError) {
+    // Log email error but don't fail order creation
+    console.error('Failed to send order confirmation email:', emailError);
+  }
 
   await Cart.deleteMany({ user: userId });
 

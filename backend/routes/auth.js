@@ -7,6 +7,7 @@ const User = require('../models/User');
 const asyncHandler = require('../middleware/asyncErrorHandler');
 const { authenticate, authorize } = require('../middleware/auth');
 const { sendEmail } = require('../utils/emailUtil');
+const { getWelcomeEmailTemplate } = require('../utils/emailTemplates');
 const { loginSchema, registerSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema, googleAuthSchema } = require('../validations/auth');
 const validate = require('../middleware/validate');
 const createMulter = require('../utils/uploadUtil');
@@ -92,6 +93,19 @@ router.post('/register', validate(registerSchema), asyncHandler(async (req, res)
   await user.save();
 
   const { accessToken, refreshToken } = generateTokens(user);
+
+  // Send welcome email
+  try {
+    const welcomeEmailHtml = getWelcomeEmailTemplate(user.name);
+    await sendEmail(
+      user.email,
+      'Welcome to Kiva Jewelry! 🎉',
+      welcomeEmailHtml
+    );
+  } catch (emailError) {
+    // Log email error but don't fail registration
+    console.error('Failed to send welcome email:', emailError);
+  }
 
   res.status(201).json({
     success: true,
