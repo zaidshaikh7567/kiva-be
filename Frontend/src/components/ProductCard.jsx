@@ -13,6 +13,7 @@ import {
 import { selectIsAuthenticated } from '../store/slices/authSlice';
 import ProductDetailsModal from './ProductDetailsModal';
 import PriceDisplay from './PriceDisplay';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 import CustomDropdown from './CustomDropdown';
 import MetalSelector from './MetalSelector';
 import { RING_SIZES } from '../services/centerStonesApi';
@@ -63,7 +64,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const handleConfirmAddToCart = async () => {
     try {
       // Check authentication first
-      const isAuth = !!localStorage.getItem('accessToken');
+      const isAuth = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
       if (!isAuth) {
         const currentPath = window.location.pathname + window.location.search;
         toast.error('Please login to add items to cart', {
@@ -167,7 +168,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   };
 
   const handleAddToCart = () => {
-    const isAuth = !!localStorage.getItem('accessToken');
+    const isAuth = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
     if (!isAuth) {
       const currentPath = window.location.pathname + window.location.search;
       toast.error('Please login to add items to cart', {
@@ -405,14 +406,14 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             </>
           ) : (
             <>
-              <div className="flex items-center justify-between mb-2">
+              {/* <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-1">
                   <Star className="w-4 h-4 text-yellow-400 fill-current" />
                   <span className="text-sm font-montserrat-regular-400 text-black-light">
                     {product.rating} ({product.reviews})
                   </span>
                 </div>
-              </div>
+              </div> */}
 
               <h3 className="text-lg md:text-xl font-montserrat-semibold-600 text-black mb-2">
                 {product.name}

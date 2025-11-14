@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { initializeAuth, getUserProfile, refreshToken } from '../store/slices/authSlice';
 import { isAccessTokenExpired, hasValidRefreshToken } from '../utils/tokenUtils';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 
 const AuthInitializer = ({ children }) => {
   const dispatch = useDispatch();
@@ -10,8 +11,8 @@ const AuthInitializer = ({ children }) => {
     // Initialize auth state from localStorage
     dispatch(initializeAuth());
     
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshTokenValue = localStorage.getItem('refreshToken');
+    const accessToken = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+    const refreshTokenValue = localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
     
     // If we have tokens, validate them
     if (accessToken || refreshTokenValue) {
@@ -31,9 +32,9 @@ const AuthInitializer = ({ children }) => {
             });
         } else {
           // Both tokens are invalid, clear them
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
+          localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+          localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+          localStorage.removeItem(TOKEN_KEYS.USER);
         }
       } else {
         // Access token is still valid, fetch user profile

@@ -19,8 +19,8 @@ const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, onEditShipping, on
 
          const shippingCountryName = getCountryName(shippingInfo.country);
       const shippingStateName = getStateName(shippingInfo.state, shippingInfo.country);
-         const billingCountryName = getCountryName(billingInfo.country);
-      const billingStateName = getStateName(billingInfo.state, billingInfo.country);
+         const billingCountryName = getCountryName(billingInfo?.country);
+      const billingStateName = getStateName(billingInfo?.state, billingInfo?.country);
   return (
     <div className="space-y-6">
       {/* Shipping Details */}

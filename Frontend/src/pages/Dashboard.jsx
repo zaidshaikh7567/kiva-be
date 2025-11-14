@@ -25,7 +25,7 @@ const Dashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-sorts-mill-gloudy text-black mb-2">
-            Welcome back, {user?.name}!
+            Welcome, {user?.name}!
           </h1>
           <p className="text-black-light font-montserrat-regular-400">
             Manage your account and track your orders

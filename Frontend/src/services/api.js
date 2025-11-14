@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
+
 const URL = import.meta.env.VITE_API_BASE_URL;
 // Create axios instance with base configuration
 const api = axios.create({
@@ -17,7 +19,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Add auth token to requests
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -78,7 +80,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
         if (!refreshToken) {
           throw new Error('No refresh token');
         }
@@ -104,9 +106,9 @@ api.interceptors.response.use(
         }
 
         // Update both tokens in localStorage
-        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
         if (newRefreshToken) {
-          localStorage.setItem('refreshToken', newRefreshToken);
+          localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, newRefreshToken);
         }
 
         processQueue(null, accessToken);
@@ -117,9 +119,9 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         // Clear tokens and redirect to login
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
+        localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+        localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+        localStorage.removeItem(TOKEN_KEYS.USER);
         
         // Only redirect if not already on sign-in page
         if (window.location.pathname !== '/sign-in') {

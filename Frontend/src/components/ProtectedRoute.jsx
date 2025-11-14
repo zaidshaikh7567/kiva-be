@@ -4,6 +4,7 @@ import { selectIsAuthenticated } from '../store/slices/authSlice';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { initializeAuth } from '../store/slices/authSlice';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 
 const ProtectedRoute = ({ children }) => {
   const dispatch = useDispatch();
@@ -13,8 +14,8 @@ const ProtectedRoute = ({ children }) => {
   // Initialize auth from localStorage on mount
   useEffect(() => {
     // Check if we have tokens in localStorage
-    const accessToken = localStorage.getItem('accessToken');
-    const user = localStorage.getItem('user');
+    const accessToken = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+    const user = localStorage.getItem(TOKEN_KEYS.USER);
     
     if (accessToken && user && !isAuthenticated) {
       // Initialize auth state from localStorage
@@ -42,8 +43,8 @@ const ProtectedRoute = ({ children }) => {
   }
 
   // Check both Redux state and localStorage as fallback
-  const hasToken = localStorage.getItem('accessToken');
-  const hasUser = localStorage.getItem('user');
+  const hasToken = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+  const hasUser = localStorage.getItem(TOKEN_KEYS.USER);
   const isAuth = isAuthenticated || (hasToken && hasUser);
 
   if (!isAuth) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { X, Heart, Star, ShoppingBag, Minus, Plus, Gem, Shield, Truck, RotateCcw, Award, Info, ListChevronsDownUp, HelpCircle, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addCartItem } from '../store/slices/cartSlice';
+import { addCartItem, selectCartLoading } from '../store/slices/cartSlice';
 import { 
   toggleFavorite as toggleFavoriteAction, 
   addToFavoritesAPI, 
@@ -11,6 +11,7 @@ import {
 import { selectIsAuthenticated } from '../store/slices/authSlice';
 import PriceDisplay from './PriceDisplay';
 import MetalSelector from './MetalSelector';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 import CustomDropdown from './CustomDropdown';
 import Accordion from './Accordion';
 import { selectCurrentCurrency, selectCurrencySymbol, selectExchangeRate, convertPrice, formatPrice } from '../store/slices/currencySlice';
@@ -25,6 +26,7 @@ import { transformMetalsToSelectorOptions } from '../constants';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(0);
+  const cartLoading = useSelector(selectCartLoading);
   const [quantity, setQuantity] = useState(1);
   console.log('quantity----:', quantity);
   const [selectedMetal, setSelectedMetal] = useState(null);
@@ -214,7 +216,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const handleAddToCart = async () => {
     try {
       // Check authentication first
-      const isAuthenticated = !!localStorage.getItem('accessToken');
+      const isAuthenticated = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
       if (!isAuthenticated) {
         const currentPath = window.location.pathname + window.location.search;
         toast.error('Please login to add items to cart', {
@@ -572,12 +574,12 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
             <div className="p-4 lg:p-8 flex flex-col justify-between">
               <div>
                 {/* Rating */}
-                <div className="flex items-center space-x-1 mb-3">
+                {/* <div className="flex items-center space-x-1 mb-3">
                   <Star className="w-5 h-5 text-yellow-400 fill-current" />
                   <span className="font-montserrat-medium-500 text-black">
                     {product.rating} ({product.reviews} reviews)
                   </span>
-                </div>
+                </div> */}
 
                 {/* Product Name */}
                 <h1 className="text-2xl lg:text-3xl font-sorts-mill-gloudy text-black mb-4">
@@ -812,17 +814,19 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
 
                 {/* Add to Cart Button */}
                 <button
+                  disabled={cartLoading}
                   onClick={handleAddToCart}
                   className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
                 >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span>
+                  {cartLoading ? <span className="flex items-center space-x-2w-full justify-center "><Loader2 className="w-5 h-5 animate-spin  mr-2 " /> Adding to Cart...</span> : <><ShoppingBag className="w-5 h-5" /> <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span></>}
+                  {/* <ShoppingBag className="w-5 h-5" />
+                  <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span> */}
                 </button>
                 <ContactBox />
                 {/* Additional Info */}
                 <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
                   <p>✓ Free shipping on orders over $100</p>
-                  <p>✓ 30-day return policy</p>
+                  {/* <p>✓ 30-day return policy</p> */}
                   <p>✓ Secure checkout</p>
                 </div>
               </div>

@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectIsAuthenticated, initializeAuth, refreshToken, getUserProfile } from './store/slices/authSlice';
 import { isAccessTokenExpired, hasValidRefreshToken } from './utils/tokenUtils';
+import { TOKEN_KEYS } from './constants/tokenKeys';
 import LoginPage from './components/LoginPage';
 import ForgotPasswordPage from './components/ForgotPasswordPage';
 import ResetPasswordPage from './components/ResetPasswordPage';
@@ -55,8 +56,8 @@ function App() {
       // Initialize auth state from localStorage
       dispatch(initializeAuth());
       
-      const accessToken = localStorage.getItem('accessToken');
-      const refreshTokenValue = localStorage.getItem('refreshToken');
+      const accessToken = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+      const refreshTokenValue = localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
       
       // If we have tokens, validate them
       if (accessToken || refreshTokenValue) {
@@ -74,10 +75,10 @@ function App() {
             }
           } else {
             // Both tokens are invalid, clear them
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('user');
-            localStorage.removeItem('adminAuthenticated');
+            localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+            localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+            localStorage.removeItem(TOKEN_KEYS.USER);
+            localStorage.removeItem(TOKEN_KEYS.AUTHENTICATED);
           }
         } else {
           // Access token is still valid, fetch user profile

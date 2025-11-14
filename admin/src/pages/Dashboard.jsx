@@ -9,6 +9,7 @@ import { selectUser } from '../store/slices/authSlice';
 import { fetchReviews, selectReviews } from '../store/slices/reviewsSlice';
 import { fetchContacts, selectContacts } from '../store/slices/contactsSlice';
 import { Link } from 'react-router-dom';
+import { fetchOrders, selectAdminOrders } from '../store/slices/ordersSlice';
 const Dashboard = () => {
   const dispatch = useDispatch();
   const customers = useSelector(selectUsers);
@@ -19,6 +20,8 @@ const Dashboard = () => {
   const centerStones = useSelector(selectCenterStones);
   const reviews = useSelector(selectReviews);
   const contacts = useSelector(selectContacts);
+  const orders = useSelector(selectAdminOrders);
+  console.log('orders :', orders);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchAllData = async () => {
@@ -30,7 +33,8 @@ const Dashboard = () => {
         dispatch(fetchMetals({ page: 1, limit: 1000 })),
         dispatch(fetchCenterStones({ page: 1, limit: 1000 })),
         dispatch(fetchReviews({ page: 1, limit: 1000 })),
-        dispatch(fetchContacts({ page: 1, limit: 1000 }))
+        dispatch(fetchContacts({ page: 1, limit: 1000 })),
+        dispatch(fetchOrders({ page: 1, limit: 100 }))
       ]);
     } finally {
       setRefreshing(false);
@@ -48,6 +52,7 @@ const Dashboard = () => {
           dispatch(fetchCenterStones({ page: 1, limit: 1000 })),
           dispatch(fetchReviews({ page: 1, limit: 1000 })),
           dispatch(fetchContacts({ page: 1, limit: 1000 })),
+          dispatch(fetchOrders({ page: 1, limit: 100 }))
         ]);
       } finally {
         setRefreshing(false);
@@ -58,16 +63,15 @@ const Dashboard = () => {
 
   const stats = [
     {
-      title: 'Total Cost',
-      value: products.reduce((total, product) => total + product.price, 0),
+      title: 'Total Revenue',
+      value: orders.reduce((total, order) => total + order.subtotal, 0),
       changeType: 'positive',
       icon: DollarSign,
-      color: 'from-green-500 to-green-600',
-      link: '/products'
+      color: 'from-green-500 to-green-600'
     },
     {
       title: 'Total Orders',
-      value: '0',
+      value: orders?.length,
       changeType: 'positive',
       icon: ShoppingBag,
       color: 'from-blue-500 to-blue-600',

@@ -1,20 +1,31 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import { Star, Send, User, Calendar, X, Plus, ChevronLeft, ChevronRight, Share2, Check } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import { 
-  selectReviews, 
-  fetchReviews, 
+import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import {
+  Star,
+  Send,
+  User,
+  Calendar,
+  X,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Share2,
+  Check,
+} from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import {
+  selectReviews,
+  fetchReviews,
   addReview,
   selectReviewsLoading,
   selectReviewsSubmitting,
-  clearSuccess
-} from '../store/slices/reviewsSlice';
-import { selectAuthUser } from '../store/slices/authSlice';
-import toast from 'react-hot-toast';
+  clearSuccess,
+} from "../store/slices/reviewsSlice";
+import { selectAuthUser } from "../store/slices/authSlice";
+import toast from "react-hot-toast";
 
 const ReviewsSlider = () => {
   const dispatch = useDispatch();
@@ -22,7 +33,7 @@ const ReviewsSlider = () => {
   const loading = useSelector(selectReviewsLoading);
   const submitting = useSelector(selectReviewsSubmitting);
   const user = useSelector(selectAuthUser);
-  
+
   const reviewSectionRef = useRef(null);
   const isScrollingRef = useRef(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -32,11 +43,11 @@ const ReviewsSlider = () => {
   const [sliderRef, setSliderRef] = useState(null);
   const [shareCopied, setShareCopied] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    comment: ''
+    name: "",
+    email: "",
+    comment: "",
   });
-  
+
   const MAX_MEDIA_ITEMS = 10;
   const [mediaFiles, setMediaFiles] = useState([]);
   const [mediaPreviews, setMediaPreviews] = useState([]);
@@ -65,7 +76,7 @@ const ReviewsSlider = () => {
   useEffect(() => {
     if (showReviewForm) {
       const previousOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = previousOverflow;
       };
@@ -74,7 +85,7 @@ const ReviewsSlider = () => {
 
   // Check if URL has #reviews hash and scroll to reviews section
   useEffect(() => {
-    if (window.location.hash === '#reviews') {
+    if (window.location.hash === "#reviews") {
       isScrollingRef.current = true;
       setTimeout(() => {
         const element = reviewSectionRef.current;
@@ -83,13 +94,14 @@ const ReviewsSlider = () => {
           const isMobile = window.innerWidth < 640;
           const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
           const yOffset = isMobile ? -60 : isTablet ? -80 : 400;
-          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-          
+          const y =
+            element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
           window.scrollTo({
             top: y,
-            behavior: 'smooth'
+            behavior: "smooth",
           });
-          
+
           // Reset scrolling flag after scroll completes
           setTimeout(() => {
             isScrollingRef.current = false;
@@ -111,20 +123,20 @@ const ReviewsSlider = () => {
 
           if (entry.isIntersecting) {
             // Update URL with #reviews hash when section is visible
-            if (window.location.hash !== '#reviews') {
-              window.history.replaceState(null, '', '#reviews');
+            if (window.location.hash !== "#reviews") {
+              window.history.replaceState(null, "", "#reviews");
             }
           } else {
             // Remove #reviews from URL when section is not visible
-            if (window.location.hash === '#reviews') {
-              window.history.replaceState(null, '', window.location.pathname);
+            if (window.location.hash === "#reviews") {
+              window.history.replaceState(null, "", window.location.pathname);
             }
           }
         });
       },
       {
         threshold: 0.3, // Trigger when 30% of section is visible
-        rootMargin: '-80px 0px', // Negative margin to account for header/nav (responsive)
+        rootMargin: "-80px 0px", // Negative margin to account for header/nav (responsive)
       }
     );
 
@@ -141,29 +153,35 @@ const ReviewsSlider = () => {
   }, []);
 
   // Display mock reviews if no reviews exist
-  const displayReviews = reviews.length > 0 ? reviews : [
-    {
-      _id: '1',
-      name: 'Emily Johnson',
-      rating: 5,
-      comment: 'Absolutely stunning jewelry! The craftsmanship is exceptional and the customer service was outstanding.',
-      createdAt: new Date(Date.now() - 259200000).toISOString()
-    },
-    {
-      _id: '2',
-      name: 'Michael Chen',
-      rating: 5,
-      comment: 'I ordered a custom ring for my wife and it exceeded all expectations. Highly recommend!',
-      createdAt: new Date(Date.now() - 86400000).toISOString()
-    },
-    {
-      _id: '3',
-      name: 'Sarah Williams',
-      rating: 4,
-      comment: 'Fast shipping, gorgeous pieces, and attention to detail. Will definitely order again.',
-      createdAt: new Date(Date.now() - 172800000).toISOString()
-    }
-  ];
+  const displayReviews =
+    reviews.length > 0
+      ? reviews
+      : [
+          {
+            _id: "1",
+            name: "Emily Johnson",
+            rating: 5,
+            comment:
+              "Absolutely stunning jewelry! The craftsmanship is exceptional and the customer service was outstanding.",
+            createdAt: new Date(Date.now() - 259200000).toISOString(),
+          },
+          {
+            _id: "2",
+            name: "Michael Chen",
+            rating: 5,
+            comment:
+              "I ordered a custom ring for my wife and it exceeded all expectations. Highly recommend!",
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+          },
+          {
+            _id: "3",
+            name: "Sarah Williams",
+            rating: 4,
+            comment:
+              "Fast shipping, gorgeous pieces, and attention to detail. Will definitely order again.",
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+          },
+        ];
 
   // Custom arrow components
   const NextArrow = ({ onClick }) => {
@@ -198,7 +216,7 @@ const ReviewsSlider = () => {
         type="button"
         onClick={() => sliderRef?.slickGoTo(index)}
         className={`transition-all duration-300 ${
-          isActive ? 'w-8 bg-primary' : 'w-2 bg-gray-300 hover:bg-gray-400'
+          isActive ? "w-8 bg-primary" : "w-2 bg-gray-300 hover:bg-gray-400"
         } h-2 rounded-full`}
         aria-label={`Go to slide ${index + 1}`}
       />
@@ -228,9 +246,9 @@ const ReviewsSlider = () => {
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-    setErrors({ ...errors, [e.target.name]: '' });
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
   const processMediaFiles = (files) => {
@@ -249,19 +267,19 @@ const ReviewsSlider = () => {
 
     const validFiles = [];
     const generatedPreviews = [];
-    let errorMessage = '';
+    let errorMessage = "";
 
     selectedFiles.forEach((file) => {
-      const isImage = file.type.startsWith('image/');
-      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
 
       if (!isImage && !isVideo) {
-        errorMessage = 'Please upload only image or video files.';
+        errorMessage = "Please upload only image or video files.";
         return;
       }
 
       if (file.size > 50 * 1024 * 1024) {
-        errorMessage = 'Each file must be 50MB or less.';
+        errorMessage = "Each file must be 50MB or less.";
         return;
       }
 
@@ -269,7 +287,7 @@ const ReviewsSlider = () => {
       validFiles.push(file);
       generatedPreviews.push({
         url: previewUrl,
-        type: isVideo ? 'video' : 'image',
+        type: isVideo ? "video" : "image",
         name: file.name,
       });
     });
@@ -291,7 +309,7 @@ const ReviewsSlider = () => {
 
   const handleMediaChange = (event) => {
     processMediaFiles(event.target.files);
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const handleRemoveMedia = (index) => {
@@ -304,7 +322,7 @@ const ReviewsSlider = () => {
       }
       return next;
     });
-    setErrors((prev) => ({ ...prev, media: '' }));
+    setErrors((prev) => ({ ...prev, media: "" }));
   };
 
   const clearMediaState = () => {
@@ -316,7 +334,7 @@ const ReviewsSlider = () => {
     setMediaFiles([]);
     setMediaPreviews([]);
     setIsDraggingMedia(false);
-    setErrors((prev) => ({ ...prev, media: '' }));
+    setErrors((prev) => ({ ...prev, media: "" }));
   };
 
   const handleDragOver = (event) => {
@@ -345,19 +363,19 @@ const ReviewsSlider = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = "Name is required";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
 
     if (!formData.comment.trim()) {
-      newErrors.comment = 'Comment is required';
+      newErrors.comment = "Comment is required";
     } else if (formData.comment.trim().length < 10) {
-      newErrors.comment = 'Comment must be at least 10 characters';
+      newErrors.comment = "Comment must be at least 10 characters";
     }
 
     if (errors.media) {
@@ -370,43 +388,43 @@ const ReviewsSlider = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     const payload = new FormData();
-    payload.append('name', formData.name.trim());
-    payload.append('email', formData.email.trim());
-    payload.append('comment', formData.comment.trim());
-    payload.append('rating', rating);
+    payload.append("name", formData.name.trim());
+    payload.append("email", formData.email.trim());
+    payload.append("comment", formData.comment.trim());
+    payload.append("rating", rating);
 
     if (user?._id) {
-      payload.append('userId', user._id);
+      payload.append("userId", user._id);
     }
 
     if (mediaFiles.length) {
       mediaFiles.forEach((file) => {
-        payload.append('media', file);
+        payload.append("media", file);
       });
     }
 
     const result = await dispatch(addReview(payload));
 
     if (addReview.fulfilled.match(result)) {
-      toast.success('Review submitted successfully!');
+      toast.success("Review submitted successfully!");
       setShowReviewForm(false);
-      setFormData({ name: '', email: '', comment: '' });
+      setFormData({ name: "", email: "", comment: "" });
       setRating(5);
       clearMediaState();
       setErrors({});
       dispatch(clearSuccess());
     } else {
-      toast.error('Failed to submit review. Please try again.');
+      toast.error("Failed to submit review. Please try again.");
     }
   };
 
   const handleCloseForm = () => {
     setShowReviewForm(false);
-    setFormData({ name: '', email: '', comment: '' });
+    setFormData({ name: "", email: "", comment: "" });
     setRating(5);
     clearMediaState();
     setErrors({});
@@ -414,22 +432,23 @@ const ReviewsSlider = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const handleShare = async () => {
-    const currentUrl = window.location.origin + window.location.pathname + '#reviews';
-    
+    const currentUrl =
+      window.location.origin + window.location.pathname + "#reviews";
+
     // Try to use native share API if available (mobile devices)
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Check out these customer reviews!',
-          text: 'See what our clients are saying about Aurora Jewelry',
+          title: "Check out these customer reviews!",
+          text: "See what our clients are saying about Aurora Jewelry",
           url: currentUrl,
         });
       } catch {
@@ -446,15 +465,19 @@ const ReviewsSlider = () => {
     try {
       await navigator.clipboard.writeText(text);
       setShareCopied(true);
-      toast.success('Review link copied to clipboard!');
+      toast.success("Review link copied to clipboard!");
       setTimeout(() => setShareCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy link');
+      toast.error("Failed to copy link");
     }
   };
 
   return (
-    <div id="reviews" ref={reviewSectionRef} className="relative bg-gradient-to-br from-primary-light via-white to-secondary py-12 sm:py-16 md:py-20 px-4 sm:px-6 scroll-mt-[100px] sm:scroll-mt-[120px] md:scroll-mt-[140px]">
+    <div
+      id="reviews"
+      ref={reviewSectionRef}
+      className="relative bg-gradient-to-br from-primary-light via-white to-secondary py-12 sm:py-16 md:py-20 px-4 sm:px-6 scroll-mt-[100px] sm:scroll-mt-[120px] md:scroll-mt-[140px]"
+    >
       <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12 relative">
@@ -487,7 +510,7 @@ const ReviewsSlider = () => {
             <div className="relative bg-white shadow-xl sm:shadow-2xl rounded-xl sm:rounded-2xl py-8 sm:py-12 md:py-16">
               <Slider {...sliderSettings}>
                 {displayReviews.map((review, index) => (
-                  <div 
+                  <div
                     key={review._id || index}
                     className="min-w-full flex items-center justify-center"
                   >
@@ -499,8 +522,8 @@ const ReviewsSlider = () => {
                             key={i}
                             className={`w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 ${
                               i < review.rating
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
+                                ? "text-yellow-400 fill-current"
+                                : "text-gray-300"
                             }`}
                           />
                         ))}
@@ -512,33 +535,94 @@ const ReviewsSlider = () => {
                       </p>
 
                       {/* Media */}
+                      {/* Media */}
                       {(() => {
                         const mediaItems = Array.isArray(review.media)
                           ? review.media
                           : review.media
                           ? [review.media]
                           : [];
-                        if (!mediaItems.length) return null;
+
+                        if (mediaItems.length === 0) return null;
+
                         return (
-                        <div className="mb-6 sm:mb-8 grid gap-4 sm:grid-cols-2">
-                          {mediaItems.map((mediaItem, mediaIndex) => (
-                            <div key={mediaItem.publicId || mediaItem.url || mediaIndex} className="overflow-hidden rounded-lg shadow-md">
-                              {mediaItem.type === 'video' ? (
-                                <video
-                                  src={mediaItem.url}
-                                  controls
-                                  className="w-full max-h-36 bg-black"
-                                />
-                              ) : (
-                                <img
-                                  src={mediaItem.url}
-                                  alt={`Review from ${review.name}`}
-                                  className="w-full max-h-36 object-cover"
-                                />
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                          <div className="mb-6">
+                            <Slider
+                              dots
+                              arrows={false}
+                              infinite
+                              speed={400}
+                              // slidesToShow={3}
+                              responsive={[
+                                {
+                                  breakpoint: 1280,
+                                  settings: {
+                                    slidesToShow: 4,
+                                    centerMode: true,
+                                    centerPadding: "8%",
+                                  },
+                                },
+                                {
+                                  breakpoint: 1024,
+                                  settings: {
+                                    slidesToShow: 3,
+                                    centerMode: true,
+                                    centerPadding: "5%",
+                                  },
+                                },
+                                {
+                                  breakpoint: 768,
+                                  settings: {
+                                    slidesToShow: 2,
+                                    centerMode: true,
+                                    centerPadding: "5%",
+                                  },
+                                },
+                                {
+                                  breakpoint: 640,
+                                  settings: {
+                                    slidesToShow: 1,
+                                    centerMode: true,
+                                    centerPadding: "15%",
+                                  },
+                                },
+                                {
+                                  breakpoint: 480,
+                                  settings: {
+                                    slidesToShow: 1,
+                                    centerMode: true,
+                                    centerPadding: "10%",
+                                  },
+                                },
+                              ]}
+                              slidesToScroll={1}
+                              className=" mx-auto"
+                            >
+                              {mediaItems.map((mediaItem, mediaIndex) => (
+                                <div
+                                  key={
+                                    mediaItem.publicId ||
+                                    mediaItem.url ||
+                                    mediaIndex
+                                  }
+                                >
+                                  {mediaItem.type === "video" ? (
+                                    <video
+                                      src={mediaItem.url}
+                                      controls
+                                      className="w-full h-48 bg-black rounded-lg px-2"
+                                    />
+                                  ) : (
+                                    <img
+                                      src={mediaItem.url}
+                                      alt="Review media"
+                                      className="w-full h-48 object-cover rounded-lg px-2"
+                                    />
+                                  )}
+                                </div>
+                              ))}
+                            </Slider>
+                          </div>
                         );
                       })()}
 
@@ -566,7 +650,10 @@ const ReviewsSlider = () => {
 
               {/* Custom Dots Pagination */}
               {displayReviews.length > 1 && (
-                <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10" role="tablist">
+                <div
+                  className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10"
+                  role="tablist"
+                >
                   {displayReviews.map((_, index) => (
                     <CustomDot key={index} index={index} />
                   ))}
@@ -589,7 +676,7 @@ const ReviewsSlider = () => {
 
         {/* Review Form Modal */}
         {showReviewForm &&
-          typeof document !== 'undefined' &&
+          typeof document !== "undefined" &&
           createPortal(
             <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-2 sm:p-4 animate-fadeIn">
               <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full p-4 sm:p-6 md:p-8 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slideUp">
@@ -606,7 +693,10 @@ const ReviewsSlider = () => {
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <form
+                  onSubmit={handleSubmit}
+                  className="space-y-4 sm:space-y-6"
+                >
                   {/* Rating */}
                   <div>
                     <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
@@ -621,13 +711,13 @@ const ReviewsSlider = () => {
                           onMouseEnter={() => setHoverRating(star)}
                           onMouseLeave={() => setHoverRating(0)}
                           className="transition-transform duration-200 hover:scale-125"
-                          aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                          aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
                         >
                           <Star
                             className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 ${
                               star <= (hoverRating || rating)
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
+                                ? "text-yellow-400 fill-current"
+                                : "text-gray-300"
                             }`}
                           />
                         </button>
@@ -647,8 +737,8 @@ const ReviewsSlider = () => {
                       onChange={handleInputChange}
                       className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base ${
                         errors.name
-                          ? 'border-red-500 focus:ring-red-500'
-                          : 'border-gray-200 focus:ring-primary focus:border-transparent'
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-200 focus:ring-primary focus:border-transparent"
                       }`}
                       placeholder="Enter your name"
                     />
@@ -669,13 +759,15 @@ const ReviewsSlider = () => {
                       onChange={handleInputChange}
                       className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base ${
                         errors.email
-                          ? 'border-red-500 focus:ring-red-500'
-                          : 'border-gray-200 focus:ring-primary focus:border-transparent'
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-200 focus:ring-primary focus:border-transparent"
                       }`}
                       placeholder="Enter your email"
                     />
                     {errors.email && (
-                      <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.email}
+                      </p>
                     )}
                   </div>
 
@@ -691,13 +783,15 @@ const ReviewsSlider = () => {
                       rows={4}
                       className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base resize-none ${
                         errors.comment
-                          ? 'border-red-500 focus:ring-red-500'
-                          : 'border-gray-200 focus:ring-primary focus:border-transparent'
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-200 focus:ring-primary focus:border-transparent"
                       }`}
                       placeholder="Share your experience with us..."
                     />
                     {errors.comment && (
-                      <p className="mt-1 text-sm text-red-500">{errors.comment}</p>
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.comment}
+                      </p>
                     )}
                   </div>
 
@@ -708,7 +802,9 @@ const ReviewsSlider = () => {
                     </label>
                     <div
                       className={`border border-dashed rounded-lg p-4 flex flex-col space-y-3 transition-colors ${
-                        isDraggingMedia ? 'border-primary bg-primary/5' : 'border-gray-300 bg-gray-50'
+                        isDraggingMedia
+                          ? "border-primary bg-primary/5"
+                          : "border-gray-300 bg-gray-50"
                       }`}
                       onDragOver={handleDragOver}
                       onDragEnter={handleDragOver}
@@ -734,8 +830,11 @@ const ReviewsSlider = () => {
                       {mediaPreviews.length > 0 && (
                         <div className="grid gap-3 sm:grid-cols-2">
                           {mediaPreviews.map((preview, index) => (
-                            <div key={preview.url} className="relative rounded-md overflow-hidden shadow-sm group">
-                              {preview.type === 'video' ? (
+                            <div
+                              key={preview.url}
+                              className="relative rounded-md overflow-hidden shadow-sm group"
+                            >
+                              {preview.type === "video" ? (
                                 <video
                                   src={preview.url}
                                   controls
@@ -755,30 +854,32 @@ const ReviewsSlider = () => {
                               >
                                 Remove
                               </button> */}
-                              <div className='flex items-center justify-between'>
-                              <div className="mt-2 px-1">
-                                <p className="text-xs font-montserrat-regular-400 text-black-light  break-words">
-                                  {preview.name}
-                                </p>
-                                <p className="text-[10px] font-montserrat-regular-400 text-black-light/70 capitalize">
-                                  {preview.type}
-                                </p>
+                              <div className="flex items-center justify-between">
+                                <div className="mt-2 px-1">
+                                  <p className="text-xs font-montserrat-regular-400 text-black-light  break-words">
+                                    {preview.name}
+                                  </p>
+                                  <p className="text-[10px] font-montserrat-regular-400 text-black-light/70 capitalize">
+                                    {preview.type}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveMedia(index)}
+                                  className="  text-xs font-montserrat-medium-500 text-red-500   px-2 py-1 rounded-md"
+                                >
+                                  Remove
+                                </button>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveMedia(index)}
-                                className="  text-xs font-montserrat-medium-500 text-red-500   px-2 py-1 rounded-md"
-                              >
-                                Remove
-                              </button>
-                            </div>
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
                     {errors.media && (
-                      <p className="mt-1 text-sm text-red-500">{errors.media}</p>
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.media}
+                      </p>
                     )}
                   </div>
 

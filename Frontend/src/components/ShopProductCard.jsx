@@ -13,6 +13,7 @@ import {
 import { selectIsAuthenticated } from '../store/slices/authSlice';
 import PriceDisplay from './PriceDisplay';
 import ProductDetailsModal from './ProductDetailsModal';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 import CustomDropdown from './CustomDropdown';
 import MetalSelector from './MetalSelector';
 import { RING_SIZES } from '../services/centerStonesApi';
@@ -62,7 +63,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
   const handleConfirmAddToCart = async () => {
     try {
       // Check authentication first
-      const isAuth = !!localStorage.getItem('accessToken');
+      const isAuth = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
       if (!isAuth) {
         const currentPath = window.location.pathname + window.location.search;
         toast.error('Please login to add items to cart', {
@@ -164,7 +165,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
 
   const handleAddToCart = (e) => {
 
-    const isAuth = !!localStorage.getItem('accessToken');
+    const isAuth = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
     if (!isAuth) {
       const currentPath = window.location.pathname + window.location.search;
       toast.error('Please login to add items to cart', {

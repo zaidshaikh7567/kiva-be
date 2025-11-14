@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Heart, Star, ShoppingBag, Minus, Plus, Gem, ChevronLeft, ChevronRight, ListChevronsDownUp, ArrowLeft } from 'lucide-react';
+import { Heart, Star, ShoppingBag, Minus, Plus, Gem, ChevronLeft, ChevronRight, ListChevronsDownUp, ArrowLeft, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById, selectCurrentProduct, selectProductsError } from '../store/slices/productsSlice';
-import { fetchCartItemById, selectCurrentCartItem, selectCurrentCartItemError, selectCurrentCartItemLoading, updateCartItem, updateQuantity } from '../store/slices/cartSlice';
+import { fetchCartItemById, selectCartLoading, selectCurrentCartItem, selectCurrentCartItemError, selectCurrentCartItemLoading, updateCartItem, updateQuantity } from '../store/slices/cartSlice';
 import {
   toggleFavorite as toggleFavoriteAction,
   addToFavoritesAPI,
@@ -28,7 +28,7 @@ const CartProductDetail = () => {
   const { cartItemId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const cartLoading = useSelector(selectCartLoading);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedMetal, setSelectedMetal] = useState(null);
@@ -755,12 +755,12 @@ const CartProductDetail = () => {
             <div className="sm:px-2 lg:px-6 px-0 py-2 lg:py-0 lg:col-span-3 flex flex-col ">
               <div>
                 {/* Rating */}
-                <div className="flex items-center space-x-1 mb-3">
+                {/* <div className="flex items-center space-x-1 mb-3">
                   <Star className="w-5 h-5 text-yellow-400 fill-current" />
                   <span className="font-montserrat-medium-500 text-black">
                     {product.rating || 5} ({product.reviews || 0} reviews)
                   </span>
-                </div>
+                </div> */}
 
                 {/* Product Name */}
                 <h1 className="text-2xl lg:text-3xl font-sorts-mill-gloudy text-black mb-4">
@@ -968,10 +968,12 @@ const CartProductDetail = () => {
                 {/* Update Cart Button */}
                 <button
                   onClick={handleUpdateCart}
+                  disabled={cartLoading}
                   className="w-full bg-primary text-white font-montserrat-medium-500 py-3 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
                 >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span>Update Cart</span>
+                  {cartLoading ? <span className="flex items-center space-x-2w-full justify-center "><Loader2 className="w-5 h-5 animate-spin  mr-2 " /> Updating Cart...</span> : <><ShoppingBag className="w-5 h-5" /> <span>Update Cart</span></>}
+                  {/* <ShoppingBag className="w-5 h-5" />
+                  <span>Update Cart</span> */}
                 </button>
                 <ContactBox />
                 {/* Info Note */}

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 import { 
   Menu, 
   Search, 
@@ -33,10 +34,10 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('adminAuthenticated');
+    localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+    localStorage.removeItem(TOKEN_KEYS.USER);
+    localStorage.removeItem(TOKEN_KEYS.AUTHENTICATED);
     window.location.reload();
   };
 

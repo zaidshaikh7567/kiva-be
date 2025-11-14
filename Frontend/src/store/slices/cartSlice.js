@@ -2,10 +2,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/api';
 import { API_METHOD } from '../../services/apiMethod';
 import toast from 'react-hot-toast';
+import { TOKEN_KEYS } from '../../constants/tokenKeys';
 
 // Helper function to check if user is authenticated
 const isAuthenticated = () => {
-  return !!localStorage.getItem('accessToken');
+  return !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
 };
 console.log('isAuthen ticated :', isAuthenticated());
 

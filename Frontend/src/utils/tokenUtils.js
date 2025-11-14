@@ -1,6 +1,7 @@
 /**
  * Token utility functions for JWT token management
  */
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 
 /**
  * Decode JWT token without verification
@@ -47,7 +48,7 @@ export const isTokenExpired = (token) => {
  * @returns {boolean} - True if access token is expired or doesn't exist
  */
 export const isAccessTokenExpired = () => {
-  const accessToken = localStorage.getItem('accessToken');
+  const accessToken = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
   return isTokenExpired(accessToken);
 };
 
@@ -56,7 +57,7 @@ export const isAccessTokenExpired = () => {
  * @returns {boolean} - True if refresh token exists and is not expired
  */
 export const hasValidRefreshToken = () => {
-  const refreshToken = localStorage.getItem('refreshToken');
+  const refreshToken = localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
   if (!refreshToken) return false;
   
   // Check if refresh token is expired

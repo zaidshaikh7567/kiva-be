@@ -355,6 +355,50 @@ const Orders = () => {
     setShowExportMenu(false);
   };
 
+  const orderCards = [
+  {
+    label: "Total Orders",
+    value: orderStats.total,
+    icon: ShoppingBag,
+    textColor: "text-black",
+    bgColor: "bg-primary-light",
+    iconColor: "text-primary",
+  },
+  {
+    label: "Delivered",
+    value: orderStats.delivered,
+    icon: CheckCircle,
+    textColor: "text-green-600",
+    bgColor: "bg-green-100",
+    iconColor: "text-green-600",
+  },
+  {
+    label: "Shipped",
+    value: orderStats.shipped,
+    icon: Truck,
+    textColor: "text-blue-600",
+    bgColor: "bg-blue-100",
+    iconColor: "text-blue-600",
+  },
+  {
+    label: "Processing",
+    value: orderStats.processing,
+    icon: Clock,
+    textColor: "text-yellow-600",
+    bgColor: "bg-yellow-100",
+    iconColor: "text-yellow-600",
+  },
+  {
+    label: "Cancelled",
+    value: orderStats.cancelled,
+    icon: XCircle,
+    textColor: "text-red-600",
+    bgColor: "bg-red-100",
+    iconColor: "text-red-600",
+  },
+];
+
+
 
   if (isInitialLoading) {
     return (
@@ -376,67 +420,37 @@ const Orders = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-montserrat-medium-500 text-black-light">Total Orders</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-black">{orderStats.total}</p>
-            </div>
-            <div className="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center">
-              <ShoppingBag className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+    {orderCards.map((card, index) => {
+      const Icon = card.icon;
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+      return (
+        <div
+          key={index}
+          className="bg-white rounded-xl p-6 shadow-sm border border-gray-200"
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-montserrat-medium-500 text-black-light">Delivered</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-green-600">{orderStats.delivered}</p>
+              <p className="text-sm font-montserrat-medium-500 text-black-light">
+                {card.label}
+              </p>
+              <p
+                className={`text-2xl font-sorts-mill-gloudy font-bold ${card.textColor}`}
+              >
+                {card.value}
+              </p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-montserrat-medium-500 text-black-light">Shipped</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-blue-600">{orderStats.shipped}</p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Truck className="w-6 h-6 text-blue-600" />
+            <div
+              className={`w-12 h-12 min-w-12 min-h-12 rounded-lg flex items-center justify-center ${card.bgColor}`}
+            >
+              <Icon className={`w-6 h-6 ${card.iconColor}`} />
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-montserrat-medium-500 text-black-light">Processing</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-yellow-600">{orderStats.processing}</p>
-            </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <Clock className="w-6 h-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-montserrat-medium-500 text-black-light">Cancelled</p>
-              <p className="text-2xl font-sorts-mill-gloudy font-bold text-red-600">{orderStats.cancelled}</p>
-            </div>
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <XCircle className="w-6 h-6 text-red-600" />
-            </div>
-          </div>
-        </div>
-      </div>
+      );
+    })}
+  </div>
 
       {/* Filters and Search */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">

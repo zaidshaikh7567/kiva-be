@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { initializeCart, fetchCartItems } from '../store/slices/cartSlice';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 
 const CartInitializer = ({ children }) => {
   const dispatch = useDispatch();
@@ -10,7 +11,7 @@ const CartInitializer = ({ children }) => {
     dispatch(initializeCart());
     
     // Fetch cart from API if user is authenticated
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
     if (accessToken) {
     console.log('accessToken :', accessToken);
       dispatch(fetchCartItems());

@@ -7,6 +7,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { handleGoogleLogin } from '../services/googleAuth';
 import toast from 'react-hot-toast';
 import CustomCheckbox from '../components/CustomCheckbox';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -59,13 +60,13 @@ const SignUp = () => {
           
           // Save tokens to localStorage
           if (accessToken) {
-            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
           }
           if (refreshToken) {
-            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken);
           }
           if (user) {
-            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(user));
           }
           
           // Update Redux store

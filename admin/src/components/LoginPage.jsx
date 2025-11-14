@@ -5,6 +5,7 @@ import { login, selectAuthLoading, selectAuthError, clearError } from '../store/
 import { useGoogleLogin } from '@react-oauth/google';
 import { handleGoogleLogin } from '../services/googleAuth';
 import toast from 'react-hot-toast';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 
 const LoginPage = ({ onLogin, onForgotPassword }) => {
   const dispatch = useDispatch();
@@ -76,10 +77,10 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
         if (result.success) {
           // Save admin data and token to localStorage
           if (result.data.token) {
-            localStorage.setItem('accessToken', result.data.token);
+            localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, result.data.token);
           }
           if (result.data.admin) {
-            localStorage.setItem('admin', JSON.stringify(result.data.admin));
+            localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(result.data.admin));
           }
           
           toast.success('Google admin login successful!');

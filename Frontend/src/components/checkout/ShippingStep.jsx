@@ -3,6 +3,7 @@ import { MapPin, User, Mail, Phone, CreditCard } from 'lucide-react';
 import CustomDropdown from '../CustomDropdown';
 import { Country, State, City } from 'country-state-city';
 import CustomCheckbox from '../CustomCheckbox';
+import FormInput from '../FormInput';
 
 const ShippingStep = ({ 
   shippingInfo, 
@@ -15,9 +16,7 @@ const ShippingStep = ({
   loading 
 }) => {
   const [selectedCountry, setSelectedCountry] = useState(null);
-  console.log('selectedCountry :', selectedCountry);
   const [selectedState, setSelectedState] = useState(null);
-  console.log('selectedState :', selectedState);
   const [selectedBillingCountry, setSelectedBillingCountry] = useState(null);
   const [selectedBillingState, setSelectedBillingState] = useState(null);
   const [errors, setErrors] = useState({});
@@ -222,13 +221,23 @@ const countryOptions = useMemo(() => {
           error = 'Please enter a valid email address';
         }
         break;
+        // add validation for phone  in the canada india usa uk and australia
+      
       case 'phone':
-        if (!value.trim()) {
-          error = 'Phone number is required';
-        } else if (!/^[+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-()]/g, ''))) {
-          error = 'Please enter a valid phone number';
-        }
+          if (!/^[+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-()]/g, ''))) {
+            error = 'Please enter a valid phone number. Phone number must be at least 7 digits and less than 15 digits';
+          }else if(value.trim().length < 7) {
+            error = 'Phone number must be at least 7 digits';
+          }else if(value.trim().length > 15) {
+            error = 'Phone number must be less than 15 digits';
+          }       
         break;
+        //    if (!value.trim()) {
+        //   error = 'Phone number is required';
+        // } else if (!/^[+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-()]/g, ''))) {
+        //   error = 'Please enter a valid phone number';
+        // }
+
       case 'address':
         if (!value.trim()) {
           error = 'Street address is required';
@@ -266,14 +275,61 @@ const countryOptions = useMemo(() => {
   };
 
   const handleFieldChange = (e) => {
-    const { name } = e.target;
+    const { name, value } = e.target;
     
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
     
+    // For phone field, only allow numbers and phone formatting characters (+, -, (, ), spaces)
+    if (name === 'phone') {
+      // Remove any characters that are not digits, +, -, (, ), or spaces
+      const phoneValue = value.replace(/[^\d+\-() ]/g, '');
+      e.target.value = phoneValue;
+    }
+    
     onShippingChange(e);
+  };
+
+  const handlePhoneKeyDown = (e) => {
+    // Allow: numbers (0-9), +, -, (, ), space, and control keys
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+    
+    // Allow modifier keys (Ctrl, Alt, Meta) for shortcuts like Ctrl+A, Ctrl+C, Ctrl+V
+    if (e.ctrlKey || e.altKey || e.metaKey) {
+      return;
+    }
+    
+    // If it's a control key, allow it
+    if (allowedKeys.includes(e.key)) {
+      return;
+    }
+    
+    // If it's a number or phone formatting character, allow it
+    if (/[0-9+\-() ]/.test(e.key)) {
+      return;
+    }
+    
+    // Otherwise, prevent the key press
+    e.preventDefault();
+  };
+
+  const handlePhonePaste = (e) => {
+    e.preventDefault();
+    // Get pasted text and filter out non-numeric and non-formatting characters
+    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+    const phoneValue = pastedText.replace(/[^\d+\-() ]/g, '');
+    
+    // Create a synthetic event to update the field
+    const syntheticEvent = {
+      target: {
+        name: 'phone',
+        value: phoneValue
+      }
+    };
+    
+    handleFieldChange(syntheticEvent);
   };
 
   const handleBillingFieldChange = (e) => {
@@ -325,157 +381,94 @@ const countryOptions = useMemo(() => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="w-12 h-12 bg-primary-light rounded-full flex items-center justify-center">
-          <MapPin className="w-6 h-6 text-primary" />
+    <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-light rounded-full flex items-center justify-center flex-shrink-0">
+          <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
         </div>
-        <div>
-          <h2 className="text-2xl font-sorts-mill-gloudy text-black">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl sm:text-2xl font-sorts-mill-gloudy text-black">
             Shipping Information
           </h2>
-          <p className="text-sm text-black-light font-montserrat-regular-400">
+          <p className="text-xs sm:text-sm text-black-light font-montserrat-regular-400">
             Where should we deliver your order?
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleFormSubmit} className="space-y-6">
+      <form onSubmit={handleFormSubmit} className="space-y-4 sm:space-y-6">
         {/* Name Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              First Name *
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type="text"
-                name="firstName"
-                value={shippingInfo.firstName}
-                onChange={handleFieldChange}
-                className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                  errors.firstName 
-                    ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                    : 'border-primary-light focus:ring-primary focus:border-primary'
-                }`}
-                placeholder="Enter first name"
-              />
-            </div>
-            {errors.firstName && (
-              <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                {errors.firstName}
-              </p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              Last Name *
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type="text"
-                name="lastName"
-                value={shippingInfo.lastName}
-                onChange={handleFieldChange}
-                className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                  errors.lastName 
-                    ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                    : 'border-primary-light focus:ring-primary focus:border-primary'
-                }`}
-                placeholder="Enter last name"
-              />
-            </div>
-            {errors.lastName && (
-              <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                {errors.lastName}
-              </p>
-            )}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          <FormInput
+            label="First Name"
+            name="firstName"
+            type="text"
+            value={shippingInfo.firstName}
+            onChange={handleFieldChange}
+            placeholder="Enter first name"
+            error={errors.firstName}
+            icon={User}
+            required
+          />
+          <FormInput
+            label="Last Name"
+            name="lastName"
+            type="text"
+            value={shippingInfo.lastName}
+            onChange={handleFieldChange}
+            placeholder="Enter last name"
+            error={errors.lastName}
+            icon={User}
+            required
+          />
         </div>
 
         {/* Email and Phone */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              Email Address *
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type="email"
-                name="email"
-                value={shippingInfo.email}
-                onChange={handleFieldChange}
-                className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                  errors.email 
-                    ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                    : 'border-primary-light focus:ring-primary focus:border-primary'
-                }`}
-                placeholder="Enter email"
-              />
-            </div>
-            {errors.email && (
-              <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                {errors.email}
-              </p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              Phone Number *
-            </label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type="tel"
-                name="phone"
-                value={shippingInfo.phone}
-                onChange={handleFieldChange}
-                className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                  errors.phone 
-                    ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                    : 'border-primary-light focus:ring-primary focus:border-primary'
-                }`}
-                placeholder="+1 (555) 000-0000"
-              />
-            </div>
-            {errors.phone && (
-              <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                {errors.phone}
-              </p>
-            )}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          <FormInput
+            label="Email Address"
+            name="email"
+            type="email"
+            value={shippingInfo.email}
+            onChange={handleFieldChange}
+            placeholder="Enter email"
+            error={errors.email}
+            icon={Mail}
+            required
+          />
+          <FormInput
+            label="Phone Number"
+            name="phone"
+            type="tel"
+            value={shippingInfo.phone}
+            onChange={handleFieldChange}
+            onKeyDown={handlePhoneKeyDown}
+            onPaste={handlePhonePaste}
+            inputMode="tel"
+            maxLength={15}
+            minLength={7}
+            placeholder="+1 (555) 000-0000"
+            error={errors.phone}
+            icon={Phone}
+            required
+          />
         </div>
 
         {/* Address */}
-        <div>
-          <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-            Street Address *
-          </label>
-          <input
-            type="text"
-            name="address"
-            value={shippingInfo.address}
-            onChange={handleFieldChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-              errors.address 
-                ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                : 'border-primary-light focus:ring-primary focus:border-primary'
-            }`}
-            placeholder="Enter street address"
-          />
-          {errors.address && (
-            <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-              {errors.address}
-            </p>
-          )}
-        </div>
+        <FormInput
+          label="Street Address"
+          name="address"
+          type="text"
+          value={shippingInfo.address}
+          onChange={handleFieldChange}
+          placeholder="Enter street address"
+          error={errors.address}
+          required
+        />
 
         {/* Country */}
         <div>
-          <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+          <label className="block text-xs sm:text-sm font-montserrat-medium-500 text-black mb-1.5 sm:mb-2">
             Country *
           </label>
           <CustomDropdown
@@ -487,16 +480,16 @@ const countryOptions = useMemo(() => {
             className={errors.country ? 'border-red-500' : ''}
           />
           {errors.country && (
-            <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
+            <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
               {errors.country}
             </p>
           )}
         </div>
 
         {/* State and ZIP Code */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+            <label className="block text-xs sm:text-sm font-montserrat-medium-500 text-black mb-1.5 sm:mb-2">
               State / Province *
             </label>
             <CustomDropdown
@@ -508,7 +501,7 @@ const countryOptions = useMemo(() => {
               className={errors.state ? 'border-red-500' : ''}
             />
             {errors.state && (
-              <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
+              <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
                 {errors.state}
               </p>
             )}
@@ -518,33 +511,21 @@ const countryOptions = useMemo(() => {
               </p>
             )}
           </div>
-          <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              ZIP / Postal Code *
-            </label>
-            <input
-              type="text"
-              name="zipCode"
-              value={shippingInfo.zipCode}
-              onChange={handleFieldChange}           
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                errors.zipCode 
-                  ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                  : 'border-primary-light focus:ring-primary focus:border-primary'
-              }`}
-              placeholder="10001"
-            />
-            {errors.zipCode && (
-              <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                {errors.zipCode}
-              </p>
-            )}
-          </div>
+          <FormInput
+            label="ZIP / Postal Code"
+            name="zipCode"
+            type="text"
+            value={shippingInfo.zipCode}
+            onChange={handleFieldChange}
+            placeholder="10001"
+            error={errors.zipCode}
+            required
+          />
         </div>
 
         {/* City */}
         <div>
-          <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+          <label className="block text-xs sm:text-sm font-montserrat-medium-500 text-black mb-1.5 sm:mb-2">
             City *
           </label>
           <CustomDropdown
@@ -556,7 +537,7 @@ const countryOptions = useMemo(() => {
             className={errors.city ? 'border-red-500' : ''}
           />
           {errors.city && (
-            <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
+            <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
               {errors.city}
             </p>
           )}
@@ -569,20 +550,22 @@ const countryOptions = useMemo(() => {
 
         {/* Billing Address Section */}
         <div className="pt-6 mt-6 border-t border-primary-light">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-12 h-12 bg-primary-light rounded-full flex items-center justify-center">
-              <CreditCard className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-sorts-mill-gloudy text-black">
-                Billing Address
-              </h2>
-              <p className="text-sm text-black-light font-montserrat-regular-400">
-                Use a different billing address (optional)
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-3 mb-6">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-light rounded-full flex items-center justify-center flex-shrink-0">
+                <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl sm:text-2xl font-sorts-mill-gloudy text-black">
+                  Billing Address
+                </h2>
+                <p className="text-xs sm:text-sm text-black-light font-montserrat-regular-400">
+                  Use a different billing address (optional)
+                </p>
+              </div>
             </div>
             
-            <label className="flex items-center space-x-2 cursor-pointer">
+            <label className="flex items-center space-x-2 cursor-pointer flex-shrink-0 sm:ml-auto">
               <CustomCheckbox
                 checked={useBillingAddress}
                 onChange={(e) => {
@@ -601,34 +584,22 @@ const countryOptions = useMemo(() => {
           </div>
 
           {useBillingAddress && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Billing Address */}
-              <div>
-                <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                  Street Address *
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={billingInfo?.address || ''}
-                  onChange={handleBillingFieldChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                    billingErrors.address 
-                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                      : 'border-primary-light focus:ring-primary focus:border-primary'
-                  }`}
-                  placeholder="Enter street address"
-                />
-                {billingErrors.address && (
-                  <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                    {billingErrors.address}
-                  </p>
-                )}
-              </div>
+              <FormInput
+                label="Street Address"
+                name="address"
+                type="text"
+                value={billingInfo?.address || ''}
+                onChange={handleBillingFieldChange}
+                placeholder="Enter street address"
+                error={billingErrors.address}
+                required
+              />
 
               {/* Billing Country */}
               <div>
-                <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                <label className="block text-xs sm:text-sm font-montserrat-medium-500 text-black mb-1.5 sm:mb-2">
                   Country *
                 </label>
                 <CustomDropdown
@@ -640,14 +611,14 @@ const countryOptions = useMemo(() => {
                   className={billingErrors.country ? 'border-red-500' : ''}
                 />
                 {billingErrors.country && (
-                  <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
+                  <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
                     {billingErrors.country}
                   </p>
                 )}
               </div>
 
               {/* Billing State and ZIP Code */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
                     State / Province *
@@ -661,7 +632,7 @@ const countryOptions = useMemo(() => {
                     className={billingErrors.state ? 'border-red-500' : ''}
                   />
                   {billingErrors.state && (
-                    <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
+                    <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
                       {billingErrors.state}
                     </p>
                   )}
@@ -671,28 +642,16 @@ const countryOptions = useMemo(() => {
                     </p>
                   )}
                 </div>
-                <div>
-                  <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                    ZIP / Postal Code *
-                  </label>
-                  <input
-                    type="text"
-                    name="zipCode"
-                    value={billingInfo?.zipCode || ''}
-                    onChange={handleBillingFieldChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                      billingErrors.zipCode 
-                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                        : 'border-primary-light focus:ring-primary focus:border-primary'
-                    }`}
-                    placeholder="10001"
-                  />
-                  {billingErrors.zipCode && (
-                    <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                      {billingErrors.zipCode}
-                    </p>
-                  )}
-                </div>
+                <FormInput
+                  label="ZIP / Postal Code"
+                  name="zipCode"
+                  type="text"
+                  value={billingInfo?.zipCode || ''}
+                  onChange={handleBillingFieldChange}
+                  placeholder="10001"
+                  error={billingErrors.zipCode}
+                  required
+                />
               </div>
 
               {/* Billing City */}
@@ -709,7 +668,7 @@ const countryOptions = useMemo(() => {
                   className={billingErrors.city ? 'border-red-500' : ''}
                 />
                 {billingErrors.city && (
-                  <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
+                  <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
                     {billingErrors.city}
                   </p>
                 )}
@@ -727,7 +686,7 @@ const countryOptions = useMemo(() => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-4 sm:px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Processing...' : 'Continue to Payment'}
         </button>
