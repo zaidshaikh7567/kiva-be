@@ -186,19 +186,19 @@ const getWelcomeEmailTemplate = (userName) => {
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 20px auto;">
                 <tr>
                   <td style="padding: 0 8px;">
-                    <a href="https://www.facebook.com/kiva.diamond" 
+                    <a href="https://www.facebook.com/kiva.diamond/?rdid=GnfsBsErFgHnpej1" 
                        style="display: inline-block; width: 40px; height: 40px; background-color: #E0C0B0; border-radius: 50%; text-align: center; line-height: 40px; color: #051F34; text-decoration: none; font-size: 18px;">
                       f
                     </a>
                   </td>
                   <td style="padding: 0 8px;">
-                    <a href="https://www.instagram.com/kiva.diamond" 
+                    <a href="https://www.instagram.com/kiva.diamond/?igsh=amV5ZDN3M3Y4a3lo#" 
                        style="display: inline-block; width: 40px; height: 40px; background-color: #E0C0B0; border-radius: 50%; text-align: center; line-height: 40px; color: #051F34; text-decoration: none; font-size: 18px;">
                       @
                     </a>
                   </td>
                   <td style="padding: 0 8px;">
-                    <a href="https://api.whatsapp.com/send/?phone=919106302269" 
+                    <a href="https://api.whatsapp.com/send/?phone=919106302269&text&type=phone_number&app_absent=0s" 
                        style="display: inline-block; width: 40px; height: 40px; background-color: #E0C0B0; border-radius: 50%; text-align: center; line-height: 40px; color: #051F34; text-decoration: none; font-size: 18px;">
                       W
                     </a>
@@ -610,19 +610,19 @@ const getOrderConfirmationEmailTemplate = (order) => {
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 20px auto;">
                 <tr>
                   <td style="padding: 0 8px;">
-                    <a href="https://www.facebook.com/kiva.diamond" 
+                    <a href="https://www.facebook.com/kiva.diamond/?rdid=GnfsBsErFgHnpej1" 
                        style="display: inline-block; width: 40px; height: 40px; background-color: #E0C0B0; border-radius: 50%; text-align: center; line-height: 40px; color: #051F34; text-decoration: none; font-size: 18px;">
                       f
                     </a>
                   </td>
                   <td style="padding: 0 8px;">
-                    <a href="https://www.instagram.com/kiva.diamond" 
+                    <a href="https://www.instagram.com/kiva.diamond/?igsh=amV5ZDN3M3Y4a3lo#" 
                        style="display: inline-block; width: 40px; height: 40px; background-color: #E0C0B0; border-radius: 50%; text-align: center; line-height: 40px; color: #051F34; text-decoration: none; font-size: 18px;">
                       @
                     </a>
                   </td>
                   <td style="padding: 0 8px;">
-                    <a href="https://api.whatsapp.com/send/?phone=919106302269" 
+                    <a href="https://api.whatsapp.com/send/?phone=919106302269&text&type=phone_number&app_absent=0" 
                        style="display: inline-block; width: 40px; height: 40px; background-color: #E0C0B0; border-radius: 50%; text-align: center; line-height: 40px; color: #051F34; text-decoration: none; font-size: 18px;">
                       W
                     </a>
