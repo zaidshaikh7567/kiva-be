@@ -552,7 +552,7 @@ const ReviewsSlider = () => {
                               arrows={false}
                               infinite
                               speed={400}
-                              // slidesToShow={3}
+                              slidesToShow={3}
                               responsive={[
                                 {
                                   breakpoint: 1280,

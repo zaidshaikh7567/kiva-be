@@ -265,6 +265,7 @@ const OrderSuccess = () => {
                             </div>
                             <PriceDisplay 
                               price={totalPrice}
+                              variant='small'
                               className="text-sm font-montserrat-bold-700 text-primary mt-1"
                             />
                           </div>

@@ -236,7 +236,7 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
                 <div className="font-montserrat-bold-700 text-sm text-black ">
                   {metal.carat}
                 </div>
-                <div className="font-montserrat-semibold-600 text-black text-sm leading-tight">
+                <div className="font-montserrat-semibold-600 text-black text-sm leading-tight capitalize">
                   {metal.color}
                 </div>
               </div>
@@ -267,7 +267,7 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
         <div className="bg-primary-light rounded-xl p-4 border border-primary border-opacity-20">
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-montserrat-semibold-600 text-black text-base">
+              <div className="font-montserrat-semibold-600 text-black text-base capitalize">
                 {selectedMetal.carat} {selectedMetal.color}
               </div>
               {/* <div className="text-sm font-montserrat-regular-400 text-black-light">

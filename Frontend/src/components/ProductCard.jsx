@@ -355,14 +355,14 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             <>
               {/* Top Section */}
               <div className="flex-1">
-                <div className="flex items-center space-x-1 mb-2">
+                {/* <div className="flex items-center space-x-1 mb-2">
                   <Star className="w-3 h-3 text-yellow-400 fill-current" />
                   <span className="text-xs font-montserrat-regular-400 text-black-light">
                     {product.rating} ({product.reviews})
                   </span>
-                </div>
+                </div> */}
 
-                <h3 className="text-sm sm:text-base md:text-lg font-montserrat-semibold-600 text-black mb-2">
+                <h3 className="text-sm sm:text-base md:text-lg font-montserrat-semibold-600 text-black mb-2 capitalize">
                   {product.name}
                 </h3>
 
@@ -415,7 +415,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
                 </div>
               </div> */}
 
-              <h3 className="text-lg md:text-xl font-montserrat-semibold-600 text-black mb-2">
+              <h3 className="text-lg md:text-xl font-montserrat-semibold-600 text-black mb-2  line-clamp-2 capitalize">
                 {product.name}
               </h3>
 

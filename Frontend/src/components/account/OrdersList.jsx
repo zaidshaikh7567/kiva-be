@@ -230,7 +230,7 @@ const OrdersList = () => {
                               {/* {ringSize && <p>Size: {ringSize}</p>} */}
                             </div>
                             <p className="text-sm font-montserrat-semibold-600 text-primary mt-1">
-                              <PriceDisplay price={totalPrice} variant="small" className="font-montserrat-medium-500 text-black inline" />
+                              {/* <PriceDisplay price={totalPrice} variant="small" className="font-montserrat-medium-500 text-black inline" /> */}
                               {/* ${totalPrice.toFixed(2)} */}
                             </p>
                           </div>

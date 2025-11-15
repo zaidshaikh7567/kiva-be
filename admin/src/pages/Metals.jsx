@@ -152,7 +152,7 @@ const Metals = () => {
                 metals.map((metal) => (
                   <tr key={metal._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{metal.name}</div>
+                      <div className="text-sm font-medium text-gray-900 capitalize">{metal.name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">

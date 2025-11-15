@@ -101,10 +101,10 @@ const CurrencyDropdown = () => {
                 <span>Refresh</span>
               </button>
             </div>
-            {detectedCountry && (
+            {/* {detectedCountry && (
               <p className="text-xs text-gray-500 mt-1">
                 📍 {detectedCountry}
-                {/* 📍 {detectedCountry} ({detectionMethod}) */}
+
               </p>
             )}
             {lastUpdated && (
@@ -117,7 +117,7 @@ const CurrencyDropdown = () => {
                 <AlertCircle className="w-3 h-3" />
                 <span className="text-xs">Failed to load rates</span>
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Currency options */}

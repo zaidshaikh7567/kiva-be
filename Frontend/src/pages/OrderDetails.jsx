@@ -238,87 +238,129 @@ const OrderDetails = () => {
                     Order Items
                   </h2>
                 </div>
-                <div className="space-y-4">
-                  {items.length > 0 ? (
-                    items.map((item, index) => {
-                    console.log('item !!!!!:', item);
-                      const productName = item.productName || item.title || 'Product';
-                      const productImage = item.productImage || item.images?.[0] || item.image;
-                      const quantity = item.quantity || 1;
-                      const unitPrice = item.unitPrice || 0;
-                      const totalPrice = item.totalPrice || (unitPrice * quantity);
-                      
-                      const metalName = item.metalName || '';
-                      const stoneName = item.stoneName || '';
-                      console.log('stoneName :', stoneName);
-                      const ringSize = item.ringSize || '';
-                      const purityLevel = item.purityLevel ? `${item.purityLevel.karat}K` : '';
-                      
-                      return (
-                        <div key={item._id || index} className="border border-primary-light rounded-lg p-4">
-                          <div className="flex items-start space-x-4">
-                            {productImage ? (
-                              <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-50">
-                                <img
-                                  src={productImage}
-                                  alt={productName}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                            ) : (
-                              <div className="w-20 h-20 rounded-lg flex-shrink-0 bg-gray-50 flex items-center justify-center">
-                                <Package className="w-10 h-10 text-gray-400" />
-                              </div>
-                            )}
-                            <div className="flex-1">
-                              <h4 className="font-montserrat-semibold-600 text-lg text-black mb-2">
-                                {productName}
-                              </h4>
-                              <div className="space-y-1 mb-3">
-                                <p className="text-sm font-montserrat-regular-400 text-black-light">
-                                  Quantity: <span className="font-montserrat-medium-500 text-black">{quantity}</span>
-                                </p>
-                                {metalName && (
-                                  <p className="text-sm font-montserrat-regular-400 text-black-light">
-                                    Metal: <span className="font-montserrat-medium-500 text-black">{metalName} {purityLevel && `(${purityLevel})`}</span>
-                                  </p>
-                                )}
-                                {stoneName && (
-                                  <p className="text-sm font-montserrat-regular-400 text-black-light">
-                                    Stone: <span className="font-montserrat-medium-500 text-black">{stoneName}</span>
-                                  </p>
-                                )}
-                                {ringSize && (
-                                  <p className="text-sm font-montserrat-regular-400 text-black-light">
-                                    Ring Size: <span className="font-montserrat-medium-500 text-black">{ringSize}</span>
-                                  </p>
-                                )}
-                                {item.stonePrice && item.stonePrice > 0 && (
-                                  <p className="text-sm font-montserrat-regular-400 text-black-light flex">
-                                    Stone Price: <PriceDisplay price={item.stonePrice} variant="small" className="font-montserrat-medium-500 text-black inline" />
-                                  </p>
-                                )}
-                              </div>
-                              <div className="flex items-center justify-between pt-3 border-t border-primary-light">
-                                <p className="text-sm font-montserrat-regular-400 text-black-light">
-                                  Unit Price: <PriceDisplay price={unitPrice} className="font-montserrat-medium-500 text-black inline" />
-                                </p>
-                                <PriceDisplay 
-                                  price={totalPrice}
-                                  className="text-lg font-montserrat-bold-700 text-primary"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-sm text-black-light font-montserrat-regular-400 text-center py-8">
-                      No items found
-                    </p>
-                  )}
-                </div>
+               <div className="space-y-4">
+  {items.length > 0 ? (
+    items.map((item, index) => {
+      const productName = item.productName || item.title || "Product";
+      const productImage = item.productImage || item.images?.[0] || item.image;
+      const quantity = item.quantity || 1;
+      const unitPrice = item.unitPrice || 0;
+      const totalPrice = item.totalPrice || unitPrice * quantity;
+
+      const metalName = item.metalName || "";
+      const stoneName = item.stoneName || "";
+      const ringSize = item.ringSize || "";
+      const purityLevel = item.purityLevel ? `${item.purityLevel.karat}K` : "";
+
+      return (
+        <div
+          key={item._id || index}
+          className="border border-primary-light rounded-xl p-4 bg-white 
+                     shadow-sm hover:shadow-md transition-all"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-4 space-y-4 sm:space-y-0">
+
+            {/* Product Image */}
+            {productImage ? (
+              <div className="w-full sm:w-24 h-40 sm:h-24 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                <img
+                  src={productImage}
+                  alt={productName}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-full sm:w-24 h-40 sm:h-24 rounded-lg bg-gray-50 flex items-center justify-center">
+                <Package className="w-10 h-10 text-gray-400" />
+              </div>
+            )}
+
+            {/* Right Section */}
+            <div className="flex-1">
+              <h4 className="font-montserrat-semibold-600 text-lg text-black mb-2 break-words">
+                {productName}
+              </h4>
+
+              <div className="space-y-1 mb-3">
+                <p className="text-sm text-black-light">
+                  Quantity:{" "}
+                  <span className="font-montserrat-medium-500 text-black">
+                    {quantity} × <PriceDisplay
+                    price={unitPrice}
+                    variant='small'
+                    className="font-montserrat-medium-500 text-black inline"
+                  />
+                  </span>
+                </p>
+
+                {metalName && (
+                  <p className="text-sm text-black-light">
+                    Metal:{" "}
+                    <span className="font-montserrat-medium-500 text-black">
+                      {metalName} {purityLevel && `(${purityLevel})`}
+                    </span>
+                  </p>
+                )}
+
+                {stoneName && (
+                  <p className="text-sm text-black-light">
+                    Stone:{" "}
+                    <span className="font-montserrat-medium-500 text-black">
+                      {stoneName}
+                    </span>
+                  </p>
+                )}
+
+                {ringSize && (
+                  <p className="text-sm text-black-light">
+                    Ring Size:{" "}
+                    <span className="font-montserrat-medium-500 text-black">
+                      {ringSize}
+                    </span>
+                  </p>
+                )}
+
+                {/* {item.stonePrice > 0 && (
+                  <p className="text-sm text-black-light flex">
+                    Stone Price:{" "}
+                    <PriceDisplay
+                      price={item.stonePrice}
+                      variant="small"
+                      className="font-montserrat-medium-500 text-black ml-1"
+                    />
+                  </p>
+                )} */}
+              </div>
+
+              {/* Prices Section */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between 
+                              space-y-2 sm:space-y-0 border-t border-primary-light pt-3">
+
+                {/* <p className="text-sm text-black-light">
+                  Unit Price:{" "}
+                  <PriceDisplay
+                    price={unitPrice}
+                    className="font-montserrat-medium-500 text-black inline"
+                  />
+                </p> */}
+
+                <PriceDisplay
+                  price={totalPrice}
+                  className="text-lg font-montserrat-bold-700 text-primary"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    })
+  ) : (
+    <p className="text-sm text-black-light font-montserrat-regular-400 text-center py-8">
+      No items found
+    </p>
+  )}
+</div>
+
               </div>
 
               {/* Shipping Address */}
