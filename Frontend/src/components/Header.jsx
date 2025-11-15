@@ -375,13 +375,13 @@ const Header = () => {
                   >
                     Dashboard
                   </Link>
-                  <Link
+                  {/* <Link
                     to="/change-password"
                     onClick={() => setIsOpen(false)}
                     className="flex items-center px-4 py-2 rounded-lg font-montserrat-medium-500 text-base text-gray-700 hover:bg-gray-50 hover:text-primary transition-all duration-200"
                   >
                     Change Password
-                  </Link>
+                  </Link> */}
                   <button
                     onClick={() => {
                       logout();

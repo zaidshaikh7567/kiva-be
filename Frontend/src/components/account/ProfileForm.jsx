@@ -33,7 +33,8 @@ const ProfileForm = () => {
   
   // Default dummy user image
   const defaultUserImage = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=6366f1&color=fff&size=200';
-
+// console.log(defaultUserImage,'defaultUserImage');
+ 
   // Update form data when user changes
   useEffect(() => {
     if (user) {
@@ -44,8 +45,10 @@ const ProfileForm = () => {
         profileImage: null // Reset to null - only set when new file is selected
       });
       // Set image preview from user data or localStorage
-      const savedImage = localStorage.getItem(`user_${user.id || user._id}_profileImage`);
-      setImagePreview(userImage || savedImage || null);
+      // const savedImage = localStorage.getItem(`user_${user.id || user._id}_profileImage`);
+      // console.log(savedImage,'v');
+      
+      setImagePreview(userImage  || null);
     }
   }, [user]);
 
@@ -183,21 +186,21 @@ const ProfileForm = () => {
       profileImage: null
     }));
     // Remove from localStorage
-    if (user?.id || user?._id) {
-      localStorage.removeItem(`user_${user.id || user._id}_profileImage`);
-    }
+    // if (user?.id || user?._id) {
+    //   localStorage.removeItem(`user_${user.id || user._id}_profileImage`);
+    // }
   };
 
   const handleCancel = () => {
     const userImage = user?.profileImage || user?.image || null;
-    const savedImage = user?.id || user?._id ? localStorage.getItem(`user_${user.id || user._id}_profileImage`) : null;
+    // const savedImage = user?.id || user?._id ? localStorage.getItem(`user_${user.id || user._id}_profileImage`) : null;
     
     setFormData({
       name: user?.name || '',
       email: user?.email || '',
       profileImage: null // Reset to null
     });
-    setImagePreview(userImage || savedImage || null);
+    setImagePreview(userImage  || null);
     setFieldErrors({ name: '', email: '' });
     setIsEditing(false);
   };
@@ -214,7 +217,7 @@ const ProfileForm = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <div className="bg-white rounded-2xl shadow-sm sm:p-6 p-4">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-sorts-mill-gloudy text-black">
           Profile Information

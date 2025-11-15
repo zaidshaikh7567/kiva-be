@@ -32,10 +32,10 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="bg-white rounded-2xl shadow-sm sm:p-6 p-4">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-12 h-12 bg-primary-light rounded-full flex items-center justify-center">
                   <Package className="w-6 h-6 text-primary" />

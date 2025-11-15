@@ -4,7 +4,7 @@ import PriceDisplay from '../PriceDisplay';
 
 const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-8">
+    <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 sticky top-8">
       <h3 className="text-xl font-sorts-mill-gloudy text-black mb-6">
         Order Summary<span className="text-primary">.</span>
       </h3>
@@ -52,13 +52,13 @@ const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-montserrat-semibold-600 text-sm text-black truncate">
+                  <h4 className="font-montserrat-semibold-600 text-sm text-black truncate capitalize">
                     {productName}
                   </h4>
                   <div className="text-xs text-black-light font-montserrat-regular-400 space-y-0.5 mt-1">
                     <p>Qty: {quantity}</p>
                     {metalName && karat && (
-                      <p>{metalName} ({karat}K)</p>
+                      <p className='capitalize'>{metalName} ({karat}K)</p>
                     )}
                     {stoneName && (
                       <p>Stone: {stoneName}</p>

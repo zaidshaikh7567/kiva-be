@@ -180,11 +180,11 @@ const OrderDetails = () => {
       {/* Order Details */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Order Information */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                     <Package className="w-5 h-5 text-primary" />
@@ -229,7 +229,7 @@ const OrderDetails = () => {
               </div>
 
               {/* Order Items */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                     <Package className="w-5 h-5 text-primary" />
@@ -364,7 +364,7 @@ const OrderDetails = () => {
               </div>
 
               {/* Shipping Address */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-primary" />
@@ -389,7 +389,7 @@ const OrderDetails = () => {
               {billingAddress && billingAddress.street && 
                (billingAddress.street !== shippingAddress.street || 
                 billingAddress.city !== shippingAddress.city) && (
-                <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+                <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                   <div className="flex items-center space-x-3 mb-6">
                     <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                       <CreditCard className="w-5 h-5 text-primary" />
@@ -414,7 +414,7 @@ const OrderDetails = () => {
 
             {/* Sidebar - Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 sticky top-8">
                 <h3 className="text-xl font-sorts-mill-gloudy text-black mb-6">
                   Order Summary<span className="text-primary">.</span>
                 </h3>

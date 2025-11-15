@@ -97,6 +97,22 @@ const OrderSuccess = () => {
   const finalTotal = totals.total || (subtotal + shippingCost);
   const paymentMethod = orderData.paymentMethod || 'Credit Card';
   const orderStatus = orderData.status || 'pending';
+  const formatOrderDate = (dateString) => {
+    
+  if (!dateString) return 'N/A';
+  try {
+    return new Date(dateString).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch {
+    return dateString;
+  }
+};
 
   return (
     <div className="min-h-screen bg-secondary">
@@ -127,11 +143,11 @@ const OrderSuccess = () => {
       {/* Order Details */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Order Information */}
             <div className="lg:col-span-2 space-y-6">
               {/* Order Number */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                     <Package className="w-5 h-5 text-primary" />
@@ -153,18 +169,14 @@ const OrderSuccess = () => {
                   </p>
                   {orderData.createdAt && (
                     <p className="text-xs font-montserrat-regular-400 text-black-light text-center mt-2">
-                      Placed on {new Date(orderData.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
+                      Placed on {formatOrderDate(orderData.createdAt)}
                     </p>
                   )}
                 </div>
               </div>
 
               {/* Shipping Details */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-primary" />
@@ -190,7 +202,7 @@ const OrderSuccess = () => {
               </div>
 
               {/* Payment Method */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                     <CreditCard className="w-5 h-5 text-primary" />
@@ -215,7 +227,7 @@ const OrderSuccess = () => {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 sticky top-8">
                 <h3 className="text-xl font-sorts-mill-gloudy text-black mb-6">
                   Order Summary<span className="text-primary">.</span>
                 </h3>

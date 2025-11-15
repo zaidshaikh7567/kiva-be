@@ -37,6 +37,17 @@ console.log('user :', user);
     setIsOpen(false);
     navigate('/change-password');
   };
+const getInitials = (name) => {
+  
+  if (!name) return '';
+
+  const parts = name.trim().split(' ');
+  const first = parts[0]?.charAt(0) || '';
+  const last = parts[1]?.charAt(0) || '';
+
+  return (first + last).toUpperCase();
+};
+console.log(getInitials(user.name?.charAt(0)),'hdfjh');
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -46,7 +57,7 @@ console.log('user :', user);
         className="flex items-center outline-none space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-300"
       >
         <div className="w-10 h-10 min-w-10 min-h-10 bg-primary rounded-full flex items-center justify-center text-white text-sm font-montserrat-semibold-600">
-          {user.profileImage ? <img src={user.profileImage} alt="User" className="w-full h-full object-cover rounded-full" /> : user.name?.charAt(0)}
+          {user.profileImage ? <img src={user.profileImage} alt="User" className="w-full h-full object-cover rounded-full" /> : getInitials(user.name)}
         {/* {user.name?.charAt(0)} */}
         </div>
         {/* <span className="hidden md:block font-montserrat-medium-500 text-black text-sm">
@@ -78,13 +89,13 @@ console.log('user :', user);
               Dashboard
             </button>
 
-            <button
+            {/* <button
               onClick={handleChangePassword}
               className="flex items-center w-full px-4 py-2 text-sm font-montserrat-medium-500 text-black hover:bg-gray-50 transition-colors duration-300"
             >
               <Settings className="w-4 h-4 mr-3 text-black-light" />
               Change Password
-            </button>
+            </button> */}
 
             <button
               onClick={handleLogout}

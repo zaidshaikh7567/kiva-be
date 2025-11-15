@@ -76,17 +76,22 @@ const OrdersList = () => {
   };
 
   const formatOrderDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    } catch {
-      return dateString;
-    }
-  };
+    
+  if (!dateString) return 'N/A';
+  try {
+    return new Date(dateString).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch {
+    return dateString;
+  }
+};
+
 
   const formatOrderNumber = (order) => {
     return order.orderNumber || order._id || `ORD-${order.id}` || 'N/A';
@@ -107,7 +112,7 @@ const OrdersList = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl shadow-sm p-6">
+      <div className="bg-white rounded-2xl shadow-sm sm:p-6 p-4">
         <div className="flex sm:flex-row flex-col sm:items-center justify-between mb-6">
           <h2 className="text-2xl font-sorts-mill-gloudy text-black">
             My Orders

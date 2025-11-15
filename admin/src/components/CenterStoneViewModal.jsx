@@ -110,16 +110,16 @@ console.log('centerStone :', centerStone);
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+        <div className="block sm:flex items-center justify-end  p-6 border-t border-gray-200 bg-gray-50">
           <button
             onClick={onClose}
-            className="px-6 py-3 border border-gray-200 rounded-lg font-montserrat-medium-500 text-black-light hover:bg-white transition-colors"
+            className="px-6   sm:w-auto w-full py-3 border border-gray-200 rounded-lg font-montserrat-medium-500 text-black-light hover:bg-white transition-colors"
           >
             Close
           </button>
           <button
             onClick={handleEdit}
-            className="flex items-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-montserrat-medium-500"
+            className="sm:ml-2 sm:mt-0 mt-2 sm:w-auto w-full flex items-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-montserrat-medium-500"
           >
             <Edit className="w-4 h-4" />
             <span>Edit Center Stone</span>

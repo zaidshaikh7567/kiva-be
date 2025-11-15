@@ -136,7 +136,7 @@ const ViewCart = () => {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Cart Items Section */}
             <div className="lg:col-span-2">
               {/* Clear Cart Button */}

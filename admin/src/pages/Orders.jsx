@@ -89,6 +89,13 @@ const Orders = () => {
   const updatingStatus = useSelector(selectAdminOrdersUpdating);
   const [selectedStatus, setSelectedStatus] = useState('');
 
+  useEffect(() => {
+    if(showOrderModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [showOrderModal]);
   const handleStatusChange = (value) => {
     setStatusFilter(value);
     setCurrentPage(1);
@@ -217,7 +224,7 @@ const Orders = () => {
       [shippingAddress.firstName, shippingAddress.lastName].filter(Boolean).join(' ') ||
       'Customer';
     const customerEmail = order.user?.email || shippingAddress.email || '—';
-    const customerPhone = order.user?.phone || shippingAddress.phone || '—';
+    const customerPhone = order.phone || shippingAddress.phone || '—';
     const paymentMethodLabel = order.payment?.method || order.paymentMethod || 'N/A';
     const paymentStatusLabel = (order.payment?.status || order.paymentStatus || 'pending').toLowerCase();
     const orderTotalAmount =
@@ -590,6 +597,7 @@ const Orders = () => {
                   [shippingAddress.firstName, shippingAddress.lastName].filter(Boolean).join(' ') ||
                   'Customer';
                 const customerEmail = order.user?.email || shippingAddress.email || '—';
+                const customerPhone = order?.phone || shippingAddress.phone || '—';
                 const orderDate = order.createdAt || order.date;
                 const status = (order.status || 'pending').toLowerCase();
                 const totalAmount = order.totals?.total || order.finalTotal || order.total || 0;
@@ -609,6 +617,9 @@ const Orders = () => {
                         <p className="font-montserrat-medium-500 text-black">{customerName}</p>
                         <p className="text-sm font-montserrat-regular-400 text-black-light">
                           {customerEmail}
+                        </p>
+                        <p className="text-sm font-montserrat-regular-400 text-black-light">
+                          {customerPhone}
                         </p>
                       </div>
                     </td>
@@ -727,7 +738,7 @@ const Orders = () => {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3">
                       <User className="w-5 h-5 text-black-light" />
-                      <span className="font-montserrat-medium-500 text-black">{modalData.customerName}</span>
+                      <span className="font-montserrat-medium-500 text-black capitalize">{modalData.customerName}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Mail className="w-5 h-5 text-black-light" />
@@ -808,13 +819,13 @@ const Orders = () => {
                           </div>
                         )}
                         <div className="flex-1">
-                          <h4 className="font-montserrat-semibold-600 text-black">{productName}</h4>
+                          <h4 className="font-montserrat-semibold-600 text-black capitalize">{productName}</h4>
                           <div className="text-sm font-montserrat-regular-400 text-black-light space-y-1 mt-1">
                             <p>
                               Quantity: {quantity} × {formatCurrency(unitPrice)}
                             </p>
                             {(metalName || purityLevel) && (
-                              <p>
+                              <p className='capitalize'>
                                 Metal: {metalName}
                                 {metalName && purityLevel ? ` (${purityLevel})` : purityLevel}
                               </p>

@@ -22,12 +22,12 @@ const TrendingSection = () => {
     },
     {
       id: 2,
-      image: Img2,
-      name: "Necklace",
-      price: "980",
-      path: "/necklaces",
+      image: Img4,
+      name: "Sapphire Bracelet",
+      price: "670",
+      path: "/bracelets",
     },
-    {
+     {
       id: 3,
       image: Img3,
       name: "Emerald Earrings",
@@ -36,10 +36,10 @@ const TrendingSection = () => {
     },
     {
       id: 4,
-      image: Img4,
-      name: "Sapphire Bracelet",
-      price: "670",
-      path: "/bracelets",
+      image: Img2,
+      name: "Necklace",
+      price: "980",
+      path: "/necklaces",
     },
   ];
 

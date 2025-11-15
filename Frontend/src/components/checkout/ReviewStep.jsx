@@ -24,7 +24,7 @@ const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, onEditShipping, on
   return (
     <div className="space-y-6">
       {/* Shipping Details */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
@@ -53,7 +53,7 @@ const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, onEditShipping, on
 
       {/* Billing Details */}
       {billingInfo && (
-        <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
@@ -82,7 +82,7 @@ const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, onEditShipping, on
       )}
 
       {/* Payment Details */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">

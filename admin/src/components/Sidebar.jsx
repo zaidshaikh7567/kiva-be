@@ -198,7 +198,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         </nav>
 
         {/* Footer - Logout Button */}
-        <div className="mt-auto p-4 border-t border-gray-200 bg-gray-50">
+        <div className="mt-auto p-2 border-t border-gray-200 bg-gray-50">
           <button
             onClick={handleLogout}
             className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
