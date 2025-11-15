@@ -35,9 +35,18 @@ const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) =
     }
   }, [isOpen, data]);
 
+
+    useEffect(() => {
+      if(isOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'auto';
+      }
+    }, [isOpen]);
+    
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-50 mx-2">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative mx-auto max-w-xl bg-white rounded-2xl p-6 mt-16 shadow-xl">
         <h3 className="text-xl font-sorts-mill-gloudy text-black mb-4">{mode === 'edit' ? 'Edit Social Handle' : 'Add Social Handle'}</h3>
