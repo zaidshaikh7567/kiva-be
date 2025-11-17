@@ -6,7 +6,11 @@ export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await api.post('/api/auth/login', credentials);
+      const payload = {
+        ...credentials,
+        role: credentials.role || 'admin'
+      };
+      const response = await api.post('/api/auth/login', payload);
       
       if (response.data.success) {
         const { accessToken, refreshToken, user } = response.data.data;

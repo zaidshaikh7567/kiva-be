@@ -109,7 +109,7 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
     }
     
     try {
-      const result = await dispatch(login({ email, password }));
+      const result = await dispatch(login({ email, password, role: 'admin' }));
       
       if (login.fulfilled.match(result)) {
         toast.success('Login successful!');

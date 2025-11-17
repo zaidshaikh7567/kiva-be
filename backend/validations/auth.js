@@ -1,14 +1,29 @@
 const zod = require('zod');
 
+const inputRoleSchema = zod.preprocess((val) => {
+  if (typeof val === 'string') {
+    const normalized = val.trim().toLowerCase();
+    if (normalized === 'super_admin') {
+      return 'admin';
+    }
+    return normalized;
+  }
+  return val;
+}, zod.enum(['admin', 'user'], {
+  errorMap: () => ({ message: 'Role must be either admin or user' })
+}));
+
 const loginSchema = zod.object({
   email: zod.email('Invalid email format'),
-  password: zod.string().min(6, 'Password must be at least 6 characters')
+  password: zod.string().min(6, 'Password must be at least 6 characters'),
+  role: inputRoleSchema
 });
 
 const registerSchema = zod.object({
   name: zod.string().min(1, 'Name is required').max(100, 'Name too long'),
   email: zod.email('Invalid email format'),
-  password: zod.string().min(6, 'Password must be at least 6 characters')
+  password: zod.string().min(6, 'Password must be at least 6 characters'),
+  role: inputRoleSchema
 });
 
 const changePasswordSchema = zod.object({

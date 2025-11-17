@@ -11,6 +11,33 @@ const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'pn
 
 const router = express.Router();
 
+const parseBoolean = (value, defaultValue = false) => {
+  if (value === undefined || value === null || value === '') {
+    return defaultValue;
+  }
+
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['true', '1', 'yes', 'on'].includes(normalized)) {
+      return true;
+    }
+    if (['false', '0', 'no', 'off'].includes(normalized)) {
+      return false;
+    }
+  }
+
+  if (typeof value === 'number') {
+    if (value === 1) return true;
+    if (value === 0) return false;
+  }
+
+  return defaultValue;
+};
+
 router.get('/', asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -60,7 +87,7 @@ router.post('/', authenticate, authorize('super_admin'), upload.array('images', 
     color,
     clarity: parsedClarity,
     certificate: parsedCertificate,
-    isBand: isBand !== undefined ? isBand : false
+    isBand: parseBoolean(isBand, false)
   });
 
   await product.save();
@@ -123,8 +150,7 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
   }
 
   if (isBand !== undefined) {
-    // Explicitly convert to boolean to handle string "true"/"false" from FormData
-    updateData.isBand = isBand === true || isBand === 'true' || isBand === '1';
+    updateData.isBand = parseBoolean(isBand, existingProduct.isBand);
   }
 
   // Merge new images with existing images

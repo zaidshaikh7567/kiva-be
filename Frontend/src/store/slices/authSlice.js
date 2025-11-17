@@ -7,7 +7,11 @@ export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await api.post(API_METHOD.auth.login, credentials);
+      const payload = {
+        ...credentials,
+        role: credentials.role || 'user'
+      };
+      const response = await api.post(API_METHOD.auth.login, payload);
       
       // Store tokens if they exist
       if (response.data.data?.accessToken) {
@@ -46,7 +50,8 @@ export const registerUser = createAsyncThunk(
       const response = await api.post(API_METHOD.auth.register, {
         name: userData.name,
         email: userData.email,
-        password: userData.password
+        password: userData.password,
+        role: userData.role || 'user'
       });
       return response.data.data || response.data;
     } catch (error) {

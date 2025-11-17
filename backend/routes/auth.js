@@ -23,6 +23,11 @@ const upload = createMulter({
 
 const router = express.Router();
 
+const resolveRole = (role) => {
+  if (!role) return 'user';
+  return role === 'admin' ? 'super_admin' : role;
+};
+
 const generateTokens = (user) => {
   const accessToken = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_ACCESS_SECRET, { expiresIn: '1d' });
   const refreshToken = jwt.sign({ id: user._id }, JWT_REFRESH_SECRET, { expiresIn: '30d' });
@@ -30,11 +35,12 @@ const generateTokens = (user) => {
 };
 
 router.post('/login', validate(loginSchema), asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
+  const normalizedRole = resolveRole(role);
 
-  const user = await User.findOne({ email, active: true });
+  const user = await User.findOne({ email, active: true, role: normalizedRole });
   if (!user || !(await user.comparePassword(password))) {
-    return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    return res.status(401).json({ success: false, message: 'Invalid credentials or role' });
   }
 
   const { accessToken, refreshToken } = generateTokens(user);
@@ -82,14 +88,19 @@ router.post('/refresh', asyncHandler(async (req, res) => {
 }));
 
 router.post('/register', validate(registerSchema), asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
+  const normalizedRole = resolveRole(role);
+
+  if (normalizedRole !== 'user') {
+    return res.status(403).json({ success: false, message: 'Admin accounts cannot be registered via this endpoint' });
+  }
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     return res.status(400).json({ success: false, message: 'User already exists' });
   }
 
-  const user = new User({ name, email, password, role: 'user' });
+  const user = new User({ name, email, password, role: normalizedRole });
   await user.save();
 
   const { accessToken, refreshToken } = generateTokens(user);
