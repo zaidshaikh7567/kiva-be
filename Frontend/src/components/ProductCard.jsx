@@ -35,6 +35,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const categories = useSelector(selectCategories);
   const metals = useSelector(selectMetals);
   const [loading, setLoading] = useState(false);
+  const isList = viewMode === "list";
   console.log('loading :', loading);
   // Check if product is a ring
   const isRing = () => {
@@ -285,10 +286,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
 
   return (
     <>
-      <div
+  <div
         onClick={handleCardClick}
-        className={`bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer ${
-          viewMode === "list" ? "flex flex-col sm:flex-row" : ""
+        className={`bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer flex flex-col h-full ${
+          isList ? "sm:flex-row" : ""
         }`}
       >
         {/* Product Image */}
@@ -350,8 +351,8 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         </div>
 
         {/* Product Info */}
-        <div className={`${viewMode === "list" ? "p-3 sm:p-4 md:p-6 flex-1 flex flex-col justify-between" : "p-4 md:p-6"}`}>
-          {viewMode === "list" ? (
+        <div className={`${isList ? "p-3 sm:p-4 md:p-6 flex-1 flex flex-col justify-between" : "p-4 md:p-6 flex flex-col flex-1"}`}>
+          {isList ? (
             <>
               {/* Top Section */}
               <div className="flex-1">
@@ -405,7 +406,8 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               </div>
             </>
           ) : (
-            <>
+            <div className="flex flex-col h-full">
+              <div className="flex-1">
               {/* <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-1">
                   <Star className="w-4 h-4 text-yellow-400 fill-current" />
@@ -415,23 +417,24 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
                 </div>
               </div> */}
 
-              <h3 className="text-lg md:text-xl font-montserrat-semibold-600 text-black mb-2  line-clamp-2 capitalize">
-                {product.name}
-              </h3>
+                <h3 className="text-lg md:text-xl font-montserrat-semibold-600 text-black mb-2  line-clamp-2 capitalize">
+                  {product.name}
+                </h3>
 
-              <p className="text-black-light font-montserrat-regular-400 text-xs md:text-sm mb-4 line-clamp-1">
-                {extractPlainText(product.subDescription)}
-              </p>
+                <p className="text-black-light font-montserrat-regular-400 text-xs md:text-sm mb-4 line-clamp-1">
+                  {extractPlainText(product.subDescription)}
+                </p>
 
-              <div className="flex items-center justify-between mb-4">
-                <PriceDisplay 
-                  price={product.price}
-                  originalPrice={product.originalPrice}
-                  showOriginalPrice={true}
-                />
+                <div className="flex items-center justify-between mb-4">
+                  <PriceDisplay 
+                    price={product.price}
+                    originalPrice={product.originalPrice}
+                    showOriginalPrice={true}
+                  />
+                </div>
               </div>
 
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 mt-auto">
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -453,7 +456,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
                   <span>Add to Cart</span>
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>

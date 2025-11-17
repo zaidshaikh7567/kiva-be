@@ -86,27 +86,32 @@ export const transformMetalsToSelectorOptions = (metals) => {
 // Used in MetalSelector component
 export const getMetalColorStyles = (color, karat) => {
   const lowerColor = color?.toLowerCase() || '';
+  const normalizedColor = lowerColor.replace(/\s+/g, '');
   const karatStr = String(karat);
-  
-  if (lowerColor.includes('white')) {
+
+  const isWhiteTone = lowerColor.includes('white') || lowerColor.includes('silver') || normalizedColor.includes('#ffffff');
+  const isYellowTone = lowerColor.includes('gold') || lowerColor.includes('yellow') || normalizedColor.includes('#ffd700') || normalizedColor.includes('#ffea00');
+  const isRoseTone = lowerColor.includes('rose') || lowerColor.includes('pink');
+
+  if (isWhiteTone) {
     return {
       gradient: karatStr.includes('14') ? 'from-gray-200 to-gray-300' : 'from-gray-100 to-gray-200',
       borderColor: karatStr.includes('14') ? 'border-gray-200' : 'border-gray-100',
       textColor: karatStr.includes('14') ? 'text-gray-700' : 'text-gray-600',
       backgroundColor: karatStr.includes('14') 
-        ? 'linear-gradient(to right, #e5e7eb, #d1d5db)' 
-        : 'linear-gradient(to right, #f3f4f6, #e5e7eb)'
+        ? 'linear-gradient(to right, #f3f4f6, #f3f4f6)' 
+        : 'linear-gradient(to right, #f3f4f6, #f3f4f6)'
     };
-  } else if (lowerColor.includes('gold')) {
+  } else if (isYellowTone) {
     return {
-      gradient: karatStr.includes('14') ? 'from-yellow-50 to-yellow-100' : 'from-yellow-25 to-yellow-50',
-      borderColor: karatStr.includes('14') ? 'border-yellow-100' : 'border-yellow-50',
-      textColor: karatStr.includes('14') ? 'text-yellow-600' : 'text-yellow-500',
+      gradient: karatStr.includes('14') ? 'from-amber-100 to-yellow-100' : 'from-amber-50 to-yellow-50',
+      borderColor: karatStr.includes('14') ? 'border-amber-100' : 'border-amber-50',
+      textColor: karatStr.includes('14') ? 'text-amber-700' : 'text-amber-600',
       backgroundColor: karatStr.includes('14')
-        ? 'linear-gradient(to right, #fffbeb, #fefce8)'
+        ? 'linear-gradient(to right, #fffbeb, #fffbeb)'
         : 'linear-gradient(to right, #fffbeb, #fffbeb)'
     };
-  } else if (lowerColor.includes('rose')) {
+  } else if (isRoseTone) {
     return {
       gradient: karatStr.includes('14') ? 'from-pink-50 to-pink-100' : 'from-pink-25 to-pink-50',
       borderColor: karatStr.includes('14') ? 'border-pink-100' : 'border-pink-50',

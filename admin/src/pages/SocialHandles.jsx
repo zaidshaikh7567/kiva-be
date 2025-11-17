@@ -6,6 +6,7 @@ import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import CustomDropdown from '../components/CustomDropdown';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
 import Pagination from '../components/Pagination';
+import { createPortal } from 'react-dom';
 
 const PLATFORM_OPTIONS = ['Instagram', 'Facebook'];
 
@@ -45,10 +46,10 @@ const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) =
     }, [isOpen]);
     
   if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 mx-2">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative mx-auto max-w-xl bg-white rounded-2xl p-6 mt-16 shadow-xl">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4 overflow-y-auto" style={{ zIndex: 9999 }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative mx-auto  rounded-2xl p-6  shadow-xl">
         <h3 className="text-xl font-sorts-mill-gloudy text-black mb-4">{mode === 'edit' ? 'Edit Social Handle' : 'Add Social Handle'}</h3>
         <div className="space-y-4">
           <div>
@@ -100,6 +101,8 @@ const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) =
         </div>
       </div>
     </div>
+    </div>,
+    document.body
   );
 };
 
