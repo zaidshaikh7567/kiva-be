@@ -134,7 +134,7 @@ export const clearCartItems = createAsyncThunk(
         return rejectWithValue('Authentication required');
       }
       const response = await api.delete(API_METHOD.cart);
-      toast.success('Cart cleared');
+      // toast.success('Cart cleared');
       await dispatch(fetchCartItems()); // Refresh cart after clearing
       return response.data;
     } catch (error) {

@@ -176,7 +176,6 @@ const Checkout = () => {
         
         // Navigate to success page with order ID
         const orderId = orderData._id || orderData.orderNumber;
-        console.log('orderId :', orderId);
         if (orderId) {
           navigate(`/order-success/${orderId}`);
         } else {

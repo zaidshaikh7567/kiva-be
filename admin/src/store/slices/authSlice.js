@@ -129,7 +129,10 @@ export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await api.put('/api/auth/profile', userData);
+      const isFormData = typeof FormData !== 'undefined' && userData instanceof FormData;
+      const response = await api.put('/api/auth/profile', userData, isFormData ? {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      } : undefined);
       return response.data.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
