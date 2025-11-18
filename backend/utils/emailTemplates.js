@@ -127,21 +127,7 @@ const getWelcomeEmailTemplate = (userName) => {
                       </tr>
                     </table>
                   </td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; border-bottom: 1px solid #EBDCD3;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                      <tr>
-                        <td width="30" valign="top" style="padding-top: 4px;">
-                          <span style="color: #E0C0B0; font-size: 20px;">✓</span>
-                        </td>
-                        <td style="font-size: 15px; line-height: 22px; color: #445665;">
-                          <strong style="color: #051F34;">Special Offers</strong> - Be the first to know about new arrivals and promotions
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
+                </tr>                
                 <tr>
                   <td style="padding: 12px 0; border-bottom: 1px solid #EBDCD3;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
