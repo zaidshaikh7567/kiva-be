@@ -31,6 +31,7 @@ import {
   deleteUser
 } from '../store/slices/usersSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import FormInput from '../components/FormInput';
 
 const Customers = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -240,17 +241,13 @@ const dispatch = useDispatch();
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type="text"
-                placeholder="Search customers by name, email, or location..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 focus:ring-primary outline-none focus:border-primary font-montserrat-regular-400 text-black min-w-0"
-                maxLength={100}
-              />
-            </div>
+            <FormInput
+              type="text"
+              placeholder="Search customers by name, email, or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              icon={Search}
+            />
           </div>
 
           {/* Status Filter */}

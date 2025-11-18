@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { forgotPassword, selectAuthLoading, selectAuthError, clearError } from '../store/slices/authSlice';
 import toast from 'react-hot-toast';
+import FormInput from './FormInput';
 
 const ForgotPasswordPage = ({ onBackToLogin }) => {
   const dispatch = useDispatch();
@@ -84,32 +85,20 @@ const ForgotPasswordPage = ({ onBackToLogin }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div className="space-y-2">
-              <label className="text-sm font-montserrat-medium-500 text-black block">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setValidationError('');
-                    dispatch(clearError());
-                  }}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 outline-none transition-all duration-200 font-montserrat-regular-400 ${
-                    validationError || error
-                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                      : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                  }`}
-                  placeholder="Enter your email"
-                />
-              </div>
-              {(validationError || error) && (
-                <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                  {validationError || error}
-                </p>
-              )}
+              <FormInput
+                label="Email Address"
+                name="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setValidationError('');
+                  dispatch(clearError());
+                }}
+                error={validationError || error}
+                icon={Mail}
+                placeholder="Enter your email"
+                inputMode="email"
+              />
             </div>
 
             {/* Submit Button */}

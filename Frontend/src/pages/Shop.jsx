@@ -10,6 +10,7 @@ import { fetchCategories } from '../store/slices/categoriesSlice';
 import { selectCategories } from '../store/slices/categoriesSlice';
 import AnimatedSection from '../components/home/AnimatedSection';
 import { SORT_OPTIONS } from '../constants';
+import FormInput from '../components/FormInput';
 
 const Shop = () => {
   const dispatch = useDispatch();
@@ -263,19 +264,16 @@ const Shop = () => {
 
               {/* Search */}
               <div className="mb-6">
-                <label className="block text-sm font-montserrat-medium-500 text-black-light mb-2">
-                  Search Products
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-light w-4 h-4" />
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search jewelry..."
-                    className="w-full pl-10 pr-4 py-2 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400 text-black placeholder-black-light"
-                  />
-                </div>
+                <FormInput
+                  label="Search Products"
+                  name="searchTerm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  // error={errors.searchTerm}
+                  icon={Search}
+                  placeholder="Search jewelry..."
+                />
+                
               </div>
 
               {/* Category Filter */}

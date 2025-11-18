@@ -7,6 +7,8 @@ import { Link } from 'react-router-dom';
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(0); // First FAQ open by default
+  const PHONE_NUMBER_COMBO = import.meta.env.VITE_NUMBER_COMBO;
+  const PHONE_NUMBER_SEPARATE = import.meta.env.VITE_NUMBER_SEPARATE;
 
   const faqs = [
     {
@@ -221,10 +223,10 @@ const FAQ = () => {
                   Contact Us
                 </Link>
                 <a
-                  href="tel:+919106302269"
-                  className="inline-block bg-white text-primary border-2 border-primary px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-primary-light transition-colors"
+                  href={`tel:${PHONE_NUMBER_COMBO}`}
+                  className="inline-block bg-white text-primary border-2 border-primary px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-primary hover:text-white transition-colors"
                 >
-                  Call +91 9106302269
+                  Call {PHONE_NUMBER_SEPARATE}
                 </a>
               </div>
             </div>

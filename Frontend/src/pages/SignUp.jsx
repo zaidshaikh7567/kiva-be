@@ -8,6 +8,7 @@ import { handleGoogleLogin } from '../services/googleAuth';
 import toast from 'react-hot-toast';
 import CustomCheckbox from '../components/CustomCheckbox';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
+import FormInput from '../components/FormInput';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -194,159 +195,76 @@ const SignUp = () => {
             {/* Name Fields */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                  First Name *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                      errors.firstName
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-primary-light focus:ring-primary focus:border-primary'
-                    }`}
-                    placeholder="First name"
-                  />
-                </div>
-                {errors.firstName && (
-                  <p className="mt-1 text-sm text-red-500 font-montserrat-regular-400">
-                    {errors.firstName}
-                  </p>
-                )}
+                <FormInput
+                  label="First Name *"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  error={errors.firstName}
+                  icon={User}
+                  placeholder="First name"
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                  Last Name *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                      errors.lastName
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-primary-light focus:ring-primary focus:border-primary'
-                    }`}
-                    placeholder="Last name"
-                  />
-                </div>
-                {errors.lastName && (
-                  <p className="mt-1 text-sm text-red-500 font-montserrat-regular-400">
-                    {errors.lastName}
-                  </p>
-                )}
+                <FormInput
+                  label="Last Name *"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  error={errors.lastName}
+                  icon={User}
+                  placeholder="Last name"
+                />
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Email Address *
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type="text"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                    errors.email
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-primary-light focus:ring-primary focus:border-primary'
-                  }`}
-                  placeholder="Enter your email"
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500 font-montserrat-regular-400">
-                  {errors.email}
-                </p>
-              )}
+              <FormInput
+                label="Email Address *"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={errors.email}
+                icon={Mail}
+                placeholder="Enter your email address"
+                inputMode="text"
+              />
             </div>
 
             {/* Password */}
-            <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Password *
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                    errors.password
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-primary-light focus:ring-primary focus:border-primary'
-                  }`}
-                  placeholder="Create a password"
+            <div> 
+              <FormInput
+                label="Password *"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+                icon={Lock}
+                placeholder="Create a password"
+                type={showPassword ? 'text' : 'password'}
+                rightIcon={showPassword ? Eye : EyeOff}
+                onRightIconClick={() => setShowPassword(!showPassword)}
+                rightIconClickable={true}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
-                >
-                  {showPassword ? (
-                    <Eye className="w-5 h-5" />
-                  ) : (
-                    <EyeOff className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-500 font-montserrat-regular-400">
-                  {errors.password}
-                </p>
-              )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Confirm Password *
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                    errors.confirmPassword
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-primary-light focus:ring-primary focus:border-primary'
-                  }`}
-                  placeholder="Confirm your password"
+              <FormInput
+                label="Confirm Password *"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                error={errors.confirmPassword}
+                icon={Lock}
+                placeholder="Confirm your password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                rightIcon={showConfirmPassword ? Eye : EyeOff}
+                onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                rightIconClickable={true}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
-                >
-                  {showConfirmPassword ? (
-                    <Eye className="w-5 h-5" />
-                  ) : (
-                    <EyeOff className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-500 font-montserrat-regular-400">
-                  {errors.confirmPassword}
-                </p>
-              )}
             </div>
 
             {/* Terms and Conditions */}

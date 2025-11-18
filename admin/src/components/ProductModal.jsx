@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon, ChevronDown, Check } from 'lucide-react';
+import { X, Package, Save, AlertCircle, Plus, Upload, ChevronDown, Check, DollarSign } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import CustomDropdown from './CustomDropdown';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -13,6 +13,7 @@ import {
   EMPTY_LEXICAL_STATE
 } from '../constants';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
+import FormInput from './FormInput';
 
 function getSafeLexicalState(val) {
   // If it's already an object, convert it to string first
@@ -391,26 +392,23 @@ console.log(submitData,'submitDatas---');
 
           {/* Product Title */}
           <div className="space-y-2">
-            <label className="block text-sm font-montserrat-medium-500 text-black">
-              Product Title *
-            </label>
-            <input
-              type="text"
+            <FormInput
+              label="Product Title"
               name="title"
               value={formData.title}
               onChange={handleInputChange}
               placeholder="Enter product title"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none
-               focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
               required
               disabled={loading}
+              icon={Package}
             />
           </div>
 
           {/* Description - Rich Text Editor */}
           <div className="space-y-2">
             <label className="block text-sm font-montserrat-medium-500 text-black">
-              Product Description *
+              Product Description <span className="text-red-500">*</span>
             </label>
             {(mode === 'add' || (mode === 'edit' && formData.description)) && (
               <RichTextEditor
@@ -428,18 +426,18 @@ console.log(submitData,'submitDatas---');
 
           {/* Sub Description */}
           <div className="space-y-2">
-            <label className="block text-sm font-montserrat-medium-500 text-black">
-              Sub Description
-            </label>
-            <textarea
+            <FormInput
+              label="Sub Description"
               name="subDescription"
               value={formData.subDescription}
               onChange={handleInputChange}
               placeholder="Enter a brief sub description or tagline..."
               rows="3"
+              textarea={true}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400 resize-none"
               disabled={loading}
             />
+            
             <p className="text-xs text-black-light font-montserrat-regular-400">
               A short summary or tagline for the product (optional)
             </p>
@@ -448,28 +446,23 @@ console.log(submitData,'submitDatas---');
           {/* Price and Quantity */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-sm font-montserrat-medium-500 text-black">
-                Price ($) *
-              </label>
-              <input
-                type="number"
+              <FormInput
+                label="Price ($)"
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
-                required
+                required={true}
                 disabled={loading}
+                icon={DollarSign}
+                inputMode="number"
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-montserrat-medium-500 text-black">
-                Quantity *
-              </label>
-              <input
-                type="number"
+              <FormInput
+                label="Quantity"
                 name="quantity"
                 value={formData.quantity}
                 onChange={handleInputChange}
@@ -478,6 +471,7 @@ console.log(submitData,'submitDatas---');
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
                 required
                 disabled={loading}
+                icon={Package}
               />
             </div>
           </div>
@@ -485,7 +479,7 @@ console.log(submitData,'submitDatas---');
           {/* Category - Beautiful Custom Dropdown */}
           <div className="space-y-2">
             <label className="block text-sm font-montserrat-medium-500 text-black">
-              Category *
+              Category <span className="text-red-500">*</span>
             </label>
             <div className="relative category-dropdown-container">
               {/* Dropdown Button */}

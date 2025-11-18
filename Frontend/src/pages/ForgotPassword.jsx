@@ -11,6 +11,7 @@ import {
   selectAuthSuccessType,
   selectIsAuthenticated,
 } from '../store/slices/authSlice';
+import FormInput from '../components/FormInput';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -147,31 +148,19 @@ const ForgotPassword = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Email Address *
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type="text"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setErrors({});
-                  }}
-                  className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                    errors.email
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-primary-light focus:ring-primary focus:border-primary'
-                  }`}
-                  placeholder="Enter your email address"
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500 font-montserrat-regular-400">
-                  {errors.email}
-                </p>
-              )}
+              <FormInput
+                label="Email Address *"
+                name="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrors({});
+                }}
+                error={errors.email}
+                icon={Mail}
+                placeholder="Enter your email address"
+                inputMode="text"
+              />  
             </div>
 
             {/* Submit Button */}

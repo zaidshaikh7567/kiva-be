@@ -41,6 +41,7 @@ import {
   selectAdminOrdersUpdating,
   clearCurrentOrder
 } from '../store/slices/ordersSlice';
+import FormInput from '../components/FormInput';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -421,10 +422,10 @@ const Orders = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        {/* <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">Orders</h1> */}
+      {/* <div>
+        <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">Orders</h1>
         <p className="font-montserrat-regular-400 text-black-light">Manage customer orders and track fulfillment</p>
-      </div>
+      </div> */}
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -464,16 +465,13 @@ const Orders = () => {
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type="text"
-                placeholder="Search orders by ID, customer name, or email..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary !focus:border-primary font-montserrat-regular-400 text-black"
-              />
-            </div>
+            <FormInput
+              type="text"
+              placeholder="Search orders by ID, customer name, or email..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              icon={Search}
+            />  
           </div>
 
           {/* Status Filter */}

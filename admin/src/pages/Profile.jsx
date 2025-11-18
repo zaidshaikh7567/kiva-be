@@ -3,6 +3,7 @@ import { Edit2, Save, X, User, Mail, Camera } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserProfile, updateProfile, selectUser, selectAuthLoading, selectAuthError, selectAuthSuccess, clearSuccess } from '../store/slices/authSlice';
 import toast from 'react-hot-toast';
+import FormInput from '../components/FormInput';
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -276,44 +277,33 @@ const Profile = () => {
 
             {/* Name */}
             <div className="mb-6">
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Name *
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 ${
-                    !isEditing ? 'bg-gray-100 border-gray-200' : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                  }`}
-                  placeholder="Enter your name"
-                />
-              </div>
+              <FormInput
+                label="Name "
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                icon={User}
+                required={true}
+                placeholder="Name *"
+              />
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Email *
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 ${
-                    !isEditing ? 'bg-gray-100 border-gray-200' : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                  }`}
-                  placeholder="Enter your email"
-                />
-              </div>
+              <FormInput
+                label="Email "
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                icon={Mail}
+                placeholder="Email *"
+                readOnly={isEditing}
+                required={true}
+              />
             </div>
           </div>
 

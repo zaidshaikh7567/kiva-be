@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Package, Save, AlertCircle, Plus, Upload, Image as ImageIcon } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
+import FormInput from './FormInput';
 
 const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData, mode = 'add', categories = [] }) => {
   const [formData, setFormData] = useState({
@@ -204,18 +205,19 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
 
           {/* Category Name */}
           <div className="space-y-2">
-            <label className="block text-sm font-montserrat-medium-500 text-black">
-              Category Name *
-            </label>
-            <input
-              type="text"
+            <FormInput
+              label="Category Name"
               name="name"
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Enter category name"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
+              error={error}
+              icon={Package}
               required
               disabled={loading}
+              inputMode="text"
+              maxlength={100}
+              minLength={3}
             />
           </div>
 

@@ -6,6 +6,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { handleGoogleLogin } from '../services/googleAuth';
 import toast from 'react-hot-toast';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
+import FormInput from './FormInput';
 
 const LoginPage = ({ onLogin, onForgotPassword }) => {
   const dispatch = useDispatch();
@@ -152,63 +153,35 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div className="space-y-2">
-              <label className="text-sm font-montserrat-medium-500 text-black block">
-                Email Address <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type="text"
-                  name="email"
-                  value={email}
-                  onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 outline-none transition-all duration-200 font-montserrat-regular-400 ${
-                    errors.email
-                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                  }`}
-                  placeholder="Enter your email"
-                />
-              </div>
-              {errors.email && (
-                <p className="text-sm text-red-500 font-montserrat-regular-400">
-                  {errors.email}
-                </p>
-              )}
+              <FormInput
+                label="Email Address"
+                name="email"
+                value={email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                error={errors.email}
+                icon={Mail} 
+                required
+              />
             </div>
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="text-sm font-montserrat-medium-500 text-black block">
-                Password <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={password}
-                  onChange={handleChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-1 outline-none transition-all duration-200 font-montserrat-regular-400 ${
-                    errors.password
-                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                  }`}
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-200"
-                >
-                  {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-sm text-red-500 font-montserrat-regular-400">
-                  {errors.password}
-                </p>
-              )}
+              <FormInput
+                label="Password"
+                name="password"
+                value={password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                error={errors.password}
+                icon={Lock}
+                type={showPassword ? 'text' : 'password'}
+                required
+                rightIcon={showPassword ? Eye : EyeOff}
+                onRightIconClick={() => setShowPassword(!showPassword)}
+                rightIconClickable={true}
+              />
+            </div>  
               <div className="flex items-center justify-end mt-2 relative">
                 {onForgotPassword && (
                   <button
@@ -219,8 +192,7 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
                     Forgot Password?
                   </button>
                 )}
-              </div>
-            </div>
+              </div >
 
             {/* Error Message */}
             {error && (

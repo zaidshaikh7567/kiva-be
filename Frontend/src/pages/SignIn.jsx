@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useGoogleLogin } from '@react-oauth/google';
 import { handleGoogleLogin } from '../services/googleAuth';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
+import FormInput from '../components/FormInput';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -187,50 +188,33 @@ const SignIn = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Email Address *
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type="text"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full pl-11 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                    errors.email
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-primary-light focus:ring-primary focus:border-primary'
-                  }`}
-                  placeholder="Enter your email"
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500 font-montserrat-regular-400">
-                  {errors.email}
-                </p>
-              )}
+              <FormInput
+                label="Email Address *"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={errors.email}
+                icon={Mail}
+                placeholder="Enter your email address"
+              />
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Password *
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                    errors.password
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-primary-light focus:ring-primary focus:border-primary'
-                  }`}
-                  placeholder="Enter your password"
-                />
+              <FormInput
+                label="Password *"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+                icon={Lock}
+                placeholder="Enter your password"
+                type={showPassword ? 'text' : 'password'}
+                rightIcon={showPassword ? Eye : EyeOff}
+                onRightIconClick={() => setShowPassword(!showPassword)}
+                rightIconClickable={true}
+              />
+
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -238,12 +222,6 @@ const SignIn = () => {
                 >
                   {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                 </button>
-              </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-500 font-montserrat-regular-400">
-                  {errors.password}
-                </p>
-              )}
             </div>
 
             {/* Remember Me & Forgot Password */}

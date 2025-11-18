@@ -142,7 +142,7 @@ const Collections = () => {
     return (
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">
               Collections
@@ -151,7 +151,7 @@ const Collections = () => {
               Manage your collections
             </p>
           </div>
-        </div>
+        </div> */}
 
         {/* Loading State */}
         <div className="flex items-center justify-center py-12">

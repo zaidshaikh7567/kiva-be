@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
+import Logo from '../assets/kiva-diamond-logo.png';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -140,19 +141,24 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-[24px] border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-[12px] border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center">
               <Gem className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <h2 className="text-lg font-sorts-mill-gloudy font-bold text-black">
+            {/* <div className="inline-block bg-gray-600 rounded-lg  shadow-2xl">
+                  <img 
+                    src={Logo} 
+                    alt="KIVA Diamond Logo" 
+                    className="h-[55px] w-auto"
+                    style={{
+                      filter: 'brightness(1.1) contrast(1.1)'
+                    }}
+                  />
+                </div> */}
+                 <h2 className="text-lg font-sorts-mill-gloudy font-bold text-black">
                {user.name}
               </h2>
-              {/* <p className="text-xs font-montserrat-light-300 text-black-light">
-                Management Panel
-              </p> */}
-            </div>
           </div>
           <button
             onClick={() => setIsOpen(false)}

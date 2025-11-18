@@ -3,16 +3,21 @@ import { Mail, Phone } from 'lucide-react';
 import { IoLogoWhatsapp } from 'react-icons/io';
 
 const ContactBox = () => {
+  const EMAIL_URL = import.meta.env.VITE_EMAIL_URL;
+  const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_URL;
+  const PHONE_NUMBER_COMBO = import.meta.env.VITE_NUMBER_COMBO;
+  const PHONE_NUMBER_SEPARATE = import.meta.env.VITE_NUMBER_SEPARATE;
+
   const handleEmailClick = () => {
-    window.location.href = 'mailto:kivadiamond3008@gmail.com';
+    window.location.href = `mailto:${EMAIL_URL}`;
   };
 
   const handleWhatsAppClick = () => {
-    window.open('https://api.whatsapp.com/send/?phone=919106302269&text&type=phone_number&app_absent=0', '_blank');
+    window.open(WHATSAPP_URL, '_blank');
   };
 
   const handleCallClick = () => {
-    window.location.href = 'tel:+919106302269';
+    window.location.href = `tel:${PHONE_NUMBER_COMBO}`;
   };
 
   return (

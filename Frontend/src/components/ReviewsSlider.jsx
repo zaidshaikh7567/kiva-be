@@ -11,6 +11,8 @@ import {
   ChevronRight,
   Share2,
   Check,
+  Mail,
+  MessageSquare,  
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import Slider from "react-slick";
@@ -26,6 +28,7 @@ import {
 } from "../store/slices/reviewsSlice";
 import { selectAuthUser } from "../store/slices/authSlice";
 import toast from "react-hot-toast";
+import FormInput from "./FormInput";
 
 const ReviewsSlider = () => {
   const dispatch = useDispatch();
@@ -42,6 +45,10 @@ const ReviewsSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sliderRef, setSliderRef] = useState(null);
   const [shareCopied, setShareCopied] = useState(false);
+  const [mediaViewer, setMediaViewer] = useState({
+    open: false,
+    item: null
+  });
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -550,9 +557,11 @@ const ReviewsSlider = () => {
                             <Slider
                               dots
                               arrows={false}
+                              autoplay={true}
                               infinite
                               speed={400}
                               slidesToShow={3}
+                              autoplaySpeed={1000}
                               responsive={[
                                 {
                                   breakpoint: 1280,
@@ -596,7 +605,7 @@ const ReviewsSlider = () => {
                                 },
                               ]}
                               slidesToScroll={1}
-                              className=" mx-auto"
+                              className="px-6 sm:px-10"
                             >
                               {mediaItems.map((mediaItem, mediaIndex) => (
                                 <div
@@ -605,20 +614,41 @@ const ReviewsSlider = () => {
                                     mediaItem.url ||
                                     mediaIndex
                                   }
+                                  className="px-2"
                                 >
-                                  {mediaItem.type === "video" ? (
-                                    <video
-                                      src={mediaItem.url}
-                                      controls
-                                      className="w-full h-48 bg-black rounded-lg px-2"
-                                    />
-                                  ) : (
-                                    <img
-                                      src={mediaItem.url}
-                                      alt="Review media"
-                                      className="w-full h-48 object-cover rounded-lg px-2"
-                                    />
-                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setMediaViewer({
+                                        open: true,
+                                        item: mediaItem
+                                      })
+                                    }
+                                    className="group w-full focus:outline-none"
+                                  >
+                                    <div className="relative w-full h-32 sm:h-40 rounded-xl overflow-hidden shadow-md border border-black/10 bg-black">
+                                      {mediaItem.type === "video" ? (
+                                        <video
+                                          src={mediaItem.url}
+                                          muted
+                                          loop
+                                          playsInline
+                                          className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-200"
+                                        />
+                                      ) : (
+                                        <img
+                                          src={mediaItem.url}
+                                          alt="Review media"
+                                          className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-200"
+                                        />
+                                      )}
+                                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <span className="text-white text-xs sm:text-sm font-montserrat-medium-500 tracking-wide">
+                                          Tap to view
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </button>
                                 </div>
                               ))}
                             </Slider>
@@ -727,72 +757,43 @@ const ReviewsSlider = () => {
 
                   {/* Name */}
                   <div>
-                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      Your Name *
-                    </label>
-                    <input
-                      type="text"
+                    <FormInput
+                      label="Your Name *"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base ${
-                        errors.name
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-200 focus:ring-primary focus:border-transparent"
-                      }`}
+                      error={errors.name}
+                      icon={User}
                       placeholder="Enter your name"
                     />
-                    {errors.name && (
-                      <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-                    )}
                   </div>
 
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      Your Email *
-                    </label>
-                    <input
-                      type="email"
+                    <FormInput
+                      label="Your Email *"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base ${
-                        errors.email
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-200 focus:ring-primary focus:border-transparent"
-                      }`}
+                      error={errors.email}
+                      icon={Mail}
                       placeholder="Enter your email"
                     />
-                    {errors.email && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.email}
-                      </p>
-                    )}
                   </div>
 
                   {/* Comment */}
                   <div>
-                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      Your Review *
-                    </label>
-                    <textarea
+                    <FormInput
+                      label="Your Review *"
                       name="comment"
                       value={formData.comment}
                       onChange={handleInputChange}
+                      error={errors.comment}
+                      icon={MessageSquare}
+                      textarea={true}
                       rows={4}
-                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-sm sm:text-base resize-none ${
-                        errors.comment
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-200 focus:ring-primary focus:border-transparent"
-                      }`}
                       placeholder="Share your experience with us..."
                     />
-                    {errors.comment && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.comment}
-                      </p>
-                    )}
                   </div>
 
                   {/* Media */}
@@ -907,6 +908,52 @@ const ReviewsSlider = () => {
             document.body
           )}
       </div>
+
+      {/* Media Viewer */}
+      {mediaViewer.open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+            <div className="relative w-full max-w-4xl">
+              <button
+                onClick={() => setMediaViewer({ open: false, item: null })}
+                className="absolute -top-10 right-0 text-white hover:text-primary transition-colors"
+                aria-label="Close media viewer"
+              >
+                <X className="w-8 h-8" />
+              </button>
+              <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
+                <div className="bg-black">
+                  {mediaViewer.item?.type === "video" ? (
+                    <video
+                      src={mediaViewer.item?.url}
+                      controls
+                      autoPlay
+                      className="w-full max-h-[70vh] object-contain bg-black"
+                    />
+                  ) : (
+                    <img
+                      src={mediaViewer.item?.url}
+                      alt="Review media enlarged"
+                      className="w-full max-h-[70vh] object-contain bg-black"
+                    />
+                  )}
+                </div>
+                {mediaViewer.item?.name && (
+                  <div className="p-4 border-t border-gray-100">
+                    <p className="text-sm font-montserrat-medium-500 text-black">
+                      {mediaViewer.item.name}
+                    </p>
+                    <p className="text-xs font-montserrat-regular-400 text-black-light capitalize">
+                      {mediaViewer.item.type}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* Add animations and custom slider styles */}
       <style>{`

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Save, AlertCircle, Plus, Upload, Image as ImageIcon, Video } from 'lucide-react';
+import { X, Save, AlertCircle, Plus, Upload, Image as ImageIcon, Video, Images } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
+import FormInput from './FormInput';
 
 const CollectionModal = ({ isOpen, onClose, onSubmit, loading, error, collectionData, mode = 'add' }) => {
   const [formData, setFormData] = useState({
@@ -338,11 +339,8 @@ const CollectionModal = ({ isOpen, onClose, onSubmit, loading, error, collection
 
           {/* Collection Title */}
           <div className="space-y-2">
-            <label className="block text-sm font-montserrat-medium-500 text-black">
-              Collection Title *
-            </label>
-            <input
-              type="text"
+            <FormInput
+              label="Collection Title"
               name="title"
               value={formData.title}
               onChange={handleInputChange}
@@ -350,13 +348,16 @@ const CollectionModal = ({ isOpen, onClose, onSubmit, loading, error, collection
               className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
               required
               disabled={loading}
+              inputMode="text"
+              error={error}
+              icon={Images}
             />
           </div>
 
           {/* Category */}
           <div className="space-y-2">
             <label className="block text-sm font-montserrat-medium-500 text-black">
-              Category *
+              Category <span className="text-red-500">*</span>
             </label>
             <CustomDropdown
               options={categoryOptions}
@@ -371,7 +372,7 @@ const CollectionModal = ({ isOpen, onClose, onSubmit, loading, error, collection
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-sm font-montserrat-medium-500 text-black">
-                Video *
+                Video <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center space-x-2">
                 <button

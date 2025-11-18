@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { changePassword, selectAuthError, selectAuthLoading, selectAuthSuccess, clearError, clearSuccess } from '../store/slices/authSlice';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import FormInput from '../components/FormInput';
 
 const ChangePassword = () => {
   const dispatch = useDispatch();
@@ -154,104 +155,61 @@ const ChangePassword = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Current Password */}
           <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              Current Password *
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type={showPasswords.current ? 'text' : 'password'}
-                name="currentPassword"
-                value={formData.currentPassword}
-                onChange={handleChange}
-                className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 ${
-                  errors.currentPassword
-                    ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                }`}
-                placeholder="Enter your current password"
-              />
-              <button
-                type="button"
-                onClick={() => togglePasswordVisibility('current')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
-              >
-                {showPasswords.current ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-              </button>
-            </div>
-            {errors.currentPassword && (
-              <p className="text-sm text-red-500 mt-1 font-montserrat-regular-400">
-                {errors.currentPassword}
-              </p>
-            )}
+            <FormInput
+              label="Current Password *"
+              name="currentPassword"
+              value={formData.currentPassword}
+              onChange={handleChange}
+              error={errors.currentPassword}
+              icon={Lock}
+              placeholder="Enter your current password"
+              type={showPasswords.current ? 'text' : 'password'}
+              rightIcon={showPasswords.current ? Eye : EyeOff}
+              onRightIconClick={() => togglePasswordVisibility('current')}
+              rightIconClickable={true}
+            />
           </div>
 
           {/* New Password */}
           <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              New Password *
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type={showPasswords.new ? 'text' : 'password'}
-                name="newPassword"
-                value={formData.newPassword}
-                onChange={handleChange}
-                className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 ${
-                  errors.newPassword
-                    ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                }`}
-                placeholder="Enter your new password"
-              />
-              <button
+            <FormInput
+              label="New Password *"
+              name="newPassword"
+              value={formData.newPassword}
+              onChange={handleChange}
+              error={errors.newPassword}
+              icon={Lock}
+              placeholder="Enter your new password"
+              type={showPasswords.new ? 'text' : 'password'}
+              rightIcon={showPasswords.new ? Eye : EyeOff}
+              onRightIconClick={() => togglePasswordVisibility('new')}
+              rightIconClickable={true}
+            />
+              {/* <button
                 type="button"
                 onClick={() => togglePasswordVisibility('new')}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
               >
                 {showPasswords.new ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
               </button>
-            </div>
-            {errors.newPassword && (
-              <p className="text-sm text-red-500 mt-1 font-montserrat-regular-400">
-                {errors.newPassword}
-              </p>
-            )}
+            /> */}
           </div>
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              Confirm New Password *
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type={showPasswords.confirm ? 'text' : 'password'}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 ${
-                  errors.confirmPassword
-                    ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                }`}
-                placeholder="Confirm your new password"
-              />
-              <button
-                type="button"
-                onClick={() => togglePasswordVisibility('confirm')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
-              >
-                {showPasswords.confirm ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-              </button>
-            </div>
-            {errors.confirmPassword && (
-              <p className="text-sm text-red-500 mt-1 font-montserrat-regular-400">
-                {errors.confirmPassword}
-              </p>
-            )}
+            <FormInput
+              label="Confirm New Password *"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+              icon={Lock}
+              placeholder="Confirm your new password"
+              type={showPasswords.confirm ? 'text' : 'password'}
+              rightIcon={showPasswords.confirm ? Eye : EyeOff}
+              onRightIconClick={() => togglePasswordVisibility('confirm')}
+              rightIconClickable={true}
+            />
           </div>
 
           {/* Submit Button */}
