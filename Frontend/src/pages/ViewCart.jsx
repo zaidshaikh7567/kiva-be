@@ -9,6 +9,7 @@ import {
   ArrowLeft, 
   Eye
 } from 'lucide-react';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 import { 
   updateQuantity, 
   removeFromCart, 
@@ -32,7 +33,7 @@ const ViewCart = () => {
   const [showClearCartModal, setShowClearCartModal] = useState(false);
   
   // Check if user is authenticated
-  const isAuthenticated = !!localStorage.getItem('accessToken');
+  const isAuthenticated = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
   const MAX_CART_ITEMS = 5;
   const remainingSlots = MAX_CART_ITEMS - items.length;
 
@@ -135,7 +136,7 @@ const ViewCart = () => {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Cart Items Section */}
             <div className="lg:col-span-2">
               {/* Clear Cart Button */}

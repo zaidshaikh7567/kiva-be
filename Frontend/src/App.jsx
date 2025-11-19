@@ -13,8 +13,6 @@ import { fetchMetals } from './store/slices/metalsSlice'
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log("Hellooooooo");
-    
     dispatch(fetchStones({ page: 1, limit: 100 }));
     dispatch(fetchMetals());
   }, [dispatch]);

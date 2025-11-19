@@ -200,6 +200,8 @@ const Rings = () => {
     }, [filteredRings, sortBy]);
 
     console.log('filteredRings :', filteredRings);
+    console.log(sortedRings,'sortedRings');
+    
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}
@@ -241,7 +243,7 @@ const Rings = () => {
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`relative py-3 font-montserrat-medium-500 text-base transition-all duration-300 outline-none ${
+                  className={`relative py-3 font-montserrat-medium-500 text-base transition-all duration-300 outline-none capitalize ${
                     selectedCategory === category.id
                       ? "text-primary rounded-lg bg-primary-light/10"
                       : "text-black-light hover:text-black"
@@ -262,7 +264,7 @@ const Rings = () => {
                   <button
                     key={category.id}
                     onClick={() => handleCategoryChange(category.id)}
-                    className={`relative py-2 font-montserrat-medium-500 text-sm transition-all duration-300 outline-none ${
+                    className={`relative py-2 font-montserrat-medium-500 text-sm transition-all duration-300 outline-none capitalize ${
                       selectedCategory === category.id
                         ? "text-primary rounded-lg bg-primary-light/10"
                         : "text-black-light hover:text-black"
@@ -280,7 +282,7 @@ const Rings = () => {
                   <button
                     key={category.id}
                     onClick={() => handleCategoryChange(category.id)}
-                    className={`relative px-3 py-2 font-montserrat-medium-500 text-sm transition-all duration-300 outline-none ${
+                    className={`relative px-3 py-2 font-montserrat-medium-500 text-sm transition-all duration-300 outline-none capitalize ${
                       selectedCategory === category.id
                         ? "text-primary rounded-lg bg-primary-light/10"
                         : "text-black-light hover:text-black"
@@ -303,7 +305,7 @@ const Rings = () => {
                   <button
                     key={category.id}
                     onClick={() => handleCategoryChange(category.id)}
-                    className={`relative py-2 font-montserrat-medium-500 text-xs transition-all duration-300 outline-none ${
+                    className={`relative py-2 font-montserrat-medium-500 text-xs transition-all duration-300 outline-none capitalize ${
                       selectedCategory === category.id
                         ? "text-primary rounded-lg bg-primary-light/10 "
                         : "text-black-light hover:text-black"
@@ -323,7 +325,7 @@ const Rings = () => {
                   <button
                     key={category.id}
                     onClick={() => handleCategoryChange(category.id)}
-                    className={`relative px-3 py-2 font-montserrat-medium-500 text-xs transition-all duration-300 outline-none ${
+                    className={`relative px-3 py-2 font-montserrat-medium-500 text-xs transition-all duration-300 outline-none capitalize ${
                       selectedCategory === category.id
                         ? "text-primary rounded-lg bg-primary-light/10"
                         : "text-black-light hover:text-black"

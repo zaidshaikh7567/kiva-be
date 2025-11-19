@@ -87,7 +87,7 @@ router.post('/', authenticate, authorize('super_admin'), upload.array('images', 
     color,
     clarity: parsedClarity,
     certificate: parsedCertificate,
-    isBand: parseBoolean(isBand, false)
+    isBand: isBand !== undefined ? isBand : false
   });
 
   await product.save();
@@ -150,7 +150,7 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
   }
 
   if (isBand !== undefined) {
-    updateData.isBand = parseBoolean(isBand, existingProduct.isBand);
+    updateData.isBand = isBand;
   }
 
   // Merge new images with existing images

@@ -3,6 +3,7 @@ import { Lock, Eye, EyeOff, Shield } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetPassword, selectAuthLoading, selectAuthError, clearError } from '../store/slices/authSlice';
 import toast from 'react-hot-toast';
+import FormInput from './FormInput';
 
 const ResetPasswordPage = ({ onResetSuccess }) => {
   const dispatch = useDispatch();
@@ -125,109 +126,66 @@ const ResetPasswordPage = ({ onResetSuccess }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* OTP Field */}
             <div className="space-y-2">
-              <label className="text-sm font-montserrat-medium-500 text-black block">
-                OTP (One-Time Password)
-              </label>
-              <div className="relative">
-                <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                    setOtp(value);
-                    setOtpError('');
-                    setGeneralError('');
-                  }}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 outline-none transition-all duration-200 font-montserrat-regular-400 tracking-widest ${
-                    otpError 
-                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                      : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                  }`}
-                  placeholder="Enter 6-digit OTP"
-                  maxLength={6}
-                 
-                />
-              </div>
-              {(otpError || generalError) && (
-                <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                  {otpError || generalError}
-                </p>
-              )}
+              <FormInput
+                label="OTP (One-Time Password)"
+                name="otp"
+                value={otp}
+                onChange={(e) => {
+                  setOtp(e.target.value);
+                  setOtpError('');
+                  setGeneralError('');
+                }}
+                placeholder="Enter 6-digit OTP"
+                maxLength={6}
+                inputMode="numeric"
+                icon={Shield}
+                error={otpError || generalError}
+                required
+              />
             </div>
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="text-sm font-montserrat-medium-500 text-black block">
-                New Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setPasswordError('');
-                    setGeneralError('');
-                  }}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-1 outline-none transition-all duration-200 font-montserrat-regular-400 ${
-                    passwordError 
-                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                      : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                  }`}
-                  placeholder="Enter new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-200"
-                >
-                  {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-                </button>
-              </div>
-              {passwordError && (
-                <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                  {passwordError}
-                </p>
-              )}
+                <FormInput
+                label="New Password"
+                name="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError('');
+                  setGeneralError('');
+                }}
+                placeholder="Enter new password"
+                error={passwordError}
+                icon={Lock}
+                type={showPassword ? 'text' : 'password'}
+                required
+                rightIcon={showPassword ? Eye : EyeOff}
+                onRightIconClick={() => setShowPassword(!showPassword)}
+                rightIconClickable={true}
+              />
             </div>
 
             {/* Confirm Password Field */}
-            <div className="space-y-2">
-              <label className="text-sm font-montserrat-medium-500 text-black block">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
+            <div className="space-y-2"> 
+                <FormInput
+                label="Confirm Password"
+                name="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
                     setConfirmPasswordError('');
                     setGeneralError('');
-                  }}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-1 outline-none transition-all duration-200 font-montserrat-regular-400 ${
-                    confirmPasswordError 
-                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-                      : 'border-gray-200 focus:ring-primary focus:border-transparent'
-                  }`}
+                  }}  
                   placeholder="Confirm new password"
+                  error={confirmPasswordError}
+                  icon={Lock}
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  rightIcon={showConfirmPassword ? Eye : EyeOff}
+                  onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  rightIconClickable={true}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-200"
-                >
-                  {showConfirmPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-                </button>
-              </div>
-              {confirmPasswordError && (
-                <p className="text-red-500 text-xs mt-1 font-montserrat-regular-400">
-                  {confirmPasswordError}
-                </p>
-              )}
             </div>
 
             {/* General API Error Message */}

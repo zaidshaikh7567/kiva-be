@@ -74,10 +74,8 @@ export const createProduct = createAsyncThunk(
       if (productData.certificate) {
         formData.append('certificate', productData.certificate);
       }
-      // Add isBand if provided (always send, even if false)
-      if (typeof productData.isBand === 'boolean') {
-        formData.append('isBand', productData.isBand);
-      }
+      // Always send isBand (even if false) to ensure it's updated
+      formData.append('isBand', String(productData.isBand ?? false));
       const response = await api.post(API_METHOD.products, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -155,10 +153,8 @@ export const updateProduct = createAsyncThunk(
       if (data.certificate) {
         formData.append('certificate',data.certificate);
       }
-      // Add isBand if provided (always send, even if false)
-      if (typeof data.isBand === 'boolean') {
-        formData.append('isBand', data.isBand);
-      }
+      // Always send isBand (even if false) to ensure it's updated
+      formData.append('isBand', String(data.isBand ?? false));
       const response = await api.put(`${API_METHOD.products}/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',

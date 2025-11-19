@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Heart, Star, ShoppingBag, Minus, Plus, Gem, ChevronLeft, ChevronRight, ListChevronsDownUp, ArrowLeft } from 'lucide-react';
+import { Heart, Star, ShoppingBag, Minus, Plus, Gem, ChevronLeft, ChevronRight, ListChevronsDownUp, ArrowLeft, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById, selectCurrentProduct, selectProductsLoading, selectProductsError } from '../store/slices/productsSlice';
-import { addCartItem } from '../store/slices/cartSlice';
+import { addCartItem, selectCartLoading } from '../store/slices/cartSlice';
 import { 
   toggleFavorite as toggleFavoriteAction, 
   addToFavoritesAPI, 
@@ -13,6 +13,7 @@ import {
 import { selectIsAuthenticated } from '../store/slices/authSlice';
 import PriceDisplay from '../components/PriceDisplay';
 import MetalSelector from '../components/MetalSelector';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 import CustomDropdown from '../components/CustomDropdown';
 import Accordion from '../components/Accordion';
 import ContactBox from '../components/ContactBox';
@@ -49,6 +50,8 @@ const ProductDetail = () => {
   const product = useSelector(selectCurrentProduct);
   console.log('product :', product);
   const loading = useSelector(selectProductsLoading);
+  const cartLoading = useSelector(selectCartLoading);
+  console.log('loading :', loading);
   const error = useSelector(selectProductsError);
   const currentCurrency = useSelector(selectCurrentCurrency);
   const currencySymbol = useSelector(selectCurrencySymbol);
@@ -289,7 +292,7 @@ const ProductDetail = () => {
   const handleAddToCart = async () => {
     try {
       // Check authentication first
-      const isAuthenticated = !!localStorage.getItem('accessToken');
+      const isAuthenticated = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
       if (!isAuthenticated) {
         const currentPath = window.location.pathname + window.location.search;
         toast.error('Please login to add items to cart', {
@@ -659,12 +662,12 @@ const ProductDetail = () => {
             <div className="sm:px-2 lg:px-6 px-0 py-2 lg:py-0 lg:col-span-3 flex flex-col ">
               <div>
                 {/* Rating */}
-                <div className="flex items-center space-x-1 mb-3">
+                {/* <div className="flex items-center space-x-1 mb-3">
                   <Star className="w-5 h-5 text-yellow-400 fill-current" />
                   <span className="font-montserrat-medium-500 text-black">
                     {product.rating || 5} ({product.reviews || 0} reviews)
                   </span>
-                </div>
+                </div> */}
 
                 {/* Product Name */}
                 <h1 className="text-2xl lg:text-3xl font-sorts-mill-gloudy text-black mb-4">
@@ -863,11 +866,13 @@ const ProductDetail = () => {
 
                 {/* Add to Cart Button */}
                 <button
+                disabled={cartLoading}
                   onClick={handleAddToCart}
                   className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
                 >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span>
+                 
+                  {cartLoading ? <span className="flex items-center space-x-2w-full justify-center "><Loader2 className="w-5 h-5 animate-spin  mr-2 " /> Adding to Cart...</span> : <><ShoppingBag className="w-5 h-5" /> <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span></>}
+                  {/* <span>{cartLoading ? 'Adding to Cart...' : `Add to Cart - ${formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}`}</span> */}
                 </button>
 
                 {/* Contact Box */}
@@ -876,7 +881,7 @@ const ProductDetail = () => {
                 {/* Additional Info */}
                 <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
                   <p>✓ Free shipping on orders over $100</p>
-                  <p>✓ 30-day return policy</p>
+                  {/* <p>✓ 30-day return policy</p> */}
                   <p>✓ Secure checkout</p>
                 </div>
               </div>

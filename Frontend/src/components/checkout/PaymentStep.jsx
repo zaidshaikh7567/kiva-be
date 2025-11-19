@@ -40,7 +40,7 @@ const PaymentStep = ({ paymentInfo, onPaymentChange, onSubmit, onBack, loading }
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+    <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
       <div className="flex items-center space-x-3 mb-6">
         <div className="w-12 h-12 bg-primary-light rounded-full flex items-center justify-center">
           <CreditCard className="w-6 h-6 text-primary" />

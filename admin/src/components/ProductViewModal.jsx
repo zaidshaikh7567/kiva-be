@@ -113,7 +113,7 @@ console.log('product :', product);
                 <Tag className="w-4 h-4 text-gray-600" />
                 <span className="font-medium text-gray-700">Category</span>
               </div>
-              <span className="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm">
+              <span className="inline-block px-3 py-1 bg-primary-light text-primary-dark rounded-full text-sm capitalize">
                 {product.category?.name || 'No Category'}
               </span>
             </div>
@@ -149,10 +149,10 @@ console.log('product :', product);
                   <div key={metal._id || index} className="bg-yellow-50 p-3 rounded border border-yellow-200">
                     <div className="flex items-center space-x-2 mb-2">
                       <div 
-                        className="w-4 h-4 rounded-full border border-gray-300"
+                        className="w-4 h-4 rounded-full border border-gray-300 "
                         style={{ backgroundColor: metal.color }}
                       />
-                      <span className="font-semibold text-yellow-900">{metal.name}</span>
+                      <span className="font-semibold text-yellow-900 capitalize">{metal.name}</span>
                     </div>
                     {metal.purityLevels && metal.purityLevels.length > 0 && (
                       <div className="text-sm text-yellow-700">

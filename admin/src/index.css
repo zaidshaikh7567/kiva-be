@@ -3,9 +3,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Prevent double-click zoom */
+:root {
+  --scrollbar-thumb: #E0C0B0;
+  --scrollbar-track: rgba(224, 192, 176, 0.15);
+}
+
+/* Global scrollbar styling */
 * {
   touch-action: manipulation;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
 }
 
 html {
@@ -141,7 +162,7 @@ input, textarea, [contenteditable] {
 
 .card {
   padding: 2em;
-}
+} 
 
 .read-the-docs {
   color: #888;

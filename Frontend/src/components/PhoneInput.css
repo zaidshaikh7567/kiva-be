@@ -1,0 +1,38 @@
+.PhoneInput {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.PhoneInputCountry {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.PhoneInputCountrySelect {
+  border: none;
+  background: transparent;
+  font-size: 0.85rem;
+  color: #111827;
+  font-family: 'Montserrat', sans-serif;
+  padding: 0;
+}
+
+.PhoneInputCountryIcon {
+  box-shadow: none !important;
+}
+
+.PhoneInputInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: #111827;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.PhoneInputInput:focus {
+  outline: none;
+}

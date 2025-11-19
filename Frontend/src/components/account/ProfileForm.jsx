@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Edit2, Save, X, Upload, User as UserIcon, Camera } from 'lucide-react';
+import { Edit2, Save, X, Upload, User as UserIcon, Camera, User, Mail  } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   selectAuthUser,
@@ -12,6 +12,7 @@ import {
   clearSuccess,
 } from '../../store/slices/authSlice';
 import toast from 'react-hot-toast';
+import FormInput from '../FormInput';
 
 const ProfileForm = () => {
   const dispatch = useDispatch();
@@ -33,7 +34,8 @@ const ProfileForm = () => {
   
   // Default dummy user image
   const defaultUserImage = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=6366f1&color=fff&size=200';
-
+// console.log(defaultUserImage,'defaultUserImage');
+ 
   // Update form data when user changes
   useEffect(() => {
     if (user) {
@@ -44,8 +46,10 @@ const ProfileForm = () => {
         profileImage: null // Reset to null - only set when new file is selected
       });
       // Set image preview from user data or localStorage
-      const savedImage = localStorage.getItem(`user_${user.id || user._id}_profileImage`);
-      setImagePreview(userImage || savedImage || null);
+      // const savedImage = localStorage.getItem(`user_${user.id || user._id}_profileImage`);
+      // console.log(savedImage,'v');
+      
+      setImagePreview(userImage  || null);
     }
   }, [user]);
 
@@ -183,21 +187,21 @@ const ProfileForm = () => {
       profileImage: null
     }));
     // Remove from localStorage
-    if (user?.id || user?._id) {
-      localStorage.removeItem(`user_${user.id || user._id}_profileImage`);
-    }
+    // if (user?.id || user?._id) {
+    //   localStorage.removeItem(`user_${user.id || user._id}_profileImage`);
+    // }
   };
 
   const handleCancel = () => {
     const userImage = user?.profileImage || user?.image || null;
-    const savedImage = user?.id || user?._id ? localStorage.getItem(`user_${user.id || user._id}_profileImage`) : null;
+    // const savedImage = user?.id || user?._id ? localStorage.getItem(`user_${user.id || user._id}_profileImage`) : null;
     
     setFormData({
       name: user?.name || '',
       email: user?.email || '',
       profileImage: null // Reset to null
     });
-    setImagePreview(userImage || savedImage || null);
+    setImagePreview(userImage  || null);
     setFieldErrors({ name: '', email: '' });
     setIsEditing(false);
   };
@@ -214,7 +218,7 @@ const ProfileForm = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <div className="bg-white rounded-2xl shadow-sm sm:p-6 p-4">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-sorts-mill-gloudy text-black">
           Profile Information
@@ -311,37 +315,27 @@ const ProfileForm = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              Name *
-            </label>
-            <input
-              type="text"
+            <FormInput
+              label="Name *"
               name="name"
               value={formData.name}
               onChange={handleInputChange}
+              error={fieldErrors.name}
+              icon={User}
               disabled={!isEditing}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black disabled:bg-gray-50 disabled:cursor-not-allowed ${
-              fieldErrors.name
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-primary-light focus:ring-primary focus:border-primary'
-            }`}
             />
-          {fieldErrors.name && (
-            <p className="mt-1 text-xs text-red-500">{fieldErrors.name}</p>
-          )}
+            
           </div>
 
           <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              Email *
-            </label>
-            <input
-              type="email"
+            <FormInput
+              label="Email *"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
+              error={fieldErrors.email}
+              icon={Mail}
               disabled={!isEditing}
-              className="w-full curser-auto px-4 py-3 border bg-gray-100 border-primary-light rounded-lg  outline-none font-montserrat-regular-400 text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
               readOnly
             />
           </div>

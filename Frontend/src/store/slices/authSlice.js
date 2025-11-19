@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/api';
 import { API_METHOD } from '../../services/apiMethod';
+import { TOKEN_KEYS } from '../../constants/tokenKeys';
 
 // Async thunks for auth API calls
 export const loginUser = createAsyncThunk(
@@ -15,10 +16,10 @@ export const loginUser = createAsyncThunk(
       
       // Store tokens if they exist
       if (response.data.data?.accessToken) {
-        localStorage.setItem('accessToken', response.data.data.accessToken);
+        localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, response.data.data.accessToken);
       }
       if (response.data.data?.refreshToken) {
-        localStorage.setItem('refreshToken', response.data.data.refreshToken);
+        localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, response.data.data.refreshToken);
       }
       
       // Fetch user profile after successful login
@@ -107,7 +108,7 @@ export const refreshToken = createAsyncThunk(
   'auth/refreshToken',
   async (_, { rejectWithValue }) => {
     try {
-      const refreshTokenValue = localStorage.getItem('refreshToken');
+      const refreshTokenValue = localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
       if (!refreshTokenValue) {
         return rejectWithValue('No refresh token available');
       }
@@ -120,10 +121,10 @@ export const refreshToken = createAsyncThunk(
       
       // Update tokens in localStorage
       if (data.accessToken) {
-        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, data.accessToken);
       }
       if (data.refreshToken) {
-        localStorage.setItem('refreshToken', data.refreshToken);
+        localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, data.refreshToken);
       }
       
       return data;
@@ -185,9 +186,9 @@ export const logoutUser = createAsyncThunk(
   'auth/logout',
   async () => {
     // Clear tokens from localStorage
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+    localStorage.removeItem(TOKEN_KEYS.USER);
     return null;
   }
 );
@@ -222,9 +223,9 @@ const authSlice = createSlice({
     },
     initializeAuth: (state) => {
       // Load tokens and user from localStorage
-      const accessToken = localStorage.getItem('accessToken');
-      const refreshToken = localStorage.getItem('refreshToken');
-      const user = localStorage.getItem('user');
+      const accessToken = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+      const refreshToken = localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
+      const user = localStorage.getItem(TOKEN_KEYS.USER);
       
       if (accessToken && user) {
         state.accessToken = accessToken;
@@ -254,13 +255,13 @@ const authSlice = createSlice({
         
         // Store in localStorage
         if (action.payload.accessToken) {
-          localStorage.setItem('accessToken', action.payload.accessToken);
+          localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, action.payload.accessToken);
         }
         if (action.payload.refreshToken) {
-          localStorage.setItem('refreshToken', action.payload.refreshToken);
+          localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, action.payload.refreshToken);
         }
         if (state.user) {
-          localStorage.setItem('user', JSON.stringify(state.user));
+          localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(state.user));
         }
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -349,7 +350,10 @@ const authSlice = createSlice({
           state.refreshToken = action.payload.refreshToken;
         }
         if (action.payload.accessToken) {
-          localStorage.setItem('accessToken', action.payload.accessToken);
+          localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, action.payload.accessToken);
+        }
+        if (action.payload.refreshToken) {
+          localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, action.payload.refreshToken);
         }
         if (action.payload.refreshToken) {
           localStorage.setItem('refreshToken', action.payload.refreshToken);
@@ -398,7 +402,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
-        localStorage.setItem('user', JSON.stringify(action.payload));
+        localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(action.payload));
       })
       .addCase(getUserProfile.rejected, (state, action) => {
         state.loading = false;
@@ -417,7 +421,7 @@ const authSlice = createSlice({
         state.user = action.payload;
         state.success = 'Profile updated successfully!';
         state.successType = 'updateProfile';
-        localStorage.setItem('user', JSON.stringify(action.payload));
+        localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(action.payload));
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
         state.loading = false;

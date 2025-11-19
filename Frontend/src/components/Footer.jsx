@@ -1,8 +1,6 @@
 import React from "react";
 import { Mail, Phone, MapPin, Heart } from "lucide-react";
 import { FaFacebook, FaInstagram,FaWhatsapp  } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import Container from "./Container";
 import { Link } from "react-router-dom";
 import giaLogo from "../assets/icon/gia.svg";
 import igiLogo from "../assets/icon/igi.svg";
@@ -10,11 +8,17 @@ import Logo from '../assets/images/kiva-diamond-logo.png'
 import { IoLogoWhatsapp } from "react-icons/io";
 import { RiInstagramFill } from "react-icons/ri";
 const Footer = () => {
+  const FACEBOOK_URL = import.meta.env.VITE_FACEBOOK_URL;
+  const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL;
+  const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_URL;
+  const EMAIL_URL = import.meta.env.VITE_EMAIL_URL;
+  const PHONE_NUMBER_COMBO = import.meta.env.VITE_NUMBER_COMBO;
+  const PHONE_NUMBER_SEPARATE = import.meta.env.VITE_NUMBER_SEPARATE;
   // Social Media Links
   const socialLinks = [
-    { icon: <FaFacebook className="w-5 h-5 text-white" />, href: "https://www.facebook.com/kiva.diamond/?rdid=GnfsBsErFgHnpej1", label: "Facebook" },
-    { icon: <RiInstagramFill className="w-5 h-5 text-white" />, href: "https://www.instagram.com/kiva.diamond/?igsh=amV5ZDN3M3Y4a3lo#", label: "Instagram" },
-    { icon: <IoLogoWhatsapp className="w-5 h-5 text-white" />, href: "https://api.whatsapp.com/send/?phone=919106302269&text&type=phone_number&app_absent=0", label: "Twitter" },
+    { icon: <FaFacebook className="w-5 h-5 text-white" />, href: FACEBOOK_URL, label: "Facebook" },
+    { icon: <RiInstagramFill className="w-5 h-5 text-white" />, href: INSTAGRAM_URL, label: "Instagram" },
+    { icon: <IoLogoWhatsapp className="w-5 h-5 text-white" />, href: WHATSAPP_URL, label: "Twitter" },
   ];
 
   // Quick Links
@@ -41,14 +45,14 @@ const contactInfo = [
   {
     icon: <Phone className="w-5 h-5 text-white" />,
     title: "Phone",
-    value: "+91 9106302269",
-    link: "tel:+919106302269",
+    value: `${PHONE_NUMBER_SEPARATE}`,
+    link: `tel:${PHONE_NUMBER_COMBO}`,
   },
   {
     icon: <Mail className="w-5 h-5 text-white" />,
     title: "Email",
-    value: "kivadiamond3008@gmail.com",
-    link: "mailto:kivadiamond3008@gmail.com",
+    value: EMAIL_URL,
+    link: `mailto:${EMAIL_URL}`,
   },
   {
     icon: <MapPin className="w-5 h-5 text-white" />,
@@ -91,6 +95,8 @@ const contactInfo = [
               <div className="flex space-x-3 sm:space-x-4 justify-center sm:justify-start">
                 {socialLinks.map((item, index) => (
                   <a
+                    target="_blank"
+                    rel="noopener noreferrer"
                     key={index}
                     href={item.href}
                     aria-label={item.label}

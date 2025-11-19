@@ -15,6 +15,7 @@ import {
   RotateCcw,
   X,
   Download,
+  Copy,
 } from "lucide-react";
 import {
   fetchContacts,
@@ -31,6 +32,8 @@ import {
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import Pagination from "../components/Pagination";
 import CustomDropdown from "../components/CustomDropdown";
+import FormInput from "../components/FormInput";
+import { toast } from 'react-hot-toast';
 
 const SERVICE_OPTIONS = [
   { value: "all", label: "All Services" },
@@ -341,38 +344,42 @@ const Contacts = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-sorts-mill-gloudy font-bold text-black">
-            Contact Inquiries
-          </h1>
-          <p className="font-montserrat-regular-400 text-black-light">
-            Manage customer contact inquiries
-          </p>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
         <button
           onClick={handleRefresh}
-          className="flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50"
+          className="flex items-center justify-center text-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           <span>Refresh</span>
+        </button>
+        <button
+          onClick={handleResetFilters}
+          className="
+                 flex items-center justify-center space-x-2 px-4 py-2 
+                 border border-gray-200 rounded-lg hover:bg-gray-50 
+                 transition-colors font-montserrat-medium-500 disabled:opacity-50"
+        >
+          <RotateCcw className="w-4 h-4" />
+          <span>Reset Filters</span>
         </button>
       </div>
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-          <div className="relative col-span-3 md:col-span-2 xl:col-span-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-            <input
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+          {/* Search */}
+          <div className="relative sm:col-span-2 md:col-span-3 xl:col-span-4">
+            <FormInput
               type="text"
               placeholder="Search by name, email, phone, or message..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className=" w-full h-full pl-10 pr-4 py-2 border border-gray-300 outline-none rounded-lg focus:ring-primary focus:border-primary transition-all duration-200"
+              icon={Search}
             />
           </div>
-          <div className="col-span-1 md:col-span-2 xl:col-span-1">
+
+          {/* Dropdown */}
+          <div className="col-span-1 sm:col-span-1 md:col-span-2 xl:col-span-1 relative z-20">
             <CustomDropdown
               options={SERVICE_OPTIONS}
               value={serviceFilter}
@@ -380,14 +387,6 @@ const Contacts = () => {
               placeholder="Filter by service"
             />
           </div>
-          {/* reset filters button */}
-          <button
-            onClick={handleResetFilters}
-            className="col-span-1 md:col-span-2 xl:col-span-1 flex items-center space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Reset Filters</span>
-          </button>
         </div>
       </div>
 
@@ -573,28 +572,36 @@ const Contacts = () => {
                       <div>
                         <label className="block text-sm font-montserrat-medium-500 text-black-light mb-1">
                           Email
-                        </label>
-                        <a
-                          href={`mailto:${contactDetails?.email || ""}`}
-                          className="flex items-center space-x-2 text-primary hover:underline"
-                        >
-                          <Mail className="w-4 h-4" />
-                          <span>{contactDetails?.email || "N/A"}</span>
-                        </a>
+                        </label>  
+                        <div className="flex items-center space-x-2">
+                                <a href={`mailto:${contactDetails?.email || ""}`} className="flex items-center space-x-2 text-primary hover:underline">
+                              <Mail className="w-4 h-4" />
+                              <span>{contactDetails?.email || "N/A"}</span>
+                            </a>
+                            <button onClick={() => 
+                              {
+                                navigator.clipboard.writeText(contactDetails?.email);
+                                toast.success("Email copied to clipboard");
+                              }}>
+                              <Copy className="w-4 h-4" />
+                            </button>
+                        </div>
                       </div>
-
                       {contactDetails?.phone ? (
                         <div>
                           <label className="block text-sm font-montserrat-medium-500 text-black-light mb-1">
                             Phone
                           </label>
-                          <a
-                            href={`tel:${contactDetails?.phone}`}
-                            className="flex items-center space-x-2 text-black hover:underline"
-                          >
+                          <div className="flex items-center space-x-2">
                             <Phone className="w-4 h-4" />
                             <span>{contactDetails?.phone}</span>
-                          </a>
+                            <button onClick={() => {
+                              navigator.clipboard.writeText(contactDetails?.phone);
+                              toast.success("Number copied to clipboard");
+                            }}>
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       ) : null}
 
@@ -723,9 +730,13 @@ const Contacts = () => {
                                   </span>
                                   <button
                                     type="button"
-                                    onClick={() => handleDownloadMedia(item, index)}
+                                    onClick={() =>
+                                      handleDownloadMedia(item, index)
+                                    }
                                     className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary rounded-full transition z-20"
-                                    aria-label={`Download attachment ${index + 1}`}
+                                    aria-label={`Download attachment ${
+                                      index + 1
+                                    }`}
                                   >
                                     <Download className="w-4 h-4 text-black" />
                                   </button>
@@ -756,6 +767,13 @@ const Contacts = () => {
                       className="px-5 py-2 border border-gray-300 rounded-lg text-black-light hover:bg-gray-50 transition-colors font-montserrat-medium-500"
                     >
                       Close
+                    </button>
+                    {/* I want to email the customer */}
+                    <button
+                      onClick={() => window.location.href = `mailto:${contactDetails?.email}`}
+                      className="px-5 flex items-center space-x-2 py-2 border border-gray-300 rounded-lg text-black-light hover:bg-gray-50 transition-colors font-montserrat-medium-500"
+                    >
+                   <Mail className="w-4 h-4 mr-2" /> Email Customer 
                     </button>
                   </div>
                 </>

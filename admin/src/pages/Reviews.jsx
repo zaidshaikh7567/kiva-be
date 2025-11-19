@@ -26,6 +26,7 @@ import {
   deleteReview,
   clearError
 } from '../store/slices/reviewsSlice';
+import FormInput from '../components/FormInput';
 
 const Reviews = () => {
   const dispatch = useDispatch();
@@ -208,16 +209,13 @@ const Reviews = () => {
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type="text"
-                placeholder="Search reviews by name, email, or comment..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 outline-none focus:ring-primary !focus:border-primary font-montserrat-regular-400 text-black"
-              />
-            </div>
+            <FormInput
+              type="text"
+              placeholder="Search reviews by name, email, or comment..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              icon={Search}
+            />
           </div>
 
           {/* Rating Filter */}

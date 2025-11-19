@@ -26,7 +26,6 @@ const PriceDisplay = ({
   
   // Convert prices from USD to current currency
   const convertedPrice = convertPrice(price, 'USD', currentCurrency, { [currentCurrency]: exchangeRate });
-  console.log('price :', price);
   const formattedPrice = formatPrice(convertedPrice, currentCurrency, currencySymbol);
 
   // Define styling based on variant

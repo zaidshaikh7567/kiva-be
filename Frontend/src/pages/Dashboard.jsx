@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Package, MapPin, CreditCard } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectAuthUser } from '../store/slices/authSlice';
@@ -7,8 +8,16 @@ import ProfileForm from '../components/account/ProfileForm';
 import OrdersList from '../components/account/OrdersList';
 
 const Dashboard = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('profile');
   const user = useSelector(selectAuthUser);
+
+  // Check if we should show orders tab (from navigation state or URL param)
+  useEffect(() => {
+    if (location.state?.tab === 'orders' || new URLSearchParams(location.search).get('tab') === 'orders') {
+      setActiveTab('orders');
+    }
+  }, [location]);
 
   return (
     <div className="min-h-screen bg-secondary py-8">
@@ -16,17 +25,17 @@ const Dashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-sorts-mill-gloudy text-black mb-2">
-            Welcome back, {user?.name}!
+            Welcome, {user?.name}!
           </h1>
           <p className="text-black-light font-montserrat-regular-400">
             Manage your account and track your orders
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="bg-white rounded-2xl shadow-sm sm:p-6 p-4">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-12 h-12 bg-primary-light rounded-full flex items-center justify-center">
                   <Package className="w-6 h-6 text-primary" />

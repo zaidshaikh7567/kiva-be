@@ -10,6 +10,7 @@ import ProductViewModal from '../components/ProductViewModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import Pagination from '../components/Pagination';
 import CustomDropdown from '../components/CustomDropdown';
+import FormInput from '../components/FormInput';
 
 const Products = () => {
   const dispatch = useDispatch();
@@ -321,16 +322,13 @@ const Products = () => {
               <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
                 Search Products
               </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  value={filters.search}
-                  onChange={handleSearchChange}
-                  placeholder="Search by name..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400"
-                />
-              </div>
+              <FormInput  
+                type="text"
+                placeholder="Search by name..."
+                value={filters.search}
+                onChange={handleSearchChange}
+                icon={Search}
+              />
             </div>
 
             {/* Category Filter */}
@@ -385,20 +383,20 @@ const Products = () => {
               <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
                 Price Range
               </label>
-              <div className="flex gap-2">
-                <input
+              <div className="flex gap-2">  
+                <FormInput
                   type="number"
                   placeholder="Min"
                   value={filters?.minPrice}
                   onChange={(e) => handlePriceRangeChange('min', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400"
+                  icon={Search}
                 />
-                <input
+                <FormInput
                   type="number"
                   placeholder="Max"
                   value={filters?.maxPrice}
                   onChange={(e) => handlePriceRangeChange('max', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-primary font-montserrat-regular-400"
+                  icon={Search}
                 />
               </div>
             </div>

@@ -9,6 +9,7 @@ const MetalSelector = ({ selectedMetal, onMetalChange, className = "", product, 
 console.log('product@@@ :', product);
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
+  console.log('metals :', metals);
   const loading = useSelector(selectMetalsLoading);
 const pathname = useLocation();
 const isProductDetail = pathname?.pathname?.includes('/product/');
@@ -34,91 +35,10 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
   });
 
   // Fallback mock data if API hasn't loaded yet
-  const fallbackMetalOptions = [
-    // {
-    //   id: '10k-white',
-    //   carat: '10K',
-    //   color: 'White Gold',
-    //   priceMultiplier: 1.0,
-    //   gradient: 'from-gray-300 to-gray-400',
-    //   borderColor: 'border-gray-300',
-    //   textColor: 'text-gray-800',
-    //   backgroundColor: 'linear-gradient(to right, #d1d5db, #9ca3af)'
-    // },
-    {
-      id: '14k-white',
-      carat: '14K',
-      color: 'White Gold',
-      priceMultiplier: 1.2,
-      gradient: 'from-gray-200 to-gray-300',
-      borderColor: 'border-gray-200',
-      textColor: 'text-gray-700',
-      backgroundColor: 'linear-gradient(to right, #e5e7eb, #d1d5db)'
-    },
-    {
-      id: '18k-white',
-      carat: '18K',
-      color: 'White Gold',
-      priceMultiplier: 1.5,
-      gradient: 'from-gray-100 to-gray-200',
-      borderColor: 'border-gray-100',
-      textColor: 'text-gray-600',
-      backgroundColor: 'linear-gradient(to right, #f3f4f6, #e5e7eb)'
-    },
-    {
-      id: '14k-yellow',
-      carat: '14K',
-      color: 'Yellow Gold',
-      priceMultiplier: 1.2,
-      gradient: 'from-yellow-50 to-yellow-100',
-      borderColor: 'border-yellow-100',
-      textColor: 'text-yellow-600',
-      backgroundColor: 'linear-gradient(to right, #fffbeb, #fefce8)'
-    },
-    {
-      id: '18k-yellow',
-      carat: '18K',
-      color: 'Yellow Gold',
-      priceMultiplier: 1.5,
-      gradient: 'from-yellow-25 to-yellow-50',
-      borderColor: 'border-yellow-50',
-      textColor: 'text-yellow-500',
-      backgroundColor: 'linear-gradient(to right, #fffbeb, #fffbeb)'
-    },
-    // {
-    //   id: '10k-rose',
-    //   carat: '10K',
-    //   color: 'Rose Gold',
-    //   priceMultiplier: 1.0,
-    //   gradient: 'from-pink-100 to-pink-200',
-    //   borderColor: 'border-pink-200',
-    //   textColor: 'text-pink-700',
-    //   backgroundColor: 'linear-gradient(to right, #fdf2f8, #fce7f3)'
-    // },
-    {
-      id: '14k-rose',
-      carat: '14K',
-      color: 'Rose Gold',
-      priceMultiplier: 1.2,
-      gradient: 'from-pink-50 to-pink-100',
-      borderColor: 'border-pink-100',
-      textColor: 'text-pink-600',
-      backgroundColor: 'linear-gradient(to right, #fdf2f8, #fdf2f8)'
-    },
-    {
-      id: '18k-rose',
-      carat: '18K',
-      color: 'Rose Gold',
-      priceMultiplier: 1.5,
-      gradient: 'from-pink-25 to-pink-50',
-      borderColor: 'border-pink-50',
-      textColor: 'text-pink-500',
-      backgroundColor: 'linear-gradient(to right, #fdf2f8, #fdf2f8)'
-    }
-  ];
+ 
 
   // Use API data if available, otherwise use fallback
-  const allMetalOptions = metalOptions.length > 0 ? metalOptions : fallbackMetalOptions;
+  const allMetalOptions = metalOptions.length > 0 && metalOptions !== null ? metalOptions : [];
 
   // Filter metals based on product availability
   // Get available metal IDs from product
@@ -236,7 +156,7 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
                 <div className="font-montserrat-bold-700 text-sm text-black ">
                   {metal.carat}
                 </div>
-                <div className="font-montserrat-semibold-600 text-black text-sm leading-tight">
+                <div className="font-montserrat-semibold-600 text-black text-sm leading-tight capitalize">
                   {metal.color}
                 </div>
               </div>
@@ -267,7 +187,7 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
         <div className="bg-primary-light rounded-xl p-4 border border-primary border-opacity-20">
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-montserrat-semibold-600 text-black text-base">
+              <div className="font-montserrat-semibold-600 text-black text-base capitalize">
                 {selectedMetal.carat} {selectedMetal.color}
               </div>
               {/* <div className="text-sm font-montserrat-regular-400 text-black-light">

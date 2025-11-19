@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/api';
+import { TOKEN_KEYS } from '../../constants/tokenKeys';
 
 // Async thunks for API calls
 export const login = createAsyncThunk(
@@ -16,10 +17,10 @@ export const login = createAsyncThunk(
         const { accessToken, refreshToken, user } = response.data.data;
         
         // Store tokens and user data in localStorage
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('adminAuthenticated', 'true');
+        localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
+        localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken);
+        localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(user));
+        localStorage.setItem(TOKEN_KEYS.AUTHENTICATED, 'true');
         
         return { accessToken, refreshToken, user };
       } else {
@@ -81,7 +82,7 @@ export const refreshToken = createAsyncThunk(
   'auth/refreshToken',
   async (_, { rejectWithValue, getState }) => {
     try {
-      const refreshToken = getState().auth.refreshToken || localStorage.getItem('refreshToken');
+      const refreshToken = getState().auth.refreshToken || localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
       
       if (!refreshToken) {
         return rejectWithValue('No refresh token available');
@@ -95,9 +96,9 @@ export const refreshToken = createAsyncThunk(
         const { accessToken, refreshToken: newRefreshToken } = response.data.data;
         
         // Update both tokens in localStorage
-        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
         if (newRefreshToken) {
-          localStorage.setItem('refreshToken', newRefreshToken);
+          localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, newRefreshToken);
         }
         
         return { accessToken, refreshToken: newRefreshToken };
@@ -132,7 +133,10 @@ export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await api.put('/api/auth/profile', userData);
+      const isFormData = typeof FormData !== 'undefined' && userData instanceof FormData;
+      const response = await api.put('/api/auth/profile', userData, isFormData ? {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      } : undefined);
       return response.data.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -170,9 +174,9 @@ const initialState = {
 // Load user data from localStorage on initialization
 const loadAuthFromStorage = () => {
   try {
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-    const userStr = localStorage.getItem('user');
+    const accessToken = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+    const refreshToken = localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
+    const userStr = localStorage.getItem(TOKEN_KEYS.USER);
     const user = userStr ? JSON.parse(userStr) : null;
     const isAuthenticated = !!accessToken && !!user;
 
@@ -214,10 +218,10 @@ const authSlice = createSlice({
       state.error = null;
 
       // Clear localStorage
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      localStorage.removeItem('adminAuthenticated');
+      localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+      localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+      localStorage.removeItem(TOKEN_KEYS.USER);
+      localStorage.removeItem(TOKEN_KEYS.AUTHENTICATED);
     },
     clearError: (state) => {
       state.error = null;
@@ -227,11 +231,25 @@ const authSlice = createSlice({
     },
     setUser: (state, action) => {
       state.user = action.payload;
-      localStorage.setItem('user', JSON.stringify(action.payload));
+      localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(action.payload));
     },
     setAccessToken: (state, action) => {
       state.accessToken = action.payload;
-      localStorage.setItem('accessToken', action.payload);
+      localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, action.payload);
+    },
+    initializeAuth: (state) => {
+      // Load tokens and user from localStorage
+      const accessToken = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+      const refreshToken = localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
+      const userStr = localStorage.getItem(TOKEN_KEYS.USER);
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      if (accessToken && user) {
+        state.accessToken = accessToken;
+        state.refreshToken = refreshToken;
+        state.user = user;
+        state.isAuthenticated = true;
+      }
     },
     initializeAuth: (state) => {
       // Load tokens and user from localStorage
@@ -314,10 +332,10 @@ const authSlice = createSlice({
         state.error = action.payload;
         
         // Clear localStorage
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        localStorage.removeItem('adminAuthenticated');
+        localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+        localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+        localStorage.removeItem(TOKEN_KEYS.USER);
+        localStorage.removeItem(TOKEN_KEYS.AUTHENTICATED);
       })
       // Get User Profile
       .addCase(getUserProfile.pending, (state) => {
@@ -328,7 +346,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
-        localStorage.setItem('user', JSON.stringify(action.payload));
+        localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(action.payload));
       })
       .addCase(getUserProfile.rejected, (state, action) => {
         state.loading = false;
@@ -342,7 +360,7 @@ const authSlice = createSlice({
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
-        localStorage.setItem('user', JSON.stringify(action.payload));
+        localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(action.payload));
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;

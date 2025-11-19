@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, Package, MapPin, CreditCard, CheckCircle } from 'lucide-react';
-import { clearCart } from '../store/slices/cartSlice';
+import { Country, State } from 'country-state-city';
+import { clearCart, clearCartItems } from '../store/slices/cartSlice';
+import { createOrder as createOrderAction } from '../store/slices/ordersSlice';
 import ShippingStep from '../components/checkout/ShippingStep';
 import PaymentStep from '../components/checkout/PaymentStep';
 import ReviewStep from '../components/checkout/ReviewStep';
@@ -13,6 +15,7 @@ const Checkout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalPrice } = useSelector(state => state.cart);
+  const { creating: isPlacingOrder } = useSelector(state => state.orders);
   
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
   
@@ -28,6 +31,22 @@ const Checkout = () => {
     zipCode: '',
     country: ''
   });
+  console.log('shippingInfo :', shippingInfo);
+  
+  const [useBillingAddress, setUseBillingAddress] = useState(false);
+  
+  const [billingInfo, setBillingInfo] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: ''
+  });
+  console.log('billingInfo :', billingInfo);
   
   const [paymentInfo, setPaymentInfo] = useState({
     cardNumber: '',
@@ -43,6 +62,14 @@ const Checkout = () => {
   const handleShippingChange = (e) => {
     const { name, value } = e.target;
     setShippingInfo(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleBillingChange = (e) => {
+    const { name, value } = e.target;
+    setBillingInfo(prev => ({
       ...prev,
       [name]: value
     }));
@@ -74,23 +101,96 @@ const Checkout = () => {
     setStep(2);
   };
 
-  const handlePlaceOrder = () => {
-    // Here you would typically send the order to your backend
-    const orderData = {
-      shippingInfo,
-      paymentInfo,
-      items,
-      totalPrice,
-      shippingCost,
-      finalTotal
-    };
-    
-    // Store order data in localStorage for the success page
-    localStorage.setItem('lastOrder', JSON.stringify(orderData));
-    
-    // Clear cart and navigate to success page
-    dispatch(clearCart());
-    navigate('/order-success', { state: { orderData } });
+  const handlePlaceOrder = async () => {
+    try {
+      // Helper function to get country name from code
+      const getCountryName = (countryCode) => {
+        if (!countryCode) return '';
+        const country = Country.getAllCountries().find(c => c.isoCode === countryCode);
+        return country ? country.name : countryCode;
+      };
+
+      // Helper function to get state name from code
+      const getStateName = (stateCode, countryCode) => {
+        if (!stateCode || !countryCode) return '';
+        const states = State.getStatesOfCountry(countryCode);
+        const state = states.find(s => s.isoCode === stateCode);
+        return state ? state.name : stateCode;
+      };
+
+      // Convert shipping address codes to names
+      const shippingCountryName = getCountryName(shippingInfo.country);
+      const shippingStateName = getStateName(shippingInfo.state, shippingInfo.country);
+
+      // Prepare shipping address with actual names
+      const shippingAddress = {
+        street: shippingInfo.address,
+        city: shippingInfo.city,
+        state: shippingStateName,
+        zipCode: shippingInfo.zipCode,
+        country: shippingCountryName
+      };
+
+      // Prepare billing address
+      let billingAddress;
+      if (useBillingAddress) {
+        // Convert billing address codes to names
+        const billingCountryName = getCountryName(billingInfo.country);
+        console.log('billingCountryName :', billingCountryName);
+        const billingStateName = getStateName(billingInfo.state, billingInfo.country);
+        billingAddress = {
+          street: billingInfo.address,
+          city: billingInfo.city,
+          state: billingStateName,
+          zipCode: billingInfo.zipCode,
+          country: billingCountryName
+        };
+      } else {
+        // Use shipping address (already converted to names)
+        billingAddress = { ...shippingAddress };
+      }
+
+      // Prepare order data
+      const orderData = {
+        shippingAddress: shippingAddress,
+        billingAddress: billingAddress,
+        phone: shippingInfo.phone,
+        paymentMethod: "Credit Card",
+        notes: "Please handle with care"
+      };
+
+      // Create order via Redux action
+      const result = await dispatch(createOrderAction(orderData));
+      console.log('result :', result);
+      
+      if (createOrderAction.fulfilled.match(result)) {
+        const orderResponse = result.payload;
+        const orderData = orderResponse.data || orderResponse;
+        
+        // Clear cart after successful order
+        await dispatch(clearCartItems());
+        dispatch(clearCart());
+        
+        // Store order data for success page
+        localStorage.setItem('lastOrder', JSON.stringify(orderData));
+        
+        // Navigate to success page with order ID
+        const orderId = orderData._id || orderData.orderNumber;
+        if (orderId) {
+          navigate(`/order-success/${orderId}`);
+        } else {
+          // Fallback if no ID is available
+          navigate('/order-success', { 
+            state: { 
+              orderData: orderData,
+              orderNumber: orderData.orderNumber || orderData._id
+            } 
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+    }
   };
 
   // Check if user can navigate to a specific step
@@ -203,6 +303,10 @@ const Checkout = () => {
                 <ShippingStep
                   shippingInfo={shippingInfo}
                   onShippingChange={handleShippingChange}
+                  billingInfo={billingInfo}
+                  onBillingChange={handleBillingChange}
+                  useBillingAddress={useBillingAddress}
+                  onUseBillingAddressChange={setUseBillingAddress}
                   onSubmit={handleShippingSubmit}
                   loading={false}
                 />
@@ -223,11 +327,12 @@ const Checkout = () => {
               {step === 3 && (
                 <ReviewStep
                   shippingInfo={shippingInfo}
+                  billingInfo={useBillingAddress ? billingInfo : null}
                   paymentInfo={paymentInfo}
                   onEditShipping={handleEditShipping}
                   onEditPayment={handleEditPayment}
                   onPlaceOrder={handlePlaceOrder}
-                  loading={false}
+                  loading={isPlacingOrder}
                 />
               )}
             </div>

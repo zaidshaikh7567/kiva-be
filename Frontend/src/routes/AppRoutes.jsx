@@ -36,6 +36,7 @@ import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AuthRedirect from "../components/AuthRedirect";
 import CurrencyTestPage from "../pages/CurrencyTestPage";
+import OrderDetails from "../pages/OrderDetails";
 
 const AppRoutes = () => {
   return (
@@ -69,7 +70,8 @@ const AppRoutes = () => {
           
           {/* Protected Routes - Require Authentication */}
           <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-          <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
+          <Route path="/order-success/:id" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
+          <Route path="/orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         </Route>
 

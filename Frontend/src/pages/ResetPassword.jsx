@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, CheckCircle, FormInput } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   resetPassword,
@@ -180,67 +180,39 @@ const ResetPassword = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Password */}
             <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                New Password *
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                    errors.password
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-primary-light focus:ring-primary'
-                  }`}
-                  placeholder="Enter your new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light"
-                >
-                  {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-xs text-red-500 mt-1">{errors.password}</p>
-              )}
+              <FormInput
+                label="New Password *"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+                icon={Lock}
+                placeholder="Enter your new password"
+                type={showPassword ? 'text' : 'password'}
+                rightIcon={showPassword ? Eye : EyeOff}
+                onRightIconClick={() => setShowPassword(!showPassword)}
+                rightIconClickable={true}
+              />
+
+              
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Confirm New Password *
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={`w-full pl-11 pr-12 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 text-black ${
-                    errors.confirmPassword
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-primary-light focus:ring-primary'
-                  }`}
-                  placeholder="Confirm your new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light"
-                >
-                  {showConfirmPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>
-              )}
-            </div>
+              <FormInput
+                label="Confirm New Password *"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                error={errors.confirmPassword}
+                icon={Lock}
+                placeholder="Confirm your new password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                rightIcon={showConfirmPassword ? Eye : EyeOff}
+                onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                rightIconClickable={true}
+              />
+            </div>  
 
             {/* Submit */}
             <button

@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/api';
 import { API_METHOD } from '../../services/apiMethod';
 import toast from 'react-hot-toast';
+import { TOKEN_KEYS } from '../../constants/tokenKeys';
 
 // Load favorites from localStorage on initialization
 const loadFavoritesFromStorage = () => {
@@ -16,7 +17,7 @@ const loadFavoritesFromStorage = () => {
 
 // Check if user is authenticated
 const isAuthenticated = () => {
-  return !!localStorage.getItem('accessToken');
+  return !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
 };
 
 // Async thunks for API calls

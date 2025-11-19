@@ -260,7 +260,7 @@ const Categories = () => {
                           )}
                         </div>
                         <div>
-                          <h3 className="text-xl font-sorts-mill-gloudy font-bold text-black capitalize">
+                          <h3 className="text-lg font-montserrat-light-300 font-bold text-black capitalize">
                             {mainCategory?.name} ({subCategories?.length > 0 ? totalSubCategoryProductCount : mainCategoryProductCount})
                           </h3>
                           {subCategories?.length > 0 && (
@@ -268,10 +268,13 @@ const Categories = () => {
                             {subCategories?.length} sub-categories • {totalSubCategoryProductCount} products
                           </p>
                           )}
+                           <span className="sm:hidden flex mt-2 px-3 py-1 bg-green-100 text-green-800 text-sm font-montserrat-medium-500 rounded-full">
+                          Main Category
+                        </span>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-montserrat-medium-500 rounded-full">
+                        <span className="sm:flex hidden px-3 py-1 bg-green-100 text-green-800 text-sm font-montserrat-medium-500 rounded-full">
                           Main Category
                         </span>
                         <button 
@@ -296,7 +299,7 @@ const Categories = () => {
                       <h4 className="text-sm font-montserrat-semibold-600 text-black-light mb-4">
                         Sub Categories ({subCategories?.length})
                       </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                         {subCategories?.map((subCategory) => (
                           <div key={subCategory?._id} className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-sm transition-shadow">
                             {/* Category Image */}
@@ -311,7 +314,7 @@ const Categories = () => {
                             )}
                             
                             <div className="flex items-center justify-between mb-3">
-                              <h5 className="font-sorts-mill-gloudy font-bold text-black capitalize">
+                              <h5 className="font-montserrat-regular-400 font-bold text-black capitalize">
                                 {subCategory?.name}
                               </h5>
                               <div className="flex items-center space-x-1">

@@ -59,7 +59,24 @@ const createProductSchema = zod.object({
       throw new Error('certificate must be a valid JSON array');
     }
   }).pipe(zod.array(zod.string()).optional()),
-  isBand: zod.coerce.boolean().optional(),
+  isBand: zod.preprocess((val) => {
+    if (val === undefined || val === null || val === '') {
+      return undefined;
+    }
+    if (typeof val === 'boolean') {
+      return val;
+    }
+    if (typeof val === 'string') {
+      const normalized = val.trim().toLowerCase();
+      if (['true', '1', 'yes', 'on'].includes(normalized)) {
+        return true;
+      }
+      if (['false', '0', 'no', 'off'].includes(normalized)) {
+        return false;
+      }
+    }
+    return undefined;
+  }, zod.boolean().optional()),
 });
 
 const updateProductSchema = zod.object({
@@ -121,7 +138,24 @@ const updateProductSchema = zod.object({
       throw new Error('certificate must be a valid JSON array');
     }
   }).pipe(zod.array(zod.string()).optional()),
-  isBand: zod.coerce.boolean().optional(),
+  isBand: zod.preprocess((val) => {
+    if (val === undefined || val === null || val === '') {
+      return undefined;
+    }
+    if (typeof val === 'boolean') {
+      return val;
+    }
+    if (typeof val === 'string') {
+      const normalized = val.trim().toLowerCase();
+      if (['true', '1', 'yes', 'on'].includes(normalized)) {
+        return true;
+      }
+      if (['false', '0', 'no', 'off'].includes(normalized)) {
+        return false;
+      }
+    }
+    return undefined;
+  }, zod.boolean().optional()),
 });
 
 const productIdSchema = zod.object({

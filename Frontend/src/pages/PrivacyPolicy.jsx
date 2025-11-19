@@ -4,6 +4,9 @@ import Container from '../components/Container';
 import { Link } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
+  const EMAIL_URL = import.meta.env.VITE_EMAIL_URL;
+  const PHONE_NUMBER_COMBO = import.meta.env.VITE_NUMBER_COMBO;
+  const PHONE_NUMBER_SEPARATE = import.meta.env.VITE_NUMBER_SEPARATE;
   const sections = [
     {
       icon: Shield,
@@ -250,8 +253,8 @@ const PrivacyPolicy = () => {
               please don't hesitate to contact us.
             </p>
             <div className="space-y-2 block">
-              <a className="font-montserrat-medium-500 block" href="mailto:kivadiamond3008@gmail.com">Email: kivadiamond3008@gmail.com</a>
-              <a className="font-montserrat-medium-500 block" href="tel:+919106302269">Phone: +91 9106302269</a>
+              <a className="font-montserrat-medium-500 block" href={`mailto:${EMAIL_URL}`}>Email: {EMAIL_URL}</a>
+              <a className="font-montserrat-medium-500 block" href={`tel:${PHONE_NUMBER_COMBO}`}>Phone: {PHONE_NUMBER_SEPARATE}</a>
             </div>
             <Link
               to="/contact"

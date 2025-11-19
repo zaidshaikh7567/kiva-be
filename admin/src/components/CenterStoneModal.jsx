@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Gem, Save, AlertCircle, Plus } from 'lucide-react';
+import { X, Gem, Save, AlertCircle, Plus, DollarSign } from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories, selectCategories, selectCategoriesLoading } from '../store/slices/categoriesSlice';
+import FormInput from './FormInput';
 
 const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerStoneData, mode = 'add' }) => {
+console.log('error :', error);
   const dispatch = useDispatch();
   const categories = useSelector(selectCategories);
   const categoriesLoading = useSelector(selectCategoriesLoading);
@@ -193,19 +195,17 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
 
           {/* Center Stone Name */}
           <div className="space-y-2">
-            <label className="block text-sm font-montserrat-medium-500 text-black">
-              Center Stone Name *
-            </label>
-            <input
-              type="text"
+            <FormInput
+              label="Center Stone Name"
               name="name"
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Enter center stone name"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none
-               focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
               required
               disabled={loading}
+              inputMode="text"
+              icon={Gem}
             />
           </div>
 
@@ -214,7 +214,7 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
             {/* Shape */}
             <div className="space-y-2">
               <label className="block text-sm font-montserrat-medium-500 text-black">
-                Shape *
+                Shape <span className="text-red-500">*</span>
               </label>
               <CustomDropdown
                 options={shapeOptions}
@@ -235,11 +235,8 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
 
             {/* Price */}
             <div className="space-y-2">
-              <label className="block text-sm font-montserrat-medium-500 text-black">
-                Price ($) *
-              </label>
-              <input
-                type="number"
+              <FormInput
+                label="Price ($)"
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
@@ -249,6 +246,8 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
                 required
                 disabled={loading}
+                inputMode="number"
+                icon={DollarSign}
               />
             </div>
           </div>
@@ -256,7 +255,7 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
           {/* Active Status */}
           <div className="space-y-2">
             <label className="block text-sm font-montserrat-medium-500 text-black">
-              Status *
+              Status <span className="text-red-500">*</span>
             </label>
             <CustomDropdown
               options={[
@@ -272,11 +271,11 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="block sm:flex items-center justify-end  pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={handleClose}
-              className="px-6 py-3 border border-gray-200 rounded-lg font-montserrat-medium-500 text-black-light hover:bg-gray-50 transition-colors"
+              className="px-6 py-3 sm:w-auto w-full border border-gray-200 rounded-lg font-montserrat-medium-500 text-black-light hover:bg-gray-50 transition-colors"
               disabled={loading}
             >
               Cancel
@@ -284,7 +283,7 @@ const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerSto
             <button
               type="submit"
               disabled={loading || !formData.name.trim() || !formData.price || !formData.shape || !formData.categoryId}
-              className={`flex items-center space-x-2 px-6 py-3 bg-gradient-to-r ${iconColor} text-white rounded-lg font-montserrat-medium-500 hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`flex sm:ml-2 sm:mt-0 mt-2  sm:w-auto w-full justify-center items-center space-x-2 px-6 py-3 bg-gradient-to-r ${iconColor} text-white rounded-lg font-montserrat-medium-500 hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading ? (
                 <>

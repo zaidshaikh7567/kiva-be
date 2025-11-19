@@ -31,6 +31,7 @@ import {
   deleteUser
 } from '../store/slices/usersSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import FormInput from '../components/FormInput';
 
 const Customers = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,6 +50,14 @@ const dispatch = useDispatch();
   const loading = useSelector(selectUsersLoading);
   const error = useSelector(selectUsersError);
   const pagination = useSelector(selectUsersPagination);
+
+  useEffect(() => {
+    if(showCustomerModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [showCustomerModal]);
 
   // Debounce search term
   useEffect(() => {
@@ -177,7 +186,7 @@ const dispatch = useDispatch();
       {/* </div> */}
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
@@ -214,7 +223,7 @@ const dispatch = useDispatch();
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        {/* <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-montserrat-medium-500 text-black-light">Total Revenue</p>
@@ -224,7 +233,7 @@ const dispatch = useDispatch();
               <ShoppingBag className="w-6 h-6 text-primary" />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Filters and Search */}
@@ -232,17 +241,13 @@ const dispatch = useDispatch();
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-              <input
-                type="text"
-                placeholder="Search customers by name, email, or location..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus:ring-1 focus:ring-primary outline-none focus:border-primary font-montserrat-regular-400 text-black min-w-0"
-                maxLength={100}
-              />
-            </div>
+            <FormInput
+              type="text"
+              placeholder="Search customers by name, email, or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              icon={Search}
+            />
           </div>
 
           {/* Status Filter */}
@@ -533,9 +538,9 @@ const dispatch = useDispatch();
                       </span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <span className="font-montserrat-regular-400 text-black">
-                        Status: {selectedCustomer.active ? 'Active' : 'Inactive'}
-                      </span>
+                       Status :  <span className={`inline-flex ml-2 items-center px-3 py-1 rounded-full text-sm font-montserrat-medium-500 ${getStatusColor(selectedCustomer.active)}`}>
+                      <span className="capitalize">{selectedCustomer.active ? 'Active' : 'Inactive'}</span>
+                    </span>
                     </div>
                   </div>
                 </div>
@@ -543,18 +548,18 @@ const dispatch = useDispatch();
 
               {/* Status and Actions */}
               <div className="border-t border-gray-200 pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-center justify-end">
+                  {/* <div>
                     <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">Account Status</h3>
                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-montserrat-medium-500 ${getStatusColor(selectedCustomer.active)}`}>
                       <span className="capitalize">{selectedCustomer.active ? 'Active' : 'Inactive'}</span>
                     </span>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark font-montserrat-medium-500 transition-colors duration-300">
+                  </div> */}
+                  <div className="block sm:flex  sm:space-x-2">
+                    <button className="px-4 sm:w-auto w-full py-2 bg-primary text-white rounded-lg hover:bg-primary-dark font-montserrat-medium-500 transition-colors duration-300">
                       Send Email
                     </button>
-                    <button className="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white font-montserrat-medium-500 transition-colors duration-300">
+                    <button className="px-4 sm:mt-0 mt-2 sm:w-auto w-full py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white font-montserrat-medium-500 transition-colors duration-300">
                       View Orders
                     </button>
                   </div>

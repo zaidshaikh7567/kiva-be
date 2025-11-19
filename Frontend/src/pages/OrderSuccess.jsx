@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { CheckCircle, Package, ShoppingBag, ArrowLeft, Mail, Phone, MapPin, CreditCard } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { CheckCircle, Package, ShoppingBag, ArrowLeft, MapPin, CreditCard, Loader2 } from 'lucide-react';
+import { getOrderById, selectCurrentOrder, selectOrdersLoading } from '../store/slices/ordersSlice';
 import PriceDisplay from '../components/PriceDisplay';
 
 const OrderSuccess = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [orderData, setOrderData] = useState(null);
-  const [orderNumber, setOrderNumber] = useState('');
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const orderData = useSelector(selectCurrentOrder);
+  console.log('orderData :', orderData);
+  const loading = useSelector(selectOrdersLoading);
+  const [hasFetched, setHasFetched] = useState(false);
 
-  // Generate order number on component mount
+  // Fetch order data by ID
   useEffect(() => {
-    const generatedOrderNumber = `#ORD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-    setOrderNumber(generatedOrderNumber);
-    
-    // Get order data from location state or localStorage
-    const data = location.state?.orderData || JSON.parse(localStorage.getItem('lastOrder') || '{}');
-    setOrderData(data);
-  }, [location.state]);
+    if (id && !hasFetched) {
+      setHasFetched(true);
+      dispatch(getOrderById(id));
+    }
+  }, [id, dispatch, hasFetched]);
 
   const handleContinueShopping = () => {
     navigate('/shop');
@@ -28,11 +31,32 @@ const OrderSuccess = () => {
   };
 
   const handleViewOrder = () => {
-    // Here you would typically navigate to an order details page
-    alert('Order details page would be implemented here');
+    if (orderData?._id || id) {
+      navigate(`/orders/${orderData._id || id}`);
+    }
   };
 
-  if (!orderData) {
+  // Loading state - show loading while fetching or if we haven't fetched yet
+  if (loading || !hasFetched) {
+    return (
+      <div className="min-h-screen bg-secondary py-20">
+        <div className="max-w-2xl mx-auto px-4 text-center">
+          <div className="bg-white rounded-2xl shadow-sm p-8">
+            <Loader2 className="w-16 h-16 text-primary mx-auto mb-4 animate-spin" />
+            <h2 className="text-2xl font-sorts-mill-gloudy text-black mb-4">
+              Loading Order...
+            </h2>
+            <p className="text-black-light font-montserrat-regular-400">
+              Please wait while we fetch your order details.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // No order data found - only show this after fetch is complete
+  if (!loading && hasFetched && (!orderData || !orderData._id)) {
     return (
       <div className="min-h-screen bg-secondary py-20">
         <div className="max-w-2xl mx-auto px-4 text-center">
@@ -56,7 +80,39 @@ const OrderSuccess = () => {
     );
   }
 
-  const { shippingInfo, paymentInfo, items, totalPrice, shippingCost, finalTotal } = orderData;
+  // Extract order data
+  const orderNumber = orderData.orderNumber || orderData._id;
+  const shippingAddress = orderData.shippingAddress || {};
+  const items = orderData.items || [];
+  console.log('items :', items);
+  
+  // Calculate subtotal from items (sum of totalPrice for each item)
+  const calculatedSubtotal = items.reduce((sum, item) => {
+    return sum + (item.totalPrice || item.unitPrice * (item.quantity || 1) || 0);
+  }, 0);
+  
+  const totals = orderData.totals || {};
+  const subtotal = totals.subtotal || calculatedSubtotal;
+  const shippingCost = totals.shipping || 0;
+  const finalTotal = totals.total || (subtotal + shippingCost);
+  const paymentMethod = orderData.paymentMethod || 'Credit Card';
+  const orderStatus = orderData.status || 'pending';
+  const formatOrderDate = (dateString) => {
+    
+  if (!dateString) return 'N/A';
+  try {
+    return new Date(dateString).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch {
+    return dateString;
+  }
+};
 
   return (
     <div className="min-h-screen bg-secondary">
@@ -87,11 +143,11 @@ const OrderSuccess = () => {
       {/* Order Details */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Order Information */}
             <div className="lg:col-span-2 space-y-6">
               {/* Order Number */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                     <Package className="w-5 h-5 text-primary" />
@@ -109,13 +165,18 @@ const OrderSuccess = () => {
                     {orderNumber}
                   </p>
                   <p className="text-sm font-montserrat-regular-400 text-black-light text-center">
-                    Confirmation sent to {shippingInfo.email}
+                    Order Status: <span className="font-montserrat-semibold-600 capitalize">{orderStatus}</span>
                   </p>
+                  {orderData.createdAt && (
+                    <p className="text-xs font-montserrat-regular-400 text-black-light text-center mt-2">
+                      Placed on {formatOrderDate(orderData.createdAt)}
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Shipping Details */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-primary" />
@@ -125,23 +186,23 @@ const OrderSuccess = () => {
                   </h2>
                 </div>
                 <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
-                  <p className="font-montserrat-semibold-600 text-black text-lg">{shippingInfo.firstName} {shippingInfo.lastName}</p>
-                  <p className="flex items-center space-x-2">
-                    <Mail className="w-4 h-4" />
-                    <span>{shippingInfo.email}</span>
-                  </p>
-                  <p className="flex items-center space-x-2">
-                    <Phone className="w-4 h-4" />
-                    <span>{shippingInfo.phone}</span>
-                  </p>
-                  <p>{shippingInfo.address}</p>
-                  <p>{shippingInfo.city}, {shippingInfo.state} {shippingInfo.zipCode}</p>
-                  <p>{shippingInfo.country}</p>
+                  {shippingAddress.street && (
+                    <p>{shippingAddress.street}</p>
+                  )}
+                  {(shippingAddress.city || shippingAddress.state || shippingAddress.zipCode) && (
+                    <p>
+                      {shippingAddress.city}{shippingAddress.city && shippingAddress.state ? ', ' : ''}
+                      {shippingAddress.state} {shippingAddress.zipCode}
+                    </p>
+                  )}
+                  {shippingAddress.country && (
+                    <p>{shippingAddress.country}</p>
+                  )}
                 </div>
               </div>
 
               {/* Payment Method */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
                     <CreditCard className="w-5 h-5 text-primary" />
@@ -154,10 +215,10 @@ const OrderSuccess = () => {
                   <CreditCard className="w-8 h-8 text-primary" />
                   <div>
                     <p className="font-montserrat-semibold-600 text-black">
-                      {paymentInfo.cardName}
+                      {paymentMethod}
                     </p>
                     <p className="text-sm font-montserrat-regular-400 text-black-light">
-                      •••• •••• •••• {paymentInfo.cardNumber.slice(-4)}
+                      Payment processed successfully
                     </p>
                   </div>
                 </div>
@@ -166,36 +227,68 @@ const OrderSuccess = () => {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 sticky top-8">
                 <h3 className="text-xl font-sorts-mill-gloudy text-black mb-6">
                   Order Summary<span className="text-primary">.</span>
                 </h3>
 
                 {/* Order Items */}
                 <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-3 pb-4 border-b border-primary-light">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-50">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-montserrat-semibold-600 text-sm text-black truncate">
-                          {item.name}
-                        </h4>
-                        <p className="text-xs text-black-light font-montserrat-regular-400">
-                          Qty: {item.quantity}
-                        </p>
-                        <PriceDisplay 
-                          price={item.price * item.quantity}
-                          className="text-sm font-montserrat-bold-700 text-primary"
-                        />
-                      </div>
-                    </div>
-                  ))}
+                  {items.length > 0 ? (
+                    items.map((item, index) => {
+                      const productName = item.productName || item.title || 'Product';
+                      const productImage = item.productImage || item.images?.[0] || item.image;
+                      const quantity = item.quantity || 1;
+                      const unitPrice = item.unitPrice || 0;
+                      const totalPrice = item.totalPrice || (unitPrice * quantity);
+                      
+                      // Additional item details
+                      const metalName = item.metalName || '';
+                      const stoneName = item.stoneName || '';
+                      const ringSize = item.ringSize || '';
+                      const purityLevel = item.purityLevel ? `${item.purityLevel.karat}K` : '';
+                      
+                      return (
+                        <div key={item._id || index} className="flex items-center space-x-3 pb-4 border-b border-primary-light">
+                          {productImage ? (
+                            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-50">
+                              <img
+                                src={productImage}
+                                alt={productName}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-16 h-16 rounded-lg flex-shrink-0 bg-gray-50 flex items-center justify-center">
+                              <Package className="w-8 h-8 text-gray-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-montserrat-semibold-600 text-sm text-black truncate">
+                              {productName}
+                            </h4>
+                            <div className="text-xs text-black-light font-montserrat-regular-400 space-y-1">
+                              <p>Qty: {quantity}</p>
+                              {metalName && (
+                                <p>{metalName} {purityLevel && `(${purityLevel})`}</p>
+                              )}
+                              {stoneName && <p>Stone: {stoneName}</p>}
+                              {ringSize && <p>Size: {ringSize}</p>}
+                            </div>
+                            <PriceDisplay 
+                              price={totalPrice}
+                              variant='small'
+                              className="text-sm font-montserrat-bold-700 text-primary mt-1"
+                            />
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-black-light font-montserrat-regular-400 text-center py-4">
+                      No items found
+                    </p>
+                  )}
                 </div>
 
                 {/* Price Breakdown */}
@@ -205,13 +298,13 @@ const OrderSuccess = () => {
                       Subtotal
                     </span>
                     <PriceDisplay 
-                      price={totalPrice}
+                      price={subtotal}
                       className="text-sm font-montserrat-semibold-600 text-black"
                     />
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-montserrat-regular-400 text-black-light">
-                      Shipping {totalPrice > 500 && <span className="text-green-600">(Free)</span>}
+                      Shipping {subtotal > 500 && <span className="text-green-600">(Free)</span>}
                     </span>
                     <PriceDisplay 
                       price={shippingCost}

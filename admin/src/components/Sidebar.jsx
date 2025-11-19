@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 import { 
   Home, 
   ShoppingBag, 
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
+import Logo from '../assets/kiva-diamond-logo.png';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -115,10 +117,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('adminAuthenticated');
+    localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+    localStorage.removeItem(TOKEN_KEYS.USER);
+    localStorage.removeItem(TOKEN_KEYS.AUTHENTICATED);
     window.location.reload();
   };
 
@@ -139,19 +141,24 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-[24px] border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-[12px] border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center">
               <Gem className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <h2 className="text-lg font-sorts-mill-gloudy font-bold text-black">
+            {/* <div className="inline-block bg-gray-600 rounded-lg  shadow-2xl">
+                  <img 
+                    src={Logo} 
+                    alt="KIVA Diamond Logo" 
+                    className="h-[55px] w-auto"
+                    style={{
+                      filter: 'brightness(1.1) contrast(1.1)'
+                    }}
+                  />
+                </div> */}
+                 <h2 className="text-lg font-sorts-mill-gloudy font-bold text-black">
                {user.name}
               </h2>
-              {/* <p className="text-xs font-montserrat-light-300 text-black-light">
-                Management Panel
-              </p> */}
-            </div>
           </div>
           <button
             onClick={() => setIsOpen(false)}
@@ -197,7 +204,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         </nav>
 
         {/* Footer - Logout Button */}
-        <div className="mt-auto p-4 border-t border-gray-200 bg-gray-50">
+        <div className="mt-auto p-2 border-t border-gray-200 bg-gray-50">
           <button
             onClick={handleLogout}
             className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"

@@ -1,39 +1,86 @@
 import React from 'react';
+import { Package } from 'lucide-react';
 import PriceDisplay from '../PriceDisplay';
 
 const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-8">
+    <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 sticky top-8">
       <h3 className="text-xl font-sorts-mill-gloudy text-black mb-6">
         Order Summary<span className="text-primary">.</span>
       </h3>
 
       {/* Cart Items */}
       <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center space-x-3 pb-4 border-b border-primary-light">
-            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-50">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-montserrat-semibold-600 text-sm text-black truncate">
-                {item.name}
-              </h4>
-              <p className="text-sm text-black-light font-montserrat-regular-400">
-                Qty: {item.quantity}
-              </p>
-              <PriceDisplay 
-                price={item.price * item.quantity}
-                className="text-sm font-montserrat-bold-700 text-primary" 
-                variant="small"
-              />
-            </div>
-          </div>
-        ))}
+        {items.length > 0 ? (
+          items.map((item) => {
+            // Extract product data (handle both nested and flat structures)
+            const product = item.product || item;
+            const productName = product.title || product.name || 'Product';
+            const productImage = product.images?.[0] || item.image || item.productImage;
+            
+            // Extract metal and stone info
+            const metal = item.metal || {};
+            const metalName = metal.name || '';
+            const purityLevel = item.purityLevel || {};
+            const karat = purityLevel.karat || '';
+            
+            const stoneType = item.stoneType || {};
+            const stoneName = stoneType.name || '';
+            
+            const ringSize = item.ringSize || '';
+            const quantity = item.quantity || 1;
+            
+            // Use calculatedPrice if available, otherwise calculate
+            const itemPrice = item.calculatedPrice || 
+              (product.price ? 
+                ((product.price * (purityLevel.priceMultiplier || 1)) + (stoneType.price || 0)) * quantity 
+                : 0);
+            
+            return (
+              <div key={item._id || item.id} className="flex items-center space-x-3 pb-4 border-b border-primary-light">
+                {productImage ? (
+                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-50">
+                    <img
+                      src={productImage}
+                      alt={productName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-lg flex-shrink-0 bg-gray-50 flex items-center justify-center">
+                    <Package className="w-8 h-8 text-gray-400" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-montserrat-semibold-600 text-sm text-black truncate capitalize">
+                    {productName}
+                  </h4>
+                  <div className="text-xs text-black-light font-montserrat-regular-400 space-y-0.5 mt-1">
+                    <p>Qty: {quantity}</p>
+                    {metalName && karat && (
+                      <p className='capitalize'>{metalName} ({karat}K)</p>
+                    )}
+                    {stoneName && (
+                      <p>Stone: {stoneName}</p>
+                    )}
+                    {ringSize && (
+                      <p>Size: {ringSize}</p>
+                    )}
+                  </div>
+                  <PriceDisplay 
+                    price={itemPrice}
+                    className="text-sm font-montserrat-bold-700 text-primary mt-1" 
+                    variant="small"
+                  />
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-sm text-black-light font-montserrat-regular-400 text-center py-4">
+            No items in cart
+          </p>
+        )}
       </div>
 
       {/* Price Breakdown */}

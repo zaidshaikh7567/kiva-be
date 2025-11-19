@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 
 // Create axios instance with base configuration
 const URL =import.meta.env.VITE_API_BASE_URL
@@ -32,7 +33,7 @@ const processQueue = (error, token = null) => {
 api.interceptors.request.use(
   (config) => {
     // Add auth token to requests
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -72,14 +73,14 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshToken = localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
 
       if (!refreshToken) {
         // No refresh token available, logout user
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        localStorage.removeItem('adminAuthenticated');
+        localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+        localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+        localStorage.removeItem(TOKEN_KEYS.USER);
+        localStorage.removeItem(TOKEN_KEYS.AUTHENTICATED);
         window.location.href = '/';
         return Promise.reject(error);
       }
@@ -95,9 +96,9 @@ api.interceptors.response.use(
           const { accessToken, refreshToken: newRefreshToken } = response.data.data;
           
           // Update both tokens in localStorage
-          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
           if (newRefreshToken) {
-            localStorage.setItem('refreshToken', newRefreshToken);
+            localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, newRefreshToken);
           }
           
           // Update the original request with new token
@@ -111,10 +112,10 @@ api.interceptors.response.use(
           return api(originalRequest);
         } else {
           // Refresh failed, logout user
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
-          localStorage.removeItem('adminAuthenticated');
+          localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+          localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+          localStorage.removeItem(TOKEN_KEYS.USER);
+          localStorage.removeItem(TOKEN_KEYS.AUTHENTICATED);
           processQueue(error, null);
           isRefreshing = false;
           window.location.href = '/';
@@ -122,10 +123,10 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         // Refresh failed, logout user
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        localStorage.removeItem('adminAuthenticated');
+        localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
+        localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+        localStorage.removeItem(TOKEN_KEYS.USER);
+        localStorage.removeItem(TOKEN_KEYS.AUTHENTICATED);
         processQueue(refreshError, null);
         isRefreshing = false;
         window.location.href = '/';

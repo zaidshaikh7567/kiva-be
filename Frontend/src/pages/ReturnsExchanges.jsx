@@ -4,6 +4,7 @@ import Container from '../components/Container';
 import { Link } from 'react-router-dom';
 
 const ReturnsExchanges = () => {
+  const EMAIL_URL = import.meta.env.VITE_EMAIL_URL;
   const returnSteps = [
     {
       step: 1,
@@ -440,7 +441,7 @@ const ReturnsExchanges = () => {
                 Contact Us
               </Link>
               <a
-                href="mailto:kivadiamond3008@gmail.com"
+                href={`mailto:${EMAIL_URL}`}
                 className="inline-block bg-white/20 text-white border-2 border-white px-8 py-3 rounded-lg font-montserrat-semibold-600 hover:bg-white/30 transition-colors"
               >
                 Email Returns Team

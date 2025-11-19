@@ -6,6 +6,7 @@ import { closeCart, updateQuantity, removeFromCart, clearCartItems, deleteCartIt
 import PriceDisplay from './PriceDisplay';
 import ConfirmationModal from './ConfirmationModal';
 import toast from 'react-hot-toast';
+import { TOKEN_KEYS } from '../constants/tokenKeys';
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -14,7 +15,7 @@ const Cart = () => {
   const [showClearCartModal, setShowClearCartModal] = useState(false);
 
   // Check if user is authenticated
-  const isAuthenticated = !!localStorage.getItem('accessToken');
+  const isAuthenticated = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
   const MAX_CART_ITEMS = 5;
   const remainingSlots = MAX_CART_ITEMS - items.length;
 

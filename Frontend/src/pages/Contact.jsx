@@ -10,6 +10,7 @@ import {
   Calendar,
   User,
   Globe,
+  PenTool,
 } from "lucide-react";
 import CustomDropdown from "../components/CustomDropdown";
 import { FaFacebook } from "react-icons/fa";
@@ -19,6 +20,7 @@ import AnimatedSection from "../components/home/AnimatedSection";
 import api from "../services/api";
 import { API_METHOD } from "../services/apiMethod";
   import { SERVICE_OPTIONS } from "../constants";
+import FormInput from "../components/FormInput";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -28,7 +30,12 @@ const Contact = () => {
     message: "",
     service: "general",
   });
-
+  const FACEBOOK_URL = import.meta.env.VITE_FACEBOOK_URL;
+  const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL;
+  const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_URL;
+  const EMAIL_URL = import.meta.env.VITE_EMAIL_URL;
+  const PHONE_NUMBER_COMBO = import.meta.env.VITE_NUMBER_COMBO;
+  const PHONE_NUMBER_SEPARATE = import.meta.env.VITE_NUMBER_SEPARATE;
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', null
@@ -55,11 +62,15 @@ const Contact = () => {
           error = "Please enter a valid email address";
         }
         break;
-
+// enter only number
       case "phone":
         if (!value.trim()) {
           error = "Phone number is required";
-        } else if (!/^[+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-()]/g, ""))) {
+        } else if (value.trim().length < 7) {
+          error = "Phone number must be at least 7 digits";
+        } else if (value.trim().length > 15) {
+          error = "Phone number must be less than 15 digits"; 
+        } else if (!/^[0-9]+$/.test(value.trim())) {
           error = "Please enter a valid phone number";
         }
         break;
@@ -230,10 +241,10 @@ const Contact = () => {
                   Call Us
                 </h3>
                 <a
-                  href="tel:+919106302269"
+                  href={`tel:${PHONE_NUMBER_COMBO}`}
                   className="text-primary font-montserrat-bold-700 text-lg mb-2 block hover:underline"
                 >
-                  +91 9106302269
+                  {PHONE_NUMBER_SEPARATE}
                 </a>
                 <p className="text-black-light font-montserrat-regular-400 text-sm">
                   Mon-Fri: 9AM-7PM
@@ -253,10 +264,10 @@ const Contact = () => {
                   Email Us
                 </h3>
                 <a
-                  href="mailto:kivadiamond3008@gmail.com"
+                  href={`mailto:${EMAIL_URL}`}
                   className="text-primary font-montserrat-bold-700 text-lg mb-2 block hover:underline"
                 >
-                  kivadiamond3008@gmail.com
+                  {EMAIL_URL}
                 </a>
                 <p className="text-black-light font-montserrat-regular-400 text-sm">
                   General inquiries
@@ -361,106 +372,45 @@ const Contact = () => {
                   )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-montserrat-medium-500 text-black mb-2"
-                      >
-                        Full Name *
-                      </label>
-                      <div className="relative">
-                        <User
-                          className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                            errors.name ? "text-red-500" : "text-black-light"
-                          }`}
-                        />
-                        <input
-                          type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors duration-200 ${
-                            errors.name
-                              ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-primary focus:border-transparent"
-                          }`}
-                          placeholder="Your full name"
-                        />
-                      </div>
-                      {errors.name && (
-                        <p className="mt-1 text-sm text-red-600 font-montserrat-regular-400">
-                          {errors.name}
-                        </p>
-                      )}
+
+                      <FormInput
+                        label="Full Name *"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        error={errors.name}
+                        icon={User}
+                        placeholder="Your full name"
+                      />  
+                      
                     </div>
 
                     <div>
-                      <label
-                        htmlFor="phone"
-                        className="block text-sm font-montserrat-medium-500 text-black mb-2"
-                      >
-                        Phone Number *
-                      </label>
-                      <div className="relative">
-                        <Phone
-                          className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                            errors.phone ? "text-red-500" : "text-black-light"
-                          }`}
-                        />
-                        <input
-                          type="tel"
-                          id="phone"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors duration-200 ${
-                            errors.phone
-                              ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-primary focus:border-transparent"
-                          }`}
-                          placeholder="Your phone number"
-                        />
-                      </div>
-                      {errors.phone && (
-                        <p className="mt-1 text-sm text-red-600 font-montserrat-regular-400">
-                          {errors.phone}
-                        </p>
-                      )}
+                      <FormInput
+                        label="Phone Number *"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        error={errors.phone}
+                        icon={Phone}
+                        placeholder="Your phone number"
+                        inputMode="numeric"
+                      />
+                      
                     </div>
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-montserrat-medium-500 text-black mb-2"
-                    >
-                      Email Address *
-                    </label>
-                    <div className="relative">
-                      <Mail
-                        className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                          errors.email ? "text-red-500" : "text-black-light"
-                        }`}
-                      />
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors duration-200 ${
-                          errors.email
-                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                            : "border-gray-300 focus:ring-primary focus:border-transparent"
-                        }`}
-                        placeholder="your.email@example.com"
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="mt-1 text-sm text-red-600 font-montserrat-regular-400">
-                        {errors.email}
-                      </p>
-                    )}
+                    <FormInput
+                      label="Email Address *"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      error={errors.email}
+                      icon={Mail}
+                      placeholder="Your email address"
+                    />  
+                    
                   </div>
 
                   <div>
@@ -480,30 +430,18 @@ const Contact = () => {
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="message"
-                      className="block text-sm font-montserrat-medium-500 text-black mb-2"
-                    >
-                      Message *
-                    </label>
-                    <textarea
-                      id="message"
+                    <FormInput
+                      label="Message *"
                       name="message"
                       value={formData.message}
                       onChange={handleInputChange}
-                      rows={6}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 resize-none transition-colors duration-200 ${
-                        errors.message
-                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-primary focus:border-transparent"
-                      }`}
+                      error={errors.message}
+                      // icon={PenTool}
                       placeholder="Tell us more about your inquiry..."
-                    ></textarea>
-                    {errors.message && (
-                      <p className="mt-1 text-sm text-red-600 font-montserrat-regular-400">
-                        {errors.message}
-                      </p>
-                    )}
+                      textarea={true}
+                      rows={6}
+
+                    />  
                   </div>
 
                   <button
@@ -589,7 +527,9 @@ const Contact = () => {
                   </p>
                   <div className="flex space-x-4">
                     <a
-                      href="https://www.facebook.com/kiva.diamond/?rdid=GnfsBsErFgHnpej1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={FACEBOOK_URL}
                       className="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors duration-300"
                     >
                       <span className="text-white font-bold text-xl">
@@ -597,7 +537,9 @@ const Contact = () => {
                       </span>
                     </a>
                     <a
-                      href="https://www.instagram.com/kiva.diamond/?igsh=amV5ZDN3M3Y4a3lo#"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={INSTAGRAM_URL}
                       className="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors duration-300"
                     >
                       <span className="text-white font-bold text-xl">
@@ -605,7 +547,9 @@ const Contact = () => {
                       </span>
                     </a>
                     <a
-                      href="https://api.whatsapp.com/send/?phone=919106302269&text&type=phone_number&app_absent=0"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={WHATSAPP_URL}
                       className="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors duration-300"
                     >
                       <span className="text-white font-bold text-xl">
@@ -614,24 +558,7 @@ const Contact = () => {
                     </a>
                   </div>
                 </div>
-
-                {/* Emergency Contact */}
-                <div className="border-2 border-primary rounded-2xl p-6">
-                  <h4 className="text-lg font-montserrat-semibold-600 text-black mb-3">
-                    Emergency Jewelry Repair
-                  </h4>
-                  <p className="text-black-light font-montserrat-regular-400 text-sm mb-3">
-                    Need urgent jewelry repair or have a damaged piece? We offer
-                    emergency repair services.
-                  </p>
-                  <div className="flex items-center space-x-2 text-primary font-montserrat-medium-500">
-                    <Phone className="w-4 h-4" />
-                    {/* <span className="text-sm">+91 9106302269</span> */}
-                    <a href="tel:+919106302269" className="text-sm">
-                      +91 9106302269
-                    </a>
-                  </div>
-                </div>
+                
               </div>
             </div>
           </div>

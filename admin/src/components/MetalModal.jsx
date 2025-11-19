@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Save, AlertCircle, Edit2, Check } from 'lucide-react';
+import { X, Save, AlertCircle, Edit2, Check,PaintBucket,Zap} from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
 import { METAL_COLOR_OPTIONS, KARAT_OPTIONS } from '../constants';
+import FormInput from './FormInput';
 
 // Use constants from constants file
 const colorOptions = METAL_COLOR_OPTIONS;
@@ -207,11 +208,8 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
 
           {/* Metal Name */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Metal Name *
-            </label>
-            <input
-              type="text"
+            <FormInput
+              label="Metal Name"
               name="name"
               value={formData.name}
               onChange={handleInputChange}
@@ -219,27 +217,29 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
               className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 text-sm sm:text-base"
               required
               disabled={loading}
+              icon={Zap}
             />
           </div>
 
           {/* Color */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Color *
-            </label>
-            <CustomDropdown
-              options={colorOptions}
+            <FormInput
+              label="Color"
+              name="color"
               value={formData.color}
               onChange={handleColorSelect}
               placeholder="Select color"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 text-sm sm:text-base"
+              required
               disabled={loading}
+              icon={PaintBucket}
             />
           </div>
 
           {/* Purity Levels */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Purity Levels *
+              Purity Levels <span className="text-red-500">*</span>
             </label>
             <div className="space-y-3">
               {/* Existing Purity Levels */}

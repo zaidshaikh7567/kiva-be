@@ -16,6 +16,8 @@ import {
   Send,
   CheckCircle,
   AlertCircle,
+  DollarSign,
+  PenTool,
 } from "lucide-react";
 import AnimatedSection from "../components/home/AnimatedSection";
 import CustomDropdown from "../components/CustomDropdown";
@@ -25,6 +27,7 @@ import toast from "react-hot-toast";
 import { fetchMetals, selectMetals, selectMetalsLoading } from "../store/slices/metalsSlice";
 import { fetchStones, selectStones, selectStonesLoading } from "../store/slices/stonesSlice";
 import { TIMELINE_OPTIONS, transformMetalsToDropdownOptions, transformStonesToDropdownOptions } from "../constants";
+import FormInput from "../components/FormInput";
 
 const Custom = () => {
   const dispatch = useDispatch();
@@ -48,6 +51,7 @@ const Custom = () => {
   
   console.log('formData :', formData);
   const [errors, setErrors] = useState({});
+  console.log('errors :', errors);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -121,9 +125,9 @@ const Custom = () => {
 
       case "message":
         if (!value.trim()) {
-          error = "Message is required";
+          error = "Design Description is required";
         } else if (value.trim().length < 10) {
-          error = "Message must be at least 10 characters";
+          error = "Design Description must be at least 10 characters";
         }
         break;
 
@@ -304,6 +308,7 @@ const Custom = () => {
 
     if (!validateForm()) {
       setSubmitStatus("error");
+      window.scrollTo({ top: 450, behavior: 'smooth' });
       return;
     }
 
@@ -451,105 +456,63 @@ const Custom = () => {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                        Full Name *
-                      </label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                        <input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors ${
-                            errors.name
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-primary focus:border-primary"
-                          }`}
-                          placeholder="Your full name"
-                        />
-                      </div>
-                      {errors.name && (
-                        <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-                      )}
+                      <FormInput
+                        label="Full Name *"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        error={errors.name}
+                        icon={User}
+                        placeholder="Enter your full name"
+                      />                      
                     </div>
 
                     <div>
-                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                        Phone Number *
-                      </label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors ${
-                            errors.phone
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-primary focus:border-primary"
-                          }`}
-                          placeholder="Your phone number"
-                        />
-                      </div>
-                      {errors.phone && (
-                        <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-                      )}
+                      <FormInput
+                        label="Phone Number *"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        error={errors.phone}
+                        icon={Phone}
+                        placeholder="Enter your phone number"
+                      />
+
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                        Email Address *
-                      </label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light" />
-                        <input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 transition-colors ${
-                            errors.email
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-primary focus:border-primary"
-                          }`}
-                          placeholder="your.email@example.com"
-                        />
-                      </div>
-                      {errors.email && (
-                        <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-                      )}
+                      <FormInput
+                        label="Email Address *"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        error={errors.email}
+                        icon={Mail}
+                        placeholder="Enter your email address"
+                      />
                     </div>
                   </div>
                 </div>
 
                 {/* Design Details */}
                 <div>
-                  <h2 className="text-2xl font-sorts-mill-gloudy text-black mb-6 flex items-center">
+                  <h2 className="text-2xl font-sorts-mill-gloudy text-black mb-4 flex items-center">
                     <Palette className="w-6 h-6 mr-2 text-primary" />
                     Design Details
                   </h2>
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                        Design Description
-                      </label>
-                      <textarea
+                      <FormInput
+                        // label="Design Description *"
                         name="message"
                         value={formData.message}
                         onChange={handleInputChange}
-                        rows={4}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 resize-none transition-colors ${
-                          errors.message
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-primary focus:border-primary"
-                        }`}
-                        placeholder="Describe your vision... What style are you looking for? Any specific details or inspiration?"
+                          error={errors.message}
+                        icon={PenTool}
+                        textarea={true}
+                        rows={5}
+                        placeholder="Enter your design description"
                       />
-                      {errors.message && (
-                        <p className="mt-1 text-sm text-red-600">{errors.message}</p>
-                      )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -614,15 +577,13 @@ const Custom = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                          Budget Range
-                        </label>
-                        <input
-                          type="text"
+                        <FormInput
+                          label="Budget Range"
                           name="budget"
                           value={formData.budget}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none font-montserrat-regular-400"
+                          error={errors.budget}
+                          icon={DollarSign}
                           placeholder="e.g., $500 - $1000"
                         />
                       </div>
@@ -649,18 +610,16 @@ const Custom = () => {
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="flex items-center text-sm font-montserrat-medium-500 text-black mb-2">
-                          <Ruler className="w-4 h-4 mr-2" />
-                          Size/Measurements
-                        </label>
-                        <input
-                          type="text"
+                        <FormInput
+                          label="Size/Measurements"
                           name="size"
                           value={formData.size}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none font-montserrat-regular-400"
+                          error={errors.size}
+                          icon={Ruler}
                           placeholder="e.g., Ring size 7, Necklace length 18 inches"
                         />
+                        
                       </div>
                     </div>
                   </div>
@@ -668,25 +627,22 @@ const Custom = () => {
 
                 {/* Additional Message */}
                 <div>
-                  <h2 className="text-2xl font-sorts-mill-gloudy text-black mb-6 flex items-center">
+                  <h2 className="text-2xl font-sorts-mill-gloudy text-black mb-4 flex items-center">
                     <MessageSquare className="w-6 h-6 mr-2 text-primary" />
                     Additional Message
                   </h2>
-                  <textarea
+                  <FormInput
+                    // label="Additional Message *"
                     name="designDescription"
                     value={formData.designDescription}
                     onChange={handleInputChange}
+                    error={errors.designDescription}
+                    icon={MessageSquare}
+                    textarea={true}
                     rows={6}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-1 outline-none font-montserrat-regular-400 resize-none transition-colors ${
-                      errors.designDescription
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:ring-primary focus:border-primary"
-                    }`}
                     placeholder="Tell us more about your custom order request..."
                   />
-                  {errors.designDescription && (
-                    <p className="mt-1 text-sm text-red-600">{errors.designDescription}</p>
-                  )}
+                  
                 </div>
 
                 {/* Media Upload Section */}
@@ -873,7 +829,7 @@ const Custom = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full font-montserrat-semibold-600 py-2 px-8 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 sm:text-lg text-sm ${
+                  className={`w-full outline-none font-montserrat-semibold-600 py-2 px-8 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 sm:text-lg text-sm ${
                     isSubmitting
                       ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                       : "bg-primary text-white hover:bg-primary-dark shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
