@@ -117,7 +117,7 @@ const OrderSuccess = () => {
   return (
     <div className="min-h-screen bg-secondary">
       {/* Hero Section */}
-      <section className="py-12 md:py-16 bg-white border-b border-primary-light">
+      <section className="py-6 md:py-16 bg-white border-b border-primary-light">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <button
             onClick={() => navigate(-1)}
@@ -141,7 +141,7 @@ const OrderSuccess = () => {
       </section>
 
       {/* Order Details */}
-      <section className="py-12">
+      <section className="py-6">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Order Information */}
@@ -264,13 +264,13 @@ const OrderSuccess = () => {
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-montserrat-semibold-600 text-sm text-black truncate">
+                            <h4 className="font-montserrat-semibold-600 text-sm text-black truncate capitalize">
                               {productName}
                             </h4>
                             <div className="text-xs text-black-light font-montserrat-regular-400 space-y-1">
                               <p>Qty: {quantity}</p>
                               {metalName && (
-                                <p>{metalName} {purityLevel && `(${purityLevel})`}</p>
+                                <p className='capitalize'>{metalName} {purityLevel && `(${purityLevel})`}</p>
                               )}
                               {stoneName && <p>Stone: {stoneName}</p>}
                               {ringSize && <p>Size: {ringSize}</p>}
