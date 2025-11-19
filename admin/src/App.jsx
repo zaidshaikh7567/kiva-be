@@ -15,6 +15,7 @@ function LoginWrapper() {
   const navigate = useNavigate();
 
   const handleLogin = () => {
+    navigate('/dashboard');
     // This will be handled by Redux state change
   };
 

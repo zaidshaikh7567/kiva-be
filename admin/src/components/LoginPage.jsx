@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Lock, Mail, Sparkles } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { login, selectAuthLoading, selectAuthError, clearError } from '../store/slices/authSlice';
+import { login, selectAuthLoading, selectAuthError, clearError, initializeAuth } from '../store/slices/authSlice';
 import { useGoogleLogin } from '@react-oauth/google';
 import { handleGoogleLogin } from '../services/googleAuth';
 import toast from 'react-hot-toast';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
 import FormInput from './FormInput';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = ({ onLogin, onForgotPassword }) => {
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthLoading);
   const error = useSelector(selectAuthError);
-  
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -73,19 +74,23 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
         console.log('Admin authorization code received:', codeResponse.code);
         
         // Send authorization code to backend
-        const result = await handleGoogleLogin(codeResponse.code);
+        const redirectUri = window.location.origin;
+        const result = await handleGoogleLogin(codeResponse.code, redirectUri);
         
-        if (result.success) {
+        if (result.success && result.data?.data) {
           // Save admin data and token to localStorage
-          if (result.data.token) {
-            localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, result.data.token);
+          if (result.data.data.accessToken) {
+            localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, result.data.data.accessToken);
+            localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, result.data.data.refreshToken);
           }
-          if (result.data.admin) {
-            localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(result.data.admin));
+          if (result.data.data.user) {
+            localStorage.setItem(TOKEN_KEYS.USER, JSON.stringify(result.data.data.user));
           }
+          localStorage.setItem(TOKEN_KEYS.AUTHENTICATED, 'true');
+          dispatch(initializeAuth());
           
           toast.success('Google admin login successful!');
-          
+          navigate('/dashboard');
           // Call the onLogin callback to handle successful login
           onLogin();
         } else {
