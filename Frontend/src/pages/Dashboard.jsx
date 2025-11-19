@@ -73,7 +73,9 @@ const Dashboard = () => {
                   <Package className="w-5 h-5" />
                   <span className="font-montserrat-medium-500">My Orders</span>
                 </button>
-                <button
+                {
+                  user?.googleId === null && (
+                    <button
                   onClick={() => setActiveTab('password')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-300 outline-none ${
                     activeTab === 'password'
@@ -84,6 +86,7 @@ const Dashboard = () => {
                   <CreditCard className="w-5 h-5" />
                   <span className="font-montserrat-medium-500">Change Password</span>
                 </button>
+                )}
               </nav>
             </div>
           </div>
@@ -92,7 +95,7 @@ const Dashboard = () => {
           <div className="lg:col-span-3">
             {activeTab === 'orders' && <OrdersList />}
             {activeTab === 'profile' && <ProfileForm />}
-            {activeTab === 'password' && (
+            {activeTab === 'password' && user?.googleId === null && (
               <ChangePasswordForm onSuccess={() => setActiveTab('profile')} />
             )}
           </div>
