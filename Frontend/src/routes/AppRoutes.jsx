@@ -31,6 +31,8 @@ import Discover from "../pages/Discover";
 import Gallery from "../pages/Gallery";
 import ProductDetail from "../pages/ProductDetail";
 import CartProductDetail from "../pages/CartProductDetail";
+import LabGrown from "../pages/LabGrown";
+import NaturalDiamond from "../pages/NaturalDiamond";
 import ScrollToTop from "../helpers/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -59,6 +61,8 @@ const AppRoutes = () => {
           <Route path="/bracelets" element={<Bracelets />} />
           <Route path="/necklaces" element={<Necklaces />} />
           <Route path="/wedding-band" element={<WeddingBand />} />
+          <Route path="/lab-grown" element={<LabGrown />} />
+          <Route path="/natural-diamond" element={<NaturalDiamond />} />
           <Route path="/view-cart" element={<ViewCart />} />
           <Route path="/size-guide" element={<SizeGuide />} />
           <Route path="/jewelry-care" element={<JewelryCare />} />

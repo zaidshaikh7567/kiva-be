@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, Settings, LogOut, Package, ChevronDown } from 'lucide-react';
 
 const UserProfile = ({ user, onLogout }) => {
-console.log('user :', user);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();

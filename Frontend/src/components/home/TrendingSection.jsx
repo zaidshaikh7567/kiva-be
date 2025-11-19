@@ -4,14 +4,8 @@ import  Img2 from "../../assets/images/necklace-shape.jpeg";
 import  Img3 from "../../assets/images/earrings-shape.jpeg";
 import  Img4 from "../../assets/images/bracelet-shape.jpeg";
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from "react-redux";
-import PriceDisplay from "../PriceDisplay";
 const TrendingSection = () => {
-  // const { products, loading, error } = useSelector(state => state.products);
-  // console.log('products :', products);
-  const categories = useSelector(state => state.categories);
   const navigate = useNavigate();
-  // 🔹 Dynamic products data
   const products = [
     {
       id: 1,
@@ -43,9 +37,8 @@ const TrendingSection = () => {
     },
   ];
 
-  console.log('products :', products);
   return (
-    <div className="px-6 md:px-16 xl:px-32  py-8 md:py-16 w-full">
+    <div className="px-6 md:px-8 xl:px-16  py-8 md:py-16 w-full">
       {/* Section Heading */}
       <div className="flex-1 flex flex-col justify-center text-center w-full">
         <p className="text-sm uppercase tracking-widest text-primary-dark font-montserrat-medium-500 mb-3">
@@ -70,7 +63,7 @@ const TrendingSection = () => {
             <img
               src={product?.image}
               alt={product?.name}
-              className="w-full h-60 md:object-fill rounded-md"
+              className="w-full h-80 md:object-fill rounded-md"
             />
             <div className="mt-4 text-xl font-montserrat-medium-500 text-black">
               {product?.name}

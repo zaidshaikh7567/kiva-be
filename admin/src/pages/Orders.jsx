@@ -323,7 +323,7 @@ const Orders = () => {
         [shipping.firstName, shipping.lastName].filter(Boolean).join(' ') ||
         'Customer',
       Email: order.user?.email || shipping.email || '',
-      Phone: order.user?.phone || shipping.phone || '',
+      Phone: order.phone || shipping.phone || '',
       Date: formatOrderDate(order.createdAt || order.date),
       Total: formatCurrency(order.totals?.total || order.finalTotal || order.total || 0),
       ItemCount: items.length,
@@ -348,6 +348,7 @@ const Orders = () => {
         .filter(Boolean)
         .join(', '),
       Notes: order.notes || '',
+      PaymentMethod: order.paymentMethod || '',
     };
   };
 

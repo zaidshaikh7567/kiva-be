@@ -36,7 +36,7 @@ const Collection = () => {
   }, [dispatch]);
 
   return (
-    <div className="md:pl-16 lg:pl-32 py-[100px] overflow-hidden">
+    <div className="md:pl-8 lg:pl-16 py-[100px] overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-center">
         {/* left section */}
         <div className="flex-1 flex flex-col justify-center text-center md:text-left h-full relative z-10 px-4 md:px-0">

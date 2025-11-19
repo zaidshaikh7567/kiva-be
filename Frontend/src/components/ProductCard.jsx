@@ -36,7 +36,6 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const metals = useSelector(selectMetals);
   const [loading, setLoading] = useState(false);
   const isList = viewMode === "list";
-  console.log('loading :', loading);
   // Check if product is a ring
   const isRing = () => {
     const categoryName = product?.category?.name?.toLowerCase();
@@ -123,7 +122,6 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
       // Use API for authenticated users
       setLoading(true);
      const response=  await dispatch(addCartItem(cartData));
-     console.log('response$%^%^ :', response);
       setLoading(false);
      if (response.payload.success) {
       let successMessage = `${product.name || product.title} added to cart!`;
@@ -138,7 +136,6 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         successMessage = `${product.name || product.title} added to cart (${options.join(', ')})!`;
       }
       
-      console.log('isAuth :', isAuth);
       // if (isAuth) {
         toast.success(successMessage, {
           duration: 2000,

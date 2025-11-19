@@ -64,7 +64,7 @@ const normalizeOrder = (order = {}) => {
       Status: order.Status || order.status || '',
       Total: order.Total || formatCurrency(totalAmount),
       PaymentMethod: order.PaymentMethod || order.paymentMethod || '',
-      PaymentStatus: order.PaymentStatus || order.paymentStatus || '',
+      // PaymentStatus: order.PaymentStatus || order.paymentStatus || '',
       ShippingAddress: order.ShippingAddress || order.shippingAddress || '',
       Items: order.Items || order.items || '',
       Notes: order.Notes || order.notes || '',
@@ -81,11 +81,11 @@ const normalizeOrder = (order = {}) => {
     [shipping.firstName, shipping.lastName].filter(Boolean).join(' ') ||
     'Customer';
   const customerEmail = order.user?.email || shipping.email || '';
-  const customerPhone = order.user?.phone || shipping.phone || '';
+  const customerPhone = order?.phone || shipping.phone || '';
   const orderDate = order.createdAt || order.date || '';
   const status = order.status || 'pending';
-  const paymentMethod = order.payment?.method || order.paymentMethod || '';
-  const paymentStatus = order.payment?.status || order.paymentStatus || '';
+  const paymentMethod = order?.paymentMethod || order.paymentMethod || '';
+  // const paymentStatus = order.status || order.paymentStatus || '';
   const totalAmount =
     order.totals?.total ||
     order.finalTotal ||
@@ -211,10 +211,11 @@ export const exportToPDF = (orders, filename = 'orders') => {
     order.OrderID,
     order.Customer,
     order.Email,
+    order.Phone,
     order.Date,
     order.Status,
     order.Total,
-    order.PaymentStatus,
+    order.PaymentMethod,
   ]);
 
   // Calculate available width for table (page width - margins)
@@ -226,7 +227,7 @@ export const exportToPDF = (orders, filename = 'orders') => {
   // Add table with proper width settings
   autoTable(doc, {
     startY: 35,
-    head: [['Order ID', 'Customer', 'Email', 'Date', 'Status', 'Total', 'Payment']],
+    head: [['Order ID', 'Customer', 'Email',"Phone", 'Date', 'Status', 'Total', 'Payment Method']],
     body: tableData,
     theme: 'striped',
     headStyles: {
@@ -243,12 +244,13 @@ export const exportToPDF = (orders, filename = 'orders') => {
     },
     columnStyles: {
       0: { cellWidth: tableWidth * 0.12, overflow: 'linebreak' }, // Order ID
-      1: { cellWidth: tableWidth * 0.18, overflow: 'linebreak' }, // Customer Name
+      1: { cellWidth: tableWidth * 0.12, overflow: 'linebreak' }, // Customer Name
       2: { cellWidth: tableWidth * 0.25, overflow: 'linebreak' }, // Email
-      3: { cellWidth: tableWidth * 0.12, overflow: 'linebreak' }, // Date
-      4: { cellWidth: tableWidth * 0.12, overflow: 'linebreak' }, // Status
-      5: { cellWidth: tableWidth * 0.11, overflow: 'linebreak', halign: 'right' }, // Total
-      6: { cellWidth: tableWidth * 0.10, overflow: 'linebreak' }  // Payment
+      3: { cellWidth: tableWidth * 0.12, overflow: 'linebreak' }, // Phone
+      4: { cellWidth: tableWidth * 0.12, overflow: 'linebreak' }, // Date
+      5: { cellWidth: tableWidth * 0.12, overflow: 'linebreak' }, // Status
+      6: { cellWidth: tableWidth * 0.11, overflow: 'linebreak', halign: 'right' }, // Total
+      7: { cellWidth: tableWidth * 0.10, overflow: 'linebreak' }  // Payment Method
     },
     margin: { top: 35, left: marginLeft, right: marginRight },
     tableWidth: tableWidth,

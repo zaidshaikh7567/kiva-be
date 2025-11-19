@@ -33,7 +33,7 @@ const ProfileForm = () => {
   const [dragActive, setDragActive] = useState(false);
   
   // Default dummy user image
-  const defaultUserImage = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=6366f1&color=fff&size=200';
+  const defaultUserImage = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=E0C0B0&color=fff&size=200';
 // console.log(defaultUserImage,'defaultUserImage');
  
   // Update form data when user changes

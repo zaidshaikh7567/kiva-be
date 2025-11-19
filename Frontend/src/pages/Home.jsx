@@ -4,6 +4,7 @@ import SubHeroSection from '../components/home/SubHeroSection'
 import TrendingSection from '../components/home/TrendingSection'
 import Collection from '../components/home/Collection'
 import FavoriteSection from '../components/home/FavoriteSection'
+import DiamondSection from '../components/home/DiamondSection'
 import ReviewsSlider from '../components/ReviewsSlider'
 import AnimatedSection from '../components/home/AnimatedSection'
 
@@ -24,11 +25,15 @@ const Home = () => {
           <Collection/>
         </AnimatedSection>
         
-        <AnimatedSection animationType="fadeInRight" delay={400}>
+        <AnimatedSection animationType="fadeInUp" delay={400}>
+          <DiamondSection/>
+        </AnimatedSection>
+        
+        <AnimatedSection animationType="fadeInRight" delay={500}>
           <FavoriteSection/>
         </AnimatedSection>
         
-        <AnimatedSection animationType="fadeInUp" delay={500}>
+        <AnimatedSection animationType="fadeInUp" delay={600}>
           <ReviewsSlider/>
         </AnimatedSection>
     </div>
