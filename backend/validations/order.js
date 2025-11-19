@@ -13,7 +13,12 @@ const createOrderSchema = zod.object({
   billingAddress: addressSchema.optional(),
   phone: zod.string().min(1, 'Phone is required').trim(),
   paymentMethod: zod.string().min(1, 'Payment method is required').trim(),
-  notes: zod.string().trim().optional()
+  notes: zod.string().trim().optional(),
+  currency: zod.string().length(3, 'Currency must be 3 characters').optional().default('USD')
+});
+
+const capturePayPalPaymentSchema = zod.object({
+  paypalOrderId: zod.string().min(1, 'PayPal order ID is required').trim()
 });
 
 const orderIdSchema = zod.object({
@@ -45,6 +50,7 @@ const orderQuerySchema = zod.object({
 
 module.exports = {
   createOrderSchema,
+  capturePayPalPaymentSchema,
   orderIdSchema,
   orderNumberSchema,
   updateOrderStatusSchema,

@@ -133,6 +133,19 @@ const orderSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  paypalOrderId: {
+    type: String,
+    trim: true
+  },
+  paypalTransactionId: {
+    type: String,
+    trim: true
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'completed', 'failed', 'cancelled'],
+    default: 'pending'
+  },
   notes: {
     type: String,
     trim: true

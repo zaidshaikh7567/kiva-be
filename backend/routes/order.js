@@ -9,12 +9,14 @@ const asyncHandler = require('../middleware/asyncErrorHandler');
 const { authenticate, authorize } = require('../middleware/auth');
 const { sendEmail } = require('../utils/emailUtil');
 const { getOrderConfirmationEmailTemplate } = require('../utils/emailTemplates');
+const { createPayPalOrder, capturePayPalPayment } = require('../utils/paypalUtil');
 const {
   createOrderSchema,
   orderIdSchema,
   orderNumberSchema,
   updateOrderStatusSchema,
-  orderQuerySchema
+  orderQuerySchema,
+  capturePayPalPaymentSchema
 } = require('../validations/order');
 const validate = require('../middleware/validate');
 
@@ -22,7 +24,7 @@ const router = express.Router();
 
 router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { shippingAddress, billingAddress, phone, paymentMethod, notes } = req.body;
+  const { shippingAddress, billingAddress, phone, paymentMethod, notes, currency = 'USD' } = req.body;
 
   const cartItems = await Cart.find({ user: userId }).populate(['product', 'metal', 'stoneType']);
 
@@ -66,6 +68,53 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     subtotal += totalPrice;
   }
 
+  if (paymentMethod.toLowerCase() === 'paypal') {
+    const orderData = {
+      items: orderItems,
+      subtotal: subtotal,
+      total: subtotal
+    };
+
+    try {
+      const paypalOrder = await createPayPalOrder(orderData, currency);
+
+      const tempOrder = new Order({
+        user: userId,
+        items: orderItems,
+        subtotal: subtotal,
+        total: subtotal,
+        shippingAddress: shippingAddress,
+        billingAddress: billingAddress || shippingAddress,
+        phone: phone,
+        paymentMethod: 'PayPal',
+        paypalOrderId: paypalOrder.id,
+        paymentStatus: 'pending',
+        status: 'pending_payment',
+        notes: notes
+      });
+
+      await tempOrder.save();
+
+      res.json({
+        success: true,
+        message: 'PayPal order created successfully',
+        data: {
+          paypalOrderId: paypalOrder.id,
+          approvalUrl: paypalOrder.links.find(link => link.rel === 'approve').href,
+          orderData: orderData,
+          paymentMethod: 'paypal'
+        }
+      });
+    } catch (error) {
+      console.error('PayPal create order error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to create PayPal order'
+      });
+    }
+    return;
+  }
+
   const order = new Order({
     user: userId,
     items: orderItems,
@@ -75,13 +124,13 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     billingAddress: billingAddress || shippingAddress,
     phone: phone,
     paymentMethod: paymentMethod,
-    notes: notes
+    notes: notes,
+    paymentStatus: 'completed'
   });
 
   await order.save();
   await order.populate('user', 'name email');
 
-  // Send order confirmation email
   try {
     if (order.user?.email) {
       const orderEmailHtml = getOrderConfirmationEmailTemplate(order);
@@ -92,7 +141,6 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
       );
     }
   } catch (emailError) {
-    // Log email error but don't fail order creation
     console.error('Failed to send order confirmation email:', emailError);
   }
 
@@ -103,6 +151,80 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     message: 'Order created successfully',
     data: order
   });
+}));
+
+router.post('/capture-paypal', authenticate, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { paypalOrderId } = req.body;
+
+  try {
+    const captureResult = await capturePayPalPayment(paypalOrderId);
+
+    if (captureResult.status !== 'COMPLETED') {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment not completed'
+      });
+    }
+
+    const tempOrder = await Order.findOne({
+      paypalOrderId: paypalOrderId,
+      user: userId,
+      status: 'pending_payment'
+    });
+
+    if (!tempOrder) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    tempOrder.paypalTransactionId = captureResult.purchase_units[0].payments.captures[0].id;
+    tempOrder.paymentStatus = 'completed';
+    tempOrder.status = 'processing';
+
+    await tempOrder.save();
+    await tempOrder.populate('user', 'name email');
+
+    try {
+      if (tempOrder.user?.email) {
+        const orderEmailHtml = getOrderConfirmationEmailTemplate(tempOrder);
+        await sendEmail(
+          tempOrder.user.email,
+          `Thank You for Your Order #${tempOrder.orderNumber} - Kiva Jewelry`,
+          orderEmailHtml
+        );
+      }
+    } catch (emailError) {
+      console.error('Failed to send order confirmation email:', emailError);
+    }
+
+    await Cart.deleteMany({ user: userId });
+
+    res.status(201).json({
+      success: true,
+      message: 'Order created successfully',
+      data: tempOrder
+    });
+
+  } catch (error) {
+    console.error('PayPal capture payment error:', error);
+
+    try {
+      await Order.findOneAndUpdate(
+        { paypalOrderId: paypalOrderId },
+        { paymentStatus: 'failed' }
+      );
+    } catch (updateError) {
+      console.error('Failed to update order status:', updateError);
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to capture PayPal payment'
+    });
+  }
 }));
 
 router.get('/my-orders', authenticate, validate(orderQuerySchema, 'query'), asyncHandler(async (req, res) => {
