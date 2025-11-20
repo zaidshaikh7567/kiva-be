@@ -128,6 +128,22 @@ export const getAllOrders = createAsyncThunk(
   }
 );
 
+export const capturePayPalPayment = createAsyncThunk(
+  'orders/capturePayPalPayment',
+  async (paypalOrderId, { rejectWithValue }) => {
+    try {
+      if (!isAuthenticated()) {
+        return rejectWithValue('Authentication required');
+      }
+      const response = await api.post(`${API_METHOD.orders}/capture-paypal`, { paypalOrderId });
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to capture PayPal payment';
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const updateOrderStatus = createAsyncThunk(
   'orders/updateOrderStatus',
   async ({ orderId, status }, { rejectWithValue }) => {
@@ -268,6 +284,21 @@ const ordersSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.orders = [];
+      })
+      // Capture PayPal payment
+      .addCase(capturePayPalPayment.pending, (state) => {
+        state.creating = true;
+        state.createError = null;
+      })
+      .addCase(capturePayPalPayment.fulfilled, (state, action) => {
+        state.creating = false;
+        state.currentOrder = action.payload.data || action.payload;
+        toast.success('Payment captured successfully!');
+      })
+      .addCase(capturePayPalPayment.rejected, (state, action) => {
+        state.creating = false;
+        state.createError = action.payload;
+        toast.error(action.payload || 'Failed to capture payment');
       })
       // Update order status
       .addCase(updateOrderStatus.pending, (state) => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { CreditCard, MapPin, ShoppingBag } from 'lucide-react';
 import { Country, State } from 'country-state-city';
-const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, onEditShipping, onEditPayment, onPlaceOrder, loading }) => {
+const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, selectedPaymentMethod = 'card', onEditShipping, onEditPayment, onPlaceOrder, loading }) => {
 
     const getCountryName = (countryCode) => {
         if (!countryCode) return '';
@@ -102,12 +102,29 @@ const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, onEditShipping, on
         <div className="flex items-center space-x-3">
           <CreditCard className="w-8 h-8 text-primary" />
           <div>
-            <p className="font-montserrat-semibold-600 text-black">
-              {paymentInfo.cardName}
-            </p>
-            <p className="text-sm font-montserrat-regular-400 text-black-light">
-              •••• •••• •••• {paymentInfo.cardNumber.slice(-4)}
-            </p>
+            {selectedPaymentMethod === 'paypal' ? (
+              <>
+                <p className="font-montserrat-semibold-600 text-black">
+                  PayPal
+                </p>
+                <p className="text-sm font-montserrat-regular-400 text-black-light">
+                  You will be redirected to PayPal to complete payment
+                </p>
+              </>
+            ) : selectedPaymentMethod === 'card' ? (
+              <>
+                <p className="font-montserrat-semibold-600 text-black">
+                  {paymentInfo.cardName}
+                </p>
+                <p className="text-sm font-montserrat-regular-400 text-black-light">
+                  •••• •••• •••• {paymentInfo.cardNumber?.slice(-4) || '****'}
+                </p>
+              </>
+            ) : (
+              <p className="font-montserrat-semibold-600 text-black">
+                {selectedPaymentMethod.charAt(0).toUpperCase() + selectedPaymentMethod.slice(1)}
+              </p>
+            )}
           </div>
         </div>
       </div>

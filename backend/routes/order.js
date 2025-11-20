@@ -89,7 +89,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
         paymentMethod: 'PayPal',
         paypalOrderId: paypalOrder.id,
         paymentStatus: 'pending',
-        status: 'pending_payment',
+        status: 'pending',
         notes: notes
       });
 
@@ -107,9 +107,15 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
       });
     } catch (error) {
       console.error('PayPal create order error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        response: error.response
+      });
       res.status(500).json({
         success: false,
-        message: 'Failed to create PayPal order'
+        message: error.message || 'Failed to create PayPal order',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     }
     return;
@@ -153,7 +159,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
   });
 }));
 
-router.post('/capture-paypal', authenticate, asyncHandler(async (req, res) => {
+router.post('/capture-paypal', authenticate, validate(capturePayPalPaymentSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { paypalOrderId } = req.body;
 
@@ -170,7 +176,8 @@ router.post('/capture-paypal', authenticate, asyncHandler(async (req, res) => {
     const tempOrder = await Order.findOne({
       paypalOrderId: paypalOrderId,
       user: userId,
-      status: 'pending_payment'
+      status: 'pending',
+      paymentStatus: 'pending'
     });
 
     if (!tempOrder) {

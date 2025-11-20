@@ -55,6 +55,8 @@ const Checkout = () => {
     cvv: ''
   });
 
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
+
   // Shipping cost calculation
   const shippingCost = totalPrice > 500 ? 0 : 15;
   const finalTotal = totalPrice + shippingCost;
@@ -150,12 +152,44 @@ const Checkout = () => {
         billingAddress = { ...shippingAddress };
       }
 
+      // Handle PayPal payment flow
+      if (selectedPaymentMethod === 'paypal') {
+        // Prepare order data for PayPal
+        const orderData = {
+          shippingAddress: shippingAddress,
+          billingAddress: billingAddress,
+          phone: shippingInfo.phone,
+          paymentMethod: "PayPal",
+          notes: "Please handle with care"
+        };
+
+        // Create PayPal order
+        const result = await dispatch(createOrderAction(orderData));
+        console.log('PayPal order result :', result);
+        
+        if (createOrderAction.fulfilled.match(result)) {
+          const orderResponse = result.payload;
+          const responseData = orderResponse.data || orderResponse;
+          
+          // Check if this is a PayPal order response
+          if (responseData.paypalOrderId && responseData.approvalUrl) {
+            // Redirect to PayPal approval URL
+            window.location.href = responseData.approvalUrl;
+            return;
+          }
+        } else {
+          // Error creating PayPal order
+          return;
+        }
+      }
+
+      // Handle regular card payment
       // Prepare order data
       const orderData = {
         shippingAddress: shippingAddress,
         billingAddress: billingAddress,
         phone: shippingInfo.phone,
-        paymentMethod: "Credit Card",
+        paymentMethod: selectedPaymentMethod === 'card' ? "Credit Card" : selectedPaymentMethod,
         notes: "Please handle with care"
       };
 
@@ -317,6 +351,8 @@ const Checkout = () => {
                 <PaymentStep
                   paymentInfo={paymentInfo}
                   onPaymentChange={handlePaymentChange}
+                  selectedPaymentMethod={selectedPaymentMethod}
+                  onPaymentMethodChange={setSelectedPaymentMethod}
                   onSubmit={handlePaymentSubmit}
                   onBack={() => setStep(1)}
                   loading={false}
@@ -329,6 +365,7 @@ const Checkout = () => {
                   shippingInfo={shippingInfo}
                   billingInfo={useBillingAddress ? billingInfo : null}
                   paymentInfo={paymentInfo}
+                  selectedPaymentMethod={selectedPaymentMethod}
                   onEditShipping={handleEditShipping}
                   onEditPayment={handleEditPayment}
                   onPlaceOrder={handlePlaceOrder}

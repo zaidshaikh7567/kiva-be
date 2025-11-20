@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { CreditCard, User, Lock, Smartphone, Globe } from 'lucide-react';
 
-const PaymentStep = ({ paymentInfo, onPaymentChange, onSubmit, onBack, loading }) => {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
+const PaymentStep = ({ paymentInfo, onPaymentChange, selectedPaymentMethod: propSelectedPaymentMethod, onPaymentMethodChange, onSubmit, onBack, loading }) => {
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(propSelectedPaymentMethod || 'card');
 
   const paymentMethods = [
     {
@@ -37,7 +37,17 @@ const PaymentStep = ({ paymentInfo, onPaymentChange, onSubmit, onBack, loading }
 
   const handlePaymentMethodChange = (methodId) => {
     setSelectedPaymentMethod(methodId);
+    if (onPaymentMethodChange) {
+      onPaymentMethodChange(methodId);
+    }
   };
+
+  // Sync with prop if it changes
+  React.useEffect(() => {
+    if (propSelectedPaymentMethod !== undefined && propSelectedPaymentMethod !== selectedPaymentMethod) {
+      setSelectedPaymentMethod(propSelectedPaymentMethod);
+    }
+  }, [propSelectedPaymentMethod]);
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">

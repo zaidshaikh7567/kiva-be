@@ -15,6 +15,8 @@ import WeddingBand from "../pages/WeddingBand";
 import ViewCart from "../pages/ViewCart";
 import Checkout from "../pages/Checkout";
 import OrderSuccess from "../pages/OrderSuccess";
+import PayPalCallback from "../pages/PayPalCallback";
+import PayPalCancel from "../pages/PayPalCancel";
 import SignIn from "../pages/SignIn";
 import SignUp from "../pages/SignUp";
 import ForgotPassword from "../pages/ForgotPassword";
@@ -74,6 +76,8 @@ const AppRoutes = () => {
           
           {/* Protected Routes - Require Authentication */}
           <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+          <Route path="/order/success" element={<ProtectedRoute><PayPalCallback /></ProtectedRoute>} />
+          <Route path="/order/cancel" element={<ProtectedRoute><PayPalCancel /></ProtectedRoute>} />
           <Route path="/order-success/:id" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
           <Route path="/orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
