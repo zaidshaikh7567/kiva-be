@@ -28,7 +28,6 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const cartLoading = useSelector(selectCartLoading);
   const [quantity, setQuantity] = useState(1);
-  console.log('quantity----:', quantity);
   const [selectedMetal, setSelectedMetal] = useState(null);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedCenterStone, setSelectedCenterStone] = useState(null);

@@ -213,15 +213,7 @@ const SignIn = () => {
                 rightIcon={showPassword ? Eye : EyeOff}
                 onRightIconClick={() => setShowPassword(!showPassword)}
                 rightIconClickable={true}
-              />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-light hover:text-black transition-colors duration-300"
-                >
-                  {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-                </button>
+              />               
             </div>
 
             {/* Remember Me & Forgot Password */}

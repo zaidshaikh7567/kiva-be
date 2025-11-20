@@ -201,15 +201,16 @@ const Discover = () => {
               <button className="group w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-primary text-white font-montserrat-medium-500 rounded-xl hover:bg-primary-dark transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl">
                 <Video className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-sm sm:text-base">Watch Collections</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               
               <button 
                 onClick={() => navigate('/gallery')}
-                className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 border-2 border-gray-300 text-gray-700 font-montserrat-medium-500 rounded-xl hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300 flex items-center justify-center gap-3"
+                className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 border-2  border-gray-300 text-gray-700 font-montserrat-medium-500 rounded-xl hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300 flex items-center justify-center gap-3"
               >
                 <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-sm sm:text-base">Browse Gallery</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+
               </button>
             </div>
           </div>

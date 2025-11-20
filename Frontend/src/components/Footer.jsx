@@ -39,7 +39,7 @@ const Footer = () => {
     { href: "/faq", text: "FAQ" },
     { href: "/privacy-policy", text: "Privacy Policy" },
   ];
-
+// +1 306 361 9759
   // Contact Info
 const contactInfo = [
   {

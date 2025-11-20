@@ -287,7 +287,7 @@ const Contact = () => {
                   Visit Us
                 </h3>
                 <p className="text-primary font-montserrat-bold-700 text-lg mb-2">
-                  123 Jewelry Lane
+                Kiva Jewelry 
                 </p>
                 <p className="text-black-light font-montserrat-regular-400 text-sm">
                   3rd floor above Krishna Hospital,

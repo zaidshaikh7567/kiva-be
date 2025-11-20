@@ -148,7 +148,7 @@ const OrderDetails = () => {
   return (
     <div className="min-h-screen bg-secondary">
       {/* Header */}
-      <section className="py-12 md:py-16 bg-white border-b border-primary-light">
+      <section className="py-6 md:py-16 bg-white border-b border-primary-light">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <button
             onClick={() => navigate('/dashboard', { state: { tab: 'orders' } })}
@@ -178,7 +178,7 @@ const OrderDetails = () => {
       </section>
 
       {/* Order Details */}
-      <section className="py-12">
+      <section className="py-6">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}

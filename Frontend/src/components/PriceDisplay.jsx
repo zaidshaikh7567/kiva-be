@@ -14,9 +14,7 @@ const PriceDisplay = ({
   variant = "default" // "default" or "small"
 }) => {
   const currentCurrency = useSelector(selectCurrentCurrency);
-  console.log('currentCurrency :', currentCurrency);
   const currencySymbol = useSelector(selectCurrencySymbol);
-  console.log('currencySymbol :', currencySymbol);
   const exchangeRate = useSelector(selectExchangeRate);
   
   // Handle undefined or null prices

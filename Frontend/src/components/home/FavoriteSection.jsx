@@ -30,7 +30,7 @@ const FavoriteSection = () => {
   }));
   return (
     <>
-      <div className="px-6 md:px-16  xl:px-32  py-8 md:py-16 w-full">
+      <div className="px-6 md:px-8 xl:px-16  py-8 md:py-16 w-full">
         <div className="flex-1 flex flex-col justify-center text-center w-full">
           <p className="text-sm uppercase tracking-widest text-primary-dark font-montserrat-medium-500 mb-3">
             CATEGORIES
@@ -129,11 +129,11 @@ const FavoriteSection = () => {
       </div>
 
       {/* Video and Text Section */}
-      <div className="my-8 px-6 md:px-16 xl:px-32 md:py-16 w-full">
+      <div className="my-8 px-6 md:px-8 xl:px-16 md:py-16 w-full">
         <div className="flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-12">
           {/* Left Side - Large Video */}
           <div className="w-full lg:w-[55%]">
-            <div className="relative h-[600px]  overflow-hidden shadow-lg">
+            <div className="relative h-[500px]  overflow-hidden shadow-lg">
               <video
                 className="w-full h-full object-cover"
                 autoPlay
@@ -185,7 +185,7 @@ const FavoriteSection = () => {
         </div>
       </div>
       {/* Elegant Banner Section - Image with Circular Text */}
-      <div className="px-6 md:px-16 xl:px-32 py-8 md:py-16 w-full bg-[#F5F1E8]">
+      <div className="px-6 md:px-8 xl:px-16 py-8 md:py-16 w-full bg-[#F5F1E8]">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch">
           {/* LEFT SIDE - IMAGE WITH CURVED TEXT */}
           <div className="w-full lg:w-[70%] xl:w-[50%] 2xl:w-[35%] relative">

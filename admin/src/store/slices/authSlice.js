@@ -251,20 +251,6 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
       }
     },
-    initializeAuth: (state) => {
-      // Load tokens and user from localStorage
-      const accessToken = localStorage.getItem('accessToken');
-      const refreshToken = localStorage.getItem('refreshToken');
-      const userStr = localStorage.getItem('user');
-      const user = userStr ? JSON.parse(userStr) : null;
-      
-      if (accessToken && user) {
-        state.accessToken = accessToken;
-        state.refreshToken = refreshToken;
-        state.user = user;
-        state.isAuthenticated = true;
-      }
-    },
   },
   extraReducers: (builder) => {
     builder

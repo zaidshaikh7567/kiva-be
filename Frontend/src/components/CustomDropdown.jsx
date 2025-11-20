@@ -86,7 +86,7 @@ const CustomDropdown = ({
 
   // --- Get display text for selected option ---
   const getDisplayText = () => {
-    const selectedOption = options.find((option) => option.value === value);
+    const selectedOption = options?.find((option) => option.value === value);
     return selectedOption ? selectedOption.label : placeholder;
   };
 
