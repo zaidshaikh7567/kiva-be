@@ -1,7 +1,7 @@
 import React from 'react';
-import { CreditCard, MapPin, ShoppingBag } from 'lucide-react';
+import { CreditCard, MapPin, ArrowRight } from 'lucide-react';
 import { Country, State } from 'country-state-city';
-const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, selectedPaymentMethod = 'card', onEditShipping, onEditPayment, onPlaceOrder, loading }) => {
+const ReviewStep = ({ shippingInfo, billingInfo, onEditShipping, onSubmit, loading }) => {
 
     const getCountryName = (countryCode) => {
         if (!countryCode) return '';
@@ -81,71 +81,38 @@ const ReviewStep = ({ shippingInfo, billingInfo, paymentInfo, selectedPaymentMet
         </div>
       )}
 
-      {/* Payment Details */}
-      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-primary" />
-            </div>
-            <h3 className="text-xl font-sorts-mill-gloudy text-black">
-              Payment Method
-            </h3>
-          </div>
-          <button
-            onClick={onEditPayment}
-            className="text-sm text-primary hover:text-primary-dark font-montserrat-medium-500 transition-colors"
-          >
-            Edit
-          </button>
-        </div>
-        <div className="flex items-center space-x-3">
-          <CreditCard className="w-8 h-8 text-primary" />
+      {/* Order Confirmation Notice */}
+      <div className="bg-primary-light rounded-lg p-4">
+        <div className="flex items-start space-x-3">
+          <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
           <div>
-            {selectedPaymentMethod === 'paypal' ? (
-              <>
-                <p className="font-montserrat-semibold-600 text-black">
-                  PayPal
-                </p>
-                <p className="text-sm font-montserrat-regular-400 text-black-light">
-                  You will be redirected to PayPal to complete payment
-                </p>
-              </>
-            ) : selectedPaymentMethod === 'card' ? (
-              <>
-                <p className="font-montserrat-semibold-600 text-black">
-                  {paymentInfo.cardName}
-                </p>
-                <p className="text-sm font-montserrat-regular-400 text-black-light">
-                  •••• •••• •••• {paymentInfo.cardNumber?.slice(-4) || '****'}
-                </p>
-              </>
-            ) : (
-              <p className="font-montserrat-semibold-600 text-black">
-                {selectedPaymentMethod.charAt(0).toUpperCase() + selectedPaymentMethod.slice(1)}
-              </p>
-            )}
+            <p className="text-sm font-montserrat-semibold-600 text-black mb-1">
+              Ready to place your order
+            </p>
+            <p className="text-sm font-montserrat-regular-400 text-black-light">
+              Review your shipping information above. You'll complete payment in the next step.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Place Order Button */}
+      {/* Proceed to Payment Button */}
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           type="button"
-          onClick={onEditPayment}
+          onClick={onEditShipping}
           disabled={loading}
           className="sm:w-1/3 border-2 border-primary text-primary font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Back
         </button>
         <button
-          onClick={onPlaceOrder}
+          onClick={onSubmit}
           disabled={loading}
           className="sm:w-2/3 bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <ShoppingBag className="w-5 h-5" />
-          <span>{loading ? 'Processing Order...' : 'Place Order'}</span>
+          <span>{loading ? 'Creating Order...' : 'Proceed to Payment'}</span>
+          <ArrowRight className="w-5 h-5" />
         </button>
       </div>
     </div>

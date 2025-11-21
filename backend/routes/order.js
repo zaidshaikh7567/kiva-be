@@ -22,6 +22,26 @@ const validate = require('../middleware/validate');
 
 const router = express.Router();
 
+// Get PayPal client ID for frontend
+router.get('/paypal-client-id', asyncHandler(async (req, res) => {
+  const { PAYPAL_CLIENT_ID, NODE_ENV } = require('../config/env');
+  
+  if (!PAYPAL_CLIENT_ID) {
+    return res.status(500).json({
+      success: false,
+      message: 'PayPal client ID not configured'
+    });
+  }
+
+  res.json({
+    success: true,
+    data: {
+      clientId: PAYPAL_CLIENT_ID.trim(),
+      environment: NODE_ENV === 'production' ? 'production' : 'sandbox'
+    }
+  });
+}));
+
 router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { shippingAddress, billingAddress, phone, paymentMethod, notes, currency = 'USD' } = req.body;

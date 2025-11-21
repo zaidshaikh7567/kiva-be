@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean": "rm -rf node_modules/.vite",
+    "dev:clean": "npm run clean && npm run dev"
   },
   "dependencies": {
+    "@paypal/paypal-js": "^9.0.1",
+    "@paypal/react-paypal-js": "^8.9.2",
     "@react-oauth/google": "^0.12.2",
     "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.12.2",

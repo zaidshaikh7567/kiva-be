@@ -21,6 +21,10 @@ const ShippingStep = ({
   const [selectedBillingState, setSelectedBillingState] = useState(null);
   const [errors, setErrors] = useState({});
   const [billingErrors, setBillingErrors] = useState({});
+  const [useManualState, setUseManualState] = useState(false);
+  const [useManualCity, setUseManualCity] = useState(false);
+  const [useManualBillingState, setUseManualBillingState] = useState(false);
+  const [useManualBillingCity, setUseManualBillingCity] = useState(false);
 
   // Get all countries
 // Get only selected countries
@@ -95,6 +99,23 @@ const countryOptions = useMemo(() => {
     }
   }, [shippingInfo.state, selectedCountry, selectedState]);
 
+  useEffect(() => {
+    if (selectedCountry && stateOptions.length === 0) {
+      setUseManualState(true);
+    } else if (!selectedCountry) {
+      setUseManualState(false);
+    }
+  }, [selectedCountry, stateOptions.length]);
+
+  useEffect(() => {
+    const noStatesAvailable = selectedCountry && stateOptions.length === 0;
+    if ((selectedState && cityOptions.length === 0) || noStatesAvailable) {
+      setUseManualCity(true);
+    } else if (!selectedState && !noStatesAvailable) {
+      setUseManualCity(false);
+    }
+  }, [selectedState, cityOptions.length, selectedCountry, stateOptions.length]);
+
   // Initialize selected billing country and state from billingInfo
   useEffect(() => {
     if (billingInfo?.country && !selectedBillingCountry) {
@@ -113,6 +134,23 @@ const countryOptions = useMemo(() => {
       }
     }
   }, [billingInfo?.state, selectedBillingCountry, selectedBillingState]);
+
+  useEffect(() => {
+    if (selectedBillingCountry && billingStateOptions.length === 0) {
+      setUseManualBillingState(true);
+    } else if (!selectedBillingCountry) {
+      setUseManualBillingState(false);
+    }
+  }, [selectedBillingCountry, billingStateOptions.length]);
+
+  useEffect(() => {
+    const noBillingStatesAvailable = selectedBillingCountry && billingStateOptions.length === 0;
+    if ((selectedBillingState && billingCityOptions.length === 0) || noBillingStatesAvailable) {
+      setUseManualBillingCity(true);
+    } else if (!selectedBillingState && !noBillingStatesAvailable) {
+      setUseManualBillingCity(false);
+    }
+  }, [selectedBillingState, billingCityOptions.length, selectedBillingCountry, billingStateOptions.length]);
 
   const handleCountryChange = (value) => {
     const country = Country.getAllCountries().find(c => c.isoCode === value);
@@ -489,23 +527,48 @@ const countryOptions = useMemo(() => {
         {/* State and ZIP Code */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           <div>
-            <label className="block text-xs sm:text-sm font-montserrat-medium-500 text-black mb-1.5 sm:mb-2">
-              State / Province *
-            </label>
-            <CustomDropdown
-              options={stateOptions}
-              value={shippingInfo.state}
-              onChange={handleStateChange}
-              placeholder={selectedCountry ? "Select State/Province" : "Select Country First"}
-              disabled={loading || !selectedCountry || stateOptions.length === 0}
-              className={errors.state ? 'border-red-500' : ''}
-            />
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2 gap-2">
+              <label className="block text-xs sm:text-sm font-montserrat-medium-500 text-black">
+                State / Province *
+              </label>
+              {selectedCountry && stateOptions.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setUseManualState(prev => !prev)}
+                  className="text-xs text-primary font-montserrat-medium-500 underline disabled:text-black-light"
+                  disabled={stateOptions.length === 0}
+                >
+                  {useManualState ? 'Use dropdown' : 'Enter manually'}
+                </button>
+              )}
+            </div>
+            {!useManualState && (
+              <CustomDropdown
+                options={stateOptions}
+                value={shippingInfo.state}
+                onChange={handleStateChange}
+                placeholder={selectedCountry ? "Select State/Province" : "Select Country First"}
+                disabled={loading || !selectedCountry || stateOptions.length === 0}
+                className={errors.state ? 'border-red-500' : ''}
+              />
+            )}
+            {useManualState && (
+              <FormInput
+                name="state"
+                type="text"
+                value={shippingInfo.state}
+                onChange={handleFieldChange}
+                placeholder="Enter state/province"
+                error={errors.state}
+                required
+              />
+            )}
             {errors.state && (
               <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
                 {errors.state}
               </p>
             )}
-            {selectedCountry && stateOptions.length === 0 && !errors.state && (
+            {selectedCountry && stateOptions.length === 0 && !errors.state && !useManualState && (
               <p className="text-xs text-black-light mt-1 font-montserrat-regular-400">
                 No states/provinces available for this country
               </p>
@@ -525,23 +588,48 @@ const countryOptions = useMemo(() => {
 
         {/* City */}
         <div>
-          <label className="block text-xs sm:text-sm font-montserrat-medium-500 text-black mb-1.5 sm:mb-2">
-            City *
-          </label>
-          <CustomDropdown
-            options={cityOptions}
-            value={shippingInfo.city}
-            onChange={handleCityChange}
-            placeholder={selectedState ? "Select City" : "Select State/Province First"}
-            disabled={loading || !selectedState || cityOptions.length === 0}
-            className={errors.city ? 'border-red-500' : ''}
-          />
+          <div className="flex items-center justify-between mb-1.5 sm:mb-2 gap-2">
+            <label className="block text-xs sm:text-sm font-montserrat-medium-500 text-black">
+              City *
+            </label>
+            {selectedState && cityOptions.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setUseManualCity(prev => !prev)}
+                className="text-xs text-primary font-montserrat-medium-500 underline disabled:text-black-light"
+                disabled={cityOptions.length === 0}
+              >
+                {useManualCity ? 'Use dropdown' : 'Enter manually'}
+              </button>
+            )}
+          </div>
+          {!useManualCity && (
+            <CustomDropdown
+              options={cityOptions}
+              value={shippingInfo.city}
+              onChange={handleCityChange}
+              placeholder={selectedState ? "Select City" : "Select State/Province First"}
+              disabled={loading || !selectedState || cityOptions.length === 0}
+              className={errors.city ? 'border-red-500' : ''}
+            />
+          )}
+          {useManualCity && (
+            <FormInput
+              name="city"
+              type="text"
+              value={shippingInfo.city}
+              onChange={handleFieldChange}
+              placeholder="Enter city"
+              error={errors.city}
+              required
+            />
+          )}
           {errors.city && (
             <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
               {errors.city}
             </p>
           )}
-          {selectedState && cityOptions.length === 0 && !errors.city && (
+          {selectedState && cityOptions.length === 0 && !errors.city && !useManualCity && (
             <p className="text-xs text-black-light mt-1 font-montserrat-regular-400">
               No cities available. You can enter manually if needed.
             </p>
@@ -620,23 +708,48 @@ const countryOptions = useMemo(() => {
               {/* Billing State and ZIP Code */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                    State / Province *
-                  </label>
-                  <CustomDropdown
-                    options={billingStateOptions}
-                    value={billingInfo?.state || ''}
-                    onChange={handleBillingStateChange}
-                    placeholder={selectedBillingCountry ? "Select State/Province" : "Select Country First"}
-                    disabled={loading || !selectedBillingCountry || billingStateOptions.length === 0}
-                    className={billingErrors.state ? 'border-red-500' : ''}
-                  />
+                  <div className="flex items-center justify-between mb-2 gap-2">
+                    <label className="block text-sm font-montserrat-medium-500 text-black">
+                      State / Province *
+                    </label>
+                    {selectedBillingCountry && billingStateOptions.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setUseManualBillingState(prev => !prev)}
+                        className="text-xs text-primary font-montserrat-medium-500 underline disabled:text-black-light"
+                        disabled={billingStateOptions.length === 0}
+                      >
+                        {useManualBillingState ? 'Use dropdown' : 'Enter manually'}
+                      </button>
+                    )}
+                  </div>
+                  {!useManualBillingState && (
+                    <CustomDropdown
+                      options={billingStateOptions}
+                      value={billingInfo?.state || ''}
+                      onChange={handleBillingStateChange}
+                      placeholder={selectedBillingCountry ? "Select State/Province" : "Select Country First"}
+                      disabled={loading || !selectedBillingCountry || billingStateOptions.length === 0}
+                      className={billingErrors.state ? 'border-red-500' : ''}
+                    />
+                  )}
+                  {useManualBillingState && (
+                    <FormInput
+                      name="state"
+                      type="text"
+                      value={billingInfo?.state || ''}
+                      onChange={handleBillingFieldChange}
+                      placeholder="Enter state/province"
+                      error={billingErrors.state}
+                      required
+                    />
+                  )}
                   {billingErrors.state && (
                     <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
                       {billingErrors.state}
                     </p>
                   )}
-                  {selectedBillingCountry && billingStateOptions.length === 0 && !billingErrors.state && (
+                  {selectedBillingCountry && billingStateOptions.length === 0 && !billingErrors.state && !useManualBillingState && (
                     <p className="text-xs text-black-light mt-1 font-montserrat-regular-400">
                       No states/provinces available for this country
                     </p>
@@ -656,23 +769,48 @@ const countryOptions = useMemo(() => {
 
               {/* Billing City */}
               <div>
-                <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                  City *
-                </label>
-                <CustomDropdown
-                  options={billingCityOptions}
-                  value={billingInfo?.city || ''}
-                  onChange={handleBillingCityChange}
-                  placeholder={selectedBillingState ? "Select City" : "Select State/Province First"}
-                  disabled={loading || !selectedBillingState || billingCityOptions.length === 0}
-                  className={billingErrors.city ? 'border-red-500' : ''}
-                />
+                <div className="flex items-center justify-between mb-2 gap-2">
+                  <label className="block text-sm font-montserrat-medium-500 text-black">
+                    City *
+                  </label>
+                  {selectedBillingState && billingCityOptions.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setUseManualBillingCity(prev => !prev)}
+                      className="text-xs text-primary font-montserrat-medium-500 underline disabled:text-black-light"
+                      disabled={billingCityOptions.length === 0}
+                    >
+                      {useManualBillingCity ? 'Use dropdown' : 'Enter manually'}
+                    </button>
+                  )}
+                </div>
+                {!useManualBillingCity && (
+                  <CustomDropdown
+                    options={billingCityOptions}
+                    value={billingInfo?.city || ''}
+                    onChange={handleBillingCityChange}
+                    placeholder={selectedBillingState ? "Select City" : "Select State/Province First"}
+                    disabled={loading || !selectedBillingState || billingCityOptions.length === 0}
+                    className={billingErrors.city ? 'border-red-500' : ''}
+                  />
+                )}
+                {useManualBillingCity && (
+                  <FormInput
+                    name="city"
+                    type="text"
+                    value={billingInfo?.city || ''}
+                    onChange={handleBillingFieldChange}
+                    placeholder="Enter city"
+                    error={billingErrors.city}
+                    required
+                  />
+                )}
                 {billingErrors.city && (
                   <p className="text-red-500 text-xs sm:text-sm mt-1 sm:mt-1.5 font-montserrat-regular-400">
                     {billingErrors.city}
                   </p>
                 )}
-                {selectedBillingState && billingCityOptions.length === 0 && !billingErrors.city && (
+                {selectedBillingState && billingCityOptions.length === 0 && !billingErrors.city && !useManualBillingCity && (
                   <p className="text-xs text-black-light mt-1 font-montserrat-regular-400">
                     No cities available. You can enter manually if needed.
                   </p>

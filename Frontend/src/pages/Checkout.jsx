@@ -6,7 +6,7 @@ import { Country, State } from 'country-state-city';
 import { clearCart, clearCartItems } from '../store/slices/cartSlice';
 import { createOrder as createOrderAction } from '../store/slices/ordersSlice';
 import ShippingStep from '../components/checkout/ShippingStep';
-import PaymentStep from '../components/checkout/PaymentStep';
+import PayPalPaymentStep from '../components/checkout/PayPalPaymentStep';
 import ReviewStep from '../components/checkout/ReviewStep';
 import OrderSummary from '../components/checkout/OrderSummary';
 import ProgressSteps from '../components/checkout/ProgressSteps';
@@ -17,7 +17,10 @@ const Checkout = () => {
   const { items, totalPrice } = useSelector(state => state.cart);
   const { creating: isPlacingOrder } = useSelector(state => state.orders);
   
-  const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
+  const [step, setStep] = useState(1); // 1: Shipping, 2: Review, 3: Payment
+  const [createdOrder, setCreatedOrder] = useState(null);
+  const [paypalOrderId, setPaypalOrderId] = useState(null);
+  const [paypalApprovalUrl, setPaypalApprovalUrl] = useState(null);
   
   // Form data
   const [shippingInfo, setShippingInfo] = useState({
@@ -55,11 +58,11 @@ const Checkout = () => {
     cvv: ''
   });
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('paypal');
 
   // Shipping cost calculation
-  const shippingCost = totalPrice > 500 ? 0 : 15;
-  const finalTotal = totalPrice + shippingCost;
+  const shippingCost = totalPrice > 500 ? 0 : 0;
+  const finalTotal = totalPrice;
 
   const handleShippingChange = (e) => {
     const { name, value } = e.target;
@@ -87,23 +90,15 @@ const Checkout = () => {
 
   const handleShippingSubmit = (e) => {
     e.preventDefault();
-    setStep(2);
-  };
-
-  const handlePaymentSubmit = (e) => {
-    e.preventDefault();
-    setStep(3);
+    setStep(2); // Move to Review step
   };
 
   const handleEditShipping = () => {
     setStep(1);
   };
 
-  const handleEditPayment = () => {
-    setStep(2);
-  };
-
-  const handlePlaceOrder = async () => {
+  // Create order when proceeding from Review to Payment
+  const handleReviewSubmit = async () => {
     try {
       // Helper function to get country name from code
       const getCountryName = (countryCode) => {
@@ -138,7 +133,6 @@ const Checkout = () => {
       if (useBillingAddress) {
         // Convert billing address codes to names
         const billingCountryName = getCountryName(billingInfo.country);
-        console.log('billingCountryName :', billingCountryName);
         const billingStateName = getStateName(billingInfo.state, billingInfo.country);
         billingAddress = {
           street: billingInfo.address,
@@ -152,80 +146,65 @@ const Checkout = () => {
         billingAddress = { ...shippingAddress };
       }
 
-      // Handle PayPal payment flow
-      if (selectedPaymentMethod === 'paypal') {
-        // Prepare order data for PayPal
-        const orderData = {
-          shippingAddress: shippingAddress,
-          billingAddress: billingAddress,
-          phone: shippingInfo.phone,
-          paymentMethod: "PayPal",
-          notes: "Please handle with care"
-        };
-
-        // Create PayPal order
-        const result = await dispatch(createOrderAction(orderData));
-        console.log('PayPal order result :', result);
-        
-        if (createOrderAction.fulfilled.match(result)) {
-          const orderResponse = result.payload;
-          const responseData = orderResponse.data || orderResponse;
-          
-          // Check if this is a PayPal order response
-          if (responseData.paypalOrderId && responseData.approvalUrl) {
-            // Redirect to PayPal approval URL
-            window.location.href = responseData.approvalUrl;
-            return;
-          }
-        } else {
-          // Error creating PayPal order
-          return;
-        }
-      }
-
-      // Handle regular card payment
-      // Prepare order data
+      // Prepare order data for PayPal
       const orderData = {
         shippingAddress: shippingAddress,
         billingAddress: billingAddress,
         phone: shippingInfo.phone,
-        paymentMethod: selectedPaymentMethod === 'card' ? "Credit Card" : selectedPaymentMethod,
+        paymentMethod: "PayPal",
         notes: "Please handle with care"
       };
 
-      // Create order via Redux action
+      // Create PayPal order
       const result = await dispatch(createOrderAction(orderData));
-      console.log('result :', result);
       
       if (createOrderAction.fulfilled.match(result)) {
         const orderResponse = result.payload;
-        const orderData = orderResponse.data || orderResponse;
+        const responseData = orderResponse.data || orderResponse;
         
-        // Clear cart after successful order
-        await dispatch(clearCartItems());
-        dispatch(clearCart());
-        
-        // Store order data for success page
-        localStorage.setItem('lastOrder', JSON.stringify(orderData));
-        
-        // Navigate to success page with order ID
-        const orderId = orderData._id || orderData.orderNumber;
-        if (orderId) {
-          navigate(`/order-success/${orderId}`);
+        // Check if this is a PayPal order response
+        if (responseData.paypalOrderId) {
+          setPaypalOrderId(responseData.paypalOrderId);
+          setPaypalApprovalUrl(responseData.approvalUrl || null);
+          setCreatedOrder(responseData);
+          setStep(3); // Move to Payment step
         } else {
-          // Fallback if no ID is available
-          navigate('/order-success', { 
-            state: { 
-              orderData: orderData,
-              orderNumber: orderData.orderNumber || orderData._id
-            } 
-          });
+          // If order was created but not PayPal, store it
+          setCreatedOrder(responseData);
+          setStep(3);
         }
+      } else {
+        // Error creating order
+        console.error('Failed to create order:', result);
       }
     } catch (error) {
-      console.error('Error placing order:', error);
+      console.error('Error creating order:', error);
     }
   };
+
+  const handlePaymentSuccess = async (orderData) => {
+    // Clear cart after successful payment
+    await dispatch(clearCartItems());
+    dispatch(clearCart());
+    
+    // Store order data for success page
+    localStorage.setItem('lastOrder', JSON.stringify(orderData));
+    
+    // Navigate to success page with order ID
+    const orderId = orderData._id || orderData.orderNumber;
+    if (orderId) {
+      navigate(`/order-success/${orderId}`);
+    } else {
+      // Fallback if no ID is available
+      navigate('/order-success', { 
+        state: { 
+          orderData: orderData,
+          orderNumber: orderData.orderNumber || orderData._id
+        } 
+      });
+    }
+  };
+
 
   // Check if user can navigate to a specific step
   const canNavigateToStep = (targetStep) => {
@@ -237,9 +216,8 @@ const Checkout = () => {
              shippingInfo.state && shippingInfo.zipCode && shippingInfo.country;
     }
     if (targetStep === 3) {
-      // Check if both shipping and payment info are complete
-      return canNavigateToStep(2) && paymentInfo.cardNumber && paymentInfo.cardName && 
-             paymentInfo.expiryDate && paymentInfo.cvv;
+      // Can only go to payment step if order has been created
+      return createdOrder !== null;
     }
     return false;
   };
@@ -258,14 +236,14 @@ const Checkout = () => {
       icon: MapPin
     },
     {
-      title: 'Payment',
-      description: 'Add your payment details',
-      icon: CreditCard
-    },
-    {
       title: 'Review',
       description: 'Review and confirm your order',
       icon: CheckCircle
+    },
+    {
+      title: 'Payment',
+      description: 'Complete your payment',
+      icon: CreditCard
     }
   ];
 
@@ -346,29 +324,25 @@ const Checkout = () => {
                 />
               )}
 
-              {/* Step 2: Payment Information */}
+              {/* Step 2: Review Order */}
               {step === 2 && (
-                <PaymentStep
-                  paymentInfo={paymentInfo}
-                  onPaymentChange={handlePaymentChange}
-                  selectedPaymentMethod={selectedPaymentMethod}
-                  onPaymentMethodChange={setSelectedPaymentMethod}
-                  onSubmit={handlePaymentSubmit}
-                  onBack={() => setStep(1)}
-                  loading={false}
-                />
-              )}
-
-              {/* Step 3: Review Order */}
-              {step === 3 && (
                 <ReviewStep
                   shippingInfo={shippingInfo}
                   billingInfo={useBillingAddress ? billingInfo : null}
-                  paymentInfo={paymentInfo}
-                  selectedPaymentMethod={selectedPaymentMethod}
                   onEditShipping={handleEditShipping}
-                  onEditPayment={handleEditPayment}
-                  onPlaceOrder={handlePlaceOrder}
+                  onSubmit={handleReviewSubmit}
+                  loading={isPlacingOrder}
+                />
+              )}
+
+              {/* Step 3: Payment */}
+              {step === 3 && paypalOrderId && (
+                <PayPalPaymentStep
+                  orderId={paypalOrderId}
+                  orderTotal={finalTotal}
+                  approvalUrl={paypalApprovalUrl}
+                  onPaymentSuccess={handlePaymentSuccess}
+                  onBack={() => setStep(2)}
                   loading={isPlacingOrder}
                 />
               )}
