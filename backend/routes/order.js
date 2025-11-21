@@ -115,12 +115,21 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
 
       await tempOrder.save();
 
+      // Safely extract approval URL
+      const approveLink = paypalOrder.links?.find(link => link.rel === 'approve');
+      const approvalUrl = approveLink?.href || null;
+
+      if (!approvalUrl) {
+        console.error('PayPal approval URL not found in response:', paypalOrder);
+        throw new Error('PayPal approval URL not found. Please try again.');
+      }
+
       res.json({
         success: true,
         message: 'PayPal order created successfully',
         data: {
           paypalOrderId: paypalOrder.id,
-          approvalUrl: paypalOrder.links.find(link => link.rel === 'approve').href,
+          approvalUrl: approvalUrl,
           orderData: orderData,
           paymentMethod: 'paypal'
         }
@@ -207,7 +216,11 @@ router.post('/capture-paypal', authenticate, validate(capturePayPalPaymentSchema
       });
     }
 
-    tempOrder.paypalTransactionId = captureResult.purchase_units[0].payments.captures[0].id;
+    // Safely extract transaction ID with null checks
+    const capture = captureResult.purchase_units?.[0]?.payments?.captures?.[0];
+    if (capture?.id) {
+      tempOrder.paypalTransactionId = capture.id;
+    }
     tempOrder.paymentStatus = 'completed';
     tempOrder.status = 'processing';
 

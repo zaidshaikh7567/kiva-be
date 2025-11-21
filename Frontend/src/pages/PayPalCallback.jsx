@@ -45,11 +45,18 @@ const PayPalCallback = () => {
         const result = await dispatch(capturePayPalPayment(token));
         console.log('result :', result);
 
-        if (result.payload.success) {
+        // Check if the action was fulfilled (success) or rejected (error)
+        if (capturePayPalPayment.fulfilled.match(result)) {
           const orderResponse = result.payload;
           console.log('orderResponse :', orderResponse);
-          const orderData = orderResponse.data ;
+          
+          // Handle different response structures
+          const orderData = orderResponse?.data || orderResponse;
           console.log('orderData :', orderData);
+
+          if (!orderData) {
+            throw new Error('Order data not found in response');
+          }
 
           // Clear cart after successful payment
           await dispatch(clearCartItems());
@@ -60,23 +67,23 @@ const PayPalCallback = () => {
 
           setStatus('success');
 
-          // Navigate to success page after a short delay
-          // setTimeout(() => {
-            const orderId = orderData._id || orderData.orderNumber;
-            if (orderId) {
-              navigate(`/order-success/${orderId}`);
-            } else {
-              navigate('/order-success', {
-                state: {
-                  orderData: orderData,
-                  orderNumber: orderData.orderNumber || orderData._id
-                }
-              });
-            }
-          // }, 1500);
+          // Navigate to success page
+          const orderId = orderData._id || orderData.orderNumber;
+          if (orderId) {
+            navigate(`/order-success/${orderId}`);
+          } else {
+            navigate('/order-success', {
+              state: {
+                orderData: orderData,
+                orderNumber: orderData.orderNumber || orderData._id
+              }
+            });
+          }
         } else {
+          // Action was rejected
+          const errorMsg = result.payload || result.error?.message || 'Failed to capture payment. Please contact support.';
           setStatus('error');
-          setErrorMessage(result.payload || 'Failed to capture payment. Please contact support.');
+          setErrorMessage(errorMsg);
           setTimeout(() => {
             console.log('redirecting to checkout--------------3');
             navigate('/checkout');
@@ -85,7 +92,7 @@ const PayPalCallback = () => {
       } catch (error) {
         console.error('PayPal callback error:', error);
         setStatus('error');
-        setErrorMessage('An error occurred while processing your payment. Please try again.');
+        setErrorMessage(error.message || 'An error occurred while processing your payment. Please try again.');
         setTimeout(() => {
           console.log('redirecting to checkout--------------4');
           navigate('/checkout');

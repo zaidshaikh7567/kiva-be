@@ -110,9 +110,18 @@ const PayPalPaymentStep = ({
               setIsProcessing(true);
               setError(null);
               
+              // PayPal returns orderID in the data object
+              const paypalOrderId = data.orderID || data.orderId || data.id || orderId;
+              
+              if (!paypalOrderId) {
+                throw new Error('PayPal order ID not found in response');
+              }
+              
+              console.log('Capturing PayPal payment with order ID:', paypalOrderId);
+              
               // Call backend to capture payment
               const response = await api.post(`${API_METHOD.orders}/capture-paypal`, {
-                paypalOrderId: data.orderID
+                paypalOrderId: paypalOrderId
               });
 
               if (response.data.success) {

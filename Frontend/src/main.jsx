@@ -10,11 +10,11 @@ import App from './App.jsx'
 const GOOGLE_CLIENT_ID = '742224364199-7lsqlarog8klqcn4a0ed6q74nbp1omk6.apps.googleusercontent.com'
 
 createRoot(document.getElementById('root')).render(
-  // <StrictMode>
+  <StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <Provider store={store}>
         <App />
       </Provider>
     </GoogleOAuthProvider>
-  // </StrictMode>,
+  </StrictMode>,
 )

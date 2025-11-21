@@ -174,8 +174,11 @@ const Checkout = () => {
           setStep(3);
         }
       } else {
-        // Error creating order
+        // Error creating order - show error and stay on review step
         console.error('Failed to create order:', result);
+        const errorMessage = result.payload || result.error?.message || 'Failed to create order. Please try again.';
+        alert(errorMessage); // TODO: Replace with proper toast/notification
+        // Stay on review step so user can try again
       }
     } catch (error) {
       console.error('Error creating order:', error);
@@ -336,15 +339,31 @@ const Checkout = () => {
               )}
 
               {/* Step 3: Payment */}
-              {step === 3 && paypalOrderId && (
-                <PayPalPaymentStep
-                  orderId={paypalOrderId}
-                  orderTotal={finalTotal}
-                  approvalUrl={paypalApprovalUrl}
-                  onPaymentSuccess={handlePaymentSuccess}
-                  onBack={() => setStep(2)}
-                  loading={isPlacingOrder}
-                />
+              {step === 3 && (
+                paypalOrderId ? (
+                  <PayPalPaymentStep
+                    orderId={paypalOrderId}
+                    orderTotal={finalTotal}
+                    approvalUrl={paypalApprovalUrl}
+                    onPaymentSuccess={handlePaymentSuccess}
+                    onBack={() => setStep(2)}
+                    loading={isPlacingOrder}
+                  />
+                ) : (
+                  <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
+                    <div className="text-center py-12">
+                      <p className="text-red-600 font-montserrat-medium-500 mb-4">
+                        Payment information is not available. Please go back and try again.
+                      </p>
+                      <button
+                        onClick={() => setStep(2)}
+                        className="px-8 py-4 bg-primary text-white font-montserrat-medium-500 rounded-lg hover:bg-primary-dark transition-colors duration-300"
+                      >
+                        Back to Review
+                      </button>
+                    </div>
+                  </div>
+                )
               )}
             </div>
 
