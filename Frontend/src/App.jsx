@@ -10,6 +10,31 @@ import { useEffect } from 'react'
 import { fetchStones } from './store/slices/stonesSlice'
 import { fetchMetals } from './store/slices/metalsSlice'
 
+// PORT=5000
+// NODE_ENV=production
+// CORS_ORIGIN=https://kiva-be.onrender.com
+
+// MONGO_URI=mongodb+srv://shaikhzaidszs1035_db_user:QkK7NbYhHB2VOqse@cluster0.cgdvgnu.mongodb.net/kiva-db?retryWrites=true&w=majority&appName=Cluster0
+
+// CLOUDINARY_CLOUD_NAME=dtrrg09h4
+// CLOUDINARY_API_KEY=796819654563737
+// CLOUDINARY_API_SECRET=a-3EvlDchBTr-tR7gN8CaNnqUgQ
+
+// JWT_ACCESS_SECRET=your-production-super-secret-jwt-key-here-make-it-long-and-random
+// JWT_REFRESH_SECRET=your-production-super-secret-refresh-jwt-key-here-make-it-different-and-long
+
+// GMAIL_USER=your-production-email@gmail.com
+// GMAIL_APP_PASSWORD=your-production-app-password
+
+// PAYPAL_CLIENT_ID=AVymn9PU4Momgb0mSfg4DVJbEtyR8b8YuKiLh1HTKPU6h_lw3IZR1aC8bmOV6MlMhD-CkfO2DATtM2r5
+// PAYPAL_CLIENT_SECRET=EMT6PIhbLL4g71P5G87RoeWAsUu5EBumh0Bw1PF-t-9ALx9DwR3l1lkFENcUzJL90eBODin0ROLTxmEL
+
+// FRONTEND_URL= http://localhost:5174
+// avaiyasmit11111@gmail.com
+// smitavaiya
+// Smit@7793
+
+
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {

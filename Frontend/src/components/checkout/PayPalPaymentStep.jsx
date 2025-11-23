@@ -3,12 +3,13 @@ import { CreditCard, Lock, AlertCircle, Loader } from 'lucide-react';
 import { loadScript } from '@paypal/paypal-js';
 import api from '../../services/api';
 import { API_METHOD } from '../../services/apiMethod';
+import PriceDisplay from '../PriceDisplay';
 
-const PayPalPaymentStep = ({ 
-  orderId, 
-  orderTotal, 
-  onPaymentSuccess, 
-  onBack, 
+const PayPalPaymentStep = ({
+  orderId,
+  orderTotal,
+  onPaymentSuccess,
+  onBack,
   loading,
   approvalUrl // Fallback URL if card fields aren't available
 }) => {
@@ -18,8 +19,8 @@ const PayPalPaymentStep = ({
   const [cardFields, setCardFields] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [useRedirect, setUseRedirect] = useState(false);
-  
+  const [useRedirect, setUseRedirect] = useState(true);
+
   const cardNumberFieldRef = useRef(null);
   const cvvFieldRef = useRef(null);
   const expirationDateFieldRef = useRef(null);
@@ -33,22 +34,22 @@ const PayPalPaymentStep = ({
         if (response.data.success) {
           const clientId = response.data.data.clientId;
           setClientId(clientId);
-          
+
           // Load PayPal SDK using the package
           try {
             const paypalSDK = await loadScript({
               'client-id': clientId,
-              'components': 'card-fields',
+              'components': 'buttons,card-fields',
               'currency': 'USD',
               'intent': 'capture'
             });
-            
+
             console.log('PayPal SDK loaded:', {
               hasSDK: !!paypalSDK,
               hasCardFields: !!paypalSDK?.CardFields,
               clientId: clientId.substring(0, 10) + '...'
             });
-            
+
             if (paypalSDK) {
               if (!paypalSDK.CardFields) {
                 throw new Error('CardFields component not available in PayPal SDK. Make sure card-fields is included in components.');
@@ -89,7 +90,7 @@ const PayPalPaymentStep = ({
         if (!paypal.CardFields) {
           throw new Error('PayPal CardFields API is not available. Make sure the SDK loaded with card-fields component.');
         }
-        
+
         // Wait a bit to ensure refs are mounted
         await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -97,28 +98,30 @@ const PayPalPaymentStep = ({
         if (!cardNumberFieldRef.current || !cvvFieldRef.current || !expirationDateFieldRef.current) {
           throw new Error('Card field containers are not ready. Please try refreshing the page.');
         }
-        
+
         cardFieldsInstance = paypal.CardFields({
           createOrder: async () => {
             // Return the order ID that was already created
             console.log('Creating order with ID:', orderId);
             return orderId;
           },
+
           onApprove: async (data) => {
+            console.log(cardFieldsInstance, 'cardFieldsInstance');
             // Payment approved, capture it
             try {
               setIsProcessing(true);
               setError(null);
-              
+
               // PayPal returns orderID in the data object
               const paypalOrderId = data.orderID || data.orderId || data.id || orderId;
-              
+
               if (!paypalOrderId) {
                 throw new Error('PayPal order ID not found in response');
               }
-              
+
               console.log('Capturing PayPal payment with order ID:', paypalOrderId);
-              
+
               // Call backend to capture payment
               const response = await api.post(`${API_METHOD.orders}/capture-paypal`, {
                 paypalOrderId: paypalOrderId
@@ -139,7 +142,7 @@ const PayPalPaymentStep = ({
           onError: (err) => {
             console.error('PayPal Card Fields error:', err);
             let errorMessage = 'An error occurred with PayPal';
-            
+
             if (err?.message?.includes('card payments are not eligible')) {
               // If card fields aren't available, offer redirect as fallback
               if (approvalUrl) {
@@ -151,7 +154,7 @@ const PayPalPaymentStep = ({
             } else if (err?.message) {
               errorMessage = err.message;
             }
-            
+
             setError(errorMessage);
             setIsProcessing(false);
           }
@@ -162,7 +165,7 @@ const PayPalPaymentStep = ({
         // Debug: Log available methods
         console.log('CardFields instance methods:', Object.keys(cardFieldsInstance));
         console.log('CardFields instance:', cardFieldsInstance);
-        
+
         // If card payments are not eligible, we'll catch it during render
         // but let's also check if we should just use redirect upfront
 
@@ -173,67 +176,67 @@ const PayPalPaymentStep = ({
           }
           numberField = cardFieldsInstance.NumberField();
           numberField.render(cardNumberFieldRef.current).catch((renderErr) => {
-          console.error('Error rendering card number field:', renderErr);
-          if (renderErr?.message?.includes('card payments are not eligible')) {
-            if (approvalUrl) {
-              setUseRedirect(true);
-              setError('Card fields are not available. You will be redirected to PayPal to complete payment.');
+            console.error('Error rendering card number field:', renderErr);
+            if (renderErr?.message?.includes('card payments are not eligible')) {
+              if (approvalUrl) {
+                setUseRedirect(true);
+                setError('Card fields are not available. You will be redirected to PayPal to complete payment.');
+              } else {
+                setError('Card payments are not enabled for this PayPal account. Please contact support or use a different payment method.');
+              }
             } else {
-              setError('Card payments are not enabled for this PayPal account. Please contact support or use a different payment method.');
+              setError('Failed to initialize card number field. Please try again or contact support.');
             }
-          } else {
-            setError('Failed to initialize card number field. Please try again or contact support.');
-          }
-        });
-      }
-      if (cvvFieldRef.current) {
-        if (typeof cardFieldsInstance.CVVField !== 'function') {
-          throw new Error('CVVField method is not available on CardFields instance');
+          });
         }
-        cvvField = cardFieldsInstance.CVVField();
-        cvvField.render(cvvFieldRef.current).catch((renderErr) => {
-          console.error('Error rendering CVV field:', renderErr);
-          if (renderErr?.message?.includes('card payments are not eligible')) {
-            if (approvalUrl) {
-              setUseRedirect(true);
-              setError('Card fields are not available. You will be redirected to PayPal to complete payment.');
-            } else {
-              setError('Card payments are not enabled for this PayPal account. Please contact support or use a different payment method.');
-            }
-          } else {
-            setError('Failed to initialize CVV field. Please try again or contact support.');
+        if (cvvFieldRef.current) {
+          if (typeof cardFieldsInstance.CVVField !== 'function') {
+            throw new Error('CVVField method is not available on CardFields instance');
           }
-        });
-      }
-      if (expirationDateFieldRef.current) {
-        // Try different possible method names
-        let expirationMethod = null;
-        if (typeof cardFieldsInstance.ExpirationDateField === 'function') {
-          expirationMethod = cardFieldsInstance.ExpirationDateField;
-        } else if (typeof cardFieldsInstance.ExpiryField === 'function') {
-          expirationMethod = cardFieldsInstance.ExpiryField;
-        } else if (typeof cardFieldsInstance.ExpirationField === 'function') {
-          expirationMethod = cardFieldsInstance.ExpirationField;
-        } else {
-          console.error('Available methods:', Object.keys(cardFieldsInstance));
-          throw new Error('Expiration date field method is not available. Available methods: ' + Object.keys(cardFieldsInstance).join(', '));
+          cvvField = cardFieldsInstance.CVVField();
+          cvvField.render(cvvFieldRef.current).catch((renderErr) => {
+            console.error('Error rendering CVV field:', renderErr);
+            if (renderErr?.message?.includes('card payments are not eligible')) {
+              if (approvalUrl) {
+                setUseRedirect(true);
+                setError('Card fields are not available. You will be redirected to PayPal to complete payment.');
+              } else {
+                setError('Card payments are not enabled for this PayPal account. Please contact support or use a different payment method.');
+              }
+            } else {
+              setError('Failed to initialize CVV field. Please try again or contact support.');
+            }
+          });
         }
-        
-        expirationField = expirationMethod();
-        expirationField.render(expirationDateFieldRef.current).catch((renderErr) => {
-          console.error('Error rendering expiration field:', renderErr);
-          if (renderErr?.message?.includes('card payments are not eligible')) {
-            if (approvalUrl) {
-              setUseRedirect(true);
-              setError('Card fields are not available. You will be redirected to PayPal to complete payment.');
-            } else {
-              setError('Card payments are not enabled for this PayPal account. Please contact support or use a different payment method.');
-            }
+        if (expirationDateFieldRef.current) {
+          // Try different possible method names
+          let expirationMethod = null;
+          if (typeof cardFieldsInstance.ExpirationDateField === 'function') {
+            expirationMethod = cardFieldsInstance.ExpirationDateField;
+          } else if (typeof cardFieldsInstance.ExpiryField === 'function') {
+            expirationMethod = cardFieldsInstance.ExpiryField;
+          } else if (typeof cardFieldsInstance.ExpirationField === 'function') {
+            expirationMethod = cardFieldsInstance.ExpirationField;
           } else {
-            setError('Failed to initialize expiration field. Please try again or contact support.');
+            console.error('Available methods:', Object.keys(cardFieldsInstance));
+            throw new Error('Expiration date field method is not available. Available methods: ' + Object.keys(cardFieldsInstance).join(', '));
           }
-        });
-      }
+
+          expirationField = expirationMethod();
+          expirationField.render(expirationDateFieldRef.current).catch((renderErr) => {
+            console.error('Error rendering expiration field:', renderErr);
+            if (renderErr?.message?.includes('card payments are not eligible')) {
+              if (approvalUrl) {
+                setUseRedirect(true);
+                setError('Card fields are not available. You will be redirected to PayPal to complete payment.');
+              } else {
+                setError('Card payments are not enabled for this PayPal account. Please contact support or use a different payment method.');
+              }
+            } else {
+              setError('Failed to initialize expiration field. Please try again or contact support.');
+            }
+          });
+        }
       } catch (err) {
         console.error('Error initializing PayPal Card Fields:', err);
         console.error('Error details:', {
@@ -245,9 +248,9 @@ const PayPalPaymentStep = ({
           orderId: orderId,
           paypalLoaded: paypalLoaded
         });
-        
+
         let errorMessage = 'Failed to initialize payment form.';
-        
+
         if (err?.message?.includes('card payments are not eligible')) {
           // If card fields aren't available, offer redirect as fallback
           if (approvalUrl) {
@@ -263,7 +266,7 @@ const PayPalPaymentStep = ({
         } else {
           errorMessage = `Failed to initialize payment form: ${err?.toString() || 'Unknown error'}`;
         }
-        
+
         setError(errorMessage);
       }
     };
@@ -307,15 +310,20 @@ const PayPalPaymentStep = ({
     try {
       setIsProcessing(true);
       setError(null);
-      
+
       // Submit the card fields
-      await cardFields.submit();
+      const res = await cardFields.submit();
+      console.log(res, 'resresresresresres=======');
+
     } catch (err) {
       console.error('Payment submission error:', err);
       setError(err.message || 'Failed to submit payment');
       setIsProcessing(false);
     }
   };
+console.log(approvalUrl,'approvalUrl');
+console.log(useRedirect,'useRedirect');
+
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
@@ -375,6 +383,7 @@ const PayPalPaymentStep = ({
               Card payment fields are not available. You will be redirected to PayPal's secure payment page to complete your payment.
             </p>
             <button
+              id="paypal-buttons-container"
               type="button"
               onClick={() => window.location.href = approvalUrl}
               className="w-full bg-blue-600 text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 text-lg"
@@ -395,7 +404,7 @@ const PayPalPaymentStep = ({
         </div>
       )}
 
-      {paypalLoaded && !useRedirect && (
+      {!paypalLoaded && !useRedirect && (
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Card Number */}
           <div>
@@ -470,7 +479,14 @@ const PayPalPaymentStep = ({
                   <span>Processing Payment...</span>
                 </>
               ) : (
-                <span>Pay ${orderTotal?.toFixed(2) || '0.00'}</span>
+                <span>Pay {" "}
+                 <PriceDisplay 
+                    price={orderTotal?.toFixed(2) || '0.00'}
+                    className="text-md font-montserrat-bold-700  mt-1" 
+                    variant="small"
+                  />
+                  </span>
+                // <span>Pay ${orderTotal?.toFixed(2) || '0.00'}</span>
               )}
             </button>
           </div>
