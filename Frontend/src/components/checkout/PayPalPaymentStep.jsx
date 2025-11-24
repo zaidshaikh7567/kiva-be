@@ -13,17 +13,21 @@ const PayPalPaymentStep = ({
   loading,
   approvalUrl // Fallback URL if card fields aren't available
 }) => {
+  const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' or 'paypal'
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [clientId, setClientId] = useState(null);
   const [paypal, setPaypal] = useState(null);
   const [cardFields, setCardFields] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [useRedirect, setUseRedirect] = useState(true);
+  console.log('error :', error);
+  const [useRedirect, setUseRedirect] = useState(false);
+  const [paypalButtonsRendered, setPaypalButtonsRendered] = useState(false);
 
   const cardNumberFieldRef = useRef(null);
   const cvvFieldRef = useRef(null);
   const expirationDateFieldRef = useRef(null);
+  const paypalButtonsRef = useRef(null);
 
   // Load PayPal client ID and SDK
   useEffect(() => {
@@ -44,11 +48,6 @@ const PayPalPaymentStep = ({
               'intent': 'capture'
             });
 
-            console.log('PayPal SDK loaded:', {
-              hasSDK: !!paypalSDK,
-              hasCardFields: !!paypalSDK?.CardFields,
-              clientId: clientId.substring(0, 10) + '...'
-            });
 
             if (paypalSDK) {
               if (!paypalSDK.CardFields) {
@@ -75,9 +74,107 @@ const PayPalPaymentStep = ({
     loadPayPalSDK();
   }, []);
 
-  // Initialize PayPal Card Fields
+  // Initialize PayPal Smart Payment Buttons when PayPal method is selected
   useEffect(() => {
-    if (!paypal || !clientId || !paypalLoaded || !orderId || useRedirect) return;
+    if (!paypal || !clientId || !paypalLoaded || !orderId || paymentMethod !== 'paypal' || paypalButtonsRendered) return;
+
+    const initializePayPalButtons = async () => {
+      try {
+        if (!paypal.Buttons) {
+          console.warn('PayPal Buttons component not available');
+          return;
+        }
+
+        // Wait for the ref to be available
+        const waitForRef = () => {
+          return new Promise((resolve) => {
+            if (paypalButtonsRef.current) {
+              resolve();
+            } else {
+              const interval = setInterval(() => {
+                if (paypalButtonsRef.current) {
+                  clearInterval(interval);
+                  resolve();
+                }
+              }, 100);
+              setTimeout(() => {
+                clearInterval(interval);
+                resolve();
+              }, 5000);
+            }
+          });
+        };
+
+        await waitForRef();
+
+        if (!paypalButtonsRef.current) {
+          console.error('PayPal buttons container ref not available');
+          return;
+        }
+
+        const buttons = paypal.Buttons({
+          createOrder: async () => {
+            return orderId;
+          },
+          onApprove: async (data) => {
+            try {
+              setIsProcessing(true);
+              setError(null);
+
+              const paypalOrderId = data.orderID || data.orderId || data.id || orderId;
+
+              if (!paypalOrderId) {
+                throw new Error('PayPal order ID not found in response');
+              }
+
+              console.log('Capturing PayPal payment with order ID:', paypalOrderId);
+
+              const response = await api.post(`${API_METHOD.orders}/capture-paypal`, {
+                paypalOrderId: paypalOrderId
+              });
+              console.log('response capture-paypal :', response);
+
+              if (response.data.success) {
+                onPaymentSuccess(response.data.data);
+              } else {
+                setError(response.data.message || 'Payment failed');
+                setIsProcessing(false);
+              }
+            } catch (err) {
+              console.error('Payment capture error:', err);
+              setError(err.response?.data?.message || 'Failed to process payment');
+              setIsProcessing(false);
+            }
+          },
+          onError: (err) => {
+            console.error('PayPal Buttons error:', err);
+            setError(err.message || 'An error occurred with PayPal');
+            setIsProcessing(false);
+          },
+          onCancel: () => {
+            setError('Payment was cancelled');
+            setIsProcessing(false);
+          }
+        });
+
+        buttons.render(paypalButtonsRef.current).then(() => {
+          setPaypalButtonsRendered(true);
+        }).catch((err) => {
+          console.error('Error rendering PayPal buttons:', err);
+          setError('Failed to load PayPal button. Please try again.');
+        });
+      } catch (err) {
+        console.error('Error initializing PayPal buttons:', err);
+        setError('Failed to initialize PayPal payment');
+      }
+    };
+
+    initializePayPalButtons();
+  }, [paypal, clientId, paypalLoaded, orderId, paymentMethod, paypalButtonsRendered, onPaymentSuccess]);
+
+  // Initialize PayPal Card Fields when Card method is selected
+  useEffect(() => {
+    if (!paypal || !clientId || !paypalLoaded || !orderId || paymentMethod !== 'card' || useRedirect) return;
 
     let cardFieldsInstance = null;
     let numberField = null;
@@ -99,7 +196,44 @@ const PayPalPaymentStep = ({
           throw new Error('Card field containers are not ready. Please try refreshing the page.');
         }
 
+        // PayPal Card Fields styling configuration
+        // Note: PayPal uses camelCase for CSS properties
+        const cardFieldStyles = {
+          input: {
+            fontSize: '16px',
+            fontFamily: 'Montserrat, Arial, sans-serif',
+            fontWeight: '400',
+            color: '#051F34',
+            padding: '0',
+            backgroundColor: 'transparent',
+            lineHeight: '1.5',
+            borderRadius: '0',
+            border: 'none',
+            outline: 'none',
+            width: '100%',
+            height: '100%',
+            boxShadow: 'none',
+          },
+          '.invalid': {
+            color: '#051F34',
+            borderColor: 'transparent',
+            boxShadow: 'none',
+          },
+          ':focus': {
+            color: '#051F34',
+            outline: 'none',
+            boxShadow: 'none',
+            borderColor: 'transparent',
+          },
+          '::placeholder': {
+            color: '#9CA3AF',
+            opacity: '1',
+            fontWeight: '400',
+          }
+        };
+
         cardFieldsInstance = paypal.CardFields({
+          style: cardFieldStyles,
           createOrder: async () => {
             // Return the order ID that was already created
             console.log('Creating order with ID:', orderId);
@@ -130,11 +264,14 @@ const PayPalPaymentStep = ({
               if (response.data.success) {
                 onPaymentSuccess(response.data.data);
               } else {
+                console.log('check -------------->2');
                 setError(response.data.message || 'Payment failed');
                 setIsProcessing(false);
               }
             } catch (err) {
               console.error('Payment capture error:', err);
+              console.log('check -------------->1');
+              
               setError(err.response?.data?.message || 'Failed to process payment');
               setIsProcessing(false);
             }
@@ -155,6 +292,7 @@ const PayPalPaymentStep = ({
               errorMessage = err.message;
             }
 
+            console.log('errorMessage :', errorMessage);
             setError(errorMessage);
             setIsProcessing(false);
           }
@@ -298,9 +436,10 @@ const PayPalPaymentStep = ({
         }
       }
     };
-  }, [paypal, clientId, paypalLoaded, orderId, onPaymentSuccess, approvalUrl, useRedirect]);
+  }, [paypal, clientId, paypalLoaded, orderId, paymentMethod, onPaymentSuccess, approvalUrl, useRedirect]);
 
   const handleSubmit = async (e) => {
+    console.log('cardFields :', cardFields);
     e.preventDefault();
     if (!cardFields) {
       setError('Payment form not ready');
@@ -310,21 +449,33 @@ const PayPalPaymentStep = ({
     try {
       setIsProcessing(true);
       setError(null);
-
-      // Submit the card fields
-      const res = await cardFields.submit();
-      console.log(res, 'resresresresresres=======');
-
+      const result = await cardFields.submit();
+      console.log('PayPal confirm result:', result);
+    
+      if (result?.errors?.length) {
+        setError(result.errors.map(e => e.description || e.issue).join(', '));
+        setIsProcessing(false);
+        return;
+      }
+    
+      if (result?.status === 'PAYER_ACTION_REQUIRED') {
+        setError('Additional authentication required. Please follow the PayPal window.');
+        setIsProcessing(false);
+        return;
+      }
+    
+      // proceed with capture (PayPal will call onApprove next)
+      setIsProcessing(false);
     } catch (err) {
-      console.error('Payment submission error:', err);
-      setError(err.message || 'Failed to submit payment');
+    console.log('err--------- :', err);
+      if (err?.message?.includes('Window closed')) {
+        setError('The PayPal authentication window was closed before it finished. Please try again and complete the verification step.');
+      } else {
+        setError(err?.message || 'Failed to submit payment');
+      }
       setIsProcessing(false);
     }
   };
-console.log(approvalUrl,'approvalUrl');
-console.log(useRedirect,'useRedirect');
-
-
   return (
     <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
       <div className="flex items-center space-x-3 mb-6">
@@ -336,8 +487,59 @@ console.log(useRedirect,'useRedirect');
             Payment Information
           </h2>
           <p className="text-sm text-black-light font-montserrat-regular-400">
-            Complete your payment securely with PayPal
+            Choose your preferred payment method
           </p>
+        </div>
+      </div>
+
+      {/* Payment Method Selection */}
+      <div className="mb-6">
+        <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
+          Select Payment Method
+        </label>
+        <div className="grid grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => {
+              setPaymentMethod('card');
+              setError(null);
+              setPaypalButtonsRendered(false);
+            }}
+            className={`p-4 border-2 rounded-lg transition-all duration-300 ${
+              paymentMethod === 'card'
+                ? 'border-primary bg-primary-light'
+                : 'border-primary-light hover:border-primary'
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <CreditCard className={`w-5 h-5 ${paymentMethod === 'card' ? 'text-primary' : 'text-black-light'}`} />
+              <span className={`font-montserrat-medium-500 ${paymentMethod === 'card' ? 'text-primary' : 'text-black'}`}>
+                Credit/Debit Card
+              </span>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setPaymentMethod('paypal');
+              setError(null);
+              setPaypalButtonsRendered(false);
+            }}
+            className={`p-4 border-2 rounded-lg transition-all duration-300 ${
+              paymentMethod === 'paypal'
+                ? 'border-primary bg-primary-light'
+                : 'border-primary-light hover:border-primary'
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <svg className={`w-5 h-5 ${paymentMethod === 'paypal' ? 'text-primary' : 'text-black-light'}`} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.174 1.351 1.05 3.3.93 4.855v.1c-.011.194-.029.39-.04.582-.307 3.557-1.894 5.447-4.627 5.447h-2.21c-.524 0-.968.382-1.05.9l-1.12 7.338zm8.534-18.487c-.208-.24-.578-.39-1.04-.39H5.998c-.524 0-.968.382-1.05.9L3.309 19.61h3.767l.813-5.326a.641.641 0 0 1 .633-.74h2.903c3.582 0 5.372-1.444 5.97-4.527.261-1.35.177-2.471-.123-3.283z"/>
+              </svg>
+              <span className={`font-montserrat-medium-500 ${paymentMethod === 'paypal' ? 'text-primary' : 'text-black'}`}>
+                PayPal
+              </span>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -345,13 +547,13 @@ console.log(useRedirect,'useRedirect');
         <div className="flex items-center justify-center py-12">
           <Loader className="w-8 h-8 text-primary animate-spin" />
           <span className="ml-3 text-black-light font-montserrat-regular-400">
-            Loading payment form...
+            Loading payment options...
           </span>
         </div>
       )}
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="mb-0 bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-start space-x-3 mb-2">
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <p className="text-sm font-montserrat-semibold-600 text-red-800">
@@ -376,122 +578,263 @@ console.log(useRedirect,'useRedirect');
         </div>
       )}
 
-      {useRedirect && approvalUrl && (
-        <div className="space-y-6">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-sm font-montserrat-regular-400 text-yellow-800 mb-4">
-              Card payment fields are not available. You will be redirected to PayPal's secure payment page to complete your payment.
-            </p>
+      {/* Card Payment Method */}
+      {paymentMethod === 'card' && paypalLoaded && (
+        <>
+          {useRedirect && approvalUrl ? (
+            <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-2">
+              <div className="space-y-6">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-sm font-montserrat-regular-400 text-yellow-800 mb-4">
+                    Card payment fields are not available. You will be redirected to PayPal's secure payment page to complete your payment.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => window.location.href = approvalUrl}
+                    className="w-full bg-blue-600 text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 text-lg"
+                  >
+                    Continue to PayPal
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : !useRedirect && (
+            <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-2">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Section Header */}
+                <div className="flex items-center space-x-3 mb-8">
+                  <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center flex-shrink-0">
+                    <CreditCard className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-sorts-mill-gloudy text-black">
+                      Card Information
+                    </h3>
+                    <p className="text-xs text-gray-500 font-montserrat-regular-400 mt-0.5">
+                      Enter your payment card details
+                    </p>
+                  </div>
+                </div>
+
+                {/* Card Number */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-montserrat-semibold-600 text-black mb-2.5 leading-tight">
+                    Card Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative group flex items-center">
+                    <CreditCard className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10 transition-colors duration-200 group-focus-within:text-primary" />
+                    <div 
+                      ref={cardNumberFieldRef}
+                      className="w-full border-2 border-gray-200 rounded-lg bg-white transition-all duration-200 hover:border-primary-light focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 flex items-center"
+                      id="card-number-field"
+                      style={{ 
+                        minHeight: '64px', 
+                        height: '64px',
+                        paddingLeft: '48px', 
+                        paddingRight: '16px'
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs font-montserrat-regular-400 text-gray-500 mt-1.5 leading-relaxed">
+                    Enter your 16-digit card number
+                  </p>
+                </div>
+
+                {/* Expiry and CVV */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-montserrat-semibold-600 text-black mb-2.5 leading-tight">
+                      Expiry Date <span className="text-red-500">*</span>
+                    </label>
+                    <div
+                      ref={expirationDateFieldRef}
+                      className="w-full border-2 border-gray-200 rounded-lg bg-white transition-all duration-200 hover:border-primary-light focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 flex items-center"
+                      id="expiration-date-field"
+                      style={{ 
+                        minHeight: '64px',
+                        height: '64px',
+                        padding: '0 16px'
+                      }}
+                    />
+                    <p className="text-xs font-montserrat-regular-400 text-gray-500 mt-1.5 leading-relaxed">
+                      MM/YY format
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-montserrat-semibold-600 text-black mb-2.5 leading-tight">
+                      CVV <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative group flex items-center">
+                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10 transition-colors duration-200 group-focus-within:text-primary" />
+                      <div 
+                        ref={cvvFieldRef}
+                        className="w-full border-2 border-gray-200 rounded-lg bg-white transition-all duration-200 hover:border-primary-light focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 flex items-center"
+                        id="cvv-field"
+                        style={{ 
+                          minHeight: '64px',
+                          height: '64px',
+                          paddingLeft: '48px', 
+                          paddingRight: '16px'
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs font-montserrat-regular-400 text-gray-500 mt-1.5 leading-relaxed">
+                      3-digit security code
+                    </p>
+                  </div>
+                </div>
+
+                {/* Security Notice */}
+                <div className="bg-primary-light rounded-lg p-4 border border-primary-light">
+                  <div className="flex items-start space-x-3">
+                    <Lock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-montserrat-semibold-600 text-black mb-1">
+                        Secure Payment
+                      </p>
+                      <p className="text-sm font-montserrat-regular-400 text-black-light">
+                        Your payment information is encrypted and secure. We never store your complete payment details.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Button */}
+                <div className="flex justify-between gap-4">
+                {/* <div className="mt-6 flex flex-col sm:flex-row gap-4"> */}
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isProcessing || loading}
+          className="sm:w-1/3 border-2 border-primary text-primary font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Back
+        </button>
+    
+                  <button
+                    type="submit"
+                    disabled={isProcessing || loading || !paypalLoaded}
+                    className="w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  >
+                    {isProcessing || loading ? (
+                      <>
+                        <Loader className="w-5 h-5 animate-spin" />
+                        <span>Processing Payment...</span>
+                      </>
+                    ) : (
+                      <span>
+                        Pay <PriceDisplay 
+                          price={orderTotal?.toFixed(2) || '0.00'}
+                          className="text-md font-montserrat-bold-700 inline ml-1" 
+                          variant="small"
+                        />
+                      </span>
+                    )}
+                  </button>
+                  </div>
+                {/* </div> */}
+              </form>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* PayPal Payment Method */}
+      {paymentMethod === 'paypal' && paypalLoaded && (
+        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-2">
+          <div className="space-y-6">
+            {/* Section Header */}
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.174 1.351 1.05 3.3.93 4.855v.1c-.011.194-.029.39-.04.582-.307 3.557-1.894 5.447-4.627 5.447h-2.21c-.524 0-.968.382-1.05.9l-1.12 7.338zm8.534-18.487c-.208-.24-.578-.39-1.04-.39H5.998c-.524 0-.968.382-1.05.9L3.309 19.61h3.767l.813-5.326a.641.641 0 0 1 .633-.74h2.903c3.582 0 5.372-1.444 5.97-4.527.261-1.35.177-2.471-.123-3.283z"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-sorts-mill-gloudy text-black">
+                PayPal Payment
+              </h3>
+            </div>
+
+            {/* Information Notice */}
+            <div className="bg-primary-light rounded-lg p-4 border border-primary-light">
+              <div className="flex items-start space-x-3">
+                <Lock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-montserrat-semibold-600 text-black mb-1">
+                    Secure PayPal Payment
+                  </p>
+                  <p className="text-sm font-montserrat-regular-400 text-black-light">
+                    Click the PayPal button below to complete your payment securely. You'll be redirected to PayPal's secure payment page.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* PayPal Smart Payment Buttons Container */}
+            <div className="pt-2">
+              
+              <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
+                Complete Payment with PayPal
+              </label>
+              <div 
+                ref={paypalButtonsRef} 
+                id="paypal-buttons-container" 
+                className="min-h-[50px] w-full border border-primary-light rounded-lg p-4 bg-gray-50 flex items-center justify-center"
+              >
+                {!paypalButtonsRendered && (
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <Loader className="w-6 h-6 text-primary animate-spin mb-2" />
+                    <span className="text-sm t  ext-black-light font-montserrat-regular-400">
+                      Loading PayPal button...
+                    </span>
+                  </div>
+                )}
+              </div>
+              <p className="mt-2 text-xs font-montserrat-regular-400 text-black-light">
+                You can pay with your PayPal account or credit/debit card
+              </p>
+            </div>
             <button
-              id="paypal-buttons-container"
-              type="button"
-              onClick={() => window.location.href = approvalUrl}
-              className="w-full bg-blue-600 text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 text-lg"
-            >
-              Continue to PayPal
-            </button>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              type="button"
-              onClick={onBack}
-              disabled={isProcessing || loading}
-              className="sm:w-1/3 border-2 border-primary text-primary font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Back
-            </button>
+          type="button"
+          onClick={onBack}
+          disabled={isProcessing || loading}
+          className="w-full border-2 border-primary text-primary font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Back
+        </button>
+            {/* Fallback: Continue to PayPal button (only if buttons fail to load) */}
+            {approvalUrl && !paypalButtonsRendered && (
+              <div className="pt-4 border-t border-primary-light">
+                <p className="text-sm text-black-light font-montserrat-regular-400 mb-3 text-center">
+                  Or continue to PayPal website:
+                </p>
+                <button
+                  type="button"
+                  onClick={() => window.location.href = approvalUrl}
+                  className="w-full bg-blue-600 text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 text-lg flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.174 1.351 1.05 3.3.93 4.855v.1c-.011.194-.029.39-.04.582-.307 3.557-1.894 5.447-4.627 5.447h-2.21c-.524 0-.968.382-1.05.9l-1.12 7.338zm8.534-18.487c-.208-.24-.578-.39-1.04-.39H5.998c-.524 0-.968.382-1.05.9L3.309 19.61h3.767l.813-5.326a.641.641 0 0 1 .633-.74h2.903c3.582 0 5.372-1.444 5.97-4.527.261-1.35.177-2.471-.123-3.283z"/>
+                  </svg>
+                  <span>Continue to PayPal</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {!paypalLoaded && !useRedirect && (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Card Number */}
-          <div>
-            <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-              Card Number *
-            </label>
-            <div className="relative">
-              <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light z-10" />
-              <div
-                ref={cardNumberFieldRef}
-                className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus-within:ring-1 focus-within:ring-primary focus-within:border-primary"
-                id="card-number-field"
-              />
-            </div>
-          </div>
-
-          {/* Expiry and CVV */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                Expiry Date *
-              </label>
-              <div
-                ref={expirationDateFieldRef}
-                className="w-full px-4 py-3 border border-primary-light rounded-lg focus-within:ring-1 focus-within:ring-primary focus-within:border-primary"
-                id="expiration-date-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                CVV *
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black-light z-10" />
-                <div
-                  ref={cvvFieldRef}
-                  className="w-full pl-11 pr-4 py-3 border border-primary-light rounded-lg focus-within:ring-1 focus-within:ring-primary focus-within:border-primary"
-                  id="cvv-field"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Security Notice */}
-          <div className="bg-primary-light rounded-lg p-4">
-            <div className="flex items-start space-x-3">
-              <Lock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <p className="text-sm font-montserrat-regular-400 text-black-light">
-                Your payment information is encrypted and secure. We never store your complete payment details.
-              </p>
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              type="button"
-              onClick={onBack}
-              disabled={isProcessing || loading}
-              className="sm:w-1/3 border-2 border-primary text-primary font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Back
-            </button>
-            <button
-              type="submit"
-              disabled={isProcessing || loading || !paypalLoaded}
-              className="sm:w-2/3 bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            >
-              {isProcessing || loading ? (
-                <>
-                  <Loader className="w-5 h-5 animate-spin" />
-                  <span>Processing Payment...</span>
-                </>
-              ) : (
-                <span>Pay {" "}
-                 <PriceDisplay 
-                    price={orderTotal?.toFixed(2) || '0.00'}
-                    className="text-md font-montserrat-bold-700  mt-1" 
-                    variant="small"
-                  />
-                  </span>
-                // <span>Pay ${orderTotal?.toFixed(2) || '0.00'}</span>
-              )}
-            </button>
-          </div>
-        </form>
-      )}
+      {/* Back Button */}
+      {/* <div className="mt-6 flex flex-col sm:flex-row gap-4">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isProcessing || loading}
+          className="sm:w-1/3 border-2 border-primary text-primary font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Back
+        </button>
+      </div> */}
     </div>
   );
 };

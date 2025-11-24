@@ -46,7 +46,6 @@ const getInitials = (name) => {
 
   return (first + last).toUpperCase();
 };
-console.log(getInitials(user.name?.charAt(0)),'hdfjh');
 
   return (
     <div className="relative" ref={dropdownRef}>

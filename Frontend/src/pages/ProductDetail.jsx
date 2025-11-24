@@ -37,9 +37,7 @@ const ProductDetail = () => {
   const [selectedMetal, setSelectedMetal] = useState(null);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedCenterStone, setSelectedCenterStone] = useState(null);
-  console.log('selectedCenterStone :', selectedCenterStone);
   const [selectedCarat, setSelectedCarat] = useState(null);
-  console.log('selectedCarat :', selectedCarat);
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const imageContainerRef = useRef(null);
@@ -48,10 +46,8 @@ const ProductDetail = () => {
   
   // Redux selectors
   const product = useSelector(selectCurrentProduct);
-  console.log('product :', product);
   const loading = useSelector(selectProductsLoading);
   const cartLoading = useSelector(selectCartLoading);
-  console.log('loading :', loading);
   const error = useSelector(selectProductsError);
   const currentCurrency = useSelector(selectCurrentCurrency);
   const currencySymbol = useSelector(selectCurrencySymbol);
@@ -329,8 +325,6 @@ const ProductDetail = () => {
         };
       }
 
-      console.log('product :', product);
-      console.log('selectedCarat :', selectedCarat);
       // Use selected stone ID if available, otherwise fallback to product stoneType
       if (selectedCarat) {
         if (selectedCarat.id) {
@@ -343,7 +337,6 @@ const ProductDetail = () => {
       }
 
      const response = await dispatch(addCartItem(cartData)).unwrap();
-     console.log('response :', response);
       if (response.success) {
         let successMessage = `${product.title || product.name} added to cart!`;
         const options = [];

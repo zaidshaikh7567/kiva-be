@@ -34,7 +34,6 @@ const Checkout = () => {
     zipCode: '',
     country: ''
   });
-  console.log('shippingInfo :', shippingInfo);
   
   const [useBillingAddress, setUseBillingAddress] = useState(false);
   
@@ -49,7 +48,6 @@ const Checkout = () => {
     zipCode: '',
     country: ''
   });
-  console.log('billingInfo :', billingInfo);
   
   const [paymentInfo, setPaymentInfo] = useState({
     cardNumber: '',

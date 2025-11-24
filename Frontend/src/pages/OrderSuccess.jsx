@@ -10,7 +10,6 @@ const OrderSuccess = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const orderData = useSelector(selectCurrentOrder);
-  console.log('orderData :', orderData);
   const loading = useSelector(selectOrdersLoading);
   const [hasFetched, setHasFetched] = useState(false);
 

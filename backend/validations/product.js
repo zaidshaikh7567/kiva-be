@@ -25,8 +25,12 @@ const createProductSchema = zod.object({
     }
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
   stoneTypeId: zod.preprocess((val) => {
-    // If empty string or falsy, return undefined (no validation needed)
-    if (!val || (typeof val === 'string' && val.trim() === '') || val === 'null' || val === 'undefined') {
+    // Allow empty string/null so the route handler can clear the stone
+    if (val === '' || val === null || val === 'null') {
+      return '';
+    }
+    // If empty (undefined) or the literal string 'undefined', skip validation entirely
+    if (val === undefined || val === 'undefined') {
       return undefined;
     }
     // If it's a valid ObjectId, return it
@@ -35,7 +39,11 @@ const createProductSchema = zod.object({
     }
     // If invalid format, return undefined (silently ignore invalid values)
     return undefined;
-  }, zod.union([zod.string().regex(/^[0-9a-fA-F]{24}$/), zod.undefined()]).optional()),
+  }, zod.union([
+    zod.string().regex(/^[0-9a-fA-F]{24}$/),
+    zod.literal(''),
+    zod.undefined()
+  ]).optional()),
   careInstruction: zod.string().optional(),
   shape: zod.string().optional(),
   color: zod.string().optional(),
@@ -104,17 +112,21 @@ const updateProductSchema = zod.object({
     }
   }).pipe(zod.array(zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid metal ObjectId')).optional()),
   stoneTypeId: zod.preprocess((val) => {
-    // If empty string or falsy, return undefined (no validation needed)
-    if (!val || (typeof val === 'string' && val.trim() === '') || val === 'null' || val === 'undefined') {
+    if (val === '' || val === null || val === 'null') {
+      return '';
+    }
+    if (val === undefined || val === 'undefined') {
       return undefined;
     }
-    // If it's a valid ObjectId, return it
     if (typeof val === 'string' && val.length === 24 && /^[0-9a-fA-F]{24}$/.test(val)) {
       return val;
     }
-    // If invalid format, return undefined (silently ignore invalid values)
     return undefined;
-  }, zod.union([zod.string().regex(/^[0-9a-fA-F]{24}$/), zod.undefined()]).optional()),
+  }, zod.union([
+    zod.string().regex(/^[0-9a-fA-F]{24}$/),
+    zod.literal(''),
+    zod.undefined()
+  ]).optional()),
   careInstruction: zod.string().optional(),
   shape: zod.string().optional(),
   color: zod.string().optional(),

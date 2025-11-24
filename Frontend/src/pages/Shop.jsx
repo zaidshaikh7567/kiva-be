@@ -16,12 +16,8 @@ const Shop = () => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const products = useSelector(selectProducts);
-  console.log('products :', products);
   const productsLoading = useSelector(selectProductsLoading);
-  console.log('productsLoading :', productsLoading);
-  console.log('products.length === 0 :', products.length === 0);
   const productsError = useSelector(selectProductsError);
-  console.log('productsError :', productsError);
   const categories = useSelector(selectCategories);
   
   const [searchTerm, setSearchTerm] = useState('');

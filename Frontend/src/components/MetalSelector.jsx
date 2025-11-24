@@ -6,10 +6,8 @@ import { X } from 'lucide-react';
 import { transformMetalsToSelectorOptions, getMetalColorStyles } from '../constants';
 
 const MetalSelector = ({ selectedMetal, onMetalChange, className = "", product, cartItem }) => {
-console.log('product@@@ :', product);
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
-  console.log('metals :', metals);
   const loading = useSelector(selectMetalsLoading);
 const pathname = useLocation();
 const isProductDetail = pathname?.pathname?.includes('/product/');

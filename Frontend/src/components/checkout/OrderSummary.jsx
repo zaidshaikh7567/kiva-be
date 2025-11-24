@@ -119,13 +119,13 @@ const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
       </div>
 
       {/* Free Shipping Notice */}
-      {totalPrice < 500 && (
+      {/* {totalPrice < 500 && (
         <div className="bg-primary-light rounded-lg p-4 ">
           <span className="text-xs font-montserrat-medium-500 text-black-light text-center flex ">
             Add <PriceDisplay price={500 - totalPrice} variant="small" className="inline font-montserrat-bold-700 text-black mx-2" /> more to get FREE shipping!
           </span>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

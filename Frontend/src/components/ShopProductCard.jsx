@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Heart, ShoppingBag, Eye, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCartItem } from '../store/slices/cartSlice';
-import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
+import { selectMetals } from '../store/slices/metalsSlice';
 import { 
   toggleFavorite, 
   addToFavoritesAPI, 
@@ -24,7 +25,9 @@ import { transformMetalsToSelectorOptions } from '../constants';
 
 const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }) => {
   const [showQuickView, setShowQuickView] = useState(false);
+  console.log('showQuickView :', showQuickView);
   const [showAddToCartModal, setShowAddToCartModal] = useState(false);
+  console.log('showAddToCartModal :', showAddToCartModal);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedMetal, setSelectedMetal] = useState(null);
   const dispatch = useDispatch();
@@ -59,6 +62,14 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
   const handleMetalChange = (metal) => {
     setSelectedMetal(metal);
   };
+
+  useEffect(() => {
+    if(showAddToCartModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [showAddToCartModal]);
 
   const handleConfirmAddToCart = async () => {
     try {
@@ -349,7 +360,7 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
                     }}
                     className="px-3 sm:px-6 py-2 bg-primary-dark text-white rounded-lg hover:bg-primary transition-colors flex items-center gap-1 sm:gap-2 font-montserrat-medium-500 text-sm"
                   >
-                    <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
+                    ss<ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
                     {/* <span className="hidden sm:inline">Add to Cart</span> */}
                   </button>
                 </div>
@@ -365,6 +376,104 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
             isOpen={showQuickView}
             onClose={handleCloseQuickView}
           />
+        )}
+         {/* Add to Cart Modal with Metal Selection and Ring Size */}
+         {showAddToCartModal &&
+        createPortal(
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in fade-in duration-200 max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-montserrat-semibold-600 text-black">
+                  Add to Cart
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowAddToCartModal(false);
+                    setSelectedRingSize('');
+                    setSelectedMetal(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Product Info */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  {product?.images?.[0] && (
+                    <img
+                      src={product.images[0]}
+                      alt={product.title || product.name}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                  )}
+                  <div>
+                    <h4 className="font-montserrat-semibold-600 text-black mb-1">
+                      {product.title || product.name}
+                    </h4>
+                    <PriceDisplay 
+                      price={product.price}
+                      variant="small"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Metal Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
+                  Select Metal *
+                </label>
+                <MetalSelector
+                  product={product}
+                  cartItem={null}
+                  selectedMetal={selectedMetal}
+                  onMetalChange={handleMetalChange}
+                />
+              </div>
+
+              {/* Ring Size Selection (if ring) */}
+              {isRing() && (
+                <div className="mb-6">
+                  <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
+                    Ring Size *
+                  </label>
+                  <CustomDropdown
+                    options={RING_SIZES}
+                    value={selectedRingSize}
+                    onChange={handleRingSizeChange}
+                    placeholder="Select your ring size"
+                  />
+                  <p className="mt-2 text-xs text-gray-600 font-montserrat-regular-400">
+                    Need help finding your size? Check our <a href="/size-guide" className="text-primary hover:underline">Size Guide</a>
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowAddToCartModal(false);
+                    setSelectedRingSize('');
+                    setSelectedMetal(null);
+                  }}
+                  className="flex-1 border border-gray-300 text-gray-700 font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmAddToCart}
+                  className="flex-1 bg-primary text-white font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors duration-200"
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
         )}
       </>
     );
@@ -453,110 +562,114 @@ const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }
       </div>
 
       {/* Quick View Modal */}
-      {showQuickView && (
-        <ProductDetailsModal
-          product={product}
-          isOpen={showQuickView}
-          onClose={handleCloseQuickView}
-        />
-      )}
+      {showQuickView &&
+        createPortal(
+          <ProductDetailsModal
+            product={product}
+            isOpen={showQuickView}
+            onClose={handleCloseQuickView}
+          />,
+          document.body
+        )}
 
       {/* Add to Cart Modal with Metal Selection and Ring Size */}
-      {showAddToCartModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in fade-in duration-200 max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-montserrat-semibold-600 text-black">
-                Add to Cart
-              </h3>
-              <button
-                onClick={() => {
-                  setShowAddToCartModal(false);
-                  setSelectedRingSize('');
-                  setSelectedMetal(null);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-              >
-                <X className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
+      {showAddToCartModal &&
+        createPortal(
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in fade-in duration-200 max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-montserrat-semibold-600 text-black">
+                  Add to Cart
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowAddToCartModal(false);
+                    setSelectedRingSize('');
+                    setSelectedMetal(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
 
-            {/* Product Info */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center space-x-4">
-                {product?.images?.[0] && (
-                  <img
-                    src={product.images[0]}
-                    alt={product.title || product.name}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
-                )}
-                <div>
-                  <h4 className="font-montserrat-semibold-600 text-black mb-1">
-                    {product.title || product.name}
-                  </h4>
-                  <PriceDisplay 
-                    price={product.price}
-                    variant="small"
-                  />
+              {/* Product Info */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  {product?.images?.[0] && (
+                    <img
+                      src={product.images[0]}
+                      alt={product.title || product.name}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                  )}
+                  <div>
+                    <h4 className="font-montserrat-semibold-600 text-black mb-1">
+                      {product.title || product.name}
+                    </h4>
+                    <PriceDisplay 
+                      price={product.price}
+                      variant="small"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Metal Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
-                Select Metal *
-              </label>
-              <MetalSelector
-                product={product}
-                cartItem={null}
-                selectedMetal={selectedMetal}
-                onMetalChange={handleMetalChange}
-              />
-            </div>
-
-            {/* Ring Size Selection (if ring) */}
-            {isRing() && (
+              {/* Metal Selection */}
               <div className="mb-6">
                 <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
-                  Ring Size *
+                  Select Metal *
                 </label>
-                <CustomDropdown
-                  options={RING_SIZES}
-                  value={selectedRingSize}
-                  onChange={handleRingSizeChange}
-                  placeholder="Select your ring size"
+                <MetalSelector
+                  product={product}
+                  cartItem={null}
+                  selectedMetal={selectedMetal}
+                  onMetalChange={handleMetalChange}
                 />
-                <p className="mt-2 text-xs text-gray-600 font-montserrat-regular-400">
-                  Need help finding your size? Check our <a href="/size-guide" className="text-primary hover:underline">Size Guide</a>
-                </p>
               </div>
-            )}
 
-            {/* Action Buttons */}
-            <div className="flex space-x-3">
-              <button
-                onClick={() => {
-                  setShowAddToCartModal(false);
-                  setSelectedRingSize('');
-                  setSelectedMetal(null);
-                }}
-                className="flex-1 border border-gray-300 text-gray-700 font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmAddToCart}
-                className="flex-1 bg-primary text-white font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors duration-200"
-              >
-                Add to Cart
-              </button>
+              {/* Ring Size Selection (if ring) */}
+              {isRing() && (
+                <div className="mb-6">
+                  <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
+                    Ring Size *
+                  </label>
+                  <CustomDropdown
+                    options={RING_SIZES}
+                    value={selectedRingSize}
+                    onChange={handleRingSizeChange}
+                    placeholder="Select your ring size"
+                  />
+                  <p className="mt-2 text-xs text-gray-600 font-montserrat-regular-400">
+                    Need help finding your size? Check our <a href="/size-guide" className="text-primary hover:underline">Size Guide</a>
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowAddToCartModal(false);
+                    setSelectedRingSize('');
+                    setSelectedMetal(null);
+                  }}
+                  className="flex-1 border border-gray-300 text-gray-700 font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmAddToCart}
+                  className="flex-1 bg-primary text-white font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors duration-200"
+                >
+                  Add to Cart
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 };

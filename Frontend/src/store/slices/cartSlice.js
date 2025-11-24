@@ -8,7 +8,6 @@ import { TOKEN_KEYS } from '../../constants/tokenKeys';
 const isAuthenticated = () => {
   return !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
 };
-console.log('isAuthen ticated :', isAuthenticated());
 
 
 // Helper function to safely convert to number
@@ -28,7 +27,6 @@ export const fetchCartItems = createAsyncThunk(
         return { data: [] };
       }
       const response = await api.get(API_METHOD.cart);
-      console.log('response :', response);
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch cart items';
@@ -71,7 +69,6 @@ export const addCartItem = createAsyncThunk(
       }
       
       const response = await api.post(API_METHOD.cart, cartData);
-      console.log('response********* :', response.data);
       // toast.success('Item added to cart!');
       await dispatch(fetchCartItems()); // Refresh cart after adding
       return response.data;
@@ -95,8 +92,7 @@ export const updateCartItem = createAsyncThunk(
         return rejectWithValue('Authentication required');
       }
       // Include cartId in URL path: /api/cart/:id
-      const response = await api.put(`${API_METHOD.cart}/${cartId}`, cartData);
-      console.log('response********* :', response.data);
+      const response = await api.put(`${API_METHOD.cart}/${cartId}`, cartData);     
       await dispatch(fetchCartItemById(cartId)); // Refresh specific cart item after updating
       return response.data;
     } catch (error) {
