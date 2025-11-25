@@ -88,7 +88,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     subtotal += totalPrice;
   }
 
-  if (paymentMethod.toLowerCase() === 'paypal') {
+  if (paymentMethod.toLowerCase() === 'paypal' || paymentMethod.toLowerCase() === 'card') {
     const orderData = {
       items: orderItems,
       subtotal: subtotal,
@@ -106,7 +106,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
         shippingAddress: shippingAddress,
         billingAddress: billingAddress || shippingAddress,
         phone: phone,
-        paymentMethod: 'PayPal',
+        paymentMethod: paymentMethod.toLowerCase(),
         paypalOrderId: paypalOrder.id,
         paymentStatus: 'pending',
         status: 'pending',

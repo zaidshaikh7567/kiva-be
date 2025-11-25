@@ -635,6 +635,18 @@ const countryOptions = useMemo(() => {
             </p>
           )}
         </div>
+        <div>
+          <FormInput
+          label="Additional notes"
+          name="additionalNotes"
+          type="text"
+          value={shippingInfo.additionalNotes}
+          onChange={handleFieldChange}
+          placeholder="Enter additional notes"
+          // error={errors.additionalNotes}
+          // required
+          />
+        </div>
 
         {/* Billing Address Section */}
         <div className="pt-6 mt-6 border-t border-primary-light">

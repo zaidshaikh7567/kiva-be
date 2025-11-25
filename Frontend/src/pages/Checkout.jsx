@@ -12,6 +12,7 @@ import OrderSummary from '../components/checkout/OrderSummary';
 import ProgressSteps from '../components/checkout/ProgressSteps';
 
 const Checkout = () => {
+  const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' or 'paypal'
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalPrice } = useSelector(state => state.cart);
@@ -20,6 +21,7 @@ const Checkout = () => {
   const [step, setStep] = useState(1); // 1: Shipping, 2: Review, 3: Payment
   const [createdOrder, setCreatedOrder] = useState(null);
   const [paypalOrderId, setPaypalOrderId] = useState(null);
+  console.log('paypalOrderId :', paypalOrderId);
   const [paypalApprovalUrl, setPaypalApprovalUrl] = useState(null);
   
   // Form data
@@ -32,7 +34,8 @@ const Checkout = () => {
     city: '',
     state: '',
     zipCode: '',
-    country: ''
+    country: '',
+    additionalNotes: ''
   });
   
   const [useBillingAddress, setUseBillingAddress] = useState(false);
@@ -49,15 +52,6 @@ const Checkout = () => {
     country: ''
   });
   
-  const [paymentInfo, setPaymentInfo] = useState({
-    cardNumber: '',
-    cardName: '',
-    expiryDate: '',
-    cvv: ''
-  });
-
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('paypal');
-
   // Shipping cost calculation
   const shippingCost = totalPrice > 500 ? 0 : 0;
   const finalTotal = totalPrice;
@@ -73,14 +67,6 @@ const Checkout = () => {
   const handleBillingChange = (e) => {
     const { name, value } = e.target;
     setBillingInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handlePaymentChange = (e) => {
-    const { name, value } = e.target;
-    setPaymentInfo(prev => ({
       ...prev,
       [name]: value
     }));
@@ -149,8 +135,8 @@ const Checkout = () => {
         shippingAddress: shippingAddress,
         billingAddress: billingAddress,
         phone: shippingInfo.phone,
-        paymentMethod: "PayPal",
-        notes: "Please handle with care"
+        paymentMethod:  paymentMethod === 'paypal' ? 'paypal' : 'card',
+        notes: shippingInfo.additionalNotes
       };
 
       // Create PayPal order
@@ -159,6 +145,7 @@ const Checkout = () => {
       if (createOrderAction.fulfilled.match(result)) {
         const orderResponse = result.payload;
         const responseData = orderResponse.data || orderResponse;
+        console.log('responseData :', responseData);
         
         // Check if this is a PayPal order response
         if (responseData.paypalOrderId) {
@@ -346,6 +333,8 @@ const Checkout = () => {
                     onPaymentSuccess={handlePaymentSuccess}
                     onBack={() => setStep(2)}
                     loading={isPlacingOrder}
+                    paymentMethod={paymentMethod}
+                    setPaymentMethod={setPaymentMethod}
                   />
                 ) : (
                   <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">

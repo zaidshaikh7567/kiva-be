@@ -11,9 +11,11 @@ const PayPalPaymentStep = ({
   onPaymentSuccess,
   onBack,
   loading,
-  approvalUrl // Fallback URL if card fields aren't available
+  approvalUrl, // Fallback URL if card fields aren't available
+  paymentMethod,
+  setPaymentMethod
 }) => {
-  const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' or 'paypal'
+
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [clientId, setClientId] = useState(null);
   const [paypal, setPaypal] = useState(null);
@@ -437,42 +439,46 @@ const PayPalPaymentStep = ({
       }
     };
   }, [paypal, clientId, paypalLoaded, orderId, paymentMethod, onPaymentSuccess, approvalUrl, useRedirect]);
-
   const handleSubmit = async (e) => {
-    console.log('cardFields :', cardFields);
     e.preventDefault();
+  
     if (!cardFields) {
-      setError('Payment form not ready');
+      setError("Payment form not ready");
       return;
     }
-
+  
     try {
       setIsProcessing(true);
       setError(null);
+  
       const result = await cardFields.submit();
-      console.log('PayPal confirm result:', result);
-    
-      if (result?.errors?.length) {
-        setError(result.errors.map(e => e.description || e.issue).join(', '));
-        setIsProcessing(false);
-        return;
+      console.log("PayPal confirm result:", result);
+  
+      // ----- CASE 1: 3DS Challenge Required -----
+      if (result?.status === "PAYER_ACTION_REQUIRED") {
+        console.log("3DS required → waiting for user action");
+        return; // Wait for PayPal popup to finish, then onApprove will fire
       }
-    
-      if (result?.status === 'PAYER_ACTION_REQUIRED') {
-        setError('Additional authentication required. Please follow the PayPal window.');
-        setIsProcessing(false);
-        return;
+  
+      // ----- CASE 2: No 3DS → SUCCESS but result === null -----
+      if (!result) {
+        console.log("No 3DS → confirm-payment-source succeeded silently");
+        console.log("Waiting for PayPal onApprove() callback...");
+        return; // onApprove will run next
       }
-    
-      // proceed with capture (PayPal will call onApprove next)
-      setIsProcessing(false);
+  
+      // ----- Anything else unexpected -----
+      console.warn("Unexpected submit result:", result);
+  
     } catch (err) {
-    console.log('err--------- :', err);
-      if (err?.message?.includes('Window closed')) {
-        setError('The PayPal authentication window was closed before it finished. Please try again and complete the verification step.');
+      console.log("Submit error:", err);
+  
+      if (err?.message?.includes("Window closed")) {
+        setError("The PayPal window was closed before completing verification.");
       } else {
-        setError(err?.message || 'Failed to submit payment');
+        setError(err?.message || "Failed to submit payment.");
       }
+    } finally {
       setIsProcessing(false);
     }
   };
