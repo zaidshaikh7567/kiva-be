@@ -31,44 +31,49 @@ const PayPalPaymentStep = ({
   const expirationDateFieldRef = useRef(null);
   const paypalButtonsRef = useRef(null);
 
+  const handlePaymentSelection = (method) => {
+    setPaymentMethod(method);
+    setError(null);
+    setPaypalButtonsRendered(false);
+    if (method !== 'card') {
+      setUseRedirect(false);
+    }
+  };
+
   // Load PayPal client ID and SDK
   useEffect(() => {
     const loadPayPalSDK = async () => {
       try {
         // Get PayPal client ID from backend
         const response = await api.get(`${API_METHOD.orders}/paypal-client-id`);
-        if (response.data.success) {
-          const clientId = response.data.data.clientId;
-          setClientId(clientId);
-
-          // Load PayPal SDK using the package
-          try {
-            const paypalSDK = await loadScript({
-              'client-id': clientId,
-              'components': 'buttons,card-fields',
-              'currency': 'USD',
-              'intent': 'capture'
-            });
-
-
-            if (paypalSDK) {
-              if (!paypalSDK.CardFields) {
-                throw new Error('CardFields component not available in PayPal SDK. Make sure card-fields is included in components.');
-              }
-              setPaypal(paypalSDK);
-              setPaypalLoaded(true);
-            } else {
-              setError('Failed to load PayPal SDK - SDK object is null');
-            }
-          } catch (scriptError) {
-            console.error('Error loading PayPal script:', scriptError);
-            setError('Failed to load PayPal SDK. Please try again.');
-          }
-        } else {
+        if (!response.data.success) {
           setError('Failed to load PayPal configuration');
+          return;
         }
+
+        const clientId = response.data.data.clientId;
+        setClientId(clientId);
+
+        const paypalSDK = await loadScript({
+          'client-id': clientId,
+          components: 'buttons,card-fields',
+          currency: 'USD',
+          intent: 'capture'
+        });
+
+        if (!paypalSDK) {
+          setError('Failed to load PayPal SDK - SDK object is null');
+          return;
+        }
+
+        if (!paypalSDK.CardFields) {
+          throw new Error('CardFields component not available in PayPal SDK. Make sure card-fields is included in components.');
+        }
+
+        setPaypal(paypalSDK);
+        setPaypalLoaded(true);
       } catch (err) {
-        console.error('Error loading PayPal client ID:', err);
+        console.error('Error loading PayPal client ID or SDK:', err);
         setError('Failed to load PayPal configuration');
       }
     };
@@ -132,7 +137,8 @@ const PayPalPaymentStep = ({
               console.log('Capturing PayPal payment with order ID:', paypalOrderId);
 
               const response = await api.post(`${API_METHOD.orders}/capture-paypal`, {
-                paypalOrderId: paypalOrderId
+                paypalOrderId: paypalOrderId,
+                paymentMethod: 'paypal'
               });
               console.log('response capture-paypal :', response);
 
@@ -173,6 +179,8 @@ const PayPalPaymentStep = ({
 
     initializePayPalButtons();
   }, [paypal, clientId, paypalLoaded, orderId, paymentMethod, paypalButtonsRendered, onPaymentSuccess]);
+
+  // (Google Pay removed)
 
   // Initialize PayPal Card Fields when Card method is selected
   useEffect(() => {
@@ -260,7 +268,8 @@ const PayPalPaymentStep = ({
 
               // Call backend to capture payment
               const response = await api.post(`${API_METHOD.orders}/capture-paypal`, {
-                paypalOrderId: paypalOrderId
+                paypalOrderId: paypalOrderId,
+                paymentMethod: 'card'
               });
 
               if (response.data.success) {
@@ -503,14 +512,10 @@ const PayPalPaymentStep = ({
         <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
           Select Payment Method
         </label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <button
             type="button"
-            onClick={() => {
-              setPaymentMethod('card');
-              setError(null);
-              setPaypalButtonsRendered(false);
-            }}
+            onClick={() => handlePaymentSelection('card')}
             className={`p-4 border-2 rounded-lg transition-all duration-300 ${
               paymentMethod === 'card'
                 ? 'border-primary bg-primary-light'
@@ -526,11 +531,7 @@ const PayPalPaymentStep = ({
           </button>
           <button
             type="button"
-            onClick={() => {
-              setPaymentMethod('paypal');
-              setError(null);
-              setPaypalButtonsRendered(false);
-            }}
+            onClick={() => handlePaymentSelection('paypal')}
             className={`p-4 border-2 rounded-lg transition-all duration-300 ${
               paymentMethod === 'paypal'
                 ? 'border-primary bg-primary-light'
@@ -829,6 +830,7 @@ const PayPalPaymentStep = ({
           </div>
         </div>
       )}
+
 
       {/* Back Button */}
       {/* <div className="mt-6 flex flex-col sm:flex-row gap-4">

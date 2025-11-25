@@ -18,7 +18,8 @@ const createOrderSchema = zod.object({
 });
 
 const capturePayPalPaymentSchema = zod.object({
-  paypalOrderId: zod.string().min(1, 'PayPal order ID is required').trim()
+  paypalOrderId: zod.string().min(1, 'PayPal order ID is required').trim(),
+  paymentMethod: zod.enum(['paypal', 'card']).optional()
 });
 
 const orderIdSchema = zod.object({
@@ -37,7 +38,7 @@ const updateOrderStatusSchema = zod.object({
 
 const orderQuerySchema = zod.object({
   page: zod.coerce.number().int().min(1).optional().default(1),
-  limit: zod.coerce.number().int().min(1).max(100).optional().default(10),
+  limit: zod.coerce.number().int().min(1).max(1000).optional().default(10),
   status: zod.string().optional().refine((val) => {
     if (!val || val === '') return true;
     return ['pending', 'processing', 'shipped', 'delivered', 'cancelled'].includes(val);

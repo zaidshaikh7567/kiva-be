@@ -146,6 +146,24 @@ const orderSchema = new mongoose.Schema({
     enum: ['pending', 'completed', 'failed', 'cancelled'],
     default: 'pending'
   },
+  cardDetails: {
+    last4: {
+      type: String,
+      trim: true
+    },
+    brand: {
+      type: String,
+      trim: true
+    },
+    expiryMonth: {
+      type: String,
+      trim: true
+    },
+    expiryYear: {
+      type: String,
+      trim: true
+    }
+  },
   notes: {
     type: String,
     trim: true

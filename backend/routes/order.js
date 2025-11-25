@@ -45,6 +45,8 @@ router.get('/paypal-client-id', asyncHandler(async (req, res) => {
 router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { shippingAddress, billingAddress, phone, paymentMethod, notes, currency = 'USD' } = req.body;
+  const normalizedPaymentMethod = (paymentMethod || '').toLowerCase();
+  const paypalFlowMethods = ['paypal', 'card'];
 
   const cartItems = await Cart.find({ user: userId }).populate(['product', 'metal', 'stoneType']);
 
@@ -88,7 +90,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     subtotal += totalPrice;
   }
 
-  if (paymentMethod.toLowerCase() === 'paypal' || paymentMethod.toLowerCase() === 'card') {
+  if (paypalFlowMethods.includes(normalizedPaymentMethod)) {
     const orderData = {
       items: orderItems,
       subtotal: subtotal,
@@ -106,7 +108,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
         shippingAddress: shippingAddress,
         billingAddress: billingAddress || shippingAddress,
         phone: phone,
-        paymentMethod: paymentMethod.toLowerCase(),
+        paymentMethod: normalizedPaymentMethod || 'paypal',
         paypalOrderId: paypalOrder.id,
         paymentStatus: 'pending',
         status: 'pending',
@@ -131,7 +133,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
           paypalOrderId: paypalOrder.id,
           approvalUrl: approvalUrl,
           orderData: orderData,
-          paymentMethod: 'paypal'
+          paymentMethod: normalizedPaymentMethod || 'paypal'
         }
       });
     } catch (error) {
@@ -158,7 +160,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     shippingAddress: shippingAddress,
     billingAddress: billingAddress || shippingAddress,
     phone: phone,
-    paymentMethod: paymentMethod,
+    paymentMethod: normalizedPaymentMethod || paymentMethod,
     notes: notes,
     paymentStatus: 'completed'
   });
@@ -190,17 +192,11 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
 
 router.post('/capture-paypal', authenticate, validate(capturePayPalPaymentSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { paypalOrderId } = req.body;
+  const { paypalOrderId, paymentMethod } = req.body;
 
   try {
     const captureResult = await capturePayPalPayment(paypalOrderId);
-
-    if (captureResult.status !== 'COMPLETED') {
-      return res.status(400).json({
-        success: false,
-        message: 'Payment not completed'
-      });
-    }
+    console.log('captureResult :', captureResult);
 
     const tempOrder = await Order.findOne({
       paypalOrderId: paypalOrderId,
@@ -216,13 +212,54 @@ router.post('/capture-paypal', authenticate, validate(capturePayPalPaymentSchema
       });
     }
 
+    // Update payment status based on capture result
+    if (captureResult.status !== 'COMPLETED') {
+      tempOrder.paymentStatus = 'failed';
+      await tempOrder.save();
+      
+      return res.status(400).json({
+        success: false,
+        message: 'Payment not completed',
+        data: { order: tempOrder }
+      });
+    }
+
+    // Payment completed successfully - update order status
     // Safely extract transaction ID with null checks
     const capture = captureResult.purchase_units?.[0]?.payments?.captures?.[0];
     if (capture?.id) {
       tempOrder.paypalTransactionId = capture.id;
     }
+    
+    // Extract card details if payment method is card
+    if (paymentMethod && paymentMethod.toLowerCase() === 'card') {
+      const cardInfo = captureResult.payment_source?.card;
+      if (cardInfo) {
+        tempOrder.cardDetails = {
+          last4: cardInfo.last_digits || null,
+          brand: cardInfo.brand || null,
+          expiryMonth: cardInfo.expiry?.substring(5, 7) || null,
+          expiryYear: cardInfo.expiry?.substring(0, 4) || null
+        };
+      }
+      
+      // Also check in capture object for card details
+      const captureCardInfo = capture?.payment_source?.card;
+      if (captureCardInfo && !tempOrder.cardDetails?.last4) {
+        tempOrder.cardDetails = {
+          last4: captureCardInfo.last_digits || null,
+          brand: captureCardInfo.brand || null,
+          expiryMonth: captureCardInfo.expiry?.substring(5, 7) || null,
+          expiryYear: captureCardInfo.expiry?.substring(0, 4) || null
+        };
+      }
+    }
+    
     tempOrder.paymentStatus = 'completed';
     tempOrder.status = 'processing';
+    if (paymentMethod) {
+      tempOrder.paymentMethod = paymentMethod.toLowerCase();
+    }
 
     await tempOrder.save();
     await tempOrder.populate('user', 'name email');

@@ -19,12 +19,16 @@ import PriceDisplay from '../components/PriceDisplay';
 const OrderDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  console.log('id :', id);
   const dispatch = useDispatch();
   const orderData = useSelector(selectCurrentOrder);
+  console.log('orderData :', orderData);
   const loading = useSelector(selectOrdersLoading);
   const [hasFetched, setHasFetched] = useState(false);
-
+  const cardDetails = orderData?.cardDetails || {};
+  console.log('cardDetails :', cardDetails);
   // Fetch order data by ID
+  console.log('!hasFetched :', !hasFetched);
   useEffect(() => {
     if (id && !hasFetched) {
       setHasFetched(true);
@@ -210,7 +214,15 @@ const OrderDetails = () => {
                     <p className="text-lg font-montserrat-semibold-600 text-black flex items-center space-x-2">
                       <CreditCard className="w-4 h-4" />
                       <span>{paymentMethod}</span>
+                      
                     </p>
+                    {cardDetails && (
+                      <>
+                      <p className="text-sm font-montserrat-regular-400 text-black"><span className="font-montserrat-medium-500 text-black">Last 4:</span> {cardDetails?.last4}</p>
+                        <p className="text-sm font-montserrat-regular-400 text-black"><span className="font-montserrat-medium-500 text-black">Brand:</span> {cardDetails?.brand}</p>
+                        <p className="text-sm font-montserrat-regular-400 text-black"><span className="font-montserrat-medium-500 text-black">Expiry:</span> {cardDetails?.expiryMonth}/{cardDetails?.expiryYear}</p>
+                      </>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-montserrat-medium-500 text-black-light mb-1">Total Amount</p>
@@ -219,6 +231,8 @@ const OrderDetails = () => {
                       className="text-lg font-montserrat-bold-700 text-primary"
                     />
                   </div>
+                
+                  
                 </div>
                 {notes && (
                   <div className="mt-6 pt-6 border-t border-primary-light">
@@ -277,7 +291,7 @@ const OrderDetails = () => {
 
             {/* Right Section */}
             <div className="flex-1">
-              <h4 className="font-montserrat-semibold-600 text-lg text-black mb-2 break-words">
+              <h4 className="font-montserrat-semibold-600 text-lg text-black mb-2 break-words capitalize">
                 {productName}
               </h4>
 
@@ -296,7 +310,7 @@ const OrderDetails = () => {
                 {metalName && (
                   <p className="text-sm text-black-light">
                     Metal:{" "}
-                    <span className="font-montserrat-medium-500 text-black">
+                    <span className="font-montserrat-medium-500 text-black capitalize">
                       {metalName} {purityLevel && `(${purityLevel})`}
                     </span>
                   </p>
@@ -383,6 +397,7 @@ const OrderDetails = () => {
                   )}
                   {shippingAddress.country && <p>{shippingAddress.country}</p>}
                 </div>
+                
               </div>
 
               {/* Billing Address (if different) */}
@@ -408,8 +423,10 @@ const OrderDetails = () => {
                     )}
                     {billingAddress.country && <p>{billingAddress.country}</p>}
                   </div>
+                 
                 </div>
               )}
+              
             </div>
 
             {/* Sidebar - Order Summary */}

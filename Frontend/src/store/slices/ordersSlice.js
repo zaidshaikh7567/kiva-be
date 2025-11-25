@@ -130,12 +130,16 @@ export const getAllOrders = createAsyncThunk(
 
 export const capturePayPalPayment = createAsyncThunk(
   'orders/capturePayPalPayment',
-  async (paypalOrderId, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
       if (!isAuthenticated()) {
         return rejectWithValue('Authentication required');
       }
-      const response = await api.post(`${API_METHOD.orders}/capture-paypal`, { paypalOrderId });
+      const requestData = typeof payload === 'string'
+        ? { paypalOrderId: payload }
+        : payload;
+
+      const response = await api.post(`${API_METHOD.orders}/capture-paypal`, requestData);
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to capture PayPal payment';

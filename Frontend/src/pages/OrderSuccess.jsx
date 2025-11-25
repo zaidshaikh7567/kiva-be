@@ -12,6 +12,7 @@ const OrderSuccess = () => {
   const orderData = useSelector(selectCurrentOrder);
   const loading = useSelector(selectOrdersLoading);
   const [hasFetched, setHasFetched] = useState(false);
+  console.log('orderData :', orderData);
 
   // Fetch order data by ID
   useEffect(() => {
@@ -20,7 +21,6 @@ const OrderSuccess = () => {
       dispatch(getOrderById(id));
     }
   }, [id, dispatch, hasFetched]);
-
   const handleContinueShopping = () => {
     navigate('/shop');
   };
@@ -96,6 +96,8 @@ const OrderSuccess = () => {
   const finalTotal = totals.total || (subtotal + shippingCost);
   const paymentMethod = orderData.paymentMethod || 'Credit Card';
   const orderStatus = orderData.status || 'pending';
+  const cardDetails = orderData.cardDetails || {};
+  const isCardPayment = paymentMethod && paymentMethod.toLowerCase() === 'card';
   const formatOrderDate = (dateString) => {
     
   if (!dateString) return 'N/A';
@@ -210,16 +212,55 @@ const OrderSuccess = () => {
                     Payment Method
                   </h2>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <CreditCard className="w-8 h-8 text-primary" />
-                  <div>
-                    <p className="font-montserrat-semibold-600 text-black">
-                      {paymentMethod}
-                    </p>
-                    <p className="text-sm font-montserrat-regular-400 text-black-light">
-                      Payment processed successfully
-                    </p>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <CreditCard className="w-8 h-8 text-primary" />
+                    <div>
+                      <p className="font-montserrat-semibold-600 text-black capitalize">
+                        {paymentMethod}
+                      </p>
+                      <p className="text-sm font-montserrat-regular-400 text-black-light">
+                        Payment processed successfully
+                      </p>
+                    </div>
                   </div>
+                  
+                  {/* Card Details - Show if payment method is card and card details are available */}
+                  {isCardPayment && cardDetails?.last4 && (
+                    <div className="mt-4 pt-4 border-t border-primary-light">
+                      <div className="bg-secondary rounded-lg p-4">
+                        <p className="text-xs font-montserrat-medium-500 text-black-light mb-2">
+                          Card Details
+                        </p>
+                        <div className="space-y-1">
+                          {cardDetails.brand && (
+                            <p className="text-sm font-montserrat-semibold-600 text-black capitalize">
+                              {cardDetails.brand}
+                            </p>
+                          )}
+                          <p className="text-sm font-montserrat-regular-400 text-black">
+                            •••• •••• •••• {cardDetails.last4}
+                          </p>
+                          {(cardDetails.expiryMonth || cardDetails.expiryYear) && (
+                            <p className="text-xs font-montserrat-regular-400 text-black-light">
+                              Expires: {cardDetails.expiryMonth && cardDetails.expiryYear 
+                                ? `${cardDetails.expiryMonth}/${cardDetails.expiryYear.substring(2)}` 
+                                : cardDetails.expiryYear || cardDetails.expiryMonth}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* PayPal Transaction ID - Show if available */}
+                  {orderData.paypalTransactionId && (
+                    <div className="mt-4 pt-4 border-t border-primary-light">
+                      <p className="text-xs font-montserrat-regular-400 text-black-light">
+                        Transaction ID: <span className="font-montserrat-medium-500">{orderData.paypalTransactionId}</span>
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

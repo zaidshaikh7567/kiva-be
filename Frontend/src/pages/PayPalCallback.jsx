@@ -42,7 +42,7 @@ const PayPalCallback = () => {
 
       try {
         // Capture PayPal payment using the token (which is the order ID)
-        const result = await dispatch(capturePayPalPayment(token));
+        const result = await dispatch(capturePayPalPayment({ paypalOrderId: token, paymentMethod: 'paypal' }));
         console.log('result :', result);
 
         // Check if the action was fulfilled (success) or rejected (error)

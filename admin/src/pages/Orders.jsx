@@ -228,6 +228,7 @@ const Orders = () => {
     const customerPhone = order.phone || shippingAddress.phone || '—';
     const paymentMethodLabel = order.payment?.method || order.paymentMethod || 'N/A';
     const paymentStatusLabel = (order.payment?.status || order.paymentStatus || 'pending').toLowerCase();
+    const cardDetails = order.cardDetails || null;
     const orderTotalAmount =
       order.totals?.total || order.finalTotal || order.total || 0;
     const orderIdDisplay = formatOrderNumber(order);
@@ -242,6 +243,7 @@ const Orders = () => {
       customerEmail,
       customerPhone,
       paymentMethodLabel,
+      cardDetails,
       paymentStatusLabel,
       orderTotalAmount,
       orderIdDisplay,
@@ -846,23 +848,23 @@ const Orders = () => {
               </div>
 
               {/* Billing Address */}
-              {modalData.billingAddress && (
+              {modalData?.billingAddress && (
                 <div>
                   <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">
                     Billing Address
                   </h3>
                   <div className="space-y-1 text-sm font-montserrat-regular-400 text-black-light">
                     <p>
-                      {[modalData.billingAddress.street, modalData.billingAddress.city]
+                      {[modalData?.billingAddress.street, modalData?.billingAddress.city]
                         .filter(Boolean)
                         .join(', ')}
                     </p>
                     <p>
-                      {[modalData.billingAddress.state, modalData.billingAddress.zipCode]
+                      {[modalData?.billingAddress.state, modalData?.billingAddress.zipCode]
                         .filter(Boolean)
                         .join(' ')}
                     </p>
-                    {modalData.billingAddress.country && <p>{modalData.billingAddress.country}</p>}
+                    {modalData?.billingAddress.country && <p>{modalData?.billingAddress.country}</p>}
                   </div>
                 </div>
               )}
@@ -875,18 +877,25 @@ const Orders = () => {
                 <div className="flex items-center space-x-3">
                   <CreditCard className="w-5 h-5 text-black-light" />
                   <span className="font-montserrat-medium-500 text-black">
-                    {modalData.paymentMethodLabel}
+                    {modalData?.paymentMethodLabel}
                   </span>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-montserrat-medium-500 ${
-                      modalData.paymentStatusLabel === 'paid'
+                    className={`px-2 py-1 rounded-full text-xs font-montserrat-medium-500 capitalize ${
+                      modalData?.paymentStatusLabel === 'paid'
                         ? 'bg-green-100 text-green-800'
                         : 'bg-yellow-100 text-yellow-800'
                     }`}
                   >
-                    {modalData.paymentStatusLabel}
+                    {modalData?.paymentStatusLabel}
                   </span>
                 </div>
+                {modalData?.cardDetails && (
+                  <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light mt-2">
+                    <p className="text-sm font-montserrat-regular-400 text-black"><span className="font-montserrat-medium-500 text-black">Last 4:</span> {modalData?.cardDetails?.last4}</p>
+                    <p className="text-sm font-montserrat-regular-400 text-black"><span className="font-montserrat-medium-500 text-black">Brand:</span> {modalData?.cardDetails?.brand}</p>
+                    <p className="text-sm font-montserrat-regular-400 text-black"><span className="font-montserrat-medium-500 text-black">Expiry:</span> {modalData?.cardDetails?.expiryMonth}/{modalData?.cardDetails?.expiryYear}</p>
+                  </div>
+                )}
               </div>
 
               {/* Order Total */}
@@ -894,7 +903,7 @@ const Orders = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-montserrat-semibold-600 text-black">Total</span>
                   <span className="text-2xl font-sorts-mill-gloudy font-bold text-black">
-                    {formatCurrency(modalData.orderTotalAmount)}
+                    {formatCurrency(modalData?.orderTotalAmount)}
                   </span>
                 </div>
               </div>

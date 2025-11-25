@@ -69,7 +69,7 @@ const Dashboard = () => {
         dispatch(fetchCenterStones({ page: 1, limit: 1000 })),
         dispatch(fetchReviews({ page: 1, limit: 1000 })),
         dispatch(fetchContacts({ page: 1, limit: 1000 })),
-        dispatch(fetchOrders({ page: 1, limit: 100 }))
+        dispatch(fetchOrders({ page: 1, limit: 1000 }))
       ]);
     } finally {
       setRefreshing(false);
@@ -87,7 +87,7 @@ const Dashboard = () => {
           dispatch(fetchCenterStones({ page: 1, limit: 1000 })),
           dispatch(fetchReviews({ page: 1, limit: 1000 })),
           dispatch(fetchContacts({ page: 1, limit: 1000 })),
-          dispatch(fetchOrders({ page: 1, limit: 100 }))
+          dispatch(fetchOrders({ page: 1, limit: 1000 }))
         ]);
       } finally {
         setRefreshing(false);

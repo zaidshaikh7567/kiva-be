@@ -1,7 +1,7 @@
 import React from 'react';
 import { CreditCard, MapPin, ArrowRight } from 'lucide-react';
 import { Country, State } from 'country-state-city';
-const ReviewStep = ({ shippingInfo, billingInfo, onEditShipping, onSubmit, loading }) => {
+const ReviewStep = ({ shippingInfo, billingInfo, onEditShipping, onSubmit, loading, paymentMethod, onPaymentMethodChange }) => {
 
     const getCountryName = (countryCode) => {
         if (!countryCode) return '';
@@ -80,6 +80,71 @@ const ReviewStep = ({ shippingInfo, billingInfo, onEditShipping, onSubmit, loadi
           </div>
         </div>
       )}
+
+      {/* Payment Method */}
+      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-primary" />
+            </div>
+            <h3 className="text-xl font-sorts-mill-gloudy text-black">
+              Payment Method
+            </h3>
+          </div>
+        </div>
+        <p className="text-sm font-montserrat-regular-400 text-black-light mb-4">
+          Choose how you'd like to pay before continuing to the payment step.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[
+            {
+              id: 'card',
+              label: 'Credit/Debit Card',
+              description: 'Use Visa, Mastercard, or Amex',
+              icon: CreditCard
+            },
+            {
+              id: 'paypal',
+              label: 'PayPal',
+              description: 'Pay with your PayPal account',
+              icon: CreditCard
+            }
+          ].map((method) => {
+            const Icon = method.icon;
+            const isSelected = (paymentMethod || 'card') === method.id;
+            return (
+              <button
+                key={method.id}
+                type="button"
+                onClick={() => onPaymentMethodChange?.(method.id)}
+                className={`text-left border-2 rounded-xl p-4 transition-all duration-300 ${
+                  isSelected ? 'border-primary bg-primary-light shadow-sm' : 'border-primary-light hover:border-primary'
+                }`}
+              >
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSelected ? 'bg-primary text-white' : 'bg-gray-100 text-black'}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-montserrat-semibold-600 text-black">{method.label}</p>
+                    <p className="text-xs font-montserrat-regular-400 text-black-light">{method.description}</p>
+                  </div>
+                </div>
+                {isSelected ? (
+                  <p className="text-xs font-montserrat-semibold-600 text-primary">
+                    Selected
+                  </p>
+                ) : (
+                  <p className="text-xs font-montserrat-regular-400 text-black-light">
+                    Tap to select
+                  </p>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Order Confirmation Notice */}
       <div className="bg-primary-light rounded-lg p-4">

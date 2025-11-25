@@ -12,7 +12,7 @@ import OrderSummary from '../components/checkout/OrderSummary';
 import ProgressSteps from '../components/checkout/ProgressSteps';
 
 const Checkout = () => {
-  const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' or 'paypal'
+  const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' | 'paypal' | 'googlepay'
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalPrice } = useSelector(state => state.cart);
@@ -320,6 +320,8 @@ const Checkout = () => {
                   onEditShipping={handleEditShipping}
                   onSubmit={handleReviewSubmit}
                   loading={isPlacingOrder}
+                  paymentMethod={paymentMethod}
+                  onPaymentMethodChange={setPaymentMethod}
                 />
               )}
 
