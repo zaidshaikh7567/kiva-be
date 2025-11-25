@@ -14,7 +14,8 @@ const createOrderSchema = zod.object({
   phone: zod.string().min(1, 'Phone is required').trim(),
   paymentMethod: zod.string().min(1, 'Payment method is required').trim(),
   notes: zod.string().trim().optional(),
-  currency: zod.string().length(3, 'Currency must be 3 characters').optional().default('USD')
+  currency: zod.string().length(3, 'Currency must be 3 characters').optional().default('USD'),
+  exchangeRate: zod.number().positive('Exchange rate must be positive').optional()
 });
 
 const capturePayPalPaymentSchema = zod.object({

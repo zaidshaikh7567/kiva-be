@@ -86,6 +86,7 @@ const Orders = () => {
   const orders = useSelector(selectAdminOrders);
   const loading = useSelector(selectAdminOrdersLoading);
   const pagination = useSelector(selectAdminOrdersPagination);
+  console.log('pagination :', pagination);
   const currentOrder = useSelector(selectAdminCurrentOrder);
   const updatingStatus = useSelector(selectAdminOrdersUpdating);
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -208,8 +209,6 @@ const Orders = () => {
     };
   }, [orders, pagination]);
 
-  const totalPages = pagination.totalPages || 1;
-  const totalItems = pagination.total || orders.length;
   const isInitialLoading = loading && (!orders || orders.length === 0);
 
   const modalData = useMemo(() => {
@@ -666,11 +665,11 @@ const Orders = () => {
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {pagination?.totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
+          totalPages={pagination?.totalPages}
+          totalItems={pagination?.total}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           className="mt-6"

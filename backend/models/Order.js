@@ -133,6 +133,12 @@ const orderSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  currency: {
+    type: String,
+    default: 'USD',
+    trim: true,
+    uppercase: true
+  },
   paypalOrderId: {
     type: String,
     trim: true

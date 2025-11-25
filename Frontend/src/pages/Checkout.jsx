@@ -5,6 +5,7 @@ import { ShoppingBag, ArrowLeft, Package, MapPin, CreditCard, CheckCircle } from
 import { Country, State } from 'country-state-city';
 import { clearCart, clearCartItems } from '../store/slices/cartSlice';
 import { createOrder as createOrderAction } from '../store/slices/ordersSlice';
+import { selectCurrentCurrency, selectExchangeRate } from '../store/slices/currencySlice';
 import ShippingStep from '../components/checkout/ShippingStep';
 import PayPalPaymentStep from '../components/checkout/PayPalPaymentStep';
 import ReviewStep from '../components/checkout/ReviewStep';
@@ -17,6 +18,9 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { items, totalPrice } = useSelector(state => state.cart);
   const { creating: isPlacingOrder } = useSelector(state => state.orders);
+  const currentCurrency = useSelector(selectCurrentCurrency);
+  const exchangeRate = useSelector(selectExchangeRate);
+  console.log('exchangeRate :', exchangeRate);
   
   const [step, setStep] = useState(1); // 1: Shipping, 2: Review, 3: Payment
   const [createdOrder, setCreatedOrder] = useState(null);
@@ -136,7 +140,9 @@ const Checkout = () => {
         billingAddress: billingAddress,
         phone: shippingInfo.phone,
         paymentMethod:  paymentMethod === 'paypal' ? 'paypal' : 'card',
-        notes: shippingInfo.additionalNotes
+        notes: shippingInfo.additionalNotes,
+        currency: currentCurrency || 'USD', // Pass selected currency (CAD, USD, etc.)
+        exchangeRate: exchangeRate || 1 // Pass exchange rate for currency conversion
       };
 
       // Create PayPal order

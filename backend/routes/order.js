@@ -44,7 +44,7 @@ router.get('/paypal-client-id', asyncHandler(async (req, res) => {
 
 router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { shippingAddress, billingAddress, phone, paymentMethod, notes, currency = 'USD' } = req.body;
+  const { shippingAddress, billingAddress, phone, paymentMethod, notes, currency = 'USD', exchangeRate } = req.body;
   const normalizedPaymentMethod = (paymentMethod || '').toLowerCase();
   const paypalFlowMethods = ['paypal', 'card'];
 
@@ -91,14 +91,45 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
   }
 
   if (paypalFlowMethods.includes(normalizedPaymentMethod)) {
+    // Convert prices from USD to selected currency if needed
+    const normalizedCurrency = (currency || 'USD').toUpperCase();
+    
+    // Validate exchange rate for non-USD currencies
+    if (normalizedCurrency !== 'USD' && (!exchangeRate || exchangeRate <= 0)) {
+      console.warn(`Warning: Exchange rate not provided for currency ${normalizedCurrency}. Using rate 1.0 (no conversion).`);
+    }
+    
+    const conversionRate = (normalizedCurrency !== 'USD' && exchangeRate && exchangeRate > 0) ? exchangeRate : 1;
+    
+    console.log(`Currency conversion: ${normalizedCurrency}, Rate: ${conversionRate}, Original Subtotal (USD): ${subtotal}`);
+    
+    // Create order data with converted prices for PayPal
+    const convertedOrderItems = orderItems.map(item => {
+      const convertedUnitPrice = item.unitPrice * conversionRate;
+      const convertedTotalPrice = item.totalPrice * conversionRate;
+      const convertedStonePrice = (item.stonePrice || 0) * conversionRate;
+      
+      return {
+        ...item,
+        unitPrice: convertedUnitPrice,
+        totalPrice: convertedTotalPrice,
+        stonePrice: convertedStonePrice
+      };
+    });
+    
+    const convertedSubtotal = subtotal * conversionRate;
+    const convertedTotal = convertedSubtotal;
+    
+    console.log(`Converted Subtotal (${normalizedCurrency}): ${convertedSubtotal}`);
+    
     const orderData = {
-      items: orderItems,
-      subtotal: subtotal,
-      total: subtotal
+      items: convertedOrderItems,
+      subtotal: convertedSubtotal,
+      total: convertedTotal
     };
 
     try {
-      const paypalOrder = await createPayPalOrder(orderData, currency);
+      const paypalOrder = await createPayPalOrder(orderData, normalizedCurrency);
 
       const tempOrder = new Order({
         user: userId,
@@ -109,6 +140,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
         billingAddress: billingAddress || shippingAddress,
         phone: phone,
         paymentMethod: normalizedPaymentMethod || 'paypal',
+        currency: currency?.toUpperCase() || 'USD',
         paypalOrderId: paypalOrder.id,
         paymentStatus: 'pending',
         status: 'pending',
@@ -161,6 +193,7 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     billingAddress: billingAddress || shippingAddress,
     phone: phone,
     paymentMethod: normalizedPaymentMethod || paymentMethod,
+    currency: currency?.toUpperCase() || 'USD',
     notes: notes,
     paymentStatus: 'completed'
   });
@@ -411,17 +444,23 @@ router.get('/', authenticate, authorize('super_admin'), validate(orderQuerySchem
   const totalOrders = await Order.countDocuments(query);
   const totalPages = Math.ceil(totalOrders / limit);
 
+  // Ensure orders is always an array
+  const ordersArray = Array.isArray(orders) ? orders : [];
+
   res.json({
     success: true,
     message: 'Orders retrieved successfully',
     data: {
-      orders,
+      orders: ordersArray,
       pagination: {
-        currentPage: page,
+        currentPage: parseInt(page) || 1,
+        page: parseInt(page) || 1,
+        limit: parseInt(limit) || 10,
         totalPages,
         totalOrders,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1
+        total: totalOrders,
+        hasNextPage: parseInt(page) < totalPages,
+        hasPrevPage: parseInt(page) > 1
       }
     }
   });

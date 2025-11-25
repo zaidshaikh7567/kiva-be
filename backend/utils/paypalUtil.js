@@ -60,6 +60,14 @@ const createPayPalOrder = async (orderData, currency = 'USD') => {
   try {
     // Credentials are already validated at module load time
 
+    // Validate and normalize currency
+    const normalizedCurrency = (currency || 'USD').toUpperCase().trim();
+    // PayPal supports many currencies including CAD, USD, EUR, etc.
+    // Basic validation: must be 3 uppercase letters
+    if (!/^[A-Z]{3}$/.test(normalizedCurrency)) {
+      throw new Error(`Invalid currency code: ${currency}. Must be a 3-letter currency code (e.g., USD, CAD)`);
+    }
+
     // Validate order data
     if (!orderData || !orderData.items || orderData.items.length === 0) {
       throw new Error('Invalid order data: items are required');
@@ -87,7 +95,7 @@ const createPayPalOrder = async (orderData, currency = 'USD') => {
         description: description.substring(0, 127),
         quantity: item.quantity.toString(),
         unit_amount: {
-          currency_code: currency,
+          currency_code: normalizedCurrency,
           value: parseFloat(item.unitPrice).toFixed(2)
         }
       };
@@ -106,11 +114,11 @@ const createPayPalOrder = async (orderData, currency = 'USD') => {
       intent: 'CAPTURE',
       purchase_units: [{
         amount: {
-          currency_code: currency,
+          currency_code: normalizedCurrency,
           value: totalAmount,
           breakdown: {
             item_total: {
-              currency_code: currency,
+              currency_code: normalizedCurrency,
               value: subtotalAmount
             }
           }
