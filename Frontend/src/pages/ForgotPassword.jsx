@@ -69,6 +69,14 @@ const ForgotPassword = () => {
     if (!validate()) return; // Stop if validation fails
 
     const result = await dispatch(forgotPassword(email));
+    if(result){
+
+      navigate("/reset-password", {
+        state: {
+          email: email
+        }
+      });
+    }
 
     if (forgotPassword.rejected.match(result)) {
       setErrors({
@@ -169,7 +177,7 @@ const ForgotPassword = () => {
               disabled={loading}
               className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Sending...' : 'Send Reset Link'}
+              {loading ? 'Sending...' : 'Send OTP'}
             </button>
 
             {/* Tip Message */}

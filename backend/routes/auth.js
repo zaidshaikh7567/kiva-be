@@ -7,7 +7,7 @@ const User = require('../models/User');
 const asyncHandler = require('../middleware/asyncErrorHandler');
 const { authenticate, authorize } = require('../middleware/auth');
 const { sendEmail } = require('../utils/emailUtil');
-const { getWelcomeEmailTemplate } = require('../utils/emailTemplates');
+const { getWelcomeEmailTemplate, getOtpEmailTemplate } = require('../utils/emailTemplates');
 const { loginSchema, registerSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema, googleAuthSchema } = require('../validations/auth');
 const validate = require('../middleware/validate');
 const createMulter = require('../utils/uploadUtil');
@@ -108,6 +108,7 @@ router.post('/register', validate(registerSchema), asyncHandler(async (req, res)
   // Send welcome email
   try {
     const welcomeEmailHtml = getWelcomeEmailTemplate(user.name);
+    console.log('welcomeEmailHtml :', welcomeEmailHtml);
     await sendEmail(
       user.email,
       'Welcome to Kiva Jewelry! 🎉',
@@ -151,7 +152,9 @@ router.post('/change-password', authenticate, validate(changePasswordSchema), as
 
 router.post('/forgot-password', validate(forgotPasswordSchema), asyncHandler(async (req, res) => {
   const { email } = req.body;
+  console.log('email :', email);
   const user = await User.findOne({ email, active: true });
+  console.log('user------ :', user);
   if (!user) {
     return res.json({ success: true, message: 'If the email exists, an OTP has been sent' });
   }
@@ -161,11 +164,20 @@ router.post('/forgot-password', validate(forgotPasswordSchema), asyncHandler(asy
   user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
   await user.save();
 
+  // const emailResult = await sendEmail(
+  //   email,
+  //   'Password Reset OTP',
+  //   `<p>Your OTP for password reset is: <strong>${otp}</strong></p><p>This OTP will expire in 10 minutes.</p>`
+  // );
+
+  const emailHtml = getOtpEmailTemplate(otp, user.name || user.email);
+
   const emailResult = await sendEmail(
     email,
     'Password Reset OTP',
-    `<p>Your OTP for password reset is: <strong>${otp}</strong></p><p>This OTP will expire in 10 minutes.</p>`
+    emailHtml
   );
+  console.log('emailResult :', emailResult);
 
   if (!emailResult.success) {
     return res.status(500).json({ success: false, message: 'Failed to send email' });
@@ -178,6 +190,7 @@ router.post('/reset-password', validate(resetPasswordSchema), asyncHandler(async
   const { email, otp, newPassword } = req.body;
 
   const user = await User.findOne({ email, active: true });
+  console.log('user ==========>:', user);
   if (!user || user.otp !== otp || user.otpExpires < new Date()) {
     return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
   }

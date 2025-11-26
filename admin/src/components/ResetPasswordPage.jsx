@@ -4,12 +4,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { resetPassword, selectAuthLoading, selectAuthError, clearError } from '../store/slices/authSlice';
 import toast from 'react-hot-toast';
 import FormInput from './FormInput';
+import { useLocation } from 'react-router-dom';
 
 const ResetPasswordPage = ({ onResetSuccess }) => {
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthLoading);
   const error = useSelector(selectAuthError);
-  
+  const location = useLocation();
+  const email = location.state?.email || "";
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -77,11 +79,12 @@ const ResetPasswordPage = ({ onResetSuccess }) => {
     }
 
     try {
-      const result = await dispatch(resetPassword({
+      const body={
+        email:email,
         otp,
-        newPassword: password,
-        confirmPassword,
-      }));
+        newPassword:password
+      }
+      const result = await dispatch(resetPassword(body));
       
       if (resetPassword.fulfilled.match(result)) {
         toast.success('Password reset successfully!');

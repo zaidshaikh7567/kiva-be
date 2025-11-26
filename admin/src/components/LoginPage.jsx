@@ -217,7 +217,7 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
           </form>
 
           {/* Divider */}
-          <div className="relative my-6">
+          {/* <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
             </div>
@@ -226,7 +226,7 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
             </div>
           </div>
 
-          {/* Google Sign In Button */}
+          Google Sign In Button
           <button
             type="button"
             onClick={loginWithGoogle}
@@ -251,7 +251,7 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
               />
             </svg>
             Continue with Google
-          </button>
+          </button> */}
 
           {/* Footer */}
           <div className="mt-8 text-center">

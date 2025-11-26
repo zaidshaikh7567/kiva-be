@@ -181,7 +181,7 @@ const Cart = () => {
                         className="flex-1 min-w-0 cursor-pointer"
                         onClick={() => handleViewProduct(item)}
                       >
-                        <h3 className="font-montserrat-semibold-600 text-black text-sm truncate hover:text-primary transition-colors duration-300">
+                        <h3 className="font-montserrat-semibold-600 text-black text-sm truncate hover:text-primary transition-colors duration-300 capitalize">
                           {item?.product?.title}
                         </h3>
                         <PriceDisplay 

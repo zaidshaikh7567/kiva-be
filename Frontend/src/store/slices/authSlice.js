@@ -76,11 +76,12 @@ export const forgotPassword = createAsyncThunk(
 // Reset Password Api Call
 export const resetPassword = createAsyncThunk(
   'auth/resetPassword',
-  async ({ token, password }, { rejectWithValue }) => {
+  async ({ email,otp,newPassword }, { rejectWithValue }) => {
     try {
       const response = await api.post(API_METHOD.auth.resetPassword, {
-        token,
-        password
+        email,
+        otp,
+        newPassword
       });
       return response.data.data || response.data;
     } catch (error) {

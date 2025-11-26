@@ -39,7 +39,38 @@ const PayPalPaymentStep = ({
       setUseRedirect(false);
     }
   };
-
+  function getPayPalError(err) {
+    // The PayPal JSON is inside err.cause or err.data (depending on browser)
+    const raw = err?.cause || err?.data || err;
+    console.log('raw :', raw);
+    console.log('raw :',typeof raw);
+  
+    let parsed = raw;
+    
+    // If raw is a string JSON → parse it
+    if (typeof raw === "string") {
+      try {
+        parsed = JSON.parse(raw);
+        console.log('parsed :', parsed);
+      } catch {
+        return "Payment failed. Try again.@@@";
+      }
+    }
+  
+    // If PayPal returned validation details → use description
+    if ( parsed?.body?.details?.[0]?.description) {
+      return parsed?.body?.details?.[0]?.description;
+    }
+  
+    // Otherwise use message
+    if (parsed?.message) {
+      return parsed.message;
+    }
+  
+    // Fallback
+    return "Payment failed. Try again.---";
+  }
+  
   // Load PayPal client ID and SDK
   useEffect(() => {
     const loadPayPalSDK = async () => {
@@ -145,17 +176,21 @@ const PayPalPaymentStep = ({
               if (response.data.success) {
                 onPaymentSuccess(response.data.data);
               } else {
+                console.log("SetError ---------------1");
+                
                 setError(response.data.message || 'Payment failed');
                 setIsProcessing(false);
               }
             } catch (err) {
               console.error('Payment capture error:', err);
+              console.log("SetError --------------2");
               setError(err.response?.data?.message || 'Failed to process payment');
               setIsProcessing(false);
             }
           },
           onError: (err) => {
             console.error('PayPal Buttons error:', err);
+            console.log("SetError ---------------3");
             setError(err.message || 'An error occurred with PayPal');
             setIsProcessing(false);
           },
@@ -485,7 +520,16 @@ const PayPalPaymentStep = ({
       if (err?.message?.includes("Window closed")) {
         setError("The PayPal window was closed before completing verification.");
       } else {
-        setError(err?.message || "Failed to submit payment.");
+        console.log(typeof err,"setError--------------5");
+        console.log('  err?.details :',  getPayPalError(err));
+        const description =
+        err?.details?.[0]?.description ||
+        err?.message ||
+        "Failed to submit payment.";
+        console.log('description :', description);
+
+// setError(getPayPalError(err));
+        setError(getPayPalError(err) || "Failed to submit payment.");
       }
     } finally {
       setIsProcessing(false);

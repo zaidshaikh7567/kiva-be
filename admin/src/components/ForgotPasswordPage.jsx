@@ -47,7 +47,11 @@ const ForgotPasswordPage = ({ onBackToLogin }) => {
         toast.success('Password reset email sent successfully!');
         setEmail('');
         // Redirect to reset password page
-        navigate('/reset-password');
+        navigate("/reset-password", {
+          state: {
+            email: email
+          }
+        });
       } else {
         toast.error(result.payload || 'Failed to send reset email');
       }
@@ -107,7 +111,7 @@ const ForgotPasswordPage = ({ onBackToLogin }) => {
               disabled={loading}
               className="w-full bg-gradient-to-r from-primary to-primary-dark text-white py-3 rounded-lg font-montserrat-semibold-600 hover:from-primary-dark hover:to-primary transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {loading ? 'Sending...' : 'Send Reset Link'}
+              {loading ? 'Sending...' : 'Send OTP'}
             </button>
           </form>
 

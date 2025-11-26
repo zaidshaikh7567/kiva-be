@@ -824,7 +824,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                 <ContactBox />
                 {/* Additional Info */}
                 <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
-                  <p>✓ Free shipping on orders over $100</p>
+                  <p>✓ Free shipping for every order</p>
                   {/* <p>✓ 30-day return policy</p> */}
                   <p>✓ Secure checkout</p>
                 </div>

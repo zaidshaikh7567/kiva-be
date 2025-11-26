@@ -45,36 +45,36 @@ export const COLOR_OPTIONS = [
   { value: 'Rose Gold', label: 'Rose Gold' },
   { value: 'Platinum', label: 'Platinum' },
   { value: 'Silver', label: 'Silver' },
-  { value: 'Other', label: 'Other' }
+  // { value: 'Other', label: 'Other' }
 ];
 
 // Clarity options
 export const CLARITY_OPTIONS = [
-  { value: 'FL', label: 'FL (Flawless)' },
-  { value: 'IF', label: 'IF (Internally Flawless)' },
-  { value: 'VVS1', label: 'VVS1 (Very Very Slightly Included 1)' },
-  { value: 'VVS2', label: 'VVS2 (Very Very Slightly Included 2)' },
-  { value: 'VS1', label: 'VS1 (Very Slightly Included 1)' },
-  { value: 'VS2', label: 'VS2 (Very Slightly Included 2)' },
-  { value: 'SI1', label: 'SI1 (Slightly Included 1)' },
-  { value: 'SI2', label: 'SI2 (Slightly Included 2)' },
-  { value: 'I1', label: 'I1 (Included 1)' },
-  { value: 'I2', label: 'I2 (Included 2)' },
-  { value: 'I3', label: 'I3 (Included 3)' },
-  { value: 'AAA', label: 'AAA (Pearl Quality)' },
-  { value: 'AA', label: 'AA (Pearl Quality)' },
-  { value: 'A', label: 'A (Pearl Quality)' }
+  { value: 'FL', label: 'FL' },
+  { value: 'IF', label: 'IF' },
+  { value: 'VVS1', label: 'VVS1' },
+  { value: 'VVS2', label: 'VVS2' },
+  { value: 'VS1', label: 'VS1' },
+  { value: 'VS2', label: 'VS2' },
+  // { value: 'SI1', label: 'SI1 (Slightly Included 1)' },
+  // { value: 'SI2', label: 'SI2 (Slightly Included 2)' },
+  // { value: 'I1', label: 'I1 (Included 1)' },
+  // { value: 'I2', label: 'I2 (Included 2)' },
+  // { value: 'I3', label: 'I3 (Included 3)' },
+  // { value: 'AAA', label: 'AAA (Pearl Quality)' },
+  // { value: 'AA', label: 'AA (Pearl Quality)' },
+  // { value: 'A', label: 'A (Pearl Quality)' }
 ];
 
 // Certificate options
 export const CERTIFICATE_OPTIONS = [
-  { value: 'GIA', label: 'GIA (Gemological Institute of America)' },
-  { value: 'IGI', label: 'IGI (International Gemological Institute)' },
-  { value: 'AGS', label: 'AGS (American Gem Society)' },
-  { value: 'EGL', label: 'EGL (European Gemological Laboratory)' },
-  { value: 'HRD', label: 'HRD (Hoge Raad voor Diamant)' },
-  { value: 'Certificate of Authenticity', label: 'Certificate of Authenticity' },
-  { value: 'Other', label: 'Other' }
+  { value: 'GIA', label: 'GIA' },
+  { value: 'IGI', label: 'IGI' },
+  { value: 'AGS', label: 'AGS' },
+  { value: 'EGL', label: 'EGL' },
+  { value: 'HRD', label: 'HRD' },
+  // { value: 'Certificate of Authenticity', label: 'Certificate of Authenticity' },
+  // { value: 'Other', label: 'Other' }
 ];
 
 // Empty Lexical Editor State

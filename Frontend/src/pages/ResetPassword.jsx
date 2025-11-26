@@ -1,6 +1,8 @@
+// Updated Reset Password Page WITHOUT TOKEN FLOW (OTP-based only)
+
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, CheckCircle, FormInput } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Mail,Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   resetPassword,
@@ -11,6 +13,8 @@ import {
   selectAuthSuccessType,
   selectIsAuthenticated,
 } from '../store/slices/authSlice';
+import FormInput from '../components/FormInput';
+import toast from 'react-hot-toast';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -19,27 +23,26 @@ const ResetPassword = () => {
   const success = useSelector(selectAuthSuccess);
   const successType = useSelector(selectAuthSuccessType);
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const location = useLocation();
+  const email = location.state?.email || "";
 
   const [formData, setFormData] = useState({
+    email: email,
+    otp: '',
     password: '',
     confirmPassword: ''
   });
+
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
-
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
-  // Clear errors on unmount
   useEffect(() => {
     return () => {
       dispatch(clearError());
@@ -47,33 +50,28 @@ const ResetPassword = () => {
     };
   }, [dispatch]);
 
-  // Handle success state
   useEffect(() => {
     if (success && successType === 'resetPassword') {
       setPasswordReset(true);
       dispatch(clearSuccess());
-    } else if (success && successType && successType !== 'resetPassword') {
-      dispatch(clearSuccess());
     }
   }, [success, successType, dispatch]);
 
-  // password regex: 8+ chars, upper, lower, number, special
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=?<>]).{8,}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=?<>]).{8,}$/;
 
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
-    } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password =
-        'Password must include uppercase, lowercase, number, and special character';
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    if (!formData.otp.trim()) newErrors.otp = 'OTP is required';
+
+    if (!formData.password.trim()) newErrors.password = 'Password is required';
+    else if (!passwordRegex.test(formData.password)) {
+      newErrors.password = 'Password must include uppercase, lowercase, number, and special character';
     }
 
-    if (!formData.confirmPassword.trim()) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    } else if (formData.password !== formData.confirmPassword) {
+    if (!formData.confirmPassword.trim()) newErrors.confirmPassword = 'Please confirm your password';
+    else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
@@ -82,80 +80,46 @@ const ResetPassword = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: '' });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
-
-    const result = await dispatch(resetPassword({ token, password: formData.password }));
+const body ={
+  email: formData.email,
+  otp: formData.otp,
+  newPassword: formData.password,
+}
+console.log('body :', body);
+    const result = await dispatch(
+      resetPassword(body)
+    );
 
     if (resetPassword.rejected.match(result)) {
-      setErrors({
-        password: result.payload?.message || 'Failed to reset password. Please try again.'
-      });
+      toast.error(result.payload?.message)    
+    }else{
+      toast.success(result.payload?.message)
     }
   };
 
   if (passwordReset) {
     return (
       <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-            <h2 className="text-3xl font-sorts-mill-gloudy text-black">
-              Password Reset Successfully!
-            </h2>
-            <p className="mt-2 text-sm font-montserrat-regular-400 text-black-light">
-              You can now sign in with your new password.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm sm:p-8 p-4">
-            <div className="text-center space-y-4">
-              <Link
-                to="/sign-in"
-                className="block w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-center"
-              >
-                Sign In to Your Account
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-red-600" />
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
-          <h2 className="text-3xl font-sorts-mill-gloudy text-black">
-            Invalid Reset Link
-          </h2>
-          <p className="mt-2 text-sm font-montserrat-regular-400 text-black-light">
-            This password reset link is invalid or has expired.
-          </p>
+          <h2 className="text-3xl font-sorts-mill-gloudy">Password Reset Successfully!</h2>
+          <p className="text-sm text-black-light">You can now sign in with your new password.</p>
 
-          <div className="bg-white rounded-2xl shadow-sm sm:p-8 p-4 mt-4">
-            <Link
-              to="/forgot-password"
-              className="block w-full bg-primary text-white font-montserrat-medium-500 py-4 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 text-center"
-            >
-              Request New Reset Link
-            </Link>
-          </div>
+          <Link
+            to="/sign-in"
+            className="block w-full bg-primary text-white py-4 rounded-lg mt-6 hover:bg-primary-dark"
+          >
+            Sign In
+          </Link>
         </div>
       </div>
     );
@@ -168,73 +132,52 @@ const ResetPassword = () => {
           <div className="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-3xl font-sorts-mill-gloudy text-black">
-            Reset Password
-          </h2>
-          <p className="mt-2 text-sm font-montserrat-regular-400 text-black-light">
-            Enter your new password below
-          </p>
+          <h2 className="text-3xl font-sorts-mill-gloudy text-black">Reset Password</h2>
+          <p className="text-sm text-black-light">Reset your password using OTP</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm sm:p-8 p-4">
+        <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Password */}
-            <div>
-              <FormInput
-                label="New Password *"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                error={errors.password}
-                icon={Lock}
-                placeholder="Enter your new password"
-                type={showPassword ? 'text' : 'password'}
-                rightIcon={showPassword ? Eye : EyeOff}
-                onRightIconClick={() => setShowPassword(!showPassword)}
-                rightIconClickable={true}
-              />
+            <FormInput disabled label="Email *" name="email" value={formData.email} onChange={handleChange} error={errors.email} placeholder="Enter your email" icon={Mail} />
 
-              
-            </div>
+            <FormInput label="OTP *" name="otp" value={formData.otp} onChange={handleChange} error={errors.otp} placeholder="Enter OTP" icon={Lock} />
 
-            {/* Confirm Password */}
-            <div>
-              <FormInput
-                label="Confirm New Password *"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                error={errors.confirmPassword}
-                icon={Lock}
-                placeholder="Confirm your new password"
-                type={showConfirmPassword ? 'text' : 'password'}
-                rightIcon={showConfirmPassword ? Eye : EyeOff}
-                onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                rightIconClickable={true}
-              />
-            </div>  
+            <FormInput
+              label="New Password *"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              onChange={handleChange}
+              error={errors.password}
+              icon={Lock}
+              rightIcon={showPassword ? Eye : EyeOff}
+              onRightIconClick={() => setShowPassword(!showPassword)}
+              rightIconClickable={true}
+              placeholder="Enter new password"
+            />
 
-            {/* Submit */}
+            <FormInput
+              label="Confirm Password *"
+              name="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+              icon={Lock}
+              rightIcon={showConfirmPassword ? Eye : EyeOff}
+              onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              rightIconClickable={true}
+              placeholder="Confirm new password"
+            />
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary-dark disabled:opacity-50"
             >
-              {loading ? 'Updating Password...' : 'Update Password'}
+              {loading ? 'Processing...' : 'Reset Password'}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm font-montserrat-regular-400 text-black-light">
-              Remember your password?{' '}
-              <Link
-                to="/sign-in"
-                className="font-montserrat-medium-500 text-primary hover:text-primary-dark"
-              >
-                Sign in here
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>

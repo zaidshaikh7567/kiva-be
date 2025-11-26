@@ -93,21 +93,6 @@ const Favorites = () => {
     setProductForRingSize(null);
   };
 
-  const handleAddToCart = (product) => {
-    // Check if product is a ring
-    if (isRing(product)) {
-      // Show ring size selection modal
-      setProductForRingSize(product);
-      setShowRingSizeModal(true);
-    } else {
-      // Add directly to cart
-      dispatch(addToCart(product));
-      toast.success(`${product.title || product.name} added to cart!`, {
-        duration: 2000,
-        position: 'top-right',
-      });
-    }
-  };
 
   const handleRemoveFromFavorites = async (product) => {
     const productId = product._id || product.id;
@@ -135,12 +120,6 @@ const Favorites = () => {
       duration: 2000,
       position: 'top-right',
     });
-  };
-
-  const handleQuickView = (e, product) => {
-    e.stopPropagation();
-    setSelectedProduct(product);
-    setShowQuickView(true);
   };
 
   const handleCloseQuickView = () => {
@@ -180,7 +159,7 @@ const Favorites = () => {
         </section>
       </AnimatedSection>
 
-      <div className="max-w-[1420px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1580px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <AnimatedSection animationType="fadeInLeft" delay={200}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">

@@ -1,20 +1,25 @@
 const nodemailer = require('nodemailer');
 
-const { GMAIL_USER, GMAIL_APP_PASSWORD } = require('../config/env');
+const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM } = require('../config/env');
 const logger = require('./logger');
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: SMTP_HOST, // smtp-relay.brevo.com
+  port: parseInt(SMTP_PORT) || 587,
+  secure: parseInt(SMTP_PORT) === 465, // use TLS only for 465
   auth: {
-    user: GMAIL_USER,
-    pass: GMAIL_APP_PASSWORD
+    user: SMTP_USER, // yourgmail@gmail.com
+    pass: SMTP_PASSWORD // brevo smtp key
   }
 });
 
 const sendEmail = async (to, subject, html) => {
+  console.log('subject :', subject);
+  console.log('to :', to);
+
   try {
     const mailOptions = {
-      from: GMAIL_USER,
+      from: SMTP_FROM, 
       to,
       subject,
       html

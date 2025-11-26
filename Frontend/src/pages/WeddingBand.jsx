@@ -90,7 +90,7 @@ const WeddingBand = () => {
 
       {/* Filter Section */}
       <section className="py-4 md:py-8 bg-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="max-w-[1580px] mx-auto px-4 md:px-6">
           {/* Filters and Sorting */}
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-0">
             <div className="flex items-center space-x-4">
@@ -130,7 +130,7 @@ const WeddingBand = () => {
 
       {/* Products Grid */}
       <section className="py-2 md:py-8 bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="max-w-[1580px] mx-auto px-4 md:px-6">
           {productsLoading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -150,7 +150,7 @@ const WeddingBand = () => {
             <div 
               className={`grid gap-4 md:gap-8 ${
                 viewMode === "grid" 
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
+                  ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4" 
                   : "grid-cols-1"
               }`}
             >
