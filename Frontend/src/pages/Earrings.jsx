@@ -9,8 +9,10 @@ import { selectCategories } from "../store/slices/categoriesSlice";
 import { fetchCategories } from "../store/slices/categoriesSlice";
 import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
-import { Link } from "react-router-dom";
-
+import ProductFilterToolbar from "../components/ProductFilterToolbar";
+import earringHeroBg from "../assets/images/summar.webp";
+import CategoryHero from "../components/CategoryHero";
+import NeedHelpSection from "../components/NeedHelpSection";
 const Earrings = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
@@ -90,63 +92,27 @@ const Earrings = () => {
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}
-      <AnimatedSection animationType="fadeInUp" delay={100}>
-        <section className="py-8 md:py-16 lg:py-20 bg-secondary">
-          <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
-            <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
-              JEWELRY COLLECTION
-            </p>
-            <h1 className="text-2xl md:text-5xl lg:text-6xl font-sorts-mill-gloudy leading-tight mb-3 md:mb-6 text-black">
-              Earring Collection<span className="text-primary">.</span>
-            </h1>
-            <p className="text-sm md:text-lg lg:text-xl font-montserrat-regular-400 mb-4 md:mb-8 max-w-2xl mx-auto text-black-light px-2 md:px-4">
-              Discover our stunning collection of earrings, from delicate studs to statement pieces
-            </p>
-            <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
-          </div>
-        </section>
-      </AnimatedSection>
+      <CategoryHero
+        eyebrow="JEWELRY COLLECTION"
+        title="Earring Collection"
+        highlightedWord="."
+        body="Discover our stunning collection of earrings, from delicate studs to statement pieces"
+        backgroundImage={earringHeroBg}
+        backgroundOverlay="rgba(0,0,0,0.22)"
+      />
 
       {/* Simple Filter Section */}
       {/* <AnimatedSection animationType="fadeInLeft" delay={200}> */}
-        <section className="py-4 md:py-8 bg-white">
-          <div className="max-w-[1580px] mx-auto px-4 md:px-6">
-            {/* Filters and Sorting */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-0">
-              <div className="flex items-center space-x-4">
-                <span className="text-sm font-montserrat-medium-500 text-black-light">
-                  {sortedEarrings.length} earrings available
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <CustomDropdown
-                  options={SORT_OPTIONS.CATEGORY}
-                  value={sortBy}
-                  onChange={setSortBy}
-                  placeholder="Sort by"
-                  className="min-w-[200px]"
-                    searchable={false}
-                />
-
-                <div className="flex items-center border border-gray-200 rounded-lg">
-                  <button
-                    onClick={() => setViewMode("grid")}
-                    className={`p-2 ${viewMode === "grid" ? "bg-primary rounded-tl-lg rounded-bl-lg  text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
-                  >
-                    <Grid className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={`p-2 ${viewMode === "list" ? "bg-primary rounded-tr-lg rounded-br-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tr-lg rounded-br-lg"}`}
-                  >
-                    <List className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+      <ProductFilterToolbar
+        totalCount={sortedEarrings.length}
+        entityName="earring"
+        sortOptions={SORT_OPTIONS.CATEGORY}
+        sortValue={sortBy}
+        onChangeSort={setSortBy}
+        viewMode={viewMode}
+        onChangeViewMode={setViewMode}
+        dropdownProps={{ searchable: false }}
+      />
       {/* </AnimatedSection> */}
 
       {/* Products Grid */}
@@ -171,7 +137,7 @@ const Earrings = () => {
             ) : sortedEarrings.length > 0 ? (
               <div className={`grid gap-4 md:gap-8 ${
                 viewMode === "grid" 
-                  ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4" 
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
                   : "grid-cols-1"
               }`}>
                 {sortedEarrings.map((earring) => (
@@ -213,28 +179,11 @@ const Earrings = () => {
         </section>
       {/* </AnimatedSection> */}
 
-      {/* Call to Action */}
-      {/* <AnimatedSection animationType="fadeInUp" delay={400}> */}
-        <section className="py-16 md:py-20 bg-black text-white">
-          <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
-              Need Help Choosing<span className="text-primary">?</span>
-            </h2>
-            <p className="text-base md:text-lg lg:text-xl font-montserrat-regular-400 text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto px-4">
-              Our jewelry experts can help you find the perfect earrings or create a custom design just for you
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
-            <Link to="/custom" className="px-6 md:px-10 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg text-base md:text-lg">
-              Custom Design
-            </Link>
-              {/* <button className="px-6 md:px-10 py-3 md:py-4 border-2 border-primary text-primary font-montserrat-medium-500 hover:bg-primary hover:text-white transition-colors duration-300 rounded-lg text-base md:text-lg">
-                Book Consultation
-              </button> */}
-            </div>
-          </div>
-        </section>
-      {/* </AnimatedSection> */}
+      <NeedHelpSection
+        description="Our jewelry experts can help you find the perfect earrings or create a custom design just for you."
+        primaryCtaLabel="Custom Design"
+        primaryCtaHref="/custom"
+      />
     </div>
   );
 };

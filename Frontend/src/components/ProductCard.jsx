@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Heart, Star, ShoppingBag, Eye, X, Loader2 } from 'lucide-react';
+import { Heart, Star, ShoppingBag, Eye, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCartItem } from '../store/slices/cartSlice';
-import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
+import { selectMetals } from '../store/slices/metalsSlice';
 import { 
   toggleFavorite, 
   addToFavoritesAPI, 
@@ -12,15 +12,15 @@ import {
 } from '../store/slices/favoritesSlice';
 import { selectIsAuthenticated } from '../store/slices/authSlice';
 import ProductDetailsModal from './ProductDetailsModal';
+import AddToCartModal from './AddToCartModal';
 import PriceDisplay from './PriceDisplay';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
-import CustomDropdown from './CustomDropdown';
-import MetalSelector from './MetalSelector';
-import { RING_SIZES } from '../services/centerStonesApi';
 import { selectCategories } from '../store/slices/categoriesSlice';
+import { selectStones } from '../store/slices/stonesSlice';
 import toast from 'react-hot-toast';
 import { extractPlainText } from '../helpers/lexicalToHTML';
 import { transformMetalsToSelectorOptions } from '../constants';
+import { capitalizeFirstLetter } from '../helpers/capitalizeFirstLetter';
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const [showDetails, setShowDetails] = useState(false);
@@ -34,8 +34,27 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const categories = useSelector(selectCategories);
   const metals = useSelector(selectMetals);
-  const [loading, setLoading] = useState(false);
   const isList = viewMode === "list";
+  const stones = useSelector(selectStones);
+  console.log('product :', product);
+  const [selectedCarat, setSelectedCarat] = useState(product?.stoneType ? {
+    name: product.stoneType.name,
+    id: product.stoneType._id || product.stoneType.id,
+    price: product.stoneType.price
+  } : null);
+  const [selectedCenterStone, setSelectedCenterStone] = useState(product?.stoneType ? product.stoneType : null);
+  console.log('selectedCarat :', selectedCarat);
+  console.log('selectedCenterStone :', selectedCenterStone); 
+  
+  const getFinalPrice = () => {
+    if (!product) return 0;
+    const basePrice = product?.price || 0;
+    console.log('basePrice :', basePrice);
+    const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
+    const centerStonePrice = selectedCenterStone ? selectedCenterStone.price : 0;
+    return (basePrice * metalMultiplier) + centerStonePrice;
+  };
+  console.log('getFinalPrice :', getFinalPrice());
   // Check if product is a ring
   const isRing = () => {
     const categoryName = product?.category?.name?.toLowerCase();
@@ -114,15 +133,15 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         };
       }
 
-      // Add stone type if product has stone
-      if (product?.stoneType?._id) {
+      // Add stone type if selected
+      if (selectedCarat?.id) {
+        cartData.stoneTypeId = selectedCarat.id;
+      } else if (product?.stoneType?._id) {
         cartData.stoneTypeId = product.stoneType._id;
       }
 
       // Use API for authenticated users
-      setLoading(true);
      const response=  await dispatch(addCartItem(cartData));
-      setLoading(false);
      if (response.payload.success) {
       let successMessage = `${product.name || product.title} added to cart!`;
       const options = [];
@@ -142,13 +161,9 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           position: 'top-right',
         });
       // }
-      setShowAddToCartModal(false);
-      setSelectedRingSize('');
-      setSelectedMetal(null);
+      handleCloseAddToCartModal();
     } else {
-      setShowAddToCartModal(false);
-      setSelectedRingSize('');
-      setSelectedMetal(null);
+      handleCloseAddToCartModal();
     }
       
       // Build success message
@@ -183,6 +198,15 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     // }
     // Show modal with metal selection and ring size (if ring)
     setShowAddToCartModal(true);
+    // when hadd to card if prodect has stone type, set the selected carat to the stone type
+    if (product?.stoneType) {
+      setSelectedCarat({
+        name: product.stoneType.name,
+        id: product.stoneType._id || product.stoneType.id,
+        price: product.stoneType.price
+      });
+      setSelectedCenterStone(product.stoneType);
+    }
   };
 
   // Auto-select first available metal when modal opens and metals are loaded
@@ -225,9 +249,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
       toast.error('Invalid product');
       return;
     }
+    console.log('product :', product);
 
     // Check if product is available
-    if (!product || !product.quantity || product.quantity <= 0) {
+    if (!product) {
       toast.error('Product is not available');
       return;
     }
@@ -261,6 +286,69 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           position: 'top-right',
         });
       }
+    }
+  };
+
+  const handleCaratChange = (carat) => {
+    if (!carat) {
+      setSelectedCarat(null);
+      setSelectedCenterStone(null);
+      return;
+    }
+
+    if (typeof carat === 'object') {
+      setSelectedCarat({
+        name: carat.name,
+        id: carat.id,
+        price: carat.price
+      });
+
+      const stone = stones.find((s) => (s._id || s.id) === carat.id);
+      setSelectedCenterStone(stone || carat);
+    } else if (typeof carat === 'string') {
+      const stone = stones.find((stoneItem) =>
+        stoneItem.name?.toLowerCase().includes(carat.toLowerCase())
+      );
+      if (stone) {
+        setSelectedCarat({
+          name: stone.name,
+          id: stone._id || stone.id,
+          price: stone.price
+        });
+        setSelectedCenterStone(stone);
+      } else {
+        setSelectedCarat({
+          name: carat,
+          id: null,
+          price: 0
+        });
+        setSelectedCenterStone(null);
+      }
+    }
+  };
+
+  const handleCloseAddToCartModal = () => {
+    setShowAddToCartModal(false);
+    setSelectedRingSize('');
+    
+    // Reset to product's default metal if exists, otherwise null
+    if (product?.metal) {
+      setSelectedMetal(product.metal);
+    } else {
+      setSelectedMetal(null);
+    }
+    
+    // Reset to product's default stone if exists, otherwise null
+    if (product?.stoneType) {
+      setSelectedCarat({
+        name: product.stoneType.name,
+        id: product.stoneType._id || product.stoneType.id,
+        price: product.stoneType.price
+      });
+      setSelectedCenterStone(product.stoneType);
+    } else {
+      setSelectedCarat(null);
+      setSelectedCenterStone(null);
     }
   };
 
@@ -365,7 +453,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
                 </h3>
 
                 <p className="text-xs md:text-sm text-black-light font-montserrat-regular-400 mb-3 line-clamp-2">
-                  {extractPlainText(product.subDescription)}
+                  {capitalizeFirstLetter(extractPlainText(product.subDescription))}
                 </p>
               </div>
 
@@ -373,7 +461,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex-shrink-0 w-full sm:w-auto">
                   <PriceDisplay 
-                    price={product.price}
+                    price={getFinalPrice()}
                     originalPrice={product.originalPrice}
                     showOriginalPrice={true}
                   />
@@ -419,12 +507,12 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
                 </h3>
 
                 <p className="text-black-light font-montserrat-regular-400 text-xs md:text-sm mb-4 line-clamp-1">
-                  {extractPlainText(product.subDescription)}
+                  {capitalizeFirstLetter(extractPlainText(product.subDescription))}
                 </p>
 
                 <div className="flex items-center justify-between mb-4">
                   <PriceDisplay 
-                    price={product.price}
+                    price={getFinalPrice()}
                     originalPrice={product.originalPrice}
                     showOriginalPrice={true}
                   />
@@ -465,103 +553,22 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         onClose={() => setShowDetails(false)}
       />
 
-      {/* Add to Cart Modal with Metal Selection and Ring Size */}
-      {showAddToCartModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in fade-in duration-200 max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-montserrat-semibold-600 text-black">
-                Add to Cart
-              </h3>
-              <button
-                onClick={() => {
-                  setShowAddToCartModal(false);
-                  setSelectedRingSize('');
-                  setSelectedMetal(null);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-              >
-                <X className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
-
-            {/* Product Info */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center space-x-4">
-                {product?.images?.[0] && (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name || product.title}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
-                )}
-                <div>
-                  <h4 className="font-montserrat-semibold-600 text-black mb-1">
-                    {product.name || product.title}
-                  </h4>
-                  <PriceDisplay 
-                    price={product.price}
-                    originalPrice={product.originalPrice}
-                    variant="small"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Metal Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
-                Select Metal *
-              </label>
-              <MetalSelector
-                selectedMetal={selectedMetal}
-                onMetalChange={handleMetalChange}
-                product={product}
-                cartItem={null}
-              />
-            </div>
-
-            {/* Ring Size Selection (if ring) */}
-            {isRing() && (
-              <div className="mb-6">
-                <label className="block text-sm font-montserrat-medium-500 text-black mb-3">
-                  Ring Size *
-                </label>
-                <CustomDropdown
-                  options={RING_SIZES}
-                  value={selectedRingSize}
-                  onChange={handleRingSizeChange}
-                  placeholder="Select your ring size"
-                />
-                <p className="mt-2 text-xs text-gray-600 font-montserrat-regular-400">
-                  Need help finding your size? Check our <a href="/size-guide" className="text-primary hover:underline">Size Guide</a>
-                </p>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="flex space-x-3">
-              <button
-                onClick={() => {
-                  setShowAddToCartModal(false);
-                  setSelectedRingSize('');
-                  setSelectedMetal(null);
-                }}
-                className="flex-1 border border-gray-300 text-gray-700 font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmAddToCart}
-                className="flex-1 bg-primary text-white font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors duration-200"
-              >
-                {loading ? <span className="flex items-center space-x-2w-full justify-center "><Loader2 className="w-4 h-4 animate-spin  mr-2 " /> Adding to Cart...</span> : 'Add to Cart'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Add to Cart Modal */}
+      <AddToCartModal
+        isOpen={showAddToCartModal}
+        product={product}
+        selectedMetal={selectedMetal}
+        selectedRingSize={selectedRingSize}
+        selectedCarat={selectedCarat}
+        selectedCenterStone={selectedCenterStone}
+        onClose={handleCloseAddToCartModal}
+        onConfirm={handleConfirmAddToCart}
+        onMetalChange={handleMetalChange}
+        onRingSizeChange={handleRingSizeChange}
+        onCaratChange={handleCaratChange}
+        getFinalPrice={getFinalPrice}
+        isRing={isRing()}
+      />
     </>
   );
 };

@@ -40,7 +40,10 @@ export const forgotPassword = createAsyncThunk(
   'auth/forgotPassword',
   async (email, { rejectWithValue }) => {
     try {
-      const response = await api.post('/api/auth/forgot-password', { email });
+      const response = await api.post('/api/auth/forgot-password', { 
+        email,
+        role: 'admin' // Send admin role to filter correctly
+      });
       
       if (response.data.success) {
         return response.data.message || 'Password reset email sent successfully';
@@ -61,7 +64,10 @@ export const resetPassword = createAsyncThunk(
   'auth/resetPassword',
   async (resetData, { rejectWithValue }) => {
     try {
-      const response = await api.post('/api/auth/reset-password', resetData);
+      const response = await api.post('/api/auth/reset-password', {
+        ...resetData,
+        role: 'admin' // Send admin role to filter correctly
+      });
       
       if (response.data.success) {
         return response.data.message || 'Password reset successfully';

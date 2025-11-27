@@ -39,7 +39,51 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', null
-
+  const contactItems = [
+    {
+      icon: <Phone className="w-8 h-8 text-white" />,
+      title: "Call Us",
+      mainText: PHONE_NUMBER_SEPARATE,
+      link: `tel:${PHONE_NUMBER_COMBO}`,
+      isLink: true,
+      subText: (
+        <>
+          Mon-Fri: 9AM-7PM <br />
+          Sat: 9AM-3PM <br />
+          Sun: Closed
+        </>
+      ),
+    },
+    {
+      icon: <Mail className="w-8 h-8 text-white" />,
+      title: "Email Us",
+      mainText: EMAIL_URL,
+      link: `mailto:${EMAIL_URL}`,
+      isLink: true,
+      subText: (
+        <>
+          General inquiries <br />
+          Custom designs <br />
+          Support requests
+        </>
+      ),
+    },
+    {
+      icon: <MapPin className="w-8 h-8 text-white" />,
+      title: "Visit Us",
+      mainText: "Kiva Jewelry",
+      link: null,
+      isLink: false,
+      subText: (
+        <>
+          3rd floor above Krishna Hospital, <br />
+          Near Piplas Char Rasta, Katargam Main Road, <br />
+          Surat, 395004 (India) <br />
+          By appointment
+        </>
+      ),
+    },
+  ];
   // Validation functions
   const validateField = (name, value) => {
     let error = "";
@@ -232,74 +276,38 @@ const Contact = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Phone */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Phone className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">
-                  Call Us
-                </h3>
-                <a
-                  href={`tel:${PHONE_NUMBER_COMBO}`}
-                  className="text-primary font-montserrat-bold-700 text-lg mb-2 block hover:underline"
-                >
-                  {PHONE_NUMBER_SEPARATE}
-                </a>
-                <p className="text-black-light font-montserrat-regular-400 text-sm">
-                  Mon-Fri: 9AM-7PM
-                  <br />
-                  Sat: 9AM-3PM
-                  <br />
-                  Sun: Closed
-                </p>
-              </div>
+      {contactItems.map((item, i) => (
+        <div
+          key={i}
+          className="bg-white sm:p-8 p-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center"
+        >
+          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+            {item.icon}
+          </div>
 
-              {/* Email */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Mail className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">
-                  Email Us
-                </h3>
-                <a
-                  href={`mailto:${EMAIL_URL}`}
-                  className="text-primary font-montserrat-bold-700 text-lg mb-2 block hover:underline"
-                >
-                  {EMAIL_URL}
-                </a>
-                <p className="text-black-light font-montserrat-regular-400 text-sm">
-                  General inquiries
-                  <br />
-                  Custom designs
-                  <br />
-                  Support requests
-                </p>
-              </div>
+          <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">
+            {item.title}
+          </h3>
 
-              {/* Visit */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                  <MapPin className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-montserrat-semibold-600 text-black mb-4">
-                  Visit Us
-                </h3>
-                <p className="text-primary font-montserrat-bold-700 text-lg mb-2">
-                Kiva Jewelry 
-                </p>
-                <p className="text-black-light font-montserrat-regular-400 text-sm">
-                  3rd floor above Krishna Hospital,
-                  <br />
-                  Near Piplas Char Rasta, Katargam Main Road,
-                  <br />
-                  Surat, 395004 (India)
-                  <br />
-                  By appointment
-                </p>
-              </div>
-            </div>
+          {item.isLink ? (
+            <a
+              href={item.link}
+              className="text-primary font-montserrat-bold-700 sm:text-lg text-sm  mb-2 block hover:underline"
+            >
+              {item.mainText}
+            </a>
+          ) : (
+            <p className="text-primary font-montserrat-bold-700 sm:text-lg text-sm mb-2">
+              {item.mainText}
+            </p>
+          )}
+
+          <p className="text-black-light font-montserrat-regular-400 text-sm">
+            {item.subText}
+          </p>
+        </div>
+      ))}
+    </div>
           </div>
         </section>
       </AnimatedSection>

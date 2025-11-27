@@ -5,6 +5,44 @@ import { Star, Users, Award, Heart, CheckCircle, Shield, Gem, Clock, MapPin, Pho
 import AnimatedSection from "../components/home/AnimatedSection";
 
 const About = () => {
+  const features = [
+    {
+      icon: <Star className="w-8 h-8 text-white" />,
+      title: "Quality Excellence",
+      description:
+        "We use only the finest materials including ethically sourced diamonds, 18k gold, and platinum. Every piece undergoes rigorous quality control to ensure it meets our exacting standards.",
+    },
+    {
+      icon: <Award className="w-8 h-8 text-white" />,
+      title: "Master Craftsmanship",
+      description:
+        "Our artisans combine traditional techniques passed down through generations with cutting-edge technology, creating pieces that are both timeless and innovative.",
+    },
+    {
+      icon: <Shield className="w-8 h-8 text-white" />,
+      title: "Ethical Responsibility",
+      description:
+        "We are committed to responsible sourcing, fair trade practices, and environmental sustainability. Our diamonds are conflict-free and our metals are recycled whenever possible.",
+    },
+    {
+      icon: <Users className="w-8 h-8 text-white" />,
+      title: "Customer Centric",
+      description:
+        "Every customer is treated like family. We provide personalized service, lifetime warranties, and custom design services to ensure complete satisfaction.",
+    },
+    {
+      icon: <Gem className="w-8 h-8 text-white" />,
+      title: "Innovation",
+      description:
+        "We continuously explore new design concepts, materials, and techniques while respecting the traditional artistry that makes our jewelry special.",
+    },
+    {
+      icon: <Heart className="w-8 h-8 text-white" />,
+      title: "Heritage & Tradition",
+      description:
+        "We honor the traditions of fine jewelry making while creating pieces that speak to contemporary sensibilities and will be treasured for generations to come.",
+    },
+  ];
   return (
     <div className="bg-white">
       {/* Hero Banner Section */}
@@ -160,78 +198,23 @@ At Kiva, tradition meets modern luxury — beautifully and effortlessly.
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {/* Quality Excellence */}
-            <div className="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-primary">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
-                <Star className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-montserrat-semibold-600 text-black mb-4">Quality Excellence</h3>
-              <p className="text-black-light font-montserrat-regular-400 leading-relaxed">
-                We use only the finest materials including ethically sourced diamonds, 18k gold, and platinum. 
-                Every piece undergoes rigorous quality control to ensure it meets our exacting standards.
-              </p>
-            </div>
-
-            {/* Master Craftsmanship */}
-            <div className="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-primary">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
-                <Award className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-montserrat-semibold-600 text-black mb-4">Master Craftsmanship</h3>
-              <p className="text-black-light font-montserrat-regular-400 leading-relaxed">
-                Our artisans combine traditional techniques passed down through generations with cutting-edge technology, 
-                creating pieces that are both timeless and innovative.
-              </p>
-            </div>
-
-            {/* Ethical Responsibility */}
-            <div className="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-primary">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-montserrat-semibold-600 text-black mb-4">Ethical Responsibility</h3>
-              <p className="text-black-light font-montserrat-regular-400 leading-relaxed">
-                We are committed to responsible sourcing, fair trade practices, and environmental sustainability. 
-                Our diamonds are conflict-free and our metals are recycled whenever possible.
-              </p>
-            </div>
-
-            {/* Customer Centric */}
-            <div className="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-primary">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-montserrat-semibold-600 text-black mb-4">Customer Centric</h3>
-              <p className="text-black-light font-montserrat-regular-400 leading-relaxed">
-                Every customer is treated like family. We provide personalized service, lifetime warranties, 
-                and custom design services to ensure complete satisfaction.
-              </p>
-            </div>
-
-            {/* Innovation */}
-            <div className="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-primary">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
-                <Gem className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-montserrat-semibold-600 text-black mb-4">Innovation</h3>
-              <p className="text-black-light font-montserrat-regular-400 leading-relaxed">
-                We continuously explore new design concepts, materials, and techniques while respecting 
-                the traditional artistry that makes our jewelry special.
-              </p>
-            </div>
-
-            {/* Heritage & Tradition */}
-            <div className="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-primary">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
-                <Heart className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-montserrat-semibold-600 text-black mb-4">Heritage & Tradition</h3>
-              <p className="text-black-light font-montserrat-regular-400 leading-relaxed">
-                We honor the traditions of fine jewelry making while creating pieces that speak to contemporary 
-                sensibilities and will be treasured for generations to come.
-              </p>
-            </div>
+      {features.map((item, index) => (
+        <div
+          key={index}
+          className="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-primary"
+        >
+          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
+            {item.icon}
           </div>
+          <h3 className="text-2xl font-montserrat-semibold-600 text-black mb-4">
+            {item.title}
+          </h3>
+          <p className="text-black-light font-montserrat-regular-400 leading-relaxed">
+            {item.description}
+          </p>
+        </div>
+      ))}
+    </div>
         </div>
       </section>
       </AnimatedSection>

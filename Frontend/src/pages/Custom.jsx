@@ -28,7 +28,8 @@ import { fetchMetals, selectMetals, selectMetalsLoading } from "../store/slices/
 import { fetchStones, selectStones, selectStonesLoading } from "../store/slices/stonesSlice";
 import { TIMELINE_OPTIONS, transformMetalsToDropdownOptions, transformStonesToDropdownOptions } from "../constants";
 import FormInput from "../components/FormInput";
-
+import CategoryHero from "../components/CategoryHero";
+import customHeroBg from "../assets/images/summar.webp";
 const Custom = () => {
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
@@ -389,7 +390,16 @@ const Custom = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
-      <AnimatedSection animationType="fadeInUp" delay={100}>
+      <CategoryHero
+        // eyebrow="JEWELRY COLLECTION"
+        title="Custom Design"
+        highlightedWord="."
+        body="Create your dream piece of jewelry with our expert craftsmen. Share your vision and we'll bring it to life."
+        backgroundImage={customHeroBg}
+        backgroundOverlay="rgba(0,0,0,0.22)"
+        icon={<Sparkles className="w-10 h-10 text-white" />}
+      />
+      {/* <AnimatedSection animationType="fadeInUp" delay={100}>
         <section className="relative bg-gradient-to-br from-primary via-primary-light to-primary-dark py-20">
           <div className="absolute inset-0 bg-black/10"></div>
           <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
@@ -406,7 +416,7 @@ const Custom = () => {
             <div className="w-24 h-1 bg-white mx-auto"></div>
           </div>
         </section>
-      </AnimatedSection>
+      </AnimatedSection> */}
 
       {/* Custom Order Form */}
       <AnimatedSection animationType="fadeInUp" delay={200}>

@@ -27,6 +27,7 @@ const Checkout = () => {
   const [paypalOrderId, setPaypalOrderId] = useState(null);
   console.log('paypalOrderId :', paypalOrderId);
   const [paypalApprovalUrl, setPaypalApprovalUrl] = useState(null);
+  const [currencyNotice, setCurrencyNotice] = useState(null);
   
   // Form data
   const [shippingInfo, setShippingInfo] = useState({
@@ -158,10 +159,12 @@ const Checkout = () => {
           setPaypalOrderId(responseData.paypalOrderId);
           setPaypalApprovalUrl(responseData.approvalUrl || null);
           setCreatedOrder(responseData);
+          setCurrencyNotice(responseData.currencyNotice || null);
           setStep(3); // Move to Payment step
         } else {
           // If order was created but not PayPal, store it
           setCreatedOrder(responseData);
+          setCurrencyNotice(responseData.currencyNotice || null);
           setStep(3);
         }
       } else {
@@ -328,6 +331,7 @@ const Checkout = () => {
                   loading={isPlacingOrder}
                   paymentMethod={paymentMethod}
                   onPaymentMethodChange={setPaymentMethod}
+                  currencyNotice={currencyNotice}
                 />
               )}
 
@@ -343,6 +347,7 @@ const Checkout = () => {
                     loading={isPlacingOrder}
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
+                    currencyNotice={currencyNotice}
                   />
                 ) : (
                   <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8">

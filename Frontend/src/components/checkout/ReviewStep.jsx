@@ -1,7 +1,11 @@
 import React from 'react';
-import { CreditCard, MapPin, ArrowRight } from 'lucide-react';
+import { CreditCard, MapPin, ArrowRight, AlertCircle } from 'lucide-react';
 import { Country, State } from 'country-state-city';
-const ReviewStep = ({ shippingInfo, billingInfo, onEditShipping, onSubmit, loading, paymentMethod, onPaymentMethodChange }) => {
+
+// PayPal supported currencies (INR is not supported for most PayPal accounts)
+const PAYPAL_UNSUPPORTED_CURRENCIES = ['INR'];
+
+const ReviewStep = ({ shippingInfo, billingInfo, onEditShipping, onSubmit, loading, paymentMethod, onPaymentMethodChange, currencyNotice }) => {
 
     const getCountryName = (countryCode) => {
         if (!countryCode) return '';
@@ -17,10 +21,11 @@ const ReviewStep = ({ shippingInfo, billingInfo, onEditShipping, onSubmit, loadi
         return state ? state.name : stateCode;
       };
 
-         const shippingCountryName = getCountryName(shippingInfo.country);
+      const shippingCountryName = getCountryName(shippingInfo.country);
       const shippingStateName = getStateName(shippingInfo.state, shippingInfo.country);
          const billingCountryName = getCountryName(billingInfo?.country);
       const billingStateName = getStateName(billingInfo?.state, billingInfo?.country);
+      const currencyNoticeMessage = currencyNotice?.message;
   return (
     <div className="space-y-6">
       {/* Shipping Details */}
@@ -145,6 +150,23 @@ const ReviewStep = ({ shippingInfo, billingInfo, onEditShipping, onSubmit, loadi
           })}
         </div>
       </div>
+
+      {/* Currency Conversion Notice for PayPal */}
+      {paymentMethod === 'paypal' && currencyNoticeMessage && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-montserrat-semibold-600 text-yellow-800 mb-1">
+                Currency Conversion Notice
+              </p>
+              <p className="text-sm font-montserrat-regular-400 text-yellow-700">
+                {currencyNoticeMessage}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Order Confirmation Notice */}
       <div className="bg-primary-light rounded-lg p-4">

@@ -22,6 +22,7 @@ import PriceDisplay from '../components/PriceDisplay';
 import ProductDetailsModal from '../components/ProductDetailsModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import toast from 'react-hot-toast';
+import QuantitySelector from '../components/QuantitySelector';
 
 const ViewCart = () => {
   const dispatch = useDispatch();
@@ -246,32 +247,21 @@ const ViewCart = () => {
 
                         {/* Quantity Controls and View Button */}
                         <div className="flex items-center justify-between mt-4">
-                          <div className="flex items-center space-x-3">
-                            <button
-                              onClick={() => {
-                                const currentQty = item.quantity || item.product?.quantity || 1;
-                                handleQuantityChange(item._id, currentQty - 1);
-                              }}
-                              className="w-8 h-8 bg-gray-100 hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
-                            >
-                              <Minus className="w-4 h-4" />
-                            </button>
-                            <span className="text-lg font-montserrat-medium-500 text-black min-w-[30px] text-center">
-                              {item.quantity || item.product?.quantity || 1}
-                            </span>
-                            <button
-                              onClick={() => {
-                                const currentQty = item.quantity || item.product?.quantity || 1;
-                                handleQuantityChange(item._id, currentQty + 1);
-                              }}
-                              className="w-8 h-8 bg-gray-100 hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                            <span className="text-sm text-black-light font-montserrat-regular-400 ml-2">
-                              Qty
-                            </span>
-                          </div>
+                          <QuantitySelector
+                            label={null}
+                            value={item.quantity}
+                            min={1}
+                            onDecrement={() =>
+                              handleQuantityChange(item._id, item.quantity - 1)
+                            }
+                            onIncrement={() =>
+                              handleQuantityChange(item._id, item.quantity + 1)
+                            }
+                            buttonClassName="w-6 h-6 bg-primary-light hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
+                            valueClassName="text-sm font-montserrat-medium-500 text-black min-w-[20px] text-center"
+                            className="flex items-center space-x-2"
+                          />
+                        
 
                           {/* View Details Button */}
                           <button

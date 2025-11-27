@@ -132,5 +132,14 @@ router.delete('/:id', authenticate, validate(favoriteIdSchema, 'params'), asyncH
   res.json({ success: true, message: 'Product removed from favorites successfully' });
 }));
 
+// Remove all favorites for the authenticated user
+router.delete('/', authenticate, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  await Favorite.deleteMany({ user: userId });
+
+  res.json({ success: true, message: 'All favorites removed successfully' });
+}));
+
 module.exports = router;
 

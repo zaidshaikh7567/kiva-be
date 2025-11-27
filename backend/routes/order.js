@@ -94,6 +94,19 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     // Convert prices from USD to selected currency if needed
     const normalizedCurrency = (currency || 'USD').toUpperCase();
     
+    // PayPal unsupported currencies that MUST be converted to USD
+    const PAYPAL_UNSUPPORTED = ['INR'];
+    const isUnsupportedCurrency = PAYPAL_UNSUPPORTED.includes(normalizedCurrency);
+    let currencyNotice = null;
+    
+    // For unsupported currencies, exchangeRate is REQUIRED
+    if (isUnsupportedCurrency && (!exchangeRate || exchangeRate <= 0)) {
+      return res.status(400).json({
+        success: false,
+        message: `Currency ${normalizedCurrency} is not supported by PayPal. Please provide a valid exchange rate to convert to USD.`
+      });
+    }
+    
     // Validate exchange rate for non-USD currencies
     if (normalizedCurrency !== 'USD' && (!exchangeRate || exchangeRate <= 0)) {
       console.warn(`Warning: Exchange rate not provided for currency ${normalizedCurrency}. Using rate 1.0 (no conversion).`);
@@ -102,6 +115,15 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     const conversionRate = (normalizedCurrency !== 'USD' && exchangeRate && exchangeRate > 0) ? exchangeRate : 1;
     
     console.log(`Currency conversion: ${normalizedCurrency}, Rate: ${conversionRate}, Original Subtotal (USD): ${subtotal}`);
+    
+    if (isUnsupportedCurrency) {
+      currencyNotice = {
+        type: 'currency_conversion',
+        currency: normalizedCurrency,
+        exchangeRate: conversionRate,
+        message: `PayPal does not support ${normalizedCurrency} for payments. Your payment will be processed in USD using the current exchange rate (1 USD ≈ ${conversionRate} ${normalizedCurrency}). The amount shown in ${normalizedCurrency} is for reference only.`,
+      };
+    }
     
     // Create order data with converted prices for PayPal
     const convertedOrderItems = orderItems.map(item => {
@@ -129,7 +151,11 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     };
 
     try {
-      const paypalOrder = await createPayPalOrder(orderData, normalizedCurrency);
+      // For PayPal, check if currency needs conversion (e.g., INR to USD)
+      // Pass exchangeRate to allow conversion of unsupported currencies
+      console.log(`[Order] Creating PayPal order with currency: ${normalizedCurrency}, exchangeRate: ${exchangeRate}`);
+      console.log(`[Order] Order data total: ${orderData.total} ${normalizedCurrency}`);
+      const paypalOrder = await createPayPalOrder(orderData, normalizedCurrency, exchangeRate);
 
       const tempOrder = new Order({
         user: userId,
@@ -165,7 +191,8 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
           paypalOrderId: paypalOrder.id,
           approvalUrl: approvalUrl,
           orderData: orderData,
-          paymentMethod: normalizedPaymentMethod || 'paypal'
+          paymentMethod: normalizedPaymentMethod || 'paypal',
+          currencyNotice
         }
       });
     } catch (error) {

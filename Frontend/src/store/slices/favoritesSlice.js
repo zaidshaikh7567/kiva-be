@@ -90,6 +90,18 @@ export const removeFromFavoritesAPI = createAsyncThunk(
   }
 );
 
+export const deleteAllFavoritesAPI = createAsyncThunk(
+  'favorites/deleteAllFavoritesAPI',
+  async (_, { rejectWithValue }) => {
+    try {
+      await api.delete(API_METHOD.favorites);
+      return true;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to clear favorites');
+    }
+  }
+);
+
 // Sync localStorage favorites to API
 export const syncFavoritesToAPI = createAsyncThunk(
   'favorites/syncFavoritesToAPI',
@@ -320,6 +332,20 @@ const favoritesSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         toast.error(action.payload || 'Failed to remove from favorites');
+      })
+      // Delete all favorites API
+      .addCase(deleteAllFavoritesAPI.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAllFavoritesAPI.fulfilled, (state) => {
+        state.loading = false;
+        state.favorites = [];
+      })
+      .addCase(deleteAllFavoritesAPI.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        toast.error(action.payload || 'Failed to clear favorites');
       })
       // Sync Favorites
       .addCase(syncFavoritesToAPI.pending, (state) => {

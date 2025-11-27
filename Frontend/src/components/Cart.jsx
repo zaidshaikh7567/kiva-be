@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Minus, Plus, Trash2, ShoppingBag, Eye } from 'lucide-react';
+import { X, Trash2, ShoppingBag, Eye } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { closeCart, updateQuantity, removeFromCart, clearCartItems, deleteCartItem, updateCartItem } from '../store/slices/cartSlice';
@@ -7,6 +7,7 @@ import PriceDisplay from './PriceDisplay';
 import ConfirmationModal from './ConfirmationModal';
 import toast from 'react-hot-toast';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
+import QuantitySelector from './QuantitySelector';
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -16,8 +17,6 @@ const Cart = () => {
 
   // Check if user is authenticated
   const isAuthenticated = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
-  const MAX_CART_ITEMS = 5;
-  const remainingSlots = MAX_CART_ITEMS - items.length;
 
   if (!isOpen) return null;
 
@@ -52,8 +51,9 @@ const Cart = () => {
   };
 
   const handleRemoveItem = (id) => {
-    dispatch(deleteCartItem(id));
-
+    if (isAuthenticated && id) {
+      dispatch(deleteCartItem(id));
+    }
     dispatch(removeFromCart(id));
   };
 
@@ -110,25 +110,6 @@ const Cart = () => {
 
           {/* Cart Content */}
           <div className="flex-1 overflow-y-auto">
-            {/* Limit Indicator for Unauthenticated Users */}
-            {!isAuthenticated && items.length > 0 && (
-              <div className={`mx-6 mt-4 p-3 rounded-lg border-2 ${
-                remainingSlots <= 1 
-                  ? 'bg-yellow-50 border-yellow-300' 
-                  : 'bg-blue-50 border-blue-300'
-              }`}>
-                <p className={`text-sm font-montserrat-medium-500 ${
-                  remainingSlots <= 1 ? 'text-yellow-800' : 'text-blue-800'
-                }`}>
-                  {remainingSlots > 0 ? (
-                    <>🔒 You can add {remainingSlots} more {remainingSlots === 1 ? 'item' : 'items'}. <Link to="/sign-in" className="underline hover:text-blue-600" onClick={() => dispatch(closeCart())}>Login</Link> for unlimited cart!</>
-                  ) : (
-                    <>⚠️ Cart limit reached! <Link to="/sign-in" className="underline hover:text-yellow-600" onClick={() => dispatch(closeCart())}>Login</Link> to add more items.</>
-                  )}
-                </p>
-              </div>
-            )}
-            
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full p-6 text-center">
                 <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />
@@ -149,7 +130,7 @@ const Cart = () => {
                 </button>
               </div>
             ) : (
-              <div className="p-6">
+              <div className="sm:p-6 p-4 ">
                 {/* Clear Cart Button */}
                 <div className="flex justify-end mb-4">
                   <button
@@ -213,28 +194,25 @@ const Cart = () => {
                         )}
                         
                         {/* Quantity Controls */}
-                        <div className="flex items-center space-x-2 mt-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleQuantityChange(item._id, item.quantity - 1);
-                            }}
-                            className="w-6 h-6 bg-primary-light hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="text-sm font-montserrat-medium-500 text-black min-w-[20px] text-center">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleQuantityChange(item._id, item.quantity + 1);
-                            }}
-                            className="w-6 h-6 bg-primary-light hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
+                        <div
+                          className="mt-2"
+                          onClick={(e) => e.stopPropagation()}
+                          role="presentation"
+                        >
+                          <QuantitySelector
+                            label={null}
+                            value={item.quantity}
+                            min={1}
+                            onDecrement={() =>
+                              handleQuantityChange(item._id, item.quantity - 1)
+                            }
+                            onIncrement={() =>
+                              handleQuantityChange(item._id, item.quantity + 1)
+                            }
+                            buttonClassName="w-6 h-6 bg-primary-light hover:bg-gray-300 rounded flex items-center justify-center transition-colors duration-300"
+                            valueClassName="text-sm font-montserrat-medium-500 text-black min-w-[20px] text-center"
+                            className="flex items-center space-x-2"
+                          />
                         </div>
                       </div>
 

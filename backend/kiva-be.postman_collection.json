@@ -1970,6 +1970,26 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Delete All Favorites",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "description": "Remove all favorites for the authenticated user.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}}\n\n**Response:** Returns success message after clearing all favorites.",
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites"]
+            }
+          },
+          "response": []
         }
       ]
     },

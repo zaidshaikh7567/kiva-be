@@ -56,16 +56,90 @@ try {
 const client = new paypal.core.PayPalHttpClient(environment);
 console.log('client :', client);
 
-const createPayPalOrder = async (orderData, currency = 'USD') => {
+// PayPal supported currencies (commonly supported)
+// Note: INR is NOT supported by PayPal - it must be converted to USD
+const PAYPAL_SUPPORTED_CURRENCIES = [
+  'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'CHF', 'CNY', 'HKD', 'SGD',
+  'NZD', 'SEK', 'DKK', 'NOK', 'PLN', 'MXN', 'BRL', 'ZAR', 'AED', 'SAR',
+  'QAR', 'KWD', 'BHD', 'OMR', 'ILS', 'TRY', 'RUB', 'THB', 'MYR', 'PHP',
+  'IDR', 'KRW', 'TWD', 'CZK', 'HUF', 'RON', 'BGN', 'HRK'
+  // INR is explicitly NOT supported and must be converted to USD
+];
+
+/**
+ * Check if a currency is supported by PayPal
+ * @param {string} currency - Currency code to check
+ * @returns {boolean} - True if supported
+ */
+const isPayPalSupportedCurrency = (currency) => {
+  const normalized = (currency || '').toUpperCase().trim();
+  return PAYPAL_SUPPORTED_CURRENCIES.includes(normalized);
+};
+
+/**
+ * Convert unsupported currency to USD for PayPal processing
+ * @param {string} currency - Original currency code (the currency the prices are currently in)
+ * @param {number} exchangeRate - Exchange rate from USD to original currency (e.g., 83 means 1 USD = 83 INR)
+ * @returns {object} - Object with paypalCurrency and conversionRate
+ */
+const getPayPalCurrency = (currency, exchangeRate = null) => {
+  const normalizedCurrency = (currency || 'USD').toUpperCase().trim();
+  
+  // If currency is supported, use it directly
+  if (isPayPalSupportedCurrency(normalizedCurrency)) {
+    return {
+      paypalCurrency: normalizedCurrency,
+      conversionRate: 1,
+      originalCurrency: normalizedCurrency,
+      requiresConversion: false
+    };
+  }
+  
+  // For unsupported currencies (like INR), convert back to USD
+  // exchangeRate is from USD to target currency (e.g., 83 means 1 USD = 83 INR)
+  // So to convert INR back to USD, we divide by exchangeRate
+  // If exchangeRate is not provided, we can't convert, so throw an error
+  if (!exchangeRate || exchangeRate <= 0) {
+    console.error(`[PayPal] Currency ${normalizedCurrency} is not supported and no valid exchange rate provided.`);
+    throw new Error(`Currency ${normalizedCurrency} is not supported by PayPal. Please provide a valid exchange rate to convert to USD, or use a supported currency.`);
+  }
+  
+  const rate = 1 / exchangeRate; // Convert from target currency back to USD
+  
+  console.log(`[PayPal] Currency ${normalizedCurrency} is not supported by PayPal. Converting to USD.`);
+  console.log(`[PayPal] Exchange rate: 1 ${normalizedCurrency} = ${rate.toFixed(6)} USD (or 1 USD = ${exchangeRate} ${normalizedCurrency})`);
+  
+  return {
+    paypalCurrency: 'USD',
+    conversionRate: rate,
+    originalCurrency: normalizedCurrency,
+    requiresConversion: true
+  };
+};
+
+const createPayPalOrder = async (orderData, currency = 'USD', exchangeRate = null) => {
   try {
     // Credentials are already validated at module load time
 
     // Validate and normalize currency
     const normalizedCurrency = (currency || 'USD').toUpperCase().trim();
-    // PayPal supports many currencies including CAD, USD, EUR, etc.
     // Basic validation: must be 3 uppercase letters
     if (!/^[A-Z]{3}$/.test(normalizedCurrency)) {
       throw new Error(`Invalid currency code: ${currency}. Must be a 3-letter currency code (e.g., USD, CAD)`);
+    }
+
+    // Get PayPal-compatible currency (convert unsupported currencies to USD)
+    console.log(`[PayPal] Original currency: ${normalizedCurrency}, Exchange rate: ${exchangeRate}`);
+    const paypalCurrencyInfo = getPayPalCurrency(normalizedCurrency, exchangeRate);
+    const paypalCurrency = paypalCurrencyInfo.paypalCurrency;
+    const conversionRate = paypalCurrencyInfo.conversionRate;
+    
+    console.log(`[PayPal] PayPal currency: ${paypalCurrency}, Conversion rate: ${conversionRate}, Requires conversion: ${paypalCurrencyInfo.requiresConversion}`);
+    
+    if (paypalCurrencyInfo.requiresConversion) {
+      console.log(`[PayPal] Converting ${normalizedCurrency} to ${paypalCurrency} for PayPal processing`);
+      console.log(`[PayPal] Original order total: ${orderData.total} ${normalizedCurrency}`);
+      console.log(`[PayPal] Converted order total: ${(orderData.total * conversionRate).toFixed(2)} ${paypalCurrency}`);
     }
 
     // Validate order data
@@ -95,14 +169,15 @@ const createPayPalOrder = async (orderData, currency = 'USD') => {
         description: description.substring(0, 127),
         quantity: item.quantity.toString(),
         unit_amount: {
-          currency_code: normalizedCurrency,
-          value: parseFloat(item.unitPrice).toFixed(2)
+          currency_code: paypalCurrency,
+          value: parseFloat(item.unitPrice * conversionRate).toFixed(2)
         }
       };
     });
 
-    const totalAmount = parseFloat(orderData.total).toFixed(2);
-    const subtotalAmount = parseFloat(orderData.subtotal || orderData.total).toFixed(2);
+    // Convert amounts to PayPal currency if needed
+    const totalAmount = parseFloat((orderData.total * conversionRate)).toFixed(2);
+    const subtotalAmount = parseFloat((orderData.subtotal || orderData.total) * conversionRate).toFixed(2);
 
     // Validate amounts
     if (isNaN(totalAmount) || parseFloat(totalAmount) <= 0) {
@@ -114,11 +189,11 @@ const createPayPalOrder = async (orderData, currency = 'USD') => {
       intent: 'CAPTURE',
       purchase_units: [{
         amount: {
-          currency_code: normalizedCurrency,
+          currency_code: paypalCurrency,
           value: totalAmount,
           breakdown: {
             item_total: {
-              currency_code: normalizedCurrency,
+              currency_code: paypalCurrency,
               value: subtotalAmount
             }
           }
@@ -219,5 +294,7 @@ const capturePayPalPayment = async (orderId) => {
 
 module.exports = {
   createPayPalOrder,
-  capturePayPalPayment
+  capturePayPalPayment,
+  isPayPalSupportedCurrency,
+  getPayPalCurrency
 };

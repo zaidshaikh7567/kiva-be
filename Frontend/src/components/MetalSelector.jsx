@@ -106,7 +106,7 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
     <div className={`space-y-4 ${className}`}>
       <div>
         <h3 className="text-lg font-montserrat-semibold-600 text-black mb-2">
-          Metal Options
+          Metal Options <span className="text-red-500">*</span>
         </h3>
         <p className="text-sm font-montserrat-regular-400 text-black-light">
           Choose your preferred metal type and carat

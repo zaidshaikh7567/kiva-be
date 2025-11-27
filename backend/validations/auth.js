@@ -32,13 +32,15 @@ const changePasswordSchema = zod.object({
 });
 
 const forgotPasswordSchema = zod.object({
-  email: zod.string().email('Invalid email format')
+  email: zod.string().email('Invalid email format'),
+  role: inputRoleSchema.optional()
 });
 
 const resetPasswordSchema = zod.object({
   email: zod.email('Invalid email format'),
   otp: zod.string().length(6, 'OTP must be 6 digits'),
-  newPassword: zod.string().min(6, 'New password must be at least 6 characters')
+  newPassword: zod.string().min(6, 'New password must be at least 6 characters'),
+  role: inputRoleSchema.optional()
 });
 
 const updateProfileSchema = zod.object({

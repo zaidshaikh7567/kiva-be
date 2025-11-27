@@ -3,12 +3,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { Grid, List, Heart } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import CustomDropdown from "../components/CustomDropdown";
+import ProductFilterToolbar from "../components/ProductFilterToolbar";
 import { fetchProducts } from "../store/slices/productsSlice";
 import { selectProducts, selectProductsLoading, selectProductsLoadingMore, selectProductsError, selectPagination } from "../store/slices/productsSlice";
 import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
 import { Link } from "react-router-dom";
-
+import CategoryHero from "../components/CategoryHero";
+import weddingBandHeroBg from "../assets/images/summar.webp";
+import NeedHelpSection from "../components/NeedHelpSection";
 const WeddingBand = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
@@ -71,7 +74,15 @@ const WeddingBand = () => {
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}
-      <AnimatedSection animationType="fadeInUp" delay={100}>
+      <CategoryHero
+        eyebrow="JEWELRY COLLECTION"
+        title="Wedding Band Collection"
+        highlightedWord="."
+        body="Discover our exquisite collection of wedding bands, symbolizing eternal love and commitment"
+        backgroundImage={weddingBandHeroBg}
+        backgroundOverlay="rgba(0,0,0,0.22)"
+      />
+      {/* <AnimatedSection animationType="fadeInUp" delay={100}>
         <section className="py-8 md:py-16 lg:py-20 bg-secondary">
           <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
             <p className="text-xs md:text-sm uppercase tracking-widest text-primary font-montserrat-medium-500 mb-3 md:mb-4">
@@ -86,47 +97,19 @@ const WeddingBand = () => {
             <div className="w-12 md:w-24 h-1 bg-primary mx-auto"></div>
           </div>
         </section>
-      </AnimatedSection>
+      </AnimatedSection> */}
 
       {/* Filter Section */}
-      <section className="py-4 md:py-8 bg-white">
-        <div className="max-w-[1580px] mx-auto px-4 md:px-6">
-          {/* Filters and Sorting */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-0">
-            <div className="flex items-center space-x-4">
-              <span className="text-sm font-montserrat-medium-500 text-black-light">
-                {sortedWeddingBands.length} wedding band{sortedWeddingBands.length !== 1 ? 's' : ''} available
-              </span>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <CustomDropdown
-                options={SORT_OPTIONS.CATEGORY}
-                value={sortBy}
-                onChange={setSortBy}
-                placeholder="Sort by"
-                className="min-w-[200px]"
-                searchable={false}
-              />
-
-              <div className="flex items-center border border-gray-200 rounded-lg">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 ${viewMode === "grid" ? "bg-primary rounded-tl-lg rounded-bl-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tl-lg rounded-bl-lg"}`}
-                >
-                  <Grid className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 ${viewMode === "list" ? "bg-primary rounded-tr-lg rounded-br-lg text-white" : "text-black-light hover:bg-gray-50 rounded-tr-lg rounded-br-lg"}`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProductFilterToolbar
+        totalCount={sortedWeddingBands.length}
+        entityName="wedding band"
+        sortOptions={SORT_OPTIONS.CATEGORY}
+        sortValue={sortBy}
+        onChangeSort={setSortBy}
+        viewMode={viewMode}
+        onChangeViewMode={setViewMode}
+        dropdownProps={{ searchable: false }}
+      />
 
       {/* Products Grid */}
       <section className="py-2 md:py-8 bg-secondary">
@@ -150,7 +133,7 @@ const WeddingBand = () => {
             <div 
               className={`grid gap-4 md:gap-8 ${
                 viewMode === "grid" 
-                  ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4" 
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
                   : "grid-cols-1"
               }`}
             >
@@ -197,28 +180,13 @@ const WeddingBand = () => {
       </section>
 
       {/* Call to Action */}
-      <AnimatedSection animationType="fadeInUp" delay={400}>
-        <section className="py-16 md:py-20 bg-black text-white">
-          <div className="max-w-4xl mx-auto text-center px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-sorts-mill-gloudy mb-6 md:mb-8">
-              Looking for a Custom Wedding Band<span className="text-primary">?</span>
-            </h2>
-            <p className="text-base md:text-lg lg:text-xl font-montserrat-regular-400 text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto px-4">
-              Our jewelry experts can help you create a custom wedding band that perfectly matches your engagement ring or stands alone as a symbol of your commitment
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
-              <Link 
-                to="/custom" 
-                className="px-6 md:px-10 py-3 md:py-4 bg-primary text-white font-montserrat-medium-500 hover:bg-primary-dark transition-colors duration-300 rounded-lg text-base md:text-lg"
-              >
-                Custom Design
-              </Link>
-             
-            </div>
-          </div>
-        </section>
-      </AnimatedSection>
+      <NeedHelpSection
+        title="Looking for a Custom Wedding Band"
+        description="Our jewelry experts can help you create a custom wedding band that perfectly matches your engagement ring or stands alone as a symbol of your commitment"
+        primaryCtaLabel="Custom Design"
+        primaryCtaHref="/custom"
+      />
+    
     </div>
   );
 };

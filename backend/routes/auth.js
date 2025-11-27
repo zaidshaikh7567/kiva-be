@@ -151,11 +151,28 @@ router.post('/change-password', authenticate, validate(changePasswordSchema), as
 }));
 
 router.post('/forgot-password', validate(forgotPasswordSchema), asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  console.log('email :', email);
-  const user = await User.findOne({ email, active: true });
-  console.log('user------ :', user);
+  const { email, role } = req.body;
+  
+  // Normalize email to lowercase (matching User model schema)
+  const normalizedEmail = email.toLowerCase().trim();
+  console.log('Forgot password request - email:', normalizedEmail, 'role:', role);
+  
+  // Build query with role filter if provided
+  const query = { email: normalizedEmail, active: true };
+  if (role) {
+    const normalizedRole = resolveRole(role);
+    query.role = normalizedRole;
+    console.log('Query with role filter:', query);
+  } else {
+    console.log('Query without role filter:', query);
+  }
+  
+  const user = await User.findOne(query);
+  console.log('User found:', user ? { id: user._id, email: user.email, role: user.role } : 'NOT FOUND');
+  
   if (!user) {
+    // Return generic message for security (don't reveal if email exists)
+    console.log('User not found for email:', normalizedEmail, 'with role:', role);
     return res.json({ success: true, message: 'If the email exists, an OTP has been sent' });
   }
 
@@ -163,23 +180,19 @@ router.post('/forgot-password', validate(forgotPasswordSchema), asyncHandler(asy
   user.otp = otp;
   user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
   await user.save();
-
-  // const emailResult = await sendEmail(
-  //   email,
-  //   'Password Reset OTP',
-  //   `<p>Your OTP for password reset is: <strong>${otp}</strong></p><p>This OTP will expire in 10 minutes.</p>`
-  // );
+  console.log('OTP generated and saved for user:', user.email, 'OTP:', otp);
 
   const emailHtml = getOtpEmailTemplate(otp, user.name || user.email);
 
   const emailResult = await sendEmail(
-    email,
+    normalizedEmail,
     'Password Reset OTP',
     emailHtml
   );
-  console.log('emailResult :', emailResult);
+  console.log('Email send result:', emailResult);
 
   if (!emailResult.success) {
+    console.error('Failed to send email:', emailResult.error);
     return res.status(500).json({ success: false, message: 'Failed to send email' });
   }
 
@@ -187,11 +200,50 @@ router.post('/forgot-password', validate(forgotPasswordSchema), asyncHandler(asy
 }));
 
 router.post('/reset-password', validate(resetPasswordSchema), asyncHandler(async (req, res) => {
-  const { email, otp, newPassword } = req.body;
+  const { email, otp, newPassword, role } = req.body;
 
-  const user = await User.findOne({ email, active: true });
-  console.log('user ==========>:', user);
-  if (!user || user.otp !== otp || user.otpExpires < new Date()) {
+  // Normalize email to lowercase (matching User model schema)
+  const normalizedEmail = email.toLowerCase().trim();
+  console.log('Reset password request - email:', normalizedEmail, 'role:', role, 'OTP provided:', otp);
+
+  // Build query with role filter if provided
+  const query = { email: normalizedEmail, active: true };
+  if (role) {
+    const normalizedRole = resolveRole(role);
+    query.role = normalizedRole;
+    console.log('Query with role filter:', query);
+  } else {
+    console.log('Query without role filter:', query);
+  }
+
+  const user = await User.findOne(query);
+  console.log('User found:', user ? { 
+    id: user._id, 
+    email: user.email, 
+    role: user.role,
+    hasOtp: !!user.otp,
+    otp: user.otp,
+    otpExpires: user.otpExpires,
+    isOtpExpired: user.otpExpires ? user.otpExpires < new Date() : 'N/A'
+  } : 'NOT FOUND');
+  
+  if (!user) {
+    console.log('User not found for email:', normalizedEmail, 'with role:', role);
+    return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+  }
+
+  if (!user.otp) {
+    console.log('User found but no OTP set for email:', normalizedEmail);
+    return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+  }
+
+  if (user.otp !== otp) {
+    console.log('OTP mismatch - Expected:', user.otp, 'Received:', otp);
+    return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+  }
+
+  if (user.otpExpires < new Date()) {
+    console.log('OTP expired - Expires:', user.otpExpires, 'Now:', new Date());
     return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
   }
 

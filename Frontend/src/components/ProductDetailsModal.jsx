@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { X, Heart, Star, ShoppingBag, Minus, Plus, Gem, Shield, Truck, RotateCcw, Award, Info, ListChevronsDownUp, HelpCircle, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, Star, ShoppingBag, Shield, Truck, RotateCcw, Award, Info, HelpCircle, FileText, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCartItem, selectCartLoading } from '../store/slices/cartSlice';
 import { 
@@ -11,18 +11,21 @@ import {
 import { selectIsAuthenticated } from '../store/slices/authSlice';
 import PriceDisplay from './PriceDisplay';
 import MetalSelector from './MetalSelector';
+import CenterStoneSelector from './CenterStoneSelector';
+import RingSizeSelector from './RingSizeSelector';
+import ProductImageViewer from './ProductImageViewer';
+import QuantitySelector from './QuantitySelector';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
-import CustomDropdown from './CustomDropdown';
-import Accordion from './Accordion';
+import ProductDetailsSection from './ProductDetailsSection';
 import { selectCurrentCurrency, selectCurrencySymbol, selectExchangeRate, convertPrice, formatPrice } from '../store/slices/currencySlice';
-import { fetchStones, selectStones, selectStonesLoading } from '../store/slices/stonesSlice';
+import { selectStones, selectStonesLoading } from '../store/slices/stonesSlice';
 import { selectCategories } from '../store/slices/categoriesSlice';
-import { fetchMetals, selectMetals } from '../store/slices/metalsSlice';
-import { RING_SIZES } from '../services/centerStonesApi';
+import { selectMetals } from '../store/slices/metalsSlice';
 import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
 import ContactBox from './ContactBox';
 import { transformMetalsToSelectorOptions } from '../constants';
+import { capitalizeFirstLetter } from '../helpers/capitalizeFirstLetter';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -30,17 +33,14 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedMetal, setSelectedMetal] = useState(null);
   const [selectedRingSize, setSelectedRingSize] = useState('');
-  const [selectedCenterStone, setSelectedCenterStone] = useState(null);
-  const [selectedCarat, setSelectedCarat] = useState(
-    product?.stoneType ? {
-      name: product.stoneType.name,
-      id: product.stoneType._id || product.stoneType.id
-    } : null
-  );
-  const [showMagnifier, setShowMagnifier] = useState(false);
-  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
-  const imageContainerRef = useRef(null);
-  const mousePositionRef = useRef({ x: 0, y: 0 });
+  console.log('product :', product);
+  const [selectedCarat, setSelectedCarat] = useState(product?.stoneType ? {
+    name: product.stoneType.name,
+    id: product.stoneType._id || product.stoneType.id,
+    price: product.stoneType.price
+  } : null);
+  const [selectedCenterStone, setSelectedCenterStone] = useState(product?.stoneType ? product.stoneType : null);
+  console.log('selectedCenterStone :', selectedCenterStone);
   const dispatch = useDispatch();
   
   // Currency selectors
@@ -112,65 +112,6 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
     }
   }, [isOpen, product, metals, selectedMetal, dispatch]);
 
-  // Image navigation handlers
-  const handleNextImage = (e) => {
-    e?.stopPropagation();
-    const total = product?.images?.length || 0;
-    if (total > 0) {
-      setSelectedImage((prev) => (prev + 1) % total);
-    }
-    // Reset magnifier position to current mouse position after image change
-    if (imageContainerRef.current && mousePositionRef.current) {
-      const rect = imageContainerRef.current.getBoundingClientRect();
-      const x = mousePositionRef.current.x - rect.left;
-      const y = mousePositionRef.current.y - rect.top;
-      const constrainedX = Math.max(0, Math.min(x, rect.width));
-      const constrainedY = Math.max(0, Math.min(y, rect.height));
-      setMagnifierPosition({ x: constrainedX, y: constrainedY });
-    }
-  };
-
-  const handlePreviousImage = (e) => {
-    e?.stopPropagation();
-    const total = product?.images?.length || 0;
-    if (total > 0) {
-      setSelectedImage((prev) => (prev - 1 + total) % total);
-    }
-    // Reset magnifier position to current mouse position after image change
-    if (imageContainerRef.current && mousePositionRef.current) {
-      const rect = imageContainerRef.current.getBoundingClientRect();
-      const x = mousePositionRef.current.x - rect.left;
-      const y = mousePositionRef.current.y - rect.top;
-      const constrainedX = Math.max(0, Math.min(x, rect.width));
-      const constrainedY = Math.max(0, Math.min(y, rect.height));
-      setMagnifierPosition({ x: constrainedX, y: constrainedY });
-    }
-  };
-
-  // Hide magnifier when entering arrow button area
-  const handleArrowMouseEnter = () => {
-    setShowMagnifier(false);
-  };
-
-  // Re-enable magnifier when leaving arrow button and going to image
-  const handleArrowMouseLeave = () => {
-    // Small delay to allow mouse to move to image container
-    setTimeout(() => {
-      if (imageContainerRef.current && mousePositionRef.current) {
-        const rect = imageContainerRef.current.getBoundingClientRect();
-        const { x, y } = mousePositionRef.current;
-        // Check if mouse is within image bounds
-        const isOverImage = 
-          x >= rect.left && 
-          x <= rect.right && 
-          y >= rect.top && 
-          y <= rect.bottom;
-        if (isOverImage) {
-          setShowMagnifier(true);
-        }
-      }
-    }, 10);
-  };
 
   // Keyboard navigation
   useEffect(() => {
@@ -313,14 +254,6 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
     }
   };
 
-  const incrementQuantity = () => {
-    setQuantity(prev => prev + 1);
-  };
-
-  const decrementQuantity = () => {
-    setQuantity(prev => Math.max(1, prev - 1));
-  };
-
   const toggleFavorite = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -334,7 +267,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
     }
 
     // Check if product is available
-    if (!product.quantity || product.quantity <= 0) {
+    if (!product) {
       toast.error('Product is not available');
       return;
     }
@@ -380,23 +313,44 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   };
 
   const handleCaratChange = (carat) => {
-    // Find stone by carat name
-    const stone = stones.find(stone => 
-      stone.name.toLowerCase().includes(carat.toLowerCase())
+    if (!carat) {
+      setSelectedCarat(null);
+      setSelectedCenterStone(null);
+      return;
+    }
+
+    if (typeof carat === 'object') {
+      setSelectedCarat({
+        name: carat.name,
+        id: carat.id,
+        price: carat.price
+      });
+
+      const matchedStone = stones.find(
+        (stone) => (stone._id || stone.id) === carat.id
+      );
+      setSelectedCenterStone(matchedStone || carat);
+      return;
+    }
+
+    const stone = stones.find((stoneItem) =>
+      stoneItem.name?.toLowerCase().includes(carat.toLowerCase())
     );
+
     if (stone) {
-      // Save both name and ID in selectedCarat
       setSelectedCarat({
         name: stone.name,
-        id: stone._id || stone.id
+        id: stone._id || stone.id,
+        price: stone.price
       });
       setSelectedCenterStone(stone);
     } else {
-      // Fallback: if stone not found, just save the name
       setSelectedCarat({
         name: carat,
-        id: null
+        id: null,
+        price: 0
       });
+      setSelectedCenterStone(null);
     }
   };
 
@@ -408,47 +362,6 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
     return (basePrice * metalMultiplier) + centerStonePrice;
   };
 
-  // Magnifier handlers
-  const handleMouseMove = (e) => {
-    if (!imageContainerRef.current) return;
-    
-    // Track global mouse position
-    mousePositionRef.current = { x: e.clientX, y: e.clientY };
-    
-    const rect = imageContainerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    // Constrain position within image bounds
-    const constrainedX = Math.max(0, Math.min(x, rect.width));
-    const constrainedY = Math.max(0, Math.min(y, rect.height));
-    
-    setMagnifierPosition({ x: constrainedX, y: constrainedY });
-  };
-
-  const handleMouseEnter = () => {
-    setShowMagnifier(true);
-  };
-
-  const handleMouseLeave = () => {
-    setShowMagnifier(false);
-  };
-
-  // Calculate zoom position for background image
-  const getZoomPosition = () => {
-    if (!imageContainerRef.current) return { x: 0, y: 0, zoom: 2.5 };
-    const rect = imageContainerRef.current.getBoundingClientRect();
-    const zoomLevel = 4.5; // Zoom factor
-    const x = (magnifierPosition.x / rect.width) * 100;
-    const y = (magnifierPosition.y / rect.height) * 100;
-    return { x, y, zoom: zoomLevel };
-  };
-
-  const zoomPos = getZoomPosition();
-
-  // Get total images for display
-  const totalImages = product?.images?.length || 0;
-  
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
@@ -468,105 +381,15 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
             {/* Product Images */}
             <div className="relative bg-gray-50 p-4 lg:p-8">
-              <div 
-                ref={imageContainerRef}
-                className="aspect-square relative overflow-hidden rounded-lg mb-4 cursor-zoom-in"
-                onMouseMove={handleMouseMove}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                {/* Main Image */}
-                <img
-                  src={product?.images?.[selectedImage]}
-                  alt={product?.name}
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Magnified Image Overlay */}
-                {showMagnifier && imageContainerRef.current && (
-                  <div 
-                    className="absolute pointer-events-none z-20 border-2 border-white rounded-full shadow-2xl overflow-hidden"
-                    style={{
-                      left: `${magnifierPosition.x}px`,
-                      top: `${magnifierPosition.y}px`,
-                      width: '200px',
-                      height: '200px',
-                      backgroundImage: `url(${product?.images?.[selectedImage]})`,
-                      backgroundSize: `${zoomPos.zoom * 100}%`,
-                      backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
-                      backgroundRepeat: 'no-repeat',
-                      transform: 'translate(-50%, -50%)',
-                    }}
-                  />
-                )}
-                
-                {/* Favorite Button */}
-                <button
-                  onClick={toggleFavorite}
-                  onMouseEnter={handleArrowMouseEnter}
-                  onMouseLeave={handleArrowMouseLeave}
-                  className={`absolute top-4 sm:right-4 left-4 w-fit  p-2 rounded-full transition-all duration-200 z-10 ${
-                    isFavorite 
-                      ? 'bg-primary text-white' 
-                      : 'bg-white/90 text-black-light hover:bg-primary hover:text-white'
-                  }`}
-                >
-                  <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                </button>
-
-                {/* Navigation Arrows */}
-                {totalImages > 1 && (
-                  <>
-                    {/* Previous Button */}
-                    <button
-                      onClick={handlePreviousImage}
-                      onMouseEnter={handleArrowMouseEnter}
-                      onMouseLeave={handleArrowMouseLeave}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-1 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
-                      aria-label="Previous image"
-                    >
-                      <ChevronLeft className="w-6 h-6 text-black" />
-                    </button>
-
-                    {/* Next Button */}
-                    <button
-                      onClick={handleNextImage}
-                      onMouseEnter={handleArrowMouseEnter}
-                      onMouseLeave={handleArrowMouseLeave}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-1 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
-                      aria-label="Next image"
-                    >
-                      <ChevronRight className="w-6 h-6 text-black" />
-                    </button>
-                  </>
-                )}
-
-                {/* Image Counter */}
-                {totalImages > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-black/70 text-white px-4 py-2 rounded-lg text-sm font-montserrat-medium-500">
-                    {selectedImage + 1} / {totalImages}
-                  </div>
-                )}
-              </div>
-
-              {/* Thumbnail Images */}
-              <div className="grid grid-cols-4 gap-2">
-              {product.images.map((img, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors duration-300 ${
-                      selectedImage === index ? 'border-primary ring-1 outline-none ring-primary ring-offset-2' : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`${product.name} view ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
+              <ProductImageViewer
+                images={product?.images || []}
+                selectedIndex={selectedImage}
+                onChangeIndex={setSelectedImage}
+                showFavoriteButton
+                isFavorite={isFavorite}
+                onToggleFavorite={toggleFavorite}
+                imageContainerClassName="cursor-zoom-in"
+              />
             </div>
 
             {/* Product Details */}
@@ -581,7 +404,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                 </div> */}
 
                 {/* Product Name */}
-                <h1 className="text-2xl lg:text-3xl font-sorts-mill-gloudy text-black mb-4">
+                <h1 className="text-2xl lg:text-3xl font-sorts-mill-gloudy text-black mb-4 capitalize">
                   {product.title}
                 </h1>
 
@@ -592,7 +415,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                   style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
                 >
                 {
-                  product.subDescription
+                  capitalizeFirstLetter(product.subDescription)
                 }
                 </div>
                 {/* Price */}
@@ -629,187 +452,48 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                 </div>
 
                 {/* Center Stone Selection */}
-                {isRing && stones.length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3 flex items-center gap-2">
-                      <Gem className="w-5 h-5 text-primary" />
-                      Center Stone
-                    </h3>
-                    
-                    {/* Stone Selection */}
-                    <div className="mb-4">
-                      {stonesLoading ? (
-                        <div className="text-center py-4">
-                          <div className="animate-spin rounded-lg h-6 w-6 border-b-2 border-primary mx-auto"></div>
-                          <p className="text-sm text-black-light mt-2">Loading stones...</p>
-                        </div>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {stones.filter(stone => stone.active).map((stone) => (
-                            <button
-                              key={stone._id}
-                              onClick={() => handleCaratChange(stone.name)}
-                              className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 font-montserrat-medium-500 ${
-                                (selectedCarat?.name === stone.name || selectedCarat?.id === stone._id) || (typeof selectedCarat === 'string' && selectedCarat === stone.name)
-                                  ? 'border-primary bg-primary text-white'
-                                  : 'border-gray-200 bg-white text-black hover:border-primary hover:bg-primary-light'
-                              }`}
-                            >
-                              {stone.name}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-
-                    {/* Selected Center Stone Info */}
-                    {/* {selectedCenterStone && (
-                      <div className="bg-primary-light/10 border border-primary-light rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-montserrat-semibold-600 text-black">
-                              {selectedCenterStone.name}
-                            </h4>
-                            <p className="text-sm font-montserrat-regular-400 text-black-light capitalize">
-                              {selectedCenterStone.categoryId} cut
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <PriceDisplay 
-                              price={selectedCenterStone.price}
-                              className="text-lg font-montserrat-semibold-600 text-primary"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )} */}
-                  </div>
+                {isRing && (
+                  <CenterStoneSelector
+                    className="mb-6"
+                    stones={stones}
+                    loading={stonesLoading}
+                    selectedStone={selectedCarat}
+                    onSelect={handleCaratChange}
+                    required
+                  />
                 )}
 
                 {/* Ring Size Selection */}
                 {isRing && (
-                  <div className="mb-6">
-                    <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                      Ring Size <span className="text-red-500">*</span>
-                    </label>
-                    <CustomDropdown
-                      options={RING_SIZES}
-                      value={selectedRingSize}
-                      onChange={handleRingSizeChange}
-                      placeholder="Select Ring Size (Required)"
-                      searchable={false}
-                    />
-                    {!selectedRingSize && (
-                      <p className="mt-2 text-xs text-gray-600 font-montserrat-regular-400">
-                        Need help finding your size? Check our <a href="/size-guide" className="text-primary hover:underline">Size Guide</a>
-                      </p>
-                    )}
-                  </div>
+                  <RingSizeSelector
+                    className="mb-6"
+                    value={selectedRingSize}
+                    onChange={handleRingSizeChange}
+                    required
+                    showHint={!selectedRingSize}
+                    placeholder="Select Ring Size (Required)"
+                  />
                 )}
 
-                {/* Product Details Accordion */}
-                <div className="mb-2 space-y-3">
-                  <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">
-                    Product Details
-                  </h3>
-                  
-
-                  <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
-                    <div className="flex justify-between">
-                    <span className="font-montserrat-medium-500 text-black">Material:</span>
-                      <span>{selectedMetal ? `${selectedMetal.carat} ${selectedMetal.color}` : 'Premium Gold/Silver'}</span>
-                    </div>
-                    {/* <div className="flex justify-between">
-                      <span>Stone:</span>
-                      <span>Natural Diamond/Gemstone</span>
-                    </div> */}
-                    {isRing && selectedCarat && (
-                      <div className="flex justify-between">
-                        <span className="font-montserrat-medium-500 text-black">Center Stone:</span>
-                        <span>{typeof selectedCarat === 'string' ? selectedCarat : selectedCarat.name}</span>
-                      </div>
-                    )}
-                    {isRing && selectedRingSize && (
-                      <div className="flex justify-between">
-                         <span className="font-montserrat-medium-500 text-black">Ring Size:</span>
-                        <span>{selectedRingSize}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                    <span className="font-montserrat-medium-500 text-black">Care:</span>
-                        <span>{product.careInstruction}</span>
-                    </div>
-                    {product.shape && (
-                      <div className="flex justify-between">
-                         <span className="font-montserrat-medium-500 text-black">Shape:</span>
-                        <span>{product.shape}</span>
-                      </div>
-                    )}
-                    {product.color && (
-                      <div className="flex justify-between">
-                         <span className="font-montserrat-medium-500 text-black">Color:</span>
-                        <span>{product.color}</span>
-                      </div>
-                    )}
-                    {product.clarity.length > 0 && (
-                      <div className="flex justify-between">
-                        <span className="font-montserrat-medium-500 text-black">Clarity:</span>
-                        <span>{product.clarity.join(', ')}</span>
-                      </div>
-                    )}
-                    {product.certificate.length > 0 && (
-                      <div className="flex justify-between">
-                         <span className="font-montserrat-medium-500 text-black">Certificate:</span>
-                        <span>{product.certificate.join(', ')}</span>
-                      </div>
-                    )}
-                  </div>
-           
-
-                  {/* FAQ Style Accordions */}
-                  <div className="space-y-2">
-                    <Accordion 
-                      title="More Details" 
-                      icon={<ListChevronsDownUp className="w-4 h-4 text-primary" />}
-                    >
-                      <div 
-              // className="text-gray-600 prose prose-sm max-w-none" 
-              dangerouslySetInnerHTML={{ __html: parseLexicalDescription(product.description) }}
-              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-            />
-                    </Accordion>
-
-                
-                  </div>
-                </div>
+                <ProductDetailsSection
+                  className="mb-2"
+                  product={product}
+                  selectedMetal={selectedMetal}
+                  selectedCarat={selectedCarat}
+                  selectedRingSize={selectedRingSize}
+                  isRing={isRing}
+                  showCenterStone={isRing}
+                  showRingSize={isRing}
+                  descriptionHtml={parseLexicalDescription(product.description)}
+                />
               </div>
 
               {/* Quantity and Add to Cart */}
               <div className="space-y-4">
-                {/* Quantity Selector */}
-                <div>
-                  <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                    Quantity
-                  </label>
-                  <div className="flex items-center space-x-3">
-                    <button
-                      onClick={decrementQuantity}
-                      className="w-10 h-10 bg-primary-light hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors duration-300"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="w-16 text-center font-montserrat-medium-500 text-black">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={incrementQuantity}
-                      className="w-10 h-10 bg-primary-light hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors duration-300"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+                <QuantitySelector
+                  value={quantity}
+                  onChange={setQuantity}
+                />
 
                 {/* Add to Cart Button */}
                 <button
