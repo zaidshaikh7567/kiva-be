@@ -10,7 +10,7 @@ import { fetchCategories } from "../store/slices/categoriesSlice";
 import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
 import ProductFilterToolbar from "../components/ProductFilterToolbar";
-import braceletHeroBg from "../assets/images/summar.webp";
+import braceletHeroBg from "../assets/images/braclelate-banner.jpg";
 import CategoryHero from "../components/CategoryHero";
 import NeedHelpSection from "../components/NeedHelpSection";
 const Bracelets = () => {

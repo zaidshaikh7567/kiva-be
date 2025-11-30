@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import Rings from "../../assets/images/category-1.png";
+import Earrings from "../../assets/images/product-2.jpg";
 import Summar from "../../assets/images/summar.webp";
-import OvalVideo from "../../assets/video/oval-video.mp4";
+// import OvalVideo from "../../assets/video/1764318533117488720p.mp4";
+import OvalVideo from "../../assets/video/1764318717322481720p.mp4";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { MoveRight } from "lucide-react";
@@ -193,7 +194,7 @@ const FavoriteSection = () => {
               {/* Background Image */}
               <div
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${Summar})` }}
+                style={{ backgroundImage: `url(${Earrings})` }}
               ></div>
 
               {/* Curved Top Text */}

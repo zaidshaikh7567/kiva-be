@@ -10,7 +10,7 @@ import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
 import { Link } from "react-router-dom";
 import CategoryHero from "../components/CategoryHero";
-import weddingBandHeroBg from "../assets/images/summar.webp";
+import weddingBandHeroBg from "../assets/images/wedding-banner.jpg";
 import NeedHelpSection from "../components/NeedHelpSection";
 const WeddingBand = () => {
   const dispatch = useDispatch();

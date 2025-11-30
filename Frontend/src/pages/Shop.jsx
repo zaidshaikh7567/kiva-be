@@ -222,8 +222,23 @@ const Shop = () => {
     });
   }, [searchParams, parentCategories]);
 
-  // product load show loader
 
+  // product load show loader
+const priceLimits = useMemo(() => {
+  if (!products || products.length === 0) return { min: 0, max: 5000 };
+console.log(products,'products');
+
+  const prices = products.map(p => p.price);
+  return {
+    min: Math.min(...prices),
+    max: Math.max(...prices)
+  };
+}, [products]);
+useEffect(() => {
+  if (products.length > 0) {
+    setPriceRange([priceLimits.min, priceLimits.max]);
+  }
+}, [products, priceLimits.min, priceLimits.max]);
   
   return (
     <div className="min-h-screen bg-white">
@@ -338,12 +353,13 @@ const Shop = () => {
                   Price Range
                 </label>
                 <DualRangeSlider
-                  min={0}
-                  max={5000}
-                  value={priceRange}
-                  onChange={handlePriceRangeChange}
-                  step={50}
-                />
+  min={priceLimits.min}
+  max={priceLimits.max}
+  value={priceRange}
+  onChange={handlePriceRangeChange}
+  step={50}
+/>
+
               </div>
             </div>
           </div>

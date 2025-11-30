@@ -10,7 +10,7 @@ import { fetchCategories } from "../store/slices/categoriesSlice";
 import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
 import ProductFilterToolbar from "../components/ProductFilterToolbar";
-import earringHeroBg from "../assets/images/summar.webp";
+import earringHeroBg from "../assets/images/earrings-banner-1.jpg";
 import CategoryHero from "../components/CategoryHero";
 import NeedHelpSection from "../components/NeedHelpSection";
 const Earrings = () => {
