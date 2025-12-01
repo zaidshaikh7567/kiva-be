@@ -126,20 +126,40 @@ const Shop = () => {
         }
       }
 
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+      // Calculate total price (base price + stone price if stone is selected)
+      const basePrice = typeof product.price === "number" ? product.price : 0;
+      const stonePrice = typeof product.stoneType?.price === "number" ? product.stoneType.price : 0;
+      const totalPrice = basePrice + stonePrice;
+      
+      const matchesPrice = totalPrice >= priceRange[0] && totalPrice <= priceRange[1];
       
       return matchesSearch && matchesCategory && matchesPrice;
     });
-    console.log('filtered :', filtered);
     
 
     // Sort products
     switch (sortBy) {
       case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
+        filtered.sort((a, b) => {
+          const aBase = typeof a.price === "number" ? a.price : 0;
+          const aStone = typeof a.stoneType?.price === "number" ? a.stoneType.price : 0;
+          const aTotal = aBase + aStone;
+          const bBase = typeof b.price === "number" ? b.price : 0;
+          const bStone = typeof b.stoneType?.price === "number" ? b.stoneType.price : 0;
+          const bTotal = bBase + bStone;
+          return aTotal - bTotal;
+        });
         break;
       case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
+        filtered.sort((a, b) => {
+          const aBase = typeof a.price === "number" ? a.price : 0;
+          const aStone = typeof a.stoneType?.price === "number" ? a.stoneType.price : 0;
+          const aTotal = aBase + aStone;
+          const bBase = typeof b.price === "number" ? b.price : 0;
+          const bStone = typeof b.stoneType?.price === "number" ? b.stoneType.price : 0;
+          const bTotal = bBase + bStone;
+          return bTotal - aTotal;
+        });
         break;
       case 'name':
         filtered.sort((a, b) => a.title.localeCompare(b.title));
@@ -191,7 +211,7 @@ const Shop = () => {
   const clearFilters = () => {
     setSearchTerm('');
     handleCategoryChange('all');
-    setPriceRange([0, 5000]);
+    setPriceRange([priceLimits.min, priceLimits.max]);
     setSortBy('newest');
   };
   // Sync category from URL (only when URL changes externally, not from user action)
@@ -224,16 +244,33 @@ const Shop = () => {
 
 
   // product load show loader
-const priceLimits = useMemo(() => {
-  if (!products || products.length === 0) return { min: 0, max: 5000 };
-console.log(products,'products');
-
-  const prices = products.map(p => p.price);
-  return {
-    min: Math.min(...prices),
-    max: Math.max(...prices)
-  };
-}, [products]);
+  const priceLimits = useMemo(() => {
+    if (!products || products.length === 0) {
+      return { min: 0, max: 5000 };
+    }
+  
+    // One total price per product
+    const totalPrices = products
+      .map(p => {
+        const base = typeof p.price === "number" ? p.price : 0;
+        const stone = typeof p.stoneType?.price === "number" ? p.stoneType.price : 0;
+        return base + stone; // <-- combined total price
+      })
+      .filter(v => typeof v === "number" && !isNaN(v));
+  
+    if (totalPrices.length === 0) {
+      return { min: 0, max: 5000 };
+    }
+    console.log('totalPrices :', totalPrices);
+  
+    return {
+      min: Math.min(...totalPrices),
+      max: Math.max(...totalPrices)
+    };
+  }, [products]);
+  
+  
+  
 useEffect(() => {
   if (products.length > 0) {
     setPriceRange([priceLimits.min, priceLimits.max]);
@@ -481,8 +518,8 @@ useEffect(() => {
                       Price Range
                     </label>
                     <DualRangeSlider
-                      min={0}
-                      max={5000}
+                      min={priceLimits.min}
+                      max={priceLimits.max}
                       value={priceRange}
                       onChange={handlePriceRangeChange}
                       step={50}
