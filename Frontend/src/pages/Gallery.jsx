@@ -8,10 +8,13 @@ import ProductDetailsModal from '../components/ProductDetailsModal';
 const Gallery = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
+  console.log('products :', products);
   const productsLoading = useSelector(selectProductsLoading);
   const categories = useSelector(selectCategories);
   
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  console.log('selectedCategory :', selectedCategory);
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -26,6 +29,47 @@ const Gallery = () => {
   const mainCategories = useMemo(() => {
     return categories?.filter(cat => !cat.parent) || [];
   }, [categories]);
+  console.log('mainCategories :', mainCategories);
+
+  // Find Rings category and its subcategories
+  const ringsCategory = useMemo(() => {
+    return mainCategories.find(cat => 
+      cat.name?.toLowerCase() === 'ring' || cat.name?.toLowerCase() === 'rings'
+    );
+  }, [mainCategories]);
+
+  const ringsSubcategories = useMemo(() => {
+    if (!ringsCategory || !categories) return [];
+    
+    const subcategories = categories.filter(cat => {
+      if (!cat.parent) return false;
+      const parentId = typeof cat.parent === 'object' 
+        ? cat.parent._id || cat.parent.id
+        : cat.parent;
+      const ringsId = ringsCategory._id || ringsCategory.id;
+      return parentId === ringsId;
+    });
+
+    // Add virtual "Wedding Band" category for products with isBand: true
+    const weddingBandOption = {
+      _id: 'wedding-band',
+      id: 'wedding-band',
+      name: 'Wedding Band',
+      isVirtual: true // Flag to identify this is a virtual category
+    };
+
+    return [weddingBandOption, ...subcategories];
+  }, [categories, ringsCategory]);
+
+  // Reset subcategory when category changes
+  useEffect(() => {
+    const isRingsSelected = selectedCategory.toLowerCase() === 'ring' || 
+                           selectedCategory.toLowerCase() === 'rings';
+    if (!isRingsSelected) {
+      setSelectedSubcategory(null);
+    }
+    // Don't auto-select - let "All Rings" be the default (selectedSubcategory === null)
+  }, [selectedCategory, ringsSubcategories]);
 
   // Collect all images from products
   const allImages = useMemo(() => {
@@ -35,8 +79,56 @@ const Gallery = () => {
       if (!product.images || product.images.length === 0) return;
       
       const categoryName = product.category?.name || 'Uncategorized';
-      const categoryMatches = selectedCategory === 'all' || 
-                              categoryName.toLowerCase() === selectedCategory.toLowerCase();
+      const productCategoryId = product.category?._id || product.category?.id;
+      const productParent = product.category?.parent;
+      const productParentId = typeof productParent === 'object' 
+        ? productParent?._id || productParent?.id
+        : productParent;
+      const productParentName = typeof productParent === 'object' 
+        ? productParent?.name?.toLowerCase() 
+        : null;
+      
+      // Check if category matches
+      let categoryMatches = selectedCategory.toLowerCase() === 'all';
+      
+      if (!categoryMatches) {
+        const selectedCategoryLower = selectedCategory.toLowerCase();
+        const isRingsSelected = selectedCategoryLower === 'ring' || selectedCategoryLower === 'rings';
+        
+        if (isRingsSelected && ringsCategory) {
+          const ringsId = ringsCategory._id || ringsCategory.id;
+          
+          // Check if product belongs to Rings category or its subcategories
+          const belongsToRings = productCategoryId === ringsId || 
+                                productParentId === ringsId ||
+                                productParentName === 'ring' || 
+                                productParentName === 'rings' ||
+                                categoryName.toLowerCase() === 'ring' ||
+                                categoryName.toLowerCase() === 'rings';
+          
+          if (belongsToRings) {
+            // If subcategory is selected, filter by subcategory
+            if (selectedSubcategory) {
+              // Check if "Wedding Band" is selected (virtual category)
+              if (selectedSubcategory === 'wedding-band') {
+                // Show only products with isBand: true
+                categoryMatches = product.isBand === true;
+              } else {
+                // Filter by regular subcategory
+                categoryMatches = productCategoryId === selectedSubcategory;
+              }
+            } else {
+              // Show all Rings subcategories if no specific subcategory selected
+              // Exclude wedding bands when showing all (they'll show when "Wedding Band" is selected)
+              categoryMatches = true;
+            }
+          }
+        } else {
+          // For other categories, match by name
+          categoryMatches = categoryName.toLowerCase() === selectedCategoryLower ||
+                           productParentName === selectedCategoryLower;
+        }
+      }
       
       if (categoryMatches) {
         product.images.forEach((image, index) => {
@@ -55,8 +147,9 @@ const Gallery = () => {
     });
     
     return imageList;
-  }, [products, selectedCategory]);
-
+  }, [products, selectedCategory, selectedSubcategory, ringsCategory]);
+  
+  console.log('allImages :', allImages);
   // Handle fullscreen image view
   const openFullscreen = (image, index) => {
     setFullscreenImage({
@@ -112,7 +205,10 @@ const Gallery = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-2 md:gap-4 overflow-x-auto py-4 scrollbar-hide">
             <button
-              onClick={() => setSelectedCategory('all')}
+              onClick={() => {
+                setSelectedCategory('all');
+                setSelectedSubcategory(null);
+              }}
               className={`px-4 py-2 rounded-full font-montserrat-medium-500 text-sm whitespace-nowrap transition-all duration-300 ${
                 selectedCategory === 'all'
                   ? 'bg-primary text-white shadow-md'
@@ -124,7 +220,11 @@ const Gallery = () => {
             {mainCategories.map((category) => (
               <button
                 key={category._id || category.id}
-                onClick={() => setSelectedCategory(category.name)}
+                onClick={() => {
+                  setSelectedCategory(category.name);
+                  // Reset subcategory when switching categories
+                  setSelectedSubcategory(null);
+                }}
                 className={`px-4 py-2 rounded-full font-montserrat-medium-500 text-sm whitespace-nowrap transition-all duration-300 ${
                   selectedCategory.toLowerCase() === category.name.toLowerCase()
                     ? 'bg-primary text-white shadow-md'
@@ -135,6 +235,36 @@ const Gallery = () => {
               </button>
             ))}
           </div>
+          
+          {/* Subcategory Filters for Rings */}
+          {ringsSubcategories.length > 0 && 
+           (selectedCategory.toLowerCase() === 'ring' || selectedCategory.toLowerCase() === 'rings') && (
+            <div className="flex items-center gap-2 md:gap-4 overflow-x-auto py-3 border-t border-gray-100 scrollbar-hide">
+              <button
+                onClick={() => setSelectedSubcategory(null)}
+                className={`px-3 py-1.5 rounded-full font-montserrat-medium-500 text-xs whitespace-nowrap transition-all duration-300 capitalize ${
+                  !selectedSubcategory
+                    ? 'bg-primary/20 text-primary border border-primary'
+                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                All Rings
+              </button>
+              {ringsSubcategories.map((subcategory) => (
+                <button
+                  key={subcategory._id || subcategory.id}
+                  onClick={() => setSelectedSubcategory(subcategory._id || subcategory.id)}
+                  className={`px-3 py-1.5 rounded-full font-montserrat-medium-500 text-xs whitespace-nowrap transition-all duration-300 capitalize ${
+                    selectedSubcategory === (subcategory._id || subcategory.id)
+                      ? 'bg-primary/20 text-primary border border-primary'
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  {subcategory.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

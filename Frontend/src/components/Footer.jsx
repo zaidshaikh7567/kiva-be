@@ -1,7 +1,7 @@
 import React from "react";
 import { Mail, Phone, MapPin, Heart } from "lucide-react";
 import { FaFacebook, FaInstagram,FaWhatsapp  } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import giaLogo from "../assets/icon/gia.svg";
 import igiLogo from "../assets/icon/igi.svg";
 import Logo from '../assets/images/kiva-diamond-logo.png'
@@ -14,6 +14,7 @@ const Footer = () => {
   const EMAIL_URL = import.meta.env.VITE_EMAIL_URL;
   const PHONE_NUMBER_COMBO = import.meta.env.VITE_NUMBER_COMBO;
   const PHONE_NUMBER_SEPARATE = import.meta.env.VITE_NUMBER_SEPARATE;
+  const navigate = useNavigate(); 
   // Social Media Links
   const socialLinks = [
     { icon: <FaFacebook className="w-5 h-5 text-white" />, href: FACEBOOK_URL, label: "Facebook" },
@@ -33,6 +34,7 @@ const Footer = () => {
 
   // Customer Service Links
   const customerLinks = [
+    { href: "/#reviews", text: "Reviews" },
     { href: "/shipping-info", text: "Shipping Info" },
     { href: "/size-guide", text: "Size Guide" },
     { href: "/jewelry-care", text: "Jewelry Care" },
@@ -65,7 +67,7 @@ const contactInfo = [
 
   return (
     <footer className="text-white bg-primary-light">
-      <div className="px-4 sm:px-6 md:px-8 xl:px-32">
+      <div className="px-4 sm:px-6 lg:px-8 xl:px-16">
         {/* Main Footer Content */}
         <div className="pt-12 pb-6 sm:pt-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
@@ -133,16 +135,39 @@ const contactInfo = [
                 Customer Service
               </h3>
               <ul className="space-y-2 sm:space-y-2">
-                {customerLinks.map((link, index) => (
-                  <li key={index}>
-                    <Link
-                      to={link.href}
-                      className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-sm sm:text-[14px]"
-                    >
-                      {link.text}
-                    </Link>
-                  </li>
-                ))}
+                {customerLinks.map((link, index) => {
+                  // Handle hash links (like #reviews) specially
+                  const isHashLink = link.href.startsWith('/#');
+                  if (isHashLink) {
+                    return (
+                      <li key={index}>
+                        <a
+                          href={link.href}
+                          className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-sm sm:text-[14px]"
+                          onClick={(e) => {
+                            // If not on home page, navigate first
+                            if (window.location.pathname !== '/') {
+                              e.preventDefault();
+                              navigate(link.href);
+                            }
+                          }}
+                        >
+                          {link.text}
+                        </a>
+                      </li>
+                    );
+                  }
+                  return (
+                    <li key={index}>
+                      <Link
+                        to={link.href}
+                        className="text-black-light hover:text-primary transition-colors duration-300 font-montserrat-regular-400 text-sm sm:text-[14px]"
+                      >
+                        {link.text}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>

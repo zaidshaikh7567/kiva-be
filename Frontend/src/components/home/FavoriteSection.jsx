@@ -269,9 +269,9 @@ const FavoriteSection = () => {
             <div className="pt-6">
               <Link
                 to="/earrings"
-                className="inline-flex  rounded-md items-center px-8 py-4 bg-primary-dark text-white font-medium hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="inline-flex  rounded-md items-center px-8 py-4 bg-primary-dark text-white font-medium  transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
-                <span className="mr-3 uppercase tracking-wide">Shop Now</span>
+                <span className="mr-3 uppercase tracking-wide">Shop Earings</span>
                 <MoveRight className="w-5 h-5" />
               </Link>
             </div>

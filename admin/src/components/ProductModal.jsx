@@ -931,17 +931,17 @@ console.log(submitData,'submitDatas---');
                           className="w-full h-12 rounded-lg mb-3 border border-gray-200 relative flex items-center justify-center shadow-md"
                           style={{ backgroundColor: metal.color }}
                         >
-                          <div className="font-montserrat-bold-700 text-lg text-black drop-shadow-sm">
+                          <div className="font-montserrat-bold-700 text-lg text-black drop-shadow-sm capitalize">
                             {metal.name}
                           </div>
                         </div>
                         
                         {/* Metal Info */}
                         <div className="text-center mb-3">
-                          <div className="font-montserrat-semibold-600 text-black text-sm leading-tight">
+                          <div className="font-montserrat-semibold-600 text-black text-sm leading-tight capitalize">
                             {metal.name}
                           </div>
-                          <div className="text-xs font-montserrat-medium-500 text-primary mt-1">
+                          <div className="text-xs font-montserrat-medium-500 text-black-light mt-1">
                             {metal.purityLevels && metal.purityLevels.length > 0 && (
                               <span>{metal.purityLevels.filter(pl => pl.active !== false).map(pl => `${pl.karat}K`).join(', ')}</span>
                             )}
@@ -955,7 +955,7 @@ console.log(submitData,'submitDatas---');
                               Prices:
                             </div>
                             {metal.purityLevels.filter(pl => pl.active !== false).map((pl, idx) => (
-                              <div key={pl._id || idx} className="text-xs font-montserrat-semibold-600 text-primary">
+                              <div key={pl._id || idx} className="text-xs font-montserrat-semibold-600 text-black">
                                 {pl.karat}K: ${calculateMetalPrice(metal._id, pl)}
                               </div>
                             ))}
@@ -995,7 +995,7 @@ console.log(submitData,'submitDatas---');
                                 className="w-8 h-8 rounded-lg border border-gray-300 flex-shrink-0"
                                 style={{ backgroundColor: metal.color }}
                               ></div>
-                              <div className="font-montserrat-medium-500 text-black text-sm">
+                              <div className="font-montserrat-medium-500 text-black text-sm capitalize">
                                 {metal.name}
                               </div>
                             </div>

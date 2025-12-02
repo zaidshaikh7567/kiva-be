@@ -177,7 +177,25 @@ const DualRangeSlider = ({
           }}
           onMouseDown={(e) => handleMouseDown(e, 'min')}
           onTouchStart={(e) => handleTouchStart(e, 'min')}
-        />
+        >
+          {/* Min tooltip */}
+          {isDragging === 'min' && (
+            <div 
+              className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 px-3 py-1.5 bg-gray-400 text-white text-xs font-montserrat-medium-500 rounded-lg shadow-xl whitespace-nowrap z-50"
+              style={{ pointerEvents: 'none' }}
+            >
+              <PriceDisplay 
+                price={localValue[0]} 
+                variant="small"
+                className="text-white text-xs"
+              />
+              {/* Tooltip arrow */}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                <div className="w-2 h-2 bg-gray-400 transform rotate-45"></div>
+              </div>
+            </div>
+          )}
+        </div>
         
         {/* Max handle */}
         <div
@@ -190,7 +208,25 @@ const DualRangeSlider = ({
           }}
           onMouseDown={(e) => handleMouseDown(e, 'max')}
           onTouchStart={(e) => handleTouchStart(e, 'max')}
-        />
+        >
+          {/* Max tooltip */}
+          {isDragging === 'max' && (
+            <div 
+              className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 px-3 py-1.5 bg-gray-400 text-white text-xs font-montserrat-medium-500 rounded-lg shadow-xl whitespace-nowrap z-50"
+              style={{ pointerEvents: 'none' }}
+            >
+              <PriceDisplay 
+                price={localValue[1]} 
+                variant="small"
+                className="text-white text-xs"
+              />
+              {/* Tooltip arrow */}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                <div className="w-2 h-2 bg-gray-400 transform rotate-45"></div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       
       {/* Value labels */}

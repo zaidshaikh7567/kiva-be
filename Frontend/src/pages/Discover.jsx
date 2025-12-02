@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Play, 
@@ -29,6 +29,8 @@ import { BsInstagram } from "react-icons/bs";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchActiveSocialHandles, selectActiveSocialHandles } from '../store/slices/socialHandlesSlice';
 import { fetchActiveCollections, selectActiveCollections, selectCollectionsLoading } from '../store/slices/collectionsSlice';
+import { fetchCategories, selectCategories } from '../store/slices/categoriesSlice';
+import { fetchProducts, selectProducts, selectProductsLoading } from '../store/slices/productsSlice';
 import { FaFacebook, FaInstagram,FaWhatsapp  } from "react-icons/fa";
 // Platform icon mapping
 const getPlatformIcon = (platform) => {
@@ -54,44 +56,181 @@ const Discover = () => {
   const [activeVideo, setActiveVideo] = useState(null);
   const [muted, setMuted] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
   const dispatch = useDispatch();
   const socialHandles = useSelector(selectActiveSocialHandles);
   const collections = useSelector(selectActiveCollections);
   const collectionsLoading = useSelector(selectCollectionsLoading);
+  const categories = useSelector(selectCategories);
+  const products = useSelector(selectProducts);
+  const productsLoading = useSelector(selectProductsLoading);
 
   useEffect(() => {
     // Fetch active social handles
     dispatch(fetchActiveSocialHandles({ page: 1, limit: 100 }));
     // Fetch active collections
     dispatch(fetchActiveCollections({ page: 1, limit: 100 }));
+    // Fetch categories
+    dispatch(fetchCategories());
+    // Fetch products (needed for subcategory filtering)
+    dispatch(fetchProducts({ page: 1, limit: 1000, reset: true }));
   }, [dispatch]);
 
   // Use API collections data only
-  const displayCollections = collections || [];
-  const categories = [
-    { id: 'all', name: 'All Collections', count: displayCollections.length },
-    { id: 'necklaces', name: 'Necklaces', count: displayCollections.filter(c => c.category === 'necklaces').length },
-    { id: 'rings', name: 'Rings', count: displayCollections.filter(c => c.category === 'rings').length },
-    { id: 'earrings', name: 'Earrings', count: displayCollections.filter(c => c.category === 'earrings').length },
-    { id: 'bracelets', name: 'Bracelets', count: displayCollections.filter(c => c.category === 'bracelets').length }
-  ];
+  const displayCollections = useMemo(() => collections || [], [collections]);
+  
+  // Get main categories only (parent categories)
+  const mainCategories = useMemo(() => {
+    return categories?.filter(cat => !cat.parent) || [];
+  }, [categories]);
 
-  const filteredCollections = selectedCategory === 'all' 
-    ? displayCollections 
-    : displayCollections.filter(c => c.category === selectedCategory);
-  // Auto-advance video slider
+  // Find Rings category and its subcategories
+  const ringsCategory = useMemo(() => {
+    return mainCategories.find(cat => 
+      cat.name?.toLowerCase() === 'ring' || cat.name?.toLowerCase() === 'rings'
+    );
+  }, [mainCategories]);
+
+  const ringsSubcategories = useMemo(() => {
+    if (!ringsCategory || !categories) return [];
+    
+    const subcategories = categories.filter(cat => {
+      if (!cat.parent) return false;
+      const parentId = typeof cat.parent === 'object' 
+        ? cat.parent._id || cat.parent.id
+        : cat.parent;
+      const ringsId = ringsCategory._id || ringsCategory.id;
+      return parentId === ringsId;
+    });
+
+    // Add virtual "Wedding Band" category
+    const weddingBandOption = {
+      _id: 'wedding-band',
+      id: 'wedding-band',
+      name: 'Wedding Band',
+      isVirtual: true
+    };
+
+    return [weddingBandOption, ...subcategories];
+  }, [categories, ringsCategory]);
+
+  // Reset subcategory when category changes
   useEffect(() => {
-    if (isVideoPlaying) {
-      const interval = setInterval(() => {
-        setCurrentVideoIndex(prev => (prev + 1) % filteredCollections.length);
-      }, 4000);
-      return () => clearInterval(interval);
+    const isRingsSelected = selectedCategory.toLowerCase() === 'ring' || 
+                           selectedCategory.toLowerCase() === 'rings';
+    if (!isRingsSelected) {
+      setSelectedSubcategory(null);
     }
-  }, [isVideoPlaying, filteredCollections.length]);
+    // Don't auto-select - let "All Rings" be the default
+  }, [selectedCategory]);
+
+  // Build category filter list
+  const categoryFilters = useMemo(() => {
+    const filters = [
+      { id: 'all', name: 'All Collections', count: displayCollections.length }
+    ];
+
+    // Add main categories from API or fallback to hardcoded
+    if (mainCategories.length > 0) {
+      mainCategories.forEach(cat => {
+        const categoryNameLower = cat.name?.toLowerCase() || '';
+        const count = displayCollections.filter(c => 
+          c.category?.toLowerCase() === categoryNameLower
+        ).length;
+        filters.push({
+          id: categoryNameLower,
+          name: cat.name,
+          count
+        });
+      });
+    } else {
+      // Fallback to hardcoded categories if API categories not available
+      filters.push(
+        { id: 'necklaces', name: 'Necklaces', count: displayCollections.filter(c => c.category === 'necklaces').length },
+        { id: 'rings', name: 'Rings', count: displayCollections.filter(c => c.category === 'rings').length },
+        { id: 'earrings', name: 'Earrings', count: displayCollections.filter(c => c.category === 'earrings').length },
+        { id: 'bracelets', name: 'Bracelets', count: displayCollections.filter(c => c.category === 'bracelets').length }
+      );
+    }
+
+    return filters;
+  }, [displayCollections, mainCategories]);
+
+  // Filter collections (when no subcategory is selected)
+  const filteredCollections = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return displayCollections;
+    }
+
+    let filtered = displayCollections.filter(c => {
+      const collectionCategory = c.category?.toLowerCase() || '';
+      return collectionCategory === selectedCategory.toLowerCase();
+    });
+
+    return filtered;
+  }, [displayCollections, selectedCategory]);
+
+  // Filter products by subcategory (when subcategory is selected)
+  const filteredProducts = useMemo(() => {
+    if (!selectedSubcategory || selectedCategory === 'all') {
+      return [];
+    }
+
+    const isRingsSelected = selectedCategory.toLowerCase() === 'ring' || 
+                           selectedCategory.toLowerCase() === 'rings';
+    
+    if (!isRingsSelected || !ringsCategory) {
+      return [];
+    }
+
+    return products.filter(product => {
+      if (!product.images || product.images.length === 0) return false;
+
+      const productCategoryId = product.category?._id || product.category?.id;
+      const productParent = product.category?.parent;
+      const productParentId = typeof productParent === 'object' 
+        ? productParent?._id || productParent?.id
+        : productParent;
+      const productParentName = typeof productParent === 'object' 
+        ? productParent?.name?.toLowerCase() 
+        : null;
+      const categoryName = product.category?.name || 'Uncategorized';
+      const ringsId = ringsCategory._id || ringsCategory.id;
+
+      // Check if product belongs to Rings category or its subcategories
+      const belongsToRings = productCategoryId === ringsId || 
+                            productParentId === ringsId ||
+                            productParentName === 'ring' || 
+                            productParentName === 'rings' ||
+                            categoryName.toLowerCase() === 'ring' ||
+                            categoryName.toLowerCase() === 'rings';
+
+      if (!belongsToRings) return false;
+
+      // Filter by selected subcategory
+      if (selectedSubcategory === 'wedding-band') {
+        return product.isBand === true;
+      } else {
+        return productCategoryId === selectedSubcategory;
+      }
+    });
+  }, [products, selectedCategory, selectedSubcategory, ringsCategory]);
+
+  // Determine if we should show products or collections
+  const showProducts = selectedSubcategory !== null && 
+                      (selectedCategory.toLowerCase() === 'ring' || selectedCategory.toLowerCase() === 'rings');
+  // Auto-advance video slider (disabled for now - video autoplays)
+  // useEffect(() => {
+  //   if (isVideoPlaying) {
+  //     const interval = setInterval(() => {
+  //       setCurrentVideoIndex(prev => (prev + 1) % filteredCollections.length);
+  //     }, 4000);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [isVideoPlaying, filteredCollections.length]);
 
   // Keyboard navigation for fullscreen image slider (infinite)
   useEffect(() => {
@@ -166,6 +305,13 @@ const Discover = () => {
         .animate-slideIn {
           animation: slideIn 0.8s ease-out;
         }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
       `}</style>
 
       {/* Elegant Hero Section */}
@@ -177,7 +323,7 @@ const Discover = () => {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-24 sm:h-24 bg-primary-dark/5 rounded-full blur-xl"></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-4">
+        <div className="relative z-10  mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             {/* Elegant Badge */}
             <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-primary px-4 py-2 sm:px-6 sm:py-3 rounded-full mb-6 sm:mb-8 animate-fadeIn border border-primary/20 shadow-lg">
@@ -198,10 +344,10 @@ const Discover = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center animate-fadeIn">
-              <button className="group w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-primary text-white font-montserrat-medium-500 rounded-xl hover:bg-primary-dark transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl">
+              {/* <button className="group w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-primary text-white font-montserrat-medium-500 rounded-xl hover:bg-primary-dark transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl">
                 <Video className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-sm sm:text-base">Watch Collections</span>
-              </button>
+              </button> */}
               
               <button 
                 onClick={() => navigate('/gallery')}
@@ -217,10 +363,10 @@ const Discover = () => {
         </div>
       </section>
 
-      {/* Video Slider Section */}
-      {displayCollections.length > 0 && (
+      {/* Video Slider Section - Only show when not filtering by subcategory */}
+      {!showProducts && displayCollections.length > 0 && (
         <section className="py-12 sm:py-16 bg-white">
-          <div className="container mx-auto px-4">
+          <div className=" mx-auto px-4">
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-2xl sm:text-3xl font-sorts-mill-gloudy font-thin text-gray-900 mb-2 sm:mb-4">
                 Collection Videos
@@ -296,52 +442,69 @@ const Discover = () => {
 
       {/* Beautiful Image Gallery */}
       <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          {collectionsLoading && displayCollections.length === 0 ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="font-montserrat-regular-400 text-black-light">Loading collections...</p>
-              </div>
-            </div>
-          ) : displayCollections.length === 0 ? (
-            <div className="text-center py-12">
-              <Video className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-sorts-mill-gloudy font-bold text-black mb-2">
-                No Collections Found
-              </h3>
-              <p className="font-montserrat-regular-400 text-black-light">
-                No active collections available at the moment.
-              </p>
-            </div>
-          ) : (
-            <>
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-12 gap-6">
+        <div className=" mx-auto px-4 w-full">
+          {/* Filters - Always Visible */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-12 gap-6 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
             <div className="text-center lg:text-left">
               <h2 className="text-2xl md:text-3xl font-sorts-mill-gloudy font-thin text-gray-900 mb-2">
-                Collection Gallery
+                {showProducts ? 'Product Gallery' : 'Collection Gallery'}
               </h2>
               <p className="text-gray-600 font-montserrat-regular-400">
-                Explore our collections in detail
+                {showProducts ? 'Explore products in this subcategory' : 'Explore our collections in detail'}
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4 ">
               {/* Category Filter */}
-              <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
-                {categories.map(category => (
-                  <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`px-3 py-2 rounded-full text-xs sm:text-sm font-montserrat-medium-500 transition-all duration-300 ${
-                      selectedCategory === category.id
-                        ? 'bg-primary text-white shadow-md'
-                        : 'bg-white text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {category.name}
-                  </button>
-                ))}
+              <div className="flex flex-col gap-3 w-full">
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                  {categoryFilters.map(category => (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        setSelectedCategory(category.id);
+                        setSelectedSubcategory(null);
+                      }}
+                      className={`px-3 py-2 rounded-full text-xs sm:text-sm font-montserrat-medium-500 transition-all duration-300 capitalize ${
+                        selectedCategory === category.id
+                          ? 'bg-primary text-white shadow-md'
+                          : 'bg-white text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {category.name}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Subcategory Filters for Rings */}
+                {ringsSubcategories.length > 0 && 
+                 (selectedCategory.toLowerCase() === 'ring' || selectedCategory.toLowerCase() === 'rings') && (
+                  <div className="flex items-center gap-2 overflow-x-auto py-2 scrollbar-hide">
+                    <button
+                      onClick={() => setSelectedSubcategory(null)}
+                      className={`px-3 py-1.5 rounded-full font-montserrat-medium-500 text-xs whitespace-nowrap transition-all duration-300 capitalize ${
+                        !selectedSubcategory
+                          ? 'bg-primary/20 text-primary border border-primary'
+                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
+                      }`}
+                    >
+                      All Rings
+                    </button>
+                    {ringsSubcategories.map((subcategory) => (
+                      <button
+                        key={subcategory._id || subcategory.id}
+                        onClick={() => setSelectedSubcategory(subcategory._id || subcategory.id)}
+                        className={`px-3 py-1.5 rounded-full font-montserrat-medium-500 text-xs whitespace-nowrap transition-all duration-300 capitalize ${
+                          selectedSubcategory === (subcategory._id || subcategory.id)
+                            ? 'bg-primary/20 text-primary border border-primary'
+                            : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
+                        }`}
+                      >
+                        {subcategory.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* View Toggle */}
@@ -363,9 +526,98 @@ const Discover = () => {
             </div>
           </div>
 
+          {/* Content Area */}
+          {(collectionsLoading || productsLoading) && displayCollections.length === 0 && filteredProducts.length === 0 ? (
+            <div className="flex items-center justify-center py-12 ">
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="font-montserrat-regular-400 text-black-light">Loading...</p>
+              </div>
+            </div>
+          ) : (!showProducts && displayCollections.length === 0) || (showProducts && filteredProducts.length === 0) ? (
+            <div className="text-center py-12">
+              <Video className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-sorts-mill-gloudy font-bold text-black mb-2">
+                {showProducts ? 'No Products Found' : 'No Collections Found'}
+              </h3>
+              <p className="font-montserrat-regular-400 text-black-light mb-4">
+                {showProducts ? 'No products available in this subcategory.' : 'No active collections available at the moment.'}
+              </p>
+              {showProducts && selectedSubcategory && (
+                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                  <button
+                    onClick={() => setSelectedSubcategory(null)}
+                    className="px-6 py-2 bg-primary text-white font-montserrat-medium-500 rounded-full hover:bg-primary-dark transition-all duration-300 flex items-center gap-2"
+                  >
+                    <X className="w-4 h-4" />
+                    Reset Filter (Show All Rings)
+                  </button>
+                  <p className="text-sm text-gray-500 font-montserrat-regular-400">
+                    or click "All Rings" above to see all ring collections
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+
           {viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-              {filteredCollections.map((collection) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+              {showProducts ? (
+                // Show products when subcategory is selected
+                filteredProducts.map((product) => {
+                  const productImages = product.images || [];
+                  if (productImages.length === 0) return null;
+                  
+                  return (
+                    <div key={product._id || product.id} className="group bg-white shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
+                      <div className="relative aspect-[4/5] overflow-hidden">
+                        <img
+                          src={productImages[0] || 'https://via.placeholder.com/400x500'}
+                          alt={product.title || 'Product'}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                      <div className="p-2 sm:p-2">
+                        <div className="grid grid-cols-3 gap-1">
+                          {productImages.slice(0, 3).map((image, index) => (
+                            <div
+                              key={index}
+                              className="relative aspect-square overflow-hidden cursor-pointer group/thumb"
+                              onClick={() => setFullscreenImage({ 
+                                collection: product.title || 'Product', 
+                                images: productImages, 
+                                image, 
+                                index 
+                              })}
+                            >
+                              <img
+                                src={image}
+                                alt={`${product.title || 'Product'} ${index + 1}`}
+                                className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <div className="transform transition-transform duration-300 group-hover/thumb:scale-110">
+                                  <ZoomIn className="w-4 h-4 md:w-4 md:h-4 text-white" />
+                                </div>
+                              </div>
+                              {index === 2 && productImages.length > 3 && (
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                                  <span className="text-white text-xs font-montserrat-medium-500">
+                                    +{productImages.length - 3}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                // Show collections when no subcategory is selected
+                filteredCollections.map((collection) => (
                 <div key={collection._id || collection.id} className="group bg-white  shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
                   <div className="relative aspect-[4/5] overflow-hidden">
                     <img
@@ -448,11 +700,71 @@ const Discover = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+                ))
+              )}
             </div>
           ) : (
             <div className="space-y-4 sm:space-y-6">
-              {filteredCollections.map((collection) => (
+              {showProducts ? (
+                // Show products in list view when subcategory is selected
+                filteredProducts.map((product) => {
+                  const productImages = product.images || [];
+                  if (productImages.length === 0) return null;
+                  
+                  return (
+                    <div key={product._id || product.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
+                      <div className="flex flex-col lg:flex-row">
+                        <div className="w-full lg:w-80 aspect-square lg:aspect-auto relative">
+                          <img
+                            src={productImages[0] || 'https://via.placeholder.com/400x500'}
+                            alt={product.title || 'Product'}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 p-4 sm:p-6 lg:p-8">
+                          <h3 className="text-xl sm:text-2xl font-sorts-mill-gloudy font-medium text-gray-900 mb-2">
+                            {product.title || 'Product'}
+                          </h3>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                            {productImages.slice(0, 4).map((image, index) => (
+                              <div
+                                key={index}
+                                className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group/thumb"
+                                onClick={() => setFullscreenImage({ 
+                                  collection: product.title || 'Product', 
+                                  images: productImages, 
+                                  image, 
+                                  index 
+                                })}
+                              >
+                                <img
+                                  src={image}
+                                  alt={`${product.title || 'Product'} ${index + 1}`}
+                                  className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                  <div className="transform transition-transform duration-300 group-hover/thumb:scale-110">
+                                    <ZoomIn className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                                  </div>
+                                </div>
+                                {index === 3 && productImages.length > 4 && (
+                                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                                    <span className="text-white text-xs sm:text-sm font-montserrat-medium-500">
+                                      +{productImages.length - 4}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                // Show collections in list view when no subcategory is selected
+                filteredCollections.map((collection) => (
                 <div key={collection._id || collection.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
                   <div className="flex flex-col lg:flex-row">
                     <div className="w-full lg:w-80 aspect-square lg:aspect-auto relative">
@@ -512,7 +824,8 @@ const Discover = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+                ))
+              )}
             </div>
           )}
             </>

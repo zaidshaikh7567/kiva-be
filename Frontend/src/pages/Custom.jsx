@@ -50,15 +50,11 @@ const Custom = () => {
     size: "",
   });
   
-  console.log('formData :', formData);
   const [errors, setErrors] = useState({});
-  console.log('errors :', errors);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
-  console.log('selectedFiles :', selectedFiles);
   const [mediaUrls, setMediaUrls] = useState([]);
-  console.log('mediaUrls :', mediaUrls);
   const [urlInput, setUrlInput] = useState("");
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
