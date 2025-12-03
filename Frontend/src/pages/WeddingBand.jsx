@@ -101,7 +101,7 @@ const WeddingBand = () => {
 
       {/* Filter Section */}
       <ProductFilterToolbar
-        totalCount={sortedWeddingBands.length}
+        totalCount={sortedWeddingBands?.length || 0}
         entityName="wedding band"
         sortOptions={SORT_OPTIONS.CATEGORY}
         sortValue={sortBy}

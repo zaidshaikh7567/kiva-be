@@ -26,7 +26,7 @@ const OrderDetails = () => {
   const loading = useSelector(selectOrdersLoading);
   const [hasFetched, setHasFetched] = useState(false);
   const cardDetails = orderData?.cardDetails || {};
-  console.log('cardDetails :', cardDetails);
+  console.log('cardDetails :', Object.keys(cardDetails).length > 0 ? cardDetails : null);
   // Fetch order data by ID
   console.log('!hasFetched :', !hasFetched);
   useEffect(() => {
@@ -132,6 +132,7 @@ const OrderDetails = () => {
   const finalTotal = totals.total || (subtotal + shippingCost);
   const paymentMethod = orderData.paymentMethod || 'Credit Card';
   const orderStatus = orderData.status || 'pending';
+  const paymentStatus = orderData.paymentStatus || 'pending';
   const notes = orderData.notes || '';
 
   const formatDate = (dateString) => {
@@ -213,14 +214,17 @@ const OrderDetails = () => {
                     <p className="text-sm font-montserrat-medium-500 text-black-light mb-1">Payment Method</p>
                     <p className="text-lg font-montserrat-semibold-600 text-black flex items-center space-x-2">
                       <CreditCard className="w-4 h-4" />
-                      <span>{paymentMethod}</span>
+                      <span>{paymentMethod}</span> 
                       
                     </p>
-                    {cardDetails && (
+                    
+                    <p className="text-sm font-montserrat-regular-400 text-black capitalize"><span className="font-montserrat-medium-500 text-black ">Payment Status:</span> {paymentStatus}</p>
+                    {Object.keys(cardDetails).length > 0 && (
                       <>
                       <p className="text-sm font-montserrat-regular-400 text-black"><span className="font-montserrat-medium-500 text-black">Last 4:</span> {cardDetails?.last4}</p>
                         <p className="text-sm font-montserrat-regular-400 text-black"><span className="font-montserrat-medium-500 text-black">Brand:</span> {cardDetails?.brand}</p>
                         <p className="text-sm font-montserrat-regular-400 text-black"><span className="font-montserrat-medium-500 text-black">Expiry:</span> {cardDetails?.expiryMonth}/{cardDetails?.expiryYear}</p>
+                       
                       </>
                     )}
                   </div>
