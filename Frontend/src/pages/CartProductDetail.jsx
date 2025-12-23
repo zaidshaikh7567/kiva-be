@@ -639,7 +639,7 @@ const CartProductDetail = () => {
                       className="text-3xl lg:text-4xl font-montserrat-bold-700 text-primary"
                     />
                     {selectedMetal && (
-                      <div className="text-sm font-montserrat-regular-400 text-black-light">
+                      <div className="text-sm font-montserrat-regular-400 text-black-light capitalize">
                         ({selectedMetal.carat})
                       </div>
                     )}

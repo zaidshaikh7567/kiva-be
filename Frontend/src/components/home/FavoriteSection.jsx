@@ -110,7 +110,7 @@ const FavoriteSection = () => {
             SUMMER 2025
           </p>
           <div className="mt-2 md:text-[54px] sm:text-4xl text-3xl font-sorts-mill-gloudy leading-none text-black !font-thin">
-            Aurora Prom Set<span className="text-primary">.</span>
+            Kiva Diamond Prom Set<span className="text-primary">.</span>
           </div>
           <p className="mt-6 md:text-[22px] text-[18px] italic font-sorts-mill-gloudy font-extralight text-black-light">
             Perfect match with:

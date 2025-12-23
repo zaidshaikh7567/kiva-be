@@ -126,7 +126,7 @@ const PrivacyPolicy = () => {
               <AlertCircle className="w-6 h-6 text-blue-500 mt-0.5 mr-3 flex-shrink-0" />
               <div>
                 <p className="font-montserrat-regular-400 text-blue-900 leading-relaxed">
-                  At Aurora Jewelry, we respect your privacy and are committed to protecting your personal information. 
+                  At Kiva Diamond, we respect your privacy and are committed to protecting your personal information. 
                   This Privacy Policy explains how we collect, use, share, and protect your data when you visit our website 
                   or make a purchase.
                 </p>

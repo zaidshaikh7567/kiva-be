@@ -212,7 +212,7 @@ const ordersSlice = createSlice({
       .addCase(createOrder.fulfilled, (state, action) => {
         state.creating = false;
         state.currentOrder = action.payload.data || action.payload;
-        toast.success('Order placed successfully!');
+        // toast.success('Order placed successfully!');
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.creating = false;

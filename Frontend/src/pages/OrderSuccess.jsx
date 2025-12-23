@@ -267,7 +267,7 @@ const OrderSuccess = () => {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 sticky top-8">
+              <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 sticky xl:top-[90px] top-[74px]">
                 <h3 className="text-xl font-sorts-mill-gloudy text-black mb-6">
                   Order Summary<span className="text-primary">.</span>
                 </h3>

@@ -15,7 +15,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 lg:hidden">
         <img
           src={heroImage}
-          alt="Aurora Jewelry"
+          alt="Kiva Diamond"
           className="w-full h-full object-cover object-center"
         />
         {/* Enhanced overlay for better text readability */}
@@ -103,7 +103,7 @@ const HeroSection = () => {
           }`}
           style={{ transitionDelay: '300ms' }}
         >
-          Shine Bright <br /> With Aurora<span className="  text-primary">.</span>
+          Shine Bright <br /> With Kiva Diamond<span className="  text-primary">.</span>
         </div>
         <p 
           className={`mt-4 text-[22px] italic font-sorts-mill-gloudy font-extralight lg:text-black-light text-white transition-all duration-700 ${
@@ -187,7 +187,7 @@ const HeroSection = () => {
            >
              <img
                src={heroImage}
-               alt="Aurora Jewelry Detail"
+               alt="Kiva Diamond Detail"
                className="object-cover w-full h-full rounded-full"
              />
            </div>
@@ -201,7 +201,7 @@ const HeroSection = () => {
            >
              <img
                src={heroImage}
-               alt="Aurora Jewelry"
+               alt="Kiva Diamond"
                className="object-cover w-full h-full"
              />
              {/* Jewelry-themed overlay */}

@@ -607,7 +607,7 @@ useEffect(() => {
               }>
                 {filteredProducts.map((product) => (
                   <ShopProductCard
-                    key={product._id}
+                    key={product?._id}
                     product={product}
                     viewMode={viewMode}
                     showQuickActions={true}

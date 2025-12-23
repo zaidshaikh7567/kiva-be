@@ -455,7 +455,7 @@ const ReviewsSlider = () => {
       try {
         await navigator.share({
           title: "Check out these customer reviews!",
-          text: "See what our clients are saying about Aurora Jewelry",
+          text: "See what our clients are saying about Kiva Diamond",
           url: currentUrl,
         });
       } catch {

@@ -1,5 +1,5 @@
-import React from "react";
-import { Mail, Phone, MapPin, Heart } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Mail, Phone, MapPin, Heart, ArrowUp } from "lucide-react";
 import { FaFacebook, FaInstagram,FaWhatsapp  } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import giaLogo from "../assets/icon/gia.svg";
@@ -14,7 +14,27 @@ const Footer = () => {
   const EMAIL_URL = import.meta.env.VITE_EMAIL_URL;
   const PHONE_NUMBER_COMBO = import.meta.env.VITE_NUMBER_COMBO;
   const PHONE_NUMBER_SEPARATE = import.meta.env.VITE_NUMBER_SEPARATE;
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+
+  // Show/hide scroll to top button based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      setShowScrollToTop(scrollY > 300); // Show button after scrolling 300px
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }; 
   // Social Media Links
   const socialLinks = [
     { icon: <FaFacebook className="w-5 h-5 text-white" />, href: FACEBOOK_URL, label: "Facebook" },
@@ -233,7 +253,7 @@ const contactInfo = [
         <div className="py-4 sm:py-8 border-t border-black-light">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 text-center sm:text-left">
             <div className="text-black-light font-montserrat-regular-400 text-xs sm:text-[14px]">
-              &copy; {new Date().getFullYear()} Aurora Jewelry. All rights reserved.
+              &copy; {new Date().getFullYear()} Kiva Diamond. All rights reserved.
             </div>
             <div className="flex items-center space-x-1 text-black-light font-montserrat-regular-400 text-xs sm:text-[14px]">
               <span>Made with</span>
@@ -243,6 +263,17 @@ const contactInfo = [
           </div>
         </div>
       </div>
+
+      {/* Scroll to Top Button */}
+      {showScrollToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50 w-12 h-12 sm:w-14 sm:h-14 bg-black-light hover:bg-black text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-y-1 transition-transform duration-300" />
+        </button>
+      )}
     </footer>
   );
 };

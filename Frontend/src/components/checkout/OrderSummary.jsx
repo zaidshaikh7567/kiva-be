@@ -4,7 +4,7 @@ import PriceDisplay from '../PriceDisplay';
 
 const OrderSummary = ({ items, totalPrice, shippingCost, finalTotal }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 sticky top-8">
+    <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 sticky xl:top-[90px] top-[74px]">
       <h3 className="text-xl font-sorts-mill-gloudy text-black mb-6">
         Order Summary<span className="text-primary">.</span>
       </h3>
