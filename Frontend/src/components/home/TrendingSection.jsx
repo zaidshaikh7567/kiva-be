@@ -4,6 +4,8 @@ import  Img2 from "../../assets/images/necklace-home.jpeg";
 import  Img3 from "../../assets/images/earrings-home.jpeg";
 import  Img4 from "../../assets/images/bracelate-home.jpeg";
 import { useNavigate } from 'react-router-dom';
+import { MoveRight } from "lucide-react";
+import IconButton from "../IconButton";
 const TrendingSection = () => {
   const navigate = useNavigate();
   const products = [
@@ -72,9 +74,12 @@ const TrendingSection = () => {
               {/* {product.price} */}
               {/* <PriceDisplay variant="small" price={Number(product.price)} /> */}
             </div>
-            <button onClick={() => navigate(product?.path)} className="mt-6 px-6 py-3 bg-primary-dark text-white font-medium rounded-md hover:bg-primary transition">
+            <div className="flex justify-center">
+              <IconButton onClick={() => navigate(product?.path)}  rightIcon={MoveRight}>Discover</IconButton>
+            </div>
+            {/* <button onClick={() => navigate(product?.path)} className="mt-6 px-6 py-3 bg-primary-dark text-white font-medium rounded-md hover:bg-primary transition">
               — Discover
-            </button>
+            </button> */}
           </div>
         ))}
       </div>

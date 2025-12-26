@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Earrings from "../../assets/images/product-2.jpg";
 import Summar from "../../assets/images/summar.webp";
 // import OvalVideo from "../../assets/video/1764318533117488720p.mp4";
@@ -7,8 +7,9 @@ import OvalVideo from "../../assets/video/1764318717322481720p.mp4";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { MoveRight } from "lucide-react";
-import { fetchMetals } from "../../store/slices/metalsSlice";
+import IconButton from "../IconButton";
 const FavoriteSection = () => {
+  const navigate = useNavigate();
   const { categories, loading, error } = useSelector(
     (state) => state.categories
   );
@@ -76,12 +77,13 @@ const FavoriteSection = () => {
                 <h3 className="text-white text-[54px] mb-2 capitalize">
                   {item.title}
                 </h3>
-                <Link
+                <IconButton onClick={() => navigate(item.link)} > — Discover</IconButton>
+                {/* <Link
                   to={item.link}
                   className="mt-2 px-6 py-3 bg-primary-dark text-white font-medium rounded-md hover:bg-primary transition"
                 >
                   — Discover
-                </Link>
+                </Link> */}
               </div>
 
               {/* Title - Only visible on desktop until hover */}
@@ -173,14 +175,9 @@ const FavoriteSection = () => {
               radiance to unforgettable moments.
             </p>
 
-            <div className="pt-4">
-              <Link
-                to="/bracelets"
-                className="inline-flex uppercase items-center px-8 py-4 bg-primary-dark text-white font-medium rounded-md hover:bg-primary transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                <span className="mr-2">Know More</span>
-                <MoveRight className="w-4 h-4" />
-              </Link>
+            <div className="pt-2">
+              <IconButton onClick={() => navigate("/bracelets")}rightIcon={MoveRight}>Know More </IconButton>
+              
             </div>
           </div>
         </div>
@@ -267,13 +264,8 @@ const FavoriteSection = () => {
             </p>
 
             <div className="pt-6">
-              <Link
-                to="/earrings"
-                className="inline-flex  rounded-md items-center px-8 py-4 bg-primary-dark text-white font-medium  transition-all duration-300 transform hover:scale-105 shadow-lg"
-              >
-                <span className="mr-3 uppercase tracking-wide">Shop Earings</span>
-                <MoveRight className="w-5 h-5" />
-              </Link>
+              <IconButton onClick={() => navigate("/earrings")}rightIcon={MoveRight}>Shop Earings</IconButton>
+              
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Sparkles, Gem } from "lucide-react";
+import IconButton from "../IconButton";
 
 const DiamondSection = () => {
   const diamondTypes = [
@@ -81,9 +82,10 @@ const DiamondSection = () => {
 
                   {/* Button - Pushed to bottom */}
                   <div className="flex justify-center mt-auto">
-                    <div className="px-8 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg font-montserrat-medium-500 text-base md:text-lg group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
+                    <IconButton >Explore Collection</IconButton>
+                    {/* <div className="px-8 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg font-montserrat-medium-500 text-base md:text-lg group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
                       Explore Collection
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

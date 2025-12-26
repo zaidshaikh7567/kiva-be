@@ -118,7 +118,7 @@ const OrderSuccess = () => {
   return (
     <div className="min-h-screen bg-secondary">
       {/* Hero Section */}
-      <section className="py-6 md:py-16 bg-white border-b border-primary-light">
+      <section className="py-6 md:py-8 bg-white border-b border-primary-light">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <button
             onClick={() => navigate(-1)}

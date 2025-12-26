@@ -724,32 +724,33 @@ const Custom = () => {
                     </div>
                   )}
 
-                  {showUrlInput && (
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <input
-                          type="url"
-                          value={urlInput}
-                          onChange={(e) => setUrlInput(e.target.value)}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              addUrl();
-                            }
-                          }}
-                          placeholder="Paste image or video URL here..."
-                          className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none font-montserrat-regular-400"
-                        />
-                        <button
-                          type="button"
-                          onClick={addUrl}
-                          className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-montserrat-medium-500"
-                        >
-                          Add URL
-                        </button>
-                      </div>
-                    </div>
-                  )}
+{showUrlInput && (
+  <div className="space-y-3 px-0 sm:px-0">
+    <div className="flex flex-col sm:flex-row gap-2">
+      <input
+        type="url"
+        value={urlInput}
+        onChange={(e) => setUrlInput(e.target.value)}
+        onKeyPress={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addUrl();
+          }
+        }}
+        placeholder="Paste image or video URL here..."
+        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none font-montserrat-regular-400 w-full"
+      />
+      <button
+        type="button"
+        onClick={addUrl}
+        className="w-full sm:w-auto px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-montserrat-medium-500"
+      >
+        Add URL
+      </button>
+    </div>
+  </div>
+)}
+
 
                   {selectedFiles.length > 0 && (
                     <div className="mt-6">
@@ -835,7 +836,7 @@ const Custom = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full outline-none font-montserrat-semibold-600 py-2 px-8 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 sm:text-lg text-sm ${
+                  className={`w-full outline-none font-montserrat-semibold-600 py-3 px-8 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 sm:text-lg text-sm ${
                     isSubmitting
                       ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                       : "bg-primary text-white hover:bg-primary-dark shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"

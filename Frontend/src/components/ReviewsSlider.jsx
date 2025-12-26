@@ -29,6 +29,7 @@ import {
 import { selectAuthUser } from "../store/slices/authSlice";
 import toast from "react-hot-toast";
 import FormInput from "./FormInput";
+import IconButton from "./IconButton";
 
 const ReviewsSlider = () => {
   const dispatch = useDispatch();
@@ -695,13 +696,8 @@ const ReviewsSlider = () => {
 
         {/* Add Review Button */}
         <div className="mt-8 sm:mt-12 text-center">
-          <button
-            onClick={() => setShowReviewForm(true)}
-            className="inline-flex items-center space-x-2 bg-gradient-to-r from-primary to-primary-dark text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-montserrat-semibold-600 hover:from-primary-dark hover:to-primary transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
-          >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span>Write a Review</span>
-          </button>
+          <IconButton onClick={() => setShowReviewForm(true)}rightIcon={Plus}>Write a Review</IconButton>
+          
         </div>
 
         {/* Review Form Modal */}

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import heroImage from "../../assets/images/hero.jpg";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import IconButton from "../IconButton";
+import { ShoppingBag } from "lucide-react";
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
-
+const navigate = useNavigate();
   useEffect(() => {
     setIsVisible(true);
   }, []);
@@ -113,14 +114,17 @@ const HeroSection = () => {
         >
           Every day is your special day with our fine jewelry!
         </p>
-         <Link to="/shop" 
+        <div className="flex lg:justify-start justify-center">
+        <IconButton className="mt-8" onClick={() => navigate("/shop")}  rightIcon={ShoppingBag}>Shop Now</IconButton>
+        </div>
+         {/* <Link to="/shop" 
            className={`w-fit  rounded-md mt-8 px-6 py-3 bg-primary-dark text-white font-medium hover:bg-primary transition mx-auto lg:mx-0 duration-700 ${
              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
            }`}
            style={{ transitionDelay: '700ms' }}
          >
            — Shop
-         </Link>
+         </Link> */}
       </div>
 
       {/* Right Image (only visible on desktop split layout) */}
