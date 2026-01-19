@@ -136,6 +136,7 @@ const FavoriteSection = () => {
         <div className="flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-12">
           {/* Left Side - Large Video */}
           <div className="w-full lg:w-[55%]">
+          <Link to="/bracelets">
             <div className="relative h-[500px]  overflow-hidden shadow-lg">
               <video
                 className="w-full h-full object-cover"
@@ -149,6 +150,7 @@ const FavoriteSection = () => {
                 Your browser does not support the video tag.
               </video>
             </div>
+          </Link>
           </div>
 
           {/* Right Side - Text Content */}

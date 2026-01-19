@@ -86,7 +86,6 @@ const Orders = () => {
   const orders = useSelector(selectAdminOrders);
   const loading = useSelector(selectAdminOrdersLoading);
   const pagination = useSelector(selectAdminOrdersPagination);
-  console.log('pagination :', pagination);
   const currentOrder = useSelector(selectAdminCurrentOrder);
   const updatingStatus = useSelector(selectAdminOrdersUpdating);
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -492,7 +491,7 @@ const Orders = () => {
             {/* Reset Button */}
             <button 
               onClick={handleResetFilters}
-              className="flex items-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-300"
+              className="flex items-center space-x-2 px-4 py-3 border border-primary-light rounded-lg hover:bg-gray-50 transition-colors duration-300"
             >
               <RotateCcw className="w-5 h-5 text-black-light" />
               <span className="font-montserrat-medium-500 text-black">Reset</span>
@@ -755,7 +754,7 @@ const Orders = () => {
                   <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3">Shipping Information</h3>
                   <div className="space-y-2">
                     <div className="flex items-start space-x-3">
-                      <MapPin className="w-5 h-5 text-black-light mt-1" />
+                      <MapPin className="w-10 h-auto text-black-light mt-1" />
                       <div>
                         <p className="font-montserrat-medium-500 text-black">
                           {[modalData.shippingAddress.street, modalData.shippingAddress.city]
@@ -898,7 +897,7 @@ const Orders = () => {
               </div>
 
               {/* Order Total */}
-              <div className="border-top border-gray-200 pt-3">
+              <div className="border-t border-gray-200 pt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-montserrat-semibold-600 text-black">Total</span>
                   <span className="text-2xl font-sorts-mill-gloudy font-bold text-black">

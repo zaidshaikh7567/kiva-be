@@ -31,7 +31,7 @@ const PriceDisplay = ({
     ? className || "text-xs text-black-light font-montserrat-regular-400"
     : "text-xl md:text-2xl font-montserrat-bold-700 text-primary";
   
-  const containerClasses = variant === "small" 
+  const containerClasses = variant === "small"
     ? className || ""
     : `flex items-center space-x-2 ${className}`;
 
