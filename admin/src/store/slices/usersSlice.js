@@ -18,7 +18,6 @@ export const fetchUsers = createAsyncThunk(
       
       const url = `${API_METHOD.users}?${queryParams.toString()}`;
       
-      console.log('API URL being called:', url);
       const response = await api.get(url);
       return response.data;
     } catch (error) {

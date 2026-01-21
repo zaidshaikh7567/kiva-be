@@ -174,7 +174,6 @@ const Shop = () => {
   }, [products, searchTerm, selectedCategory, priceRange, sortBy, categoryHierarchy]);
 
 
-  console.log('filteredProducts :', filteredProducts);
   const handlePriceRangeChange = (newRange) => {
     setPriceRange(newRange);
   };
@@ -261,7 +260,6 @@ const Shop = () => {
     if (totalPrices.length === 0) {
       return { min: 0, max: 5000 };
     }
-    console.log('totalPrices :', totalPrices);
   
     return {
       min: Math.min(...totalPrices),

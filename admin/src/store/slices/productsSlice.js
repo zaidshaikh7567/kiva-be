@@ -215,6 +215,7 @@ const productsSlice = createSlice({
       minPrice: '',
       maxPrice: '',
       stockFilter: 'all',
+      bandFilter: 'all',
       sortBy: 'newest'
     }
   },
@@ -249,7 +250,6 @@ const productsSlice = createSlice({
         filtered = filtered.filter(product => {
           const categoryId = product.category?._id || product.categoryId;
           const matches = categoryId === state.filters.category;
-          console.log('Product:', product.title, 'Category ID:', categoryId, 'Filter:', state.filters.category, 'Matches:', matches);
           return matches;
         });
       }
@@ -274,6 +274,15 @@ const productsSlice = createSlice({
           filtered = filtered.filter(product => product.quantity === 0);
         } else if (state.filters.stockFilter === 'low-stock') {
           filtered = filtered.filter(product => product.quantity > 0 && product.quantity <= 10);
+        }
+      }
+
+      // Apply band filter
+      if (state.filters.bandFilter && state.filters.bandFilter !== 'all') {
+        if (state.filters.bandFilter === 'yes') {
+          filtered = filtered.filter(product => product.isBand === true);
+        } else if (state.filters.bandFilter === 'no') {
+          filtered = filtered.filter(product => product.isBand !== true);
         }
       }
 
@@ -328,6 +337,7 @@ const productsSlice = createSlice({
         minPrice: '',
         maxPrice: '',
         stockFilter: 'all',
+        bandFilter: 'all',
         sortBy: 'newest'
       };
       state.filteredItems = [...state.allItems];
@@ -402,6 +412,15 @@ const productsSlice = createSlice({
             filtered = filtered.filter(product => product.quantity === 0);
           } else if (state.filters.stockFilter === 'low-stock') {
             filtered = filtered.filter(product => product.quantity > 0 && product.quantity <= 10);
+          }
+        }
+
+        // Apply band filter
+        if (state.filters.bandFilter && state.filters.bandFilter !== 'all') {
+          if (state.filters.bandFilter === 'yes') {
+            filtered = filtered.filter(product => product.isBand === true);
+          } else if (state.filters.bandFilter === 'no') {
+            filtered = filtered.filter(product => product.isBand !== true);
           }
         }
 

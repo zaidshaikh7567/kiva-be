@@ -12,7 +12,6 @@ const OrderSuccess = () => {
   const orderData = useSelector(selectCurrentOrder);
   const loading = useSelector(selectOrdersLoading);
   const [hasFetched, setHasFetched] = useState(false);
-  console.log('orderData :', orderData);
 
   // Fetch order data by ID
   useEffect(() => {
@@ -83,7 +82,6 @@ const OrderSuccess = () => {
   const orderNumber = orderData.orderNumber || orderData._id;
   const shippingAddress = orderData.shippingAddress || {};
   const items = orderData.items || [];
-  console.log('items :', items);
   
   // Calculate subtotal from items (sum of totalPrice for each item)
   const calculatedSubtotal = items.reduce((sum, item) => {

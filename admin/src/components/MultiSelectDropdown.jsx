@@ -11,7 +11,6 @@ const MultiSelectDropdown = ({
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
-    console.log('value :', value);
 
   // Handle outside click to close dropdown
   useEffect(() => {

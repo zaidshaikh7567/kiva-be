@@ -37,10 +37,8 @@ const CartProductDetail = () => {
   const [selectedMetal, setSelectedMetal] = useState(null);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedCenterStone, setSelectedCenterStone] = useState(null);
-  console.log('selectedCenterStone :', selectedCenterStone);
   const [selectedCarat, setSelectedCarat] = useState(null);
   const [cartItem, setCartItem] = useState(null);
-  // console.log('cartItem :', cartItem);
 
   // Redux selectors
   const product = useSelector(selectCurrentProduct);
@@ -49,7 +47,6 @@ const CartProductDetail = () => {
   const cartItemLoading = useSelector(selectCurrentCartItemLoading);
   const cartItemError = useSelector(selectCurrentCartItemError);
   const stones = useSelector(selectStones);
-  // console.log('stones :', stones);
   const stonesLoading = useSelector(selectStonesLoading);
   const categories = useSelector(selectCategories);
   const metals = useSelector(selectMetals);
@@ -70,7 +67,6 @@ const CartProductDetail = () => {
     if (currentCartItem && cartItemId) {
       const foundItem = currentCartItem;
       setCartItem(foundItem);
-      console.log('foundItem :', foundItem);
 
       // Extract product from cart item (API structure has nested product)
       const cartProduct = foundItem.product || foundItem;
@@ -92,7 +88,6 @@ const CartProductDetail = () => {
       }
 
       // Set metal selection if available (API structure has metal and purityLevel)
-      console.log('foundItem :', foundItem);
       if (foundItem.metal) {
         const metal = foundItem.metal;
         const purityLevel = foundItem.purityLevel || {};
@@ -120,10 +115,8 @@ const CartProductDetail = () => {
 
       // Set stone selection if available (API structure has stoneType)
       if (foundItem.stoneType) {
-      console.log('foundItem :', foundItem);
         const stoneType = foundItem.stoneType;
         if (stoneType.name) {
-          console.log('stoneType----------------->1 :', stoneType);
           const stoneId = stoneType._id || stoneType.id;
           setSelectedCarat(prev => {
             if (prev && prev.id === stoneId && prev.name === stoneType.name) {
@@ -164,7 +157,6 @@ const CartProductDetail = () => {
   useEffect(() => {
     // If we have cart item with stoneType name, use that
     if (cartItem?.stoneType?.name && !selectedCarat) {
-      console.log('stoneType----------------->2 :', cartItem);
       setSelectedCarat({
         name: cartItem.stoneType.name,
         id: cartItem.stoneType._id || cartItem.stoneType.id,
@@ -180,7 +172,6 @@ const CartProductDetail = () => {
     }
     // Otherwise, use product's default stoneType
     else if (product?.stoneType?.name && !selectedCarat && !cartItem?.stoneType) {
-      console.log('stoneType----------------->3 :', product);
       setSelectedCarat({
         name: product.stoneType.name,
         id: product.stoneType._id || product.stoneType.id,
@@ -198,7 +189,6 @@ const CartProductDetail = () => {
     else if (cartItem?.stoneTypeId && stones.length > 0 && !selectedCarat) {
       const stone = stones.find(s => s._id === cartItem.stoneTypeId);
       if (stone?.name) {
-        console.log('stoneType----------------->4 :', stone);
         setSelectedCarat({
           name: stone.name,
           id: stone._id || stone.id,
@@ -427,7 +417,6 @@ const CartProductDetail = () => {
       }
 
       // Add stone type if selected - use selected stone ID if available
-      console.log('selectedCarat--------&&& :', selectedCarat);
       if (selectedCarat) {
         if (typeof selectedCarat === 'object' && selectedCarat.id) {
           // Use ID from selectedCarat object
@@ -444,7 +433,6 @@ const CartProductDetail = () => {
               : (stone.name.toLowerCase() === selectedCarat.name?.toLowerCase() ||
                 stone.name.toLowerCase().includes(selectedCarat.name?.toLowerCase()))
           );
-          console.log('selectedStone :', selectedStone);
 
           if (selectedStone?._id) {
             cartData.stoneTypeId = selectedStone._id;
@@ -458,7 +446,6 @@ const CartProductDetail = () => {
       // Optimistic update: Update quantity immediately for fast UX
       dispatch(updateQuantity({ id: cartItemId, quantity: quantity }));
 
-      console.log('isAuthenticated :', isAuthenticated);
       if (isAuthenticated) {
         // Update via API
         await dispatch(updateCartItem({
@@ -513,11 +500,7 @@ const CartProductDetail = () => {
   const getFinalPrice = () => {
     const basePrice = product?.price || 0;
     const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
-    console.log('metalMultiplier :', metalMultiplier);
-    console.log('basePrice :', basePrice);
     const centerStonePrice = selectedCenterStone ? selectedCenterStone.price : 0;
-    console.log('centerStonePrice :', centerStonePrice);
-    console.log('(basePrice * metalMultiplier) :', (basePrice * metalMultiplier));
     return (basePrice * metalMultiplier) + centerStonePrice;
   };
 

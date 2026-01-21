@@ -110,12 +110,17 @@ const Products = () => {
     dispatch(setPagination({ page: 1 }));
   };
 
+  const handleBandFilterChange = (value) => {
+    dispatch(setFilters({ bandFilter: value }));
+    dispatch(setPagination({ page: 1 }));
+  };
+
   const clearAllFilters = () => {
     dispatch(clearFilters());
   };
 
   // Check if any filters are active
-  const hasActiveFilters = filters.search || filters.category !== 'all' || filters.minPrice || filters.maxPrice || filters.sortBy !== 'newest';
+  const hasActiveFilters = filters.search || filters.category !== 'all' || filters.minPrice || filters.maxPrice || filters.bandFilter !== 'all' || filters.sortBy !== 'newest';
 
   const handleDeleteProduct = (product) => {
     setProductToDelete(product);
@@ -253,10 +258,19 @@ const Products = () => {
       <div className="flex flex-col sm:flex-row items-center justify-end gap-4 w-full">
   {/* Button container */}
   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+    {/* Refresh Button */}
+    <button 
+      onClick={handleRefresh}
+      disabled={loading}
+      className="flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50 w-full sm:w-auto outline-none"
+    >
+      <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+      <span className="text-sm sm:text-base">Refresh</span>
+    </button>
     {/* Filters Button */}
     <button 
       onClick={() => setShowFilters(!showFilters)}
-      className={`flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 border rounded-lg transition-colors font-montserrat-medium-500 w-full sm:w-auto ${
+      className={`flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 border rounded-lg transition-colors font-montserrat-medium-500 w-full sm:w-auto outline-none ${
         showFilters || hasActiveFilters 
           ? 'border-primary bg-primary text-white' 
           : 'border-gray-200 hover:bg-gray-50'
@@ -270,17 +284,7 @@ const Products = () => {
         </span>
       )}
     </button>
-
-    {/* Refresh Button */}
-    <button 
-      onClick={handleRefresh}
-      disabled={loading}
-      className="flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-montserrat-medium-500 disabled:opacity-50 w-full sm:w-auto"
-    >
-      <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-      <span className="text-sm sm:text-base">Refresh</span>
-    </button>
-
+  
     {/* Add Product Button */}
     <button 
       onClick={handleOpenAddModal}
@@ -364,6 +368,24 @@ const Products = () => {
               />
             </div>
 
+            {/* Band Filter */}
+            <div>
+              <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                Band
+              </label>
+              <CustomDropdown
+                options={[
+                  { value: 'all', label: 'All Products' },
+                  { value: 'yes', label: 'Bands Only' },
+                  { value: 'no', label: 'Non-Bands Only' }
+                ]}
+                value={filters.bandFilter || 'all'}
+                onChange={handleBandFilterChange}
+                placeholder="Filter by Band"
+                searchable={false}
+              />
+            </div>
+
             {/* Sort */}
             <div>
               <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
@@ -379,7 +401,10 @@ const Products = () => {
             </div>
 
             {/* Price Range */}
-            <div>
+          
+          </div>
+          <div className='grid grid-cols-1 xl:grid-cols-1 xxl:grid-cols-3 gap-4 mt-2'>
+          <div>
               <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
                 Price Range
               </label>
@@ -401,6 +426,7 @@ const Products = () => {
               </div>
             </div>
           </div>
+
 
           {/* Active Filters Summary */}
           {hasActiveFilters && (
@@ -494,6 +520,9 @@ const Products = () => {
                     Category
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
+                 Band
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
                     Price
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-montserrat-semibold-600 text-black whitespace-nowrap">
@@ -535,6 +564,11 @@ const Products = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-montserrat-medium-500 text-black capitalize">
                         {product?.category?.name || 'No category'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`text-sm font-montserrat-medium-500 text-black capitalize   px-2 py-1 rounded-full ${product?.isBand ? 'bg-primary text-white' : ''}`}>
+                        {product?.isBand ? 'Yes' : '-'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

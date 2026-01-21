@@ -33,14 +33,12 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedMetal, setSelectedMetal] = useState(null);
   const [selectedRingSize, setSelectedRingSize] = useState('');
-  console.log('product :', product);
   const [selectedCarat, setSelectedCarat] = useState(product?.stoneType ? {
     name: product.stoneType.name,
     id: product.stoneType._id || product.stoneType.id,
     price: product.stoneType.price
   } : null);
   const [selectedCenterStone, setSelectedCenterStone] = useState(product?.stoneType ? product.stoneType : null);
-  console.log('selectedCenterStone :', selectedCenterStone);
   const dispatch = useDispatch();
   
   // Currency selectors

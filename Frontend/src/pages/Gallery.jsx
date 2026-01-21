@@ -8,13 +8,11 @@ import ProductDetailsModal from '../components/ProductDetailsModal';
 const Gallery = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
-  console.log('products :', products);
   const productsLoading = useSelector(selectProductsLoading);
   const categories = useSelector(selectCategories);
   
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
-  console.log('selectedCategory :', selectedCategory);
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -29,7 +27,6 @@ const Gallery = () => {
   const mainCategories = useMemo(() => {
     return categories?.filter(cat => !cat.parent) || [];
   }, [categories]);
-  console.log('mainCategories :', mainCategories);
 
   // Find Rings category and its subcategories
   const ringsCategory = useMemo(() => {
@@ -149,7 +146,6 @@ const Gallery = () => {
     return imageList;
   }, [products, selectedCategory, selectedSubcategory, ringsCategory]);
   
-  console.log('allImages :', allImages);
   // Handle fullscreen image view
   const openFullscreen = (image, index) => {
     setFullscreenImage({

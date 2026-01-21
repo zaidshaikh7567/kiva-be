@@ -1,20 +1,11 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, Package, DollarSign, Hash, Tag, Calendar, Image as ImageIcon, Eye, Edit, Sparkles, Droplet, Shield } from 'lucide-react';
+import { X, DollarSign, Hash, Tag, Calendar, Image as ImageIcon, Sparkles, Droplet, Shield } from 'lucide-react';
 import { parseLexicalDescription } from '../helpers/lexicalToHTML';
+import { formatDate } from '../utils/formateDate';
 
 const ProductViewModal = ({ isOpen, onClose, product, onEdit }) => {
-console.log('product :', product);
   if (!isOpen || !product) return null;
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
 
   return createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>

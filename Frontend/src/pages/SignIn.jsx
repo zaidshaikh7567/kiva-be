@@ -55,10 +55,7 @@ const SignIn = () => {
     flow: 'auth-code',
     redirect_uri: window.location.origin, // Explicitly set redirect URI to match backend
     onSuccess: async (codeResponse) => {
-    console.log('codeResponse :', codeResponse);
-      try {
-        console.log('Authorization code received:', codeResponse.code);
-        
+      try {        
         // Send authorization code to backend with redirect URI
         // The redirect URI must match what was used in the OAuth flow
         const redirectUri = window.location.origin;

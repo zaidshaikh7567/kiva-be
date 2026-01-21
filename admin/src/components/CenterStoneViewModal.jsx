@@ -1,16 +1,9 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { useSelector } from 'react-redux';
 import { X, Gem, Edit } from 'lucide-react';
-import { selectCategories } from '../store/slices/categoriesSlice';
 
 const CenterStoneViewModal = ({ isOpen, onClose, centerStone, onEdit }) => {
-console.log('centerStone :', centerStone);
-  const categories = useSelector(selectCategories);
-  console.log('categories :', categories);
-  
   if (!isOpen || !centerStone) return null;
-
   const handleEdit = () => {
     onEdit(centerStone);
     onClose();

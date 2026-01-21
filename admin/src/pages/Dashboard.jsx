@@ -50,13 +50,11 @@ const Dashboard = () => {
   const customers = useSelector(selectUsers);
   const adminData = useSelector(selectUser);
   const products = useSelector(selectAllProducts);
-  console.log('products :', products);
   const metals = useSelector(selectMetals);
   const centerStones = useSelector(selectCenterStones);
   const reviews = useSelector(selectReviews);
   const contacts = useSelector(selectContacts);
   const orders = useSelector(selectAdminOrders);
-  console.log('orders :', orders);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchAllData = async () => {
@@ -228,9 +226,7 @@ const Dashboard = () => {
       { delivered: 0, inProgress: 0, cancelled: 0 }
     );
   }, [orders]);
-  console.log('orderStatusSummary :', orderStatusSummary);
   const lastTwoRevenuePoints = chartData.slice(-2);
-  console.log('lastTwoRevenuePoints :', lastTwoRevenuePoints);
   const revenueGrowth =
     lastTwoRevenuePoints.length === 2 && lastTwoRevenuePoints[0].revenue > 0
       ? ((lastTwoRevenuePoints[1].revenue - lastTwoRevenuePoints[0].revenue) / lastTwoRevenuePoints[0].revenue) * 100

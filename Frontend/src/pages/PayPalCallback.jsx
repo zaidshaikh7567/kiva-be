@@ -16,7 +16,6 @@ const PayPalCallback = () => {
     const handlePayPalCallback = async () => {
       // Get token from URL (PayPal returns token in query params)
       const token = searchParams.get('token');
-      console.log('token :', token);
 
       if (!token) {
         // Check if this is a cancel callback
@@ -25,7 +24,6 @@ const PayPalCallback = () => {
           setStatus('error');
           setErrorMessage('Payment was cancelled. You can try again.');
           setTimeout(() => {
-            console.log('redirecting to checkout--------------1');
             navigate('/checkout');
           }, 3000);
           return;
@@ -34,7 +32,6 @@ const PayPalCallback = () => {
         setStatus('error');
         setErrorMessage('No payment token found. Please try again.');
         setTimeout(() => {
-          console.log('redirecting to checkout--------------2');
           navigate('/checkout');
         }, 3000);
         return;
@@ -43,16 +40,13 @@ const PayPalCallback = () => {
       try {
         // Capture PayPal payment using the token (which is the order ID)
         const result = await dispatch(capturePayPalPayment({ paypalOrderId: token, paymentMethod: 'paypal' }));
-        console.log('result :', result);
 
         // Check if the action was fulfilled (success) or rejected (error)
         if (capturePayPalPayment.fulfilled.match(result)) {
           const orderResponse = result.payload;
-          console.log('orderResponse :', orderResponse);
           
           // Handle different response structures
           const orderData = orderResponse?.data || orderResponse;
-          console.log('orderData :', orderData);
 
           if (!orderData) {
             throw new Error('Order data not found in response');
@@ -85,7 +79,6 @@ const PayPalCallback = () => {
           setStatus('error');
           setErrorMessage(errorMsg);
           setTimeout(() => {
-            console.log('redirecting to checkout--------------3');
             navigate('/checkout');
           }, 5000);
         }
@@ -94,7 +87,6 @@ const PayPalCallback = () => {
         setStatus('error');
         setErrorMessage(error.message || 'An error occurred while processing your payment. Please try again.');
         setTimeout(() => {
-          console.log('redirecting to checkout--------------4');
           navigate('/checkout');
         }, 5000);
       }

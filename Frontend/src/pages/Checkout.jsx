@@ -20,12 +20,10 @@ const Checkout = () => {
   const { creating: isPlacingOrder } = useSelector(state => state.orders);
   const currentCurrency = useSelector(selectCurrentCurrency);
   const exchangeRate = useSelector(selectExchangeRate);
-  console.log('exchangeRate :', exchangeRate);
   
   const [step, setStep] = useState(1); // 1: Shipping, 2: Review, 3: Payment
   const [createdOrder, setCreatedOrder] = useState(null);
   const [paypalOrderId, setPaypalOrderId] = useState(null);
-  console.log('paypalOrderId :', paypalOrderId);
   const [paypalApprovalUrl, setPaypalApprovalUrl] = useState(null);
   const [currencyNotice, setCurrencyNotice] = useState(null);
   
@@ -152,7 +150,6 @@ const Checkout = () => {
       if (createOrderAction.fulfilled.match(result)) {
         const orderResponse = result.payload;
         const responseData = orderResponse.data || orderResponse;
-        console.log('responseData :', responseData);
         
         // Check if this is a PayPal order response
         if (responseData.paypalOrderId) {

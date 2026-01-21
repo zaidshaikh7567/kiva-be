@@ -201,9 +201,6 @@ const Rings = () => {
         return [...rings].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
       }
     }, [filteredRings, sortBy]);
-
-    console.log('filteredRings :', filteredRings);
-    console.log(sortedRings,'sortedRings');
     
   return (
     <div className="bg-secondary min-h-screen">

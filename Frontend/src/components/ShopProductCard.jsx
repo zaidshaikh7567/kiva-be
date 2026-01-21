@@ -23,11 +23,8 @@ import { transformMetalsToSelectorOptions } from '../constants';
 import { capitalizeFirstLetter } from '../helpers/capitalizeFirstLetter';
 
 const ShopProductCard = ({ product, viewMode = 'grid', showQuickActions = true }) => {
-console.log('product--- :', product);
   const [showQuickView, setShowQuickView] = useState(false);
-  // console.log('showQuickView :', showQuickView);
   const [showAddToCartModal, setShowAddToCartModal] = useState(false);
-  // console.log('showAddToCartModal :', showAddToCartModal);
   const [selectedRingSize, setSelectedRingSize] = useState('');
   const [selectedMetal, setSelectedMetal] = useState(null);
   const dispatch = useDispatch();
@@ -47,7 +44,6 @@ console.log('product--- :', product);
 const getFinalPrice = () => {
   if (!product) return 0;
   const basePrice = product?.price || 0;
-  console.log('basePrice :', basePrice);
   const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
   const centerStonePrice = selectedCarat ? selectedCarat.price : 0;
   return (basePrice * metalMultiplier) + centerStonePrice;
@@ -148,7 +144,6 @@ const getFinalPrice = () => {
 
       // Use API for authenticated users
      const response = await dispatch(addCartItem(cartData));
-     console.log('response$%^%^ :', response);
      if (response.payload.success) {
       let successMessage = `${product.title || product.name} added to cart!`;
       const options = [];

@@ -194,7 +194,6 @@ const countryOptions = useMemo(() => {
 
   const handleBillingCountryChange = (value) => {
     const country = Country.getAllCountries().find(c => c.isoCode === value);
-    console.log('country :', country);
     setSelectedBillingCountry(country);
     setSelectedBillingState(null); // Reset state when country changes
     

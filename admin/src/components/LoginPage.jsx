@@ -71,7 +71,6 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
     flow: 'auth-code',
     onSuccess: async (codeResponse) => {
       try {
-        console.log('Admin authorization code received:', codeResponse.code);
         
         // Send authorization code to backend
         const redirectUri = window.location.origin;

@@ -34,7 +34,6 @@ const ProfileForm = () => {
   
   // Default dummy user image
   const defaultUserImage = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=E0C0B0&color=fff&size=200';
-// console.log(defaultUserImage,'defaultUserImage');
  
   // Update form data when user changes
   useEffect(() => {
@@ -47,7 +46,6 @@ const ProfileForm = () => {
       });
       // Set image preview from user data or localStorage
       // const savedImage = localStorage.getItem(`user_${user.id || user._id}_profileImage`);
-      // console.log(savedImage,'v');
       
       setImagePreview(userImage  || null);
     }

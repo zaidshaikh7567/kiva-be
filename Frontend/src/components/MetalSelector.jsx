@@ -1,17 +1,15 @@
-import React, { useEffect, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchMetals, selectMetals, selectMetalsLoading } from '../store/slices/metalsSlice';
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { selectMetals, selectMetalsLoading } from '../store/slices/metalsSlice';
 import { useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { transformMetalsToSelectorOptions, getMetalColorStyles } from '../constants';
 
 const MetalSelector = ({ selectedMetal, onMetalChange, className = "", product, cartItem }) => {
-  const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
   const loading = useSelector(selectMetalsLoading);
 const pathname = useLocation();
 const isProductDetail = pathname?.pathname?.includes('/product/');
-// console.log('isProductDetail :', isProductDetail);
   // useEffect(() => {
   //   dispatch(fetchMetals());
   // }, [dispatch]);
@@ -84,7 +82,6 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
     });
   }, [allMetalOptions, availableMetalIds, selectedMetalIdFromCart, hasProductMetals]);
   
-  // console.log('displayMetalOptions :', displayMetalOptions);
 
   // If product has no metals configured, show message instead of metal options
   if (!hasProductMetals && product) {
@@ -122,7 +119,6 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
       ) : (
         <div className={`grid ${isProductDetail ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-9' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6'} gap-2`}>
           {displayMetalOptions.map((metal) => {
-          // console.log('metal :', metal);
             const isDisabled = !metal.isAvailable;
             const isSelected = selectedMetal?.id === metal.id;
             

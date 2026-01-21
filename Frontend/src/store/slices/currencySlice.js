@@ -213,7 +213,6 @@ const currencySlice = createSlice({
         state.currentCurrency = action.payload.currency;
         state.detectedCountry = action.payload.countryName;
         state.locationDetectionMethod = action.payload.method || 'geolocation';
-        console.log(`Location detected: ${action.payload.countryName}, Currency set to: ${action.payload.currency}`);
       })
       .addCase(detectUserLocation.rejected, (state, action) => {
         state.loading = false;

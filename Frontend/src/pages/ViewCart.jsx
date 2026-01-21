@@ -28,7 +28,6 @@ const ViewCart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalQuantity, totalPrice, loading } = useSelector(state => state.cart);
-  console.log('items :', items);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [showClearCartModal, setShowClearCartModal] = useState(false);
@@ -65,7 +64,6 @@ const ViewCart = () => {
   };
 
   const handleRemoveItem = (id) => {
-  console.log('id :', id);
     dispatch(deleteCartItem(id));
     dispatch(removeFromCart(id));
   };
@@ -84,7 +82,6 @@ const ViewCart = () => {
   };
 
   const handleViewProduct = (item) => {
-    console.log('item :', item);
     // Close cart and navigate to cart product detail page
     dispatch(closeCart());
     const cartItemId = item._id || item.id || item.cartId;

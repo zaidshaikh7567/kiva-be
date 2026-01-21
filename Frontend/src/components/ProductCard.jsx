@@ -36,25 +36,20 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const metals = useSelector(selectMetals);
   const isList = viewMode === "list";
   const stones = useSelector(selectStones);
-  console.log('product :', product);
   const [selectedCarat, setSelectedCarat] = useState(product?.stoneType ? {
     name: product.stoneType.name,
     id: product.stoneType._id || product.stoneType.id,
     price: product.stoneType.price
   } : null);
   const [selectedCenterStone, setSelectedCenterStone] = useState(product?.stoneType ? product.stoneType : null);
-  console.log('selectedCarat :', selectedCarat);
-  console.log('selectedCenterStone :', selectedCenterStone); 
   
   const getFinalPrice = () => {
     if (!product) return 0;
     const basePrice = product?.price || 0;
-    console.log('basePrice :', basePrice);
     const metalMultiplier = selectedMetal ? selectedMetal.priceMultiplier : 1;
     const centerStonePrice = selectedCenterStone ? selectedCenterStone.price : 0;
     return (basePrice * metalMultiplier) + centerStonePrice;
   };
-  console.log('getFinalPrice :', getFinalPrice());
   // Check if product is a ring
   const isRing = () => {
     const categoryName = product?.category?.name?.toLowerCase();
@@ -249,7 +244,6 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
       toast.error('Invalid product');
       return;
     }
-    console.log('product :', product);
 
     // Check if product is available
     if (!product) {

@@ -73,7 +73,6 @@ const Cart = () => {
   };
 
   const handleViewProduct = (item) => {
-  console.log('item :', item);
     // Close cart and navigate to cart product detail page
     dispatch(closeCart());
     const cartItemId = item._id || item.id || item.cartId;

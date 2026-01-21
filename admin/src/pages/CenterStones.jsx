@@ -111,7 +111,6 @@ const CenterStones = () => {
   };
 
   const handleSubmitCenterStone = async (data) => {
-  console.log('data :', data);
     if (modalMode === 'add') {
       // Add mode
       try {

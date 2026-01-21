@@ -98,7 +98,6 @@ const OrdersList = () => {
   };
 
   const displayOrders = orders.length > 0 ? orders : [];
-  console.log('displayOrders :', displayOrders);
 
   const statusOptions = [
     { value: '', label: 'All Status' },

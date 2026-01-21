@@ -21,6 +21,7 @@ import {
 import Pagination from '../components/Pagination';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import toast from 'react-hot-toast';
+import { formatDate } from '../utils/formateDate';
 
 const Favorites = () => {
   const dispatch = useDispatch();
@@ -100,17 +101,6 @@ const Favorites = () => {
     );
   });
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   return (
     <div className="space-y-6">

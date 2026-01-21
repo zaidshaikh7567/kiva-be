@@ -27,6 +27,7 @@ import {
   clearError
 } from '../store/slices/reviewsSlice';
 import FormInput from '../components/FormInput';
+import { formatDate } from '../utils/formateDate';
 
 const Reviews = () => {
   const dispatch = useDispatch();
@@ -155,18 +156,6 @@ const Reviews = () => {
     } else {
       toast.error('Failed to delete review');
     }
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   // Rating filter options

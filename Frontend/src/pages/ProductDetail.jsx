@@ -421,7 +421,6 @@ const ProductDetail = () => {
     }
   };
 
-  console.log('selectedCenterStone :', selectedCenterStone);
   const getFinalPrice = () => {
     if (!product) return 0;
     const basePrice = product.price;

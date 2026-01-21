@@ -42,6 +42,7 @@ import {
   clearCurrentOrder
 } from '../store/slices/ordersSlice';
 import FormInput from '../components/FormInput';
+import { formatDate } from '../utils/formateDate';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -50,18 +51,6 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 
 const formatCurrency = (value = 0) => currencyFormatter.format(Number(value) || 0);
 
-const formatOrderDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  try {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  } catch {
-    return dateString;
-  }
-};
 
 const formatOrderNumber = (order) => {
   if (!order) return 'N/A';
@@ -324,7 +313,7 @@ const Orders = () => {
         'Customer',
       Email: order.user?.email || shipping.email || '',
       Phone: order.phone || shipping.phone || '',
-      Date: formatOrderDate(order.createdAt || order.date),
+      Date: formatDate(order.createdAt || order.date),
       Total: formatCurrency(order.totals?.total || order.finalTotal || order.total || 0),
       ItemCount: items.length,
       Items: items
@@ -626,7 +615,7 @@ const Orders = () => {
                       <div className="flex items-center space-x-2">
                         <Calendar className="w-4 h-4 text-black-light" />
                         <span className="font-montserrat-regular-400 text-black">
-                          {formatOrderDate(orderDate)}
+                          {formatDate(orderDate)}
                         </span>
                       </div>
                     </td>

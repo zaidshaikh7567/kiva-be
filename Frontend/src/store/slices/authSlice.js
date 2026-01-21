@@ -66,7 +66,6 @@ export const forgotPassword = createAsyncThunk(
   async (email, { rejectWithValue }) => {
     try {
       const response = await api.post(API_METHOD.auth.forgotPassword, { email });
-      console.log('response :', response);
       return response.data.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

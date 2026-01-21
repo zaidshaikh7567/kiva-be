@@ -7,7 +7,6 @@ import { fetchCategories, selectCategories, selectCategoriesLoading } from '../s
 import FormInput from './FormInput';
 
 const CenterStoneModal = ({ isOpen, onClose, onSubmit, loading, error, centerStoneData, mode = 'add' }) => {
-console.log('error :', error);
   const dispatch = useDispatch();
   const categories = useSelector(selectCategories);
   const categoriesLoading = useSelector(selectCategoriesLoading);

@@ -34,6 +34,7 @@ import Pagination from "../components/Pagination";
 import CustomDropdown from "../components/CustomDropdown";
 import FormInput from "../components/FormInput";
 import { toast } from 'react-hot-toast';
+import {formatDate} from "../utils/formateDate";
 
 const SERVICE_OPTIONS = [
   { value: "all", label: "All Services" },
@@ -264,17 +265,6 @@ const Contacts = () => {
     setContactToDelete(null);
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const getServiceLabel = (service) => {
     const option = SERVICE_OPTIONS.find((opt) => opt.value === service);
@@ -316,7 +306,6 @@ const Contacts = () => {
   });
 
   if (loading && contacts.length === 0) {
-    console.log("loading :", loading);
     return (
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">

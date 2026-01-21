@@ -92,7 +92,6 @@ const body ={
   otp: formData.otp,
   newPassword: formData.password,
 }
-console.log('body :', body);
     const result = await dispatch(
       resetPassword(body)
     );

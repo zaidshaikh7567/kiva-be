@@ -63,7 +63,6 @@ const Metals = () => {
 
   // Handle modal submit
   const handleModalSubmit = (metalData) => {
-  console.log('metalData :', metalData);
     if (modalMode === 'add') {
       dispatch(createMetal(metalData));
     } else {

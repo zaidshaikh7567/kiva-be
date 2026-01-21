@@ -135,9 +135,6 @@ const Categories = () => {
       const productCategoryId = product.category?._id || product.categoryId;
       return productCategoryId === categoryId;
     });
-    if (matchingProducts.length > 0) {
-      console.log(`Category ${categoryId} has ${matchingProducts.length} products:`, matchingProducts.map(p => p.title));
-    }
     return matchingProducts.length;
   };
 
@@ -232,12 +229,10 @@ const Categories = () => {
 
               // Get product count for main category
               const mainCategoryProductCount = getProductCount(mainCategory?._id);
-              // console.log('mainCategoryProductCount :', mainCategoryProductCount);
               
               // Get product count for all subcategories combined
               const totalSubCategoryProductCount = subCategories.reduce((total, subCat) => {
                 const count = getProductCount(subCat?._id);
-                // console.log(`SubCategory ${subCat.name} (${subCat._id}): ${count} products`);
                 return total + count;
               }, 0);
               

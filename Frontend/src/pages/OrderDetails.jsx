@@ -19,16 +19,12 @@ import PriceDisplay from '../components/PriceDisplay';
 const OrderDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  console.log('id :', id);
   const dispatch = useDispatch();
   const orderData = useSelector(selectCurrentOrder);
-  console.log('orderData :', orderData);
   const loading = useSelector(selectOrdersLoading);
   const [hasFetched, setHasFetched] = useState(false);
   const cardDetails = orderData?.cardDetails || {};
-  console.log('cardDetails :', Object.keys(cardDetails).length > 0 ? cardDetails : null);
   // Fetch order data by ID
-  console.log('!hasFetched :', !hasFetched);
   useEffect(() => {
     if (id && !hasFetched) {
       setHasFetched(true);
