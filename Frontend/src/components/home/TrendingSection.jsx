@@ -65,7 +65,7 @@ const TrendingSection = () => {
             <img
               src={product?.image}
               alt={product?.name}
-              className="w-full h-80 md:object-fill rounded-md"
+              className="w-full h-80 md:object-contain rounded-md"
             />
             <div className="mt-4 text-xl font-montserrat-medium-500 text-black">
               {product?.name}

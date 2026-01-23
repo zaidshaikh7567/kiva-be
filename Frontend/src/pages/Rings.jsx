@@ -384,7 +384,7 @@ const Rings = () => {
             </div>
           ) : sortedRings.length > 0 ? (
             <div 
-              className={`grid gap-4 md:gap-8 transition-all duration-300 ${
+              className={`grid gap-4 md:gap-6 transition-all duration-300 ${
                 isPending ? 'opacity-60 pointer-events-none' : 'opacity-100 pointer-events-auto'
               } ${
                 viewMode === "grid" 
