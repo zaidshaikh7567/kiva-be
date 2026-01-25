@@ -31,12 +31,12 @@ const ViewCart = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [showClearCartModal, setShowClearCartModal] = useState(false);
-  
+  const [showTooltip, setShowTooltip] = useState(false);
   // Check if user is authenticated
   const isAuthenticated = !!localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
   const MAX_CART_ITEMS = 5;
   const remainingSlots = MAX_CART_ITEMS - items.length;
-
+  const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_URL;
   const handleQuantityChange = async (id, newQuantity) => {
     if (newQuantity < 1) return;
     
@@ -78,7 +78,11 @@ const ViewCart = () => {
   };
 
   const handleCheckout = () => {
-    navigate('/checkout');
+    // navigate('/checkout');
+     setShowTooltip(true);
+
+    // hide after 3 sec
+    setTimeout(() => setShowTooltip(false), 6000);
   };
 
   const handleViewProduct = (item) => {
@@ -96,6 +100,7 @@ const ViewCart = () => {
     setIsProductModalOpen(false);
     setSelectedProduct(null);
   };
+
 
   return (
     <div className="min-h-screen bg-secondary py-8 px-4 sm:px-6 lg:px-8">
@@ -175,12 +180,12 @@ const ViewCart = () => {
                 {items.map((item) => (
                   <div 
                     key={item.id} 
-                    className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 p-6"
+                    className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 p-4 sm:p-6"
                   >
                     <div className="flex flex-col sm:flex-row gap-4">
                       {/* Product Image - Clickable */}
                       <div 
-                        className="w-full sm:w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity duration-300"
+                        className="w-full sm:w-32 h-44 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity duration-300"
                         onClick={() => handleViewProduct(item)}
                       >
                         <img
@@ -278,7 +283,7 @@ const ViewCart = () => {
 
             {/* Order Summary Section */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 sticky top-8">
                 <h2 className="text-xl font-montserrat-semibold-600 text-black mb-6">
                   Order Summary
                 </h2>
@@ -296,7 +301,7 @@ const ViewCart = () => {
                     />
                   </div>
                   
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center sm:text-md text-sm">
                     <span className="text-black-light font-montserrat-regular-400">
                       Shipping
                     </span>
@@ -319,13 +324,46 @@ const ViewCart = () => {
                 </div>
 
                 {/* Checkout Button */}
-                <button
-                  onClick={handleCheckout}
-                  className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-lg mb-4"
-                >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span>Proceed to Checkout</span>
-                </button>
+              <div className="relative w-full">
+  <button
+    onClick={handleCheckout}
+    className="w-full bg-primary text-white font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2 text-md sm:text-lg mb-4"
+  >
+    <ShoppingBag className="w-5 h-5" />
+    <span>Proceed to Checkout</span>
+  </button>
+
+  {showTooltip && (
+    <div className="
+      absolute 
+      z-50
+      bottom-full 
+      mb-3
+      left-1/2 
+      sm:-translate-x-[60%]
+      -translate-x-[50%]
+      w-[90vw] 
+      max-w-md
+      bg-black 
+      text-white 
+      text-sm 
+      px-4 
+      py-3 
+      rounded-lg 
+      shadow-xl
+    ">
+      <p className="text-left leading-relaxed">
+        ⚠ <strong>Our online payment system is currently under development.</strong><br />
+        For placing orders or payment assistance, please connect with us on <span className="font-semibold"><a href={WHATSAPP_URL} target='_blank'>WhatsApp</a></span>.<br />
+        Thank you for your patience and support.
+      </p>
+
+      {/* Arrow */}
+      <div className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-black" />
+    </div>
+  )}
+</div>
+
 
                 {/* Continue Shopping */}
                 <Link

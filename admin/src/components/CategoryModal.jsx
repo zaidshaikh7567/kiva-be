@@ -11,6 +11,8 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
     image: null
   });
   const [imagePreview, setImagePreview] = useState(null);
+  console.log(imagePreview,'imagePreview');
+  
   const [dragActive, setDragActive] = useState(false);
 
   // Update form data when modal opens or categoryData changes
@@ -117,11 +119,13 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
   };
 
   const handleRemoveImage = () => {
+    console.log('fhdfh');
+    
     setFormData(prev => ({
       ...prev,
       image: null
     }));
-    setImagePreview(mode === 'edit' && categoryData?.image ? categoryData.image : null);
+    setImagePreview(mode === 'edit' && categoryData?.image ?null : null);
   };
 
   const handleSubmit = (e) => {

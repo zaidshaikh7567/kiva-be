@@ -95,7 +95,7 @@ const contactInfo = [
             <div className="sm:col-span-2 lg:col-span-2">
               <div className="mb-4">
                 {/* Your Logo with dark background for white/gold text visibility */}
-                <div className="inline-block bg-gray-600 rounded-lg p-1 shadow-2xl">
+                <div className="inline-block bg-primary-dark rounded-lg p-1 shadow-2xl">
                   <img 
                     src={Logo} 
                     alt="KIVA Diamond Logo" 

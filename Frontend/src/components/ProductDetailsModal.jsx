@@ -29,6 +29,8 @@ import { capitalizeFirstLetter } from '../helpers/capitalizeFirstLetter';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(0);
+  console.log(product,'product');
+  
   const cartLoading = useSelector(selectCartLoading);
   const [quantity, setQuantity] = useState(1);
   const [selectedMetal, setSelectedMetal] = useState(null);
@@ -450,7 +452,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                 </div>
 
                 {/* Center Stone Selection */}
-                {isRing && (
+                {/* {isRing && ( */}
                   <CenterStoneSelector
                     className="mb-6"
                     stones={stones}
@@ -458,8 +460,9 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                     selectedStone={selectedCarat}
                     onSelect={handleCaratChange}
                     required
+                    isRing={isRing}
                   />
-                )}
+                {/* )} */}
 
                 {/* Ring Size Selection */}
                 {isRing && (

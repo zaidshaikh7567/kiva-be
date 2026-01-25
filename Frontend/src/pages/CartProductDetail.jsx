@@ -645,7 +645,7 @@ const CartProductDetail = () => {
                 </div>
 
                 {/* Center Stone Selection */}
-                {isRing && (
+                {/* {isRing && ( */}
                   <CenterStoneSelector
                     className="mb-6"
                     stones={stones}
@@ -653,8 +653,9 @@ const CartProductDetail = () => {
                     selectedStone={selectedCarat}
                     onSelect={handleCaratChange}
                     required
+                    isRing={isRing}
                   />
-                )}
+                {/* )} */}
 
                 {/* Ring Size Selection */}
                 {isRing && (

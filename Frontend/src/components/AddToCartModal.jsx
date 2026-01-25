@@ -104,7 +104,7 @@ const AddToCartModal = ({
         </div>
 
         {/* Center Stone Selection (if ring) */}
-        {isRing && (
+        {/* {isRing && ( */}
           <CenterStoneSelector
             className="mb-6"
             stones={stones}
@@ -112,8 +112,9 @@ const AddToCartModal = ({
             selectedStone={selectedCarat}
             onSelect={onCaratChange}
             required
+            isRing={isRing}
           />
-        )}
+        {/* )} */}
 
         {/* Ring Size Selection (if ring) */}
         {isRing && (

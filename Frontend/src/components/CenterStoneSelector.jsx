@@ -7,11 +7,13 @@ const CenterStoneSelector = ({
   loading = false,
   selectedStone,
   onSelect,
-  label = 'Center Stone',
+  label ="",
   required = false,
   showPrice = false,
   className = '',
-  hideIfEmpty = true
+  hideIfEmpty = true,
+  isRing
+  
 }) => {
   if (!onSelect) return null;
 
@@ -53,7 +55,7 @@ const CenterStoneSelector = ({
     <div className={className}>
       <h3 className="text-lg font-montserrat-semibold-600 text-black mb-3 flex items-center gap-2">
         <Gem className="w-5 h-5 text-primary" />
-        {label}
+      {isRing?'Center Stone':"Total Carat Weight"}
         {required && <span className="text-red-500">*</span>}
       </h3>
 
@@ -78,7 +80,7 @@ const CenterStoneSelector = ({
                     : 'border-gray-200 bg-white text-black hover:border-primary hover:bg-primary-light'
                 }`}
               >
-                <span>{stone.name}</span>
+                <span>{stone.name}{isRing ?"":"W"}</span>
                 {showPrice && stone.price > 0 && (
                   <span className="ml-2 text-xs">
                     <PriceDisplay price={stone.price} variant="small" />

@@ -25,7 +25,7 @@ const Header = () => {
         {/* Logo */}
         <div className="  rounded-md">
           <Link to="/" className="flex-shrink-0 ">
-            {/* <div className="inline-block bg-gray-600 rounded-lg p-1 shadow-2xl">
+            <div className="inline-block bg-primary-dark rounded-lg p-1 shadow-2xl">
               <img
                 src={Logo}
                 alt="KIVA Diamond Logo"
@@ -34,8 +34,8 @@ const Header = () => {
                   filter: "brightness(1.1) contrast(1.1)",
                 }}
               />
-            </div> */}
-              <div div className="text-xl font-serif text-primary">Aurora</div>
+            </div>
+              {/* <div div className="text-xl font-serif text-primary">Aurora</div> */}
           </Link>
         </div>
         {/* <

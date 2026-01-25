@@ -67,8 +67,13 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
     }));
   };
 
-  const handleColorSelect = (value) => {
-    const selectedColor = colorOptions.find(opt => opt.value === value);
+  const handleColorSelect = (e) => {
+    const value = e.target.value; // ✅ FIX
+
+    console.log(value);
+    
+    const selectedColor = colorOptions?.find(opt => opt.value === value);
+
     setFormData(prev => ({
       ...prev,
       color: value,

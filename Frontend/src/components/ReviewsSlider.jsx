@@ -165,30 +165,30 @@ const ReviewsSlider = () => {
     reviews.length > 0
       ? reviews
       : [
-          {
-            _id: "1",
-            name: "Emily Johnson",
-            rating: 5,
-            comment:
-              "Absolutely stunning jewelry! The craftsmanship is exceptional and the customer service was outstanding.",
-            createdAt: new Date(Date.now() - 259200000).toISOString(),
-          },
-          {
-            _id: "2",
-            name: "Michael Chen",
-            rating: 5,
-            comment:
-              "I ordered a custom ring for my wife and it exceeded all expectations. Highly recommend!",
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-          },
-          {
-            _id: "3",
-            name: "Sarah Williams",
-            rating: 4,
-            comment:
-              "Fast shipping, gorgeous pieces, and attention to detail. Will definitely order again.",
-            createdAt: new Date(Date.now() - 172800000).toISOString(),
-          },
+          // {
+          //   _id: "1",
+          //   name: "Emily Johnson",
+          //   rating: 5,
+          //   comment:
+          //     "Absolutely stunning jewelry! The craftsmanship is exceptional and the customer service was outstanding.",
+          //   createdAt: new Date(Date.now() - 259200000).toISOString(),
+          // },
+          // {
+          //   _id: "2",
+          //   name: "Michael Chen",
+          //   rating: 5,
+          //   comment:
+          //     "I ordered a custom ring for my wife and it exceeded all expectations. Highly recommend!",
+          //   createdAt: new Date(Date.now() - 86400000).toISOString(),
+          // },
+          // {
+          //   _id: "3",
+          //   name: "Sarah Williams",
+          //   rating: 4,
+          //   comment:
+          //     "Fast shipping, gorgeous pieces, and attention to detail. Will definitely order again.",
+          //   createdAt: new Date(Date.now() - 172800000).toISOString(),
+          // },
         ];
 
   // Custom arrow components

@@ -113,7 +113,7 @@ export const METAL_COLOR_OPTIONS = [
 
 // Karat options for purity levels
 export const KARAT_OPTIONS = [
-  // { value: 10, label: '10K' },
+  { value: 10, label: '10K' },
   { value: 14, label: '14K' },
   { value: 18, label: '18K' },
   { value: 22, label: '22K' },

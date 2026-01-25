@@ -24,6 +24,9 @@ const ProductDetailsSection = ({
     ? product.certificate.filter(Boolean)
     : [];
 
+    console.log('selectedCarat',selectedCarat);
+    
+
   const details = [
     {
       label: 'Material:',
@@ -33,13 +36,20 @@ const ProductDetailsSection = ({
       show: true,
     },
     {
-      label: 'Center Stone:',
-      value:
-        typeof selectedCarat === 'string'
-          ? selectedCarat
-          : selectedCarat?.name,
-      show: showCenterStone && Boolean(selectedCarat),
-    },
+  label: isRing?'Center Stone:':"Total Carat Weight",
+  value: selectedCarat
+    ? typeof selectedCarat === 'string'
+      ? isRing
+        ? selectedCarat
+        : `${selectedCarat}W`
+      : isRing
+        ? selectedCarat?.name
+        : `${selectedCarat?.name}W`
+    : '',
+    show:true,
+  // show: Boolean(selectedCarat),
+},
+
     {
       label: 'Ring Size:',
       value: selectedRingSize,
