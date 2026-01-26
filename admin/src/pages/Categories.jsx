@@ -121,6 +121,7 @@ const Categories = () => {
           setIsModalOpen(false);
           setSelectedCategory(null);
           setModalMode('add');
+          dispatch(fetchCategories())
         }
       } catch (error) {
         console.error('Error updating category:', error);

@@ -258,7 +258,7 @@ const Toolbar = () => {
             <button
               type="button"
               onClick={() => insertHeading('h3')}
-              className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded"
+              className="w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded"
             >
               Heading 3
             </button>

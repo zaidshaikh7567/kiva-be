@@ -23,6 +23,7 @@ import ProductDetailsModal from '../components/ProductDetailsModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import toast from 'react-hot-toast';
 import QuantitySelector from '../components/QuantitySelector';
+import PaymentTooltip from '../components/PaymentTooltip';
 
 const ViewCart = () => {
   const dispatch = useDispatch();
@@ -81,8 +82,8 @@ const ViewCart = () => {
     // navigate('/checkout');
      setShowTooltip(true);
 
-    // hide after 3 sec
-    setTimeout(() => setShowTooltip(false), 6000);
+    // hide after 10 sec
+    setTimeout(() => setShowTooltip(false), 10000);
   };
 
   const handleViewProduct = (item) => {
@@ -333,35 +334,12 @@ const ViewCart = () => {
     <span>Proceed to Checkout</span>
   </button>
 
-  {showTooltip && (
-    <div className="
-      absolute 
-      z-50
-      bottom-full 
-      mb-3
-      left-1/2 
-      sm:-translate-x-[60%]
-      -translate-x-[50%]
-      w-[90vw] 
-      max-w-md
-      bg-black 
-      text-white 
-      text-sm 
-      px-4 
-      py-3 
-      rounded-lg 
-      shadow-xl
-    ">
-      <p className="text-left leading-relaxed">
-        ⚠ <strong>Our online payment system is currently under development.</strong><br />
-        For placing orders or payment assistance, please connect with us on <span className="font-semibold"><a href={WHATSAPP_URL} target='_blank'>WhatsApp</a></span>.<br />
-        Thank you for your patience and support.
-      </p>
-
-      {/* Arrow */}
-      <div className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-black" />
-    </div>
-  )}
+  <PaymentTooltip
+                  isVisible={showTooltip}
+                  whatsappUrl={WHATSAPP_URL}
+                  position="top"
+                  className="sm:-translate-x-[60%]"
+                />
 </div>
 
 

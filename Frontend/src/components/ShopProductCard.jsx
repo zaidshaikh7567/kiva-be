@@ -381,7 +381,7 @@ const getFinalPrice = () => {
       <>
         <div 
           onClick={handleCardClick}
-          className="bg-white rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer"
+          className="bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow cursor-pointer"
         >
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
             <div className="w-full sm:w-32 h-48 sm:h-32 bg-primary-light rounded-lg overflow-hidden flex-shrink-0">
@@ -478,7 +478,7 @@ const getFinalPrice = () => {
     <>
       <div 
         onClick={handleCardClick}
-        className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group h-full flex flex-col cursor-pointer"
+        className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 group h-full flex flex-col cursor-pointer"
       >
         <div className="relative overflow-hidden">
           <div className="aspect-square bg-primary-light">
@@ -489,7 +489,7 @@ const getFinalPrice = () => {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-black-light">
+              <div className="w-full h-full flex items-center justify-center text-black-light ">
                 No Image
               </div>
             )}

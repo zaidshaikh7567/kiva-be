@@ -8,7 +8,6 @@ const ProductDetailsSection = ({
   selectedCarat,
   selectedRingSize,
   isRing = false,
-  showCenterStone = isRing,
   showRingSize = isRing,
   className = '',
   descriptionHtml,
@@ -24,8 +23,11 @@ const ProductDetailsSection = ({
     ? product.certificate.filter(Boolean)
     : [];
 
-    console.log('selectedCarat',selectedCarat);
     
+  // Check if product is in bracelet category
+  const isBracelet = product?.category?.name?.toLowerCase().includes('bracelet') || 
+                     product?.category?.name?.toLowerCase().includes('bracelets') ||
+                     false;
 
   const details = [
     {
@@ -41,10 +43,10 @@ const ProductDetailsSection = ({
     ? typeof selectedCarat === 'string'
       ? isRing
         ? selectedCarat
-        : `${selectedCarat}W`
+        : `${selectedCarat}`
       : isRing
         ? selectedCarat?.name
-        : `${selectedCarat?.name}W`
+        : `${selectedCarat?.name}`
     : '',
     show:true,
   // show: Boolean(selectedCarat),
@@ -80,6 +82,17 @@ const ProductDetailsSection = ({
       value: certificates.join(', '),
       show: certificates.length > 0,
     },
+    {
+      label: 'Length:',
+      value: '7 in ',
+      show: isBracelet,
+    },
+    {
+      label: 'Width:',
+      value: '2 carat (2.4 mm), 3 carat (2.6 mm), 4 carat (2.9 mm), 5 carat (3.1 mm), 7 carat (3.7 mm), 10 carat (4.4 mm), 12 carat (5.3 mm), 15 carat (5.8 mm), 20 carat (6.2 mm)',
+      show: isBracelet,
+    },
+    
   ];
 
   const containerClasses = ['space-y-3', className].filter(Boolean).join(' ');
@@ -90,15 +103,28 @@ const ProductDetailsSection = ({
         {detailsTitle}
       </h3>
 
-      <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light">
+      <div className="space-y-2 text-sm font-montserrat-regular-400 text-black-light ">
         {details
           .filter((detail) => detail.show && detail.value)
           .map((detail) => (
-            <div className="flex justify-between" key={detail.label}>
-              <span className="font-montserrat-medium-500 text-black">
+            <div 
+              key={detail.label}
+              className={detail.label === 'Width:' ? 'flex flex-row w-full ' : 'flex justify-between'}
+            >
+              <span className=" text-black font-montserrat-semibold-600">
                 {detail.label}
               </span>
-              <span>{detail.value}</span>
+              {detail.label === 'Width:' ? (
+                <div className="mt-1 space-y-1 w-full text-right">
+                  {detail.value.split(', ').map((option, index) => (
+                    <div key={index} className="text-black-light">
+                      {option}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span>{detail.value}</span>
+              )}
             </div>
           ))}
       </div>
@@ -110,6 +136,7 @@ const ProductDetailsSection = ({
             icon={<ListChevronsDownUp className="w-4 h-4 text-primary" />}
           >
             <div
+              className="prose prose-sm max-w-none text-black-light font-montserrat-regular-400 [&_strong]:font-montserrat-semibold-600 [&_strong]:text-black [&_p]:mb-3 [&_p:last-child]:mb-0"
               dangerouslySetInnerHTML={{ __html: descriptionHtml }}
               style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
             />

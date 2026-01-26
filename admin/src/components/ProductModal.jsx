@@ -16,26 +16,43 @@ import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
 import FormInput from './FormInput';
 
 function getSafeLexicalState(val) {
-  // If it's already an object, convert it to string first
-  if (typeof val === "object" && val !== null) {
-    val = JSON.stringify(val);
+  // Handle null or undefined
+  if (val === null || val === undefined) {
+    return EMPTY_LEXICAL_STATE;
   }
 
-  if (typeof val === "string" && val.trim() && val !== "null") {
+  // If it's already an object, convert it to string first
+  let stringVal;
+  if (typeof val === "object" && val !== null) {
     try {
-      const parsed = JSON.parse(val);
+      stringVal = JSON.stringify(val);
+    } catch (e) {
+      console.error('Error stringifying description:', e);
+      return EMPTY_LEXICAL_STATE;
+    }
+  } else if (typeof val === "string") {
+    stringVal = val;
+  } else {
+    return EMPTY_LEXICAL_STATE;
+  }
+
+  // Check if it's a valid non-empty string
+  if (stringVal && stringVal.trim() && stringVal !== "null" && stringVal !== "undefined") {
+    try {
+      const parsed = JSON.parse(stringVal);
       if (
         parsed &&
         typeof parsed === "object" &&
         parsed.root &&
         parsed.root.type === "root" &&
-        Array.isArray(parsed.root.children) &&
-        parsed.root.children.length > 0
+        Array.isArray(parsed.root.children)
       ) {
-        return val;
+        // Return the string value if it's a valid Lexical state (even if children is empty)
+        return stringVal;
       }
-    } catch {
+    } catch (e) {
       // Invalid JSON, fall through to return empty
+      console.error('Invalid Lexical state JSON:', e);
     }
   }
   return EMPTY_LEXICAL_STATE;
@@ -66,6 +83,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
   const [careDropdownOpen, setCareDropdownOpen] = useState(false);
   const [metalOptionsOpen, setMetalOptionsOpen] = useState(false);
   const [stoneDropdownOpen, setStoneDropdownOpen] = useState(false);
+  const [isDescriptionReady, setIsDescriptionReady] = useState(false);
 
   // Metals are now passed as props from Products page
 
@@ -122,13 +140,31 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         isBand: false
       });
       setImagePreviews([]);
+      setIsDescriptionReady(true); // Always ready in add mode
       // Reset dropdowns
       setCategoryDropdownOpen(false);
       setCareDropdownOpen(false);
       setMetalOptionsOpen(false);
       setStoneDropdownOpen(false);
+    } else if (!isOpen) {
+      setIsDescriptionReady(false);
     }
   }, [isOpen, productData, mode]);
+
+  // Mark description as ready when formData.description is set in edit mode
+  useEffect(() => {
+    if (isOpen && mode === 'edit' && productData) {
+      // Check if description has been processed and is not empty
+      if (formData.description && formData.description !== EMPTY_LEXICAL_STATE && formData.description.trim()) {
+        setIsDescriptionReady(true);
+      } else if (formData.description === EMPTY_LEXICAL_STATE) {
+        // Even if it's empty, mark as ready so editor can render
+        setIsDescriptionReady(true);
+      }
+    } else if (isOpen && mode === 'add') {
+      setIsDescriptionReady(true);
+    }
+  }, [formData.description, isOpen, mode, productData]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -358,6 +394,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
       isBand: false
     });
     setImagePreviews([]);
+    setIsDescriptionReady(false);
     // Reset dropdowns
     setCategoryDropdownOpen(false);
     setCareDropdownOpen(false);
@@ -439,10 +476,22 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
             <label className="block text-sm font-montserrat-medium-500 text-black">
               Product Description <span className="text-red-500">*</span>
             </label>
-            {(mode === 'add' || (mode === 'edit' && formData.description)) && (
+            {isDescriptionReady ? (
               <RichTextEditor
-                key={`${mode}-${productData?._id || 'new'}`}
-                value={formData.description}
+                key={`${mode}-${productData?._id || 'new'}-${formData.description ? 'ready' : 'empty'}`}
+                value={formData.description || EMPTY_LEXICAL_STATE}
+                onChange={(contentJson) => setFormData(prev => ({ ...prev, description: contentJson }))}
+                placeholder="Enter a detailed product description... (Use the toolbar to format text)"
+                disabled={loading}
+              />
+            ) : mode === 'edit' ? (
+              <div className="min-h-[200px] p-4 border border-gray-300 rounded-lg flex items-center justify-center">
+                <div className="text-gray-400">Loading description...</div>
+              </div>
+            ) : (
+              <RichTextEditor
+                key={`${mode}-new`}
+                value={EMPTY_LEXICAL_STATE}
                 onChange={(contentJson) => setFormData(prev => ({ ...prev, description: contentJson }))}
                 placeholder="Enter a detailed product description... (Use the toolbar to format text)"
                 disabled={loading}

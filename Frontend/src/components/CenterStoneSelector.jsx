@@ -7,19 +7,35 @@ const CenterStoneSelector = ({
   loading = false,
   selectedStone,
   onSelect,
-  label ="",
   required = false,
   showPrice = false,
   className = '',
   hideIfEmpty = true,
-  isRing
-  
+  isRing,
+  productStoneId = null, // Product's stoneTypeId to filter stones
+  product = null // Product object (will extract stoneTypeId from it)
 }) => {
   if (!onSelect) return null;
 
-  const activeStones = Array.isArray(stones)
+  // Get product stone ID from product object or direct prop
+  const productStoneTypeId = productStoneId || 
+    product?.stoneTypeId || 
+    product?.stoneType?._id || 
+    product?.stoneType?.id || 
+    null;
+
+  // Filter stones: if product has a stoneTypeId, only show that stone, otherwise show all active stones
+  let activeStones = Array.isArray(stones)
     ? stones.filter((stone) => stone && stone.active !== false)
     : [];
+
+  // If product has a stoneTypeId, filter to only show that specific stone
+  if (productStoneTypeId) {
+    activeStones = activeStones.filter((stone) => {
+      const stoneId = stone._id || stone.id;
+      return stoneId === productStoneTypeId;
+    });
+  }
 
   if (hideIfEmpty && activeStones.length === 0) {
     return null;
@@ -80,7 +96,7 @@ const CenterStoneSelector = ({
                     : 'border-gray-200 bg-white text-black hover:border-primary hover:bg-primary-light'
                 }`}
               >
-                <span>{stone.name}{isRing ?"":"W"}</span>
+                <span>{stone.name}</span>
                 {showPrice && stone.price > 0 && (
                   <span className="ml-2 text-xs">
                     <PriceDisplay price={stone.price} variant="small" />

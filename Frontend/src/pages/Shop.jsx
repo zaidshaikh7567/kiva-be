@@ -276,7 +276,7 @@ useEffect(() => {
 }, [products, priceLimits.min, priceLimits.max]);
   
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-secondary">
       {/* Hero Section */}
       <CategoryHero
         eyebrow="JEWELRY COLLECTION"

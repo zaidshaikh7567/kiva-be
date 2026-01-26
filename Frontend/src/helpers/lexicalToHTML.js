@@ -7,7 +7,7 @@ export const convertLexicalToHTML = (nodes) => {
       case 'paragraph': {
         const paragraphContent = node.children ? convertLexicalToHTML(node.children) : '';
         // Add margin bottom for spacing between paragraphs
-        return `<p style="margin-bottom: 1rem;">${paragraphContent}</p>`;
+        return `<p style="margin-bottom: 0.5rem;">${paragraphContent}</p>`;
       }
         
       case 'heading': {
@@ -39,11 +39,11 @@ export const convertLexicalToHTML = (nodes) => {
         // Preserve whitespace and convert line breaks
         textContent = textContent.replace(/\n/g, '<br>');
         
-        // Apply text formatting
+        // Apply text formatting with CSS classes for better styling
         if (node.format) {
-          if (node.format & 1) textContent = `<strong style="font-weight: bold !important;">${textContent}</strong>`; // bold
-          if (node.format & 2) textContent = `<em style="font-style: italic !important;">${textContent}</em>`; // italic
-          if (node.format & 8) textContent = `<u style="text-decoration: underline !important;">${textContent}</u>`; // underline
+          if (node.format & 1) textContent = `<strong class="font-montserrat-semibold-600 text-black">${textContent}</strong>`; // bold
+          if (node.format & 2) textContent = `<em class="italic">${textContent}</em>`; // italic
+          if (node.format & 8) textContent = `<u class="underline">${textContent}</u>`; // underline
         }
         
         // Apply text color if present

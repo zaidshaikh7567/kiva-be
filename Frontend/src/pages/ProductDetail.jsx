@@ -545,6 +545,7 @@ const ProductDetail = () => {
                     onSelect={handleCaratChange}
                     required
                     isRing={isRing}
+                    product={product}
                   />
                 )}
 

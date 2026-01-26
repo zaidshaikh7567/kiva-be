@@ -461,6 +461,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                     onSelect={handleCaratChange}
                     required
                     isRing={isRing}
+                    product={product}
                   />
                 {/* )} */}
 

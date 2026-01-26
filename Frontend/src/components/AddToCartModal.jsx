@@ -113,6 +113,7 @@ const AddToCartModal = ({
             onSelect={onCaratChange}
             required
             isRing={isRing}
+            product={product}
           />
         {/* )} */}
 

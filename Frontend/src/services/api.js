@@ -12,7 +12,7 @@ const api = axios.create({
     'Accept': "application/json",
   },
   // Add CORS configuration
-  withCredentials: false,
+  // withCredentials: false,
 });
 
 // Request interceptor

@@ -12,8 +12,11 @@ const UpdateEditorStatePlugin = ({ editorStateStr }) => {
       return;
     }
 
-    if (editorStateStr && typeof editorStateStr === 'string') {
+    if (editorStateStr && typeof editorStateStr === 'string' && editorStateStr.trim()) {
       try {
+        // Validate it's proper JSON before parsing
+        JSON.parse(editorStateStr);
+        
         // Get current editor state
         const currentState = editor.getEditorState();
         const currentJson = JSON.stringify(currentState.toJSON());
@@ -32,6 +35,10 @@ const UpdateEditorStatePlugin = ({ editorStateStr }) => {
       } catch (e) {
         console.error('Error parsing editor state in plugin:', e);
       }
+    } else if (editorStateStr === '' && lastAppliedStateRef.current !== '') {
+      // Handle case where value is cleared - reset to empty state
+      // This is handled by the initialConfig, so we just track it
+      lastAppliedStateRef.current = editorStateStr;
     }
   }, [editor, editorStateStr]);
 
