@@ -116,8 +116,8 @@ export const KARAT_OPTIONS = [
   { value: 10, label: '10K' },
   { value: 14, label: '14K' },
   { value: 18, label: '18K' },
-  { value: 22, label: '22K' },
-  { value: 24, label: '24K' },
+  // { value: 22, label: '22K' },
+  // { value: 24, label: '24K' },
   // { value: 925, label: '925 Sterling' },
   // { value: 950, label: '950 Platinum' },
 ];

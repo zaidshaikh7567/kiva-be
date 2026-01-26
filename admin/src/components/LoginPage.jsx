@@ -259,15 +259,6 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
             </p>
           </div>
         </div>
-
-        {/* Demo Credentials */}
-        {/* <div className="mt-6 bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-          <p className="text-sm font-montserrat-medium-500 text-black mb-2">Demo Credentials:</p>
-          <div className="text-xs font-montserrat-regular-400 text-black-light space-y-1">
-            <p>Email: admin@mailinator.com</p>
-            <p>Password: Admin@123</p>
-          </div>
-        </div> */}
       </div>
     </div>
   );

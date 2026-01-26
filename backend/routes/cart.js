@@ -8,6 +8,7 @@ const asyncHandler = require('../middleware/asyncErrorHandler');
 const { authenticate } = require('../middleware/auth');
 const { addToCartSchema, updateCartSchema, cartIdSchema } = require('../validations/cart');
 const validate = require('../middleware/validate');
+const { calculateCumulativePriceMultiplier } = require('../utils/metalUtil');
 
 const router = express.Router();
 
@@ -21,10 +22,12 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
     }
     
     const productPrice = cart.product.price || 0;
-    const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
+    // Calculate cumulative multiplier based on metal and karat
+    const metalMultiplier = cart.metal && cart.purityLevel?.karat
+      ? calculateCumulativePriceMultiplier(cart.metal, cart.purityLevel.karat)
+      : (cart.purityLevel?.priceMultiplier || 1);
     const stonePrice = cart.stoneType?.price || 0;
     const totalPrice = ((productPrice * metalMultiplier) + stonePrice) * (cart.quantity || 1);
-    // const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
     return {
       ...cart.toObject(),
       calculatedPrice: totalPrice
@@ -55,7 +58,10 @@ router.get('/:id', authenticate, validate(cartIdSchema, 'params'), asyncHandler(
   }
 
   const productPrice = cart.product?.price || 0;
-  const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
+  // Calculate cumulative multiplier based on metal and karat
+  const metalMultiplier = cart.metal && cart.purityLevel?.karat
+    ? calculateCumulativePriceMultiplier(cart.metal, cart.purityLevel.karat)
+    : (cart.purityLevel?.priceMultiplier || 1);
   const stonePrice = cart.stoneType?.price || 0;
   const totalPrice = ((productPrice * metalMultiplier) + stonePrice) * (cart.quantity || 1);
 
@@ -118,10 +124,12 @@ router.post('/', authenticate, validate(addToCartSchema), asyncHandler(async (re
 
   // Calculate price with null checks
   const productPrice = cart.product?.price || 0;
-  const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
+  // Calculate cumulative multiplier based on metal and karat
+  const metalMultiplier = cart.metal && cart.purityLevel?.karat
+    ? calculateCumulativePriceMultiplier(cart.metal, cart.purityLevel.karat)
+    : (cart.purityLevel?.priceMultiplier || 1);
   const stonePrice = cart.stoneType?.price || 0;
   const totalPrice = ((productPrice * metalMultiplier) + stonePrice) * (cart.quantity || 1);
-  // const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
   res.status(201).json({ success: true, message: 'Item added to cart successfully', data: { ...cart.toObject(), calculatedPrice: totalPrice } });
 }));
 
@@ -164,10 +172,12 @@ router.put('/:id', authenticate, validate(cartIdSchema, 'params'), validate(upda
 
   // Calculate price with null checks
   const productPrice = cart.product?.price || 0;
-  const metalMultiplier = cart.purityLevel?.priceMultiplier || 1;
+  // Calculate cumulative multiplier based on metal and karat
+  const metalMultiplier = cart.metal && cart.purityLevel?.karat
+    ? calculateCumulativePriceMultiplier(cart.metal, cart.purityLevel.karat)
+    : (cart.purityLevel?.priceMultiplier || 1);
   const stonePrice = cart.stoneType?.price || 0;
   const totalPrice = ((productPrice * metalMultiplier) + stonePrice) * (cart.quantity || 1);
-  // const totalPrice = (productPrice * metalMultiplier + stonePrice) * (cart.quantity || 1);
   res.json({ success: true, message: 'Cart item updated successfully', data: { ...cart.toObject(), calculatedPrice: totalPrice } });
 }));
 

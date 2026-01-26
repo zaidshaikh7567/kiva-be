@@ -4,6 +4,7 @@ import { X, Save, AlertCircle, Edit2, Check,PaintBucket,Zap} from 'lucide-react'
 import CustomDropdown from './CustomDropdown';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
 import { METAL_COLOR_OPTIONS, KARAT_OPTIONS } from '../constants';
+import { calculateCumulativePriceMultiplier } from '../../../Frontend/src/constants';
 import FormInput from './FormInput';
 
 // Use constants from constants file
@@ -31,6 +32,16 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
     priceMultiplier: 1,
     active: true
   });
+
+  // Helper function to calculate cumulative multiplier for display
+  // Uses the shared calculateCumulativePriceMultiplier function
+  const calculateCumulativeMultiplier = (targetKarat) => {
+    // Create a metal-like object from formData for the shared function
+    const metalObject = {
+      purityLevels: formData.purityLevels || []
+    };
+    return calculateCumulativePriceMultiplier(metalObject, targetKarat);
+  };
 
   // Update form data when modal opens or metalData changes
   useEffect(() => {
@@ -253,7 +264,7 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                   {editingIndex === index ? (
                     // Edit Mode
                     <div className="space-y-3">
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                      <div className="flex flex-col sm:flex-row  sm:items-flex-start gap-2">
                         <div className="flex-1 min-w-0">
                           <CustomDropdown
                             options={karatOptions}
@@ -264,22 +275,27 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <input
-                            type="number"
-                            placeholder="Multiplier"
-                            value={editPurityLevel.priceMultiplier}
-                            onChange={(e) => setEditPurityLevel(prev => ({ ...prev, priceMultiplier: e.target.value }))}
-                            step="0.1"
-                            min="0.1"
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary"
-                            disabled={loading}
-                          />
+                          <div className="space-y-1">
+                            <input
+                              type="number"
+                              placeholder="Price Multiplier"
+                              value={editPurityLevel.priceMultiplier}
+                              onChange={(e) => setEditPurityLevel(prev => ({ ...prev, priceMultiplier: e.target.value }))}
+                              step="0.01"
+                              min="0.01"
+                              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary"
+                              disabled={loading}
+                            />
+                            <p className="text-xs text-gray-500">
+                              Multiplier (e.g., 1.15 = +15% from previous level)
+                            </p>
+                          </div>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <button
                             type="button"
                             onClick={handleSaveEdit}
-                            className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                            className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors w-10 h-10"
                             disabled={loading}
                           >
                             <Check className="w-4 h-4" />
@@ -287,7 +303,7 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                           <button
                             type="button"
                             onClick={handleCancelEdit}
-                            className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                            className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors w-10 h-10"
                             disabled={loading}
                           >
                             <X className="w-4 h-4" />
@@ -315,17 +331,20 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                     </div>
                   ) : (
                     // View Mode
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium whitespace-nowrap">{level.karat}K</span>
-                      <span className="text-sm text-gray-600 whitespace-nowrap">(x{level.priceMultiplier})</span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        (level.active !== undefined ? level.active : true)
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {(level.active !== undefined ? level.active : true) ? 'Active' : 'Inactive'}
-                      </span>
-                      <div className="ml-auto flex gap-2 flex-shrink-0">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium whitespace-nowrap">{level.karat}K</span>
+                        <span className="text-sm text-gray-600 whitespace-nowrap">
+                          (Multiplier: {level.priceMultiplier} = +{((level.priceMultiplier - 1) * 100).toFixed(0)}%)
+                        </span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          (level.active !== undefined ? level.active : true)
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {(level.active !== undefined ? level.active : true) ? 'Active' : 'Inactive'}
+                        </span>
+                        <div className="ml-auto flex gap-2 flex-shrink-0">
                         <button
                           type="button"
                           onClick={() => handleStartEdit(index)}
@@ -342,6 +361,11 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                         >
                           <X className="w-4 h-4" />
                         </button>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
+                        Cumulative multiplier: {calculateCumulativeMultiplier(level.karat).toFixed(2)} 
+                        (e.g., base price × {calculateCumulativeMultiplier(level.karat).toFixed(2)})
                       </div>
                     </div>
                   )}
@@ -361,16 +385,21 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <input
-                      type="number"
-                      placeholder="Multiplier"
-                      value={newPurityLevel.priceMultiplier}
-                      onChange={(e) => setNewPurityLevel(prev => ({ ...prev, priceMultiplier: e.target.value }))}
-                      step="0.1"
-                      min="0.1"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary"
-                      disabled={loading}
-                    />
+                    <div className="space-y-1">
+                      <input
+                        type="number"
+                        placeholder="Price Multiplier"
+                        value={newPurityLevel.priceMultiplier}
+                        onChange={(e) => setNewPurityLevel(prev => ({ ...prev, priceMultiplier: e.target.value }))}
+                        step="0.01"
+                        min="0.01"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary"
+                        disabled={loading}
+                      />
+                      <p className="text-xs text-gray-500">
+                        Multiplier (e.g., 1.15 = +15% from previous level)
+                      </p>
+                    </div>
                   </div>
                   <button
                     type="button"

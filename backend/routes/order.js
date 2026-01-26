@@ -10,6 +10,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 const { sendEmail } = require('../utils/emailUtil');
 const { getOrderConfirmationEmailTemplate } = require('../utils/emailTemplates');
 const { createPayPalOrder, capturePayPalPayment } = require('../utils/paypalUtil');
+const { calculateCumulativePriceMultiplier } = require('../utils/metalUtil');
 const {
   createOrderSchema,
   orderIdSchema,
@@ -66,7 +67,10 @@ router.post('/', authenticate, validate(createOrderSchema), asyncHandler(async (
     }
 
     const productPrice = cartItem.product.price || 0;
-    const metalMultiplier = cartItem.purityLevel?.priceMultiplier || 1;
+    // Calculate cumulative multiplier based on metal and karat
+    const metalMultiplier = cartItem.metal && cartItem.purityLevel?.karat
+      ? calculateCumulativePriceMultiplier(cartItem.metal, cartItem.purityLevel.karat)
+      : (cartItem.purityLevel?.priceMultiplier || 1);
     const stonePrice = cartItem.stoneType?.price || 0;
     const unitPrice = (productPrice * metalMultiplier) + stonePrice;
     const totalPrice = unitPrice * (cartItem.quantity || 1);

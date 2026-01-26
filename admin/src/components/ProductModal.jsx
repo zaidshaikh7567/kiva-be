@@ -13,6 +13,7 @@ import {
   EMPTY_LEXICAL_STATE
 } from '../constants';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
+import { calculateCumulativePriceMultiplier } from '../../../Frontend/src/constants';
 import FormInput from './FormInput';
 
 function getSafeLexicalState(val) {
@@ -217,9 +218,9 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
 
   const calculateMetalPrice = (metalId, purityLevel) => {
     const metal = metals.find(m => m._id === metalId);
-    if (!metal || !formData.price) return 0;
-    // Use the provided purity level's price multiplier for calculation
-    const multiplier = purityLevel ? purityLevel.priceMultiplier : 1;
+    if (!metal || !formData.price || !purityLevel) return 0;
+    // Use cumulative multiplier for calculation from shared function
+    const multiplier = calculateCumulativePriceMultiplier(metal, purityLevel.karat);
     return (parseFloat(formData.price) * multiplier).toFixed(2);
   };
 

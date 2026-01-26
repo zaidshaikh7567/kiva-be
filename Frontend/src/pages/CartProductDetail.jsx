@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Star, ShoppingBag, ArrowLeft, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById, selectCurrentProduct, selectProductsError } from '../store/slices/productsSlice';
-import { fetchCartItemById, selectCartLoading, selectCurrentCartItem, selectCurrentCartItemError, selectCurrentCartItemLoading, updateCartItem, updateQuantity } from '../store/slices/cartSlice';
+import { fetchCartItemById, fetchCartItems, selectCartLoading, selectCurrentCartItem, selectCurrentCartItemError, selectCurrentCartItemLoading, updateCartItem, updateQuantity } from '../store/slices/cartSlice';
 import {
   toggleFavorite as toggleFavoriteAction,
   addToFavoritesAPI,
@@ -480,6 +480,7 @@ const CartProductDetail = () => {
           position: 'top-right',
         });
         navigate('/view-cart');
+        dispatch(fetchCartItems());
       } else {
         // For non-authenticated users, just show success
         toast.success('Cart updated successfully!', {
