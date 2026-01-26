@@ -135,7 +135,7 @@ export const updateProduct = createAsyncThunk(
         formData.append('careInstruction', data.careInstruction);
       }
       
-      // Add images if provided
+      // Add images if provided (all images as binary files - existing converted + new)
       if (data.images && data.images.length > 0) {
         data.images.forEach((image) => {
           formData.append('images', image);
@@ -496,10 +496,119 @@ const productsSlice = createSlice({
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.items.findIndex(item => item._id === action.payload._id);
-        if (index !== -1) {
-          state.items[index] = action.payload.product || action.payload;
+        // Backend returns: { success: true, message: '...', data: product }
+        const updatedProduct = action.payload.data || action.payload.product || action.payload;
+        const productId = updatedProduct._id || updatedProduct.id;
+        
+        if (productId) {
+          // Update in allItems
+          const allItemsIndex = state.allItems.findIndex(item => (item._id || item.id) === productId);
+          if (allItemsIndex !== -1) {
+            state.allItems[allItemsIndex] = { ...state.allItems[allItemsIndex], ...updatedProduct };
+          } else {
+            // If product not found, add it (shouldn't happen but safe fallback)
+            state.allItems.push(updatedProduct);
+          }
+          
+          // Re-apply filters to update filteredItems and items
+          // This ensures the updated product appears correctly in filtered/paginated views
+          let filtered = [...state.allItems];
+
+          // Apply search filter
+          if (state.filters.search) {
+            const searchTerm = state.filters.search.toLowerCase();
+            filtered = filtered.filter(product => 
+              product.title.toLowerCase().includes(searchTerm) ||
+              product?.subDescription?.toLowerCase().includes(searchTerm)
+            );
+          }
+
+          // Apply category filter
+          if (state.filters.category && state.filters.category !== 'all') {
+            filtered = filtered.filter(product => {
+              const categoryId = product.category?._id || product.categoryId;
+              return categoryId === state.filters.category;
+            });
+          }
+
+          // Apply price range filter
+          if (state.filters.minPrice) {
+            filtered = filtered.filter(product => 
+              product.price >= parseFloat(state.filters.minPrice)
+            );
+          }
+          if (state.filters.maxPrice) {
+            filtered = filtered.filter(product => 
+              product.price <= parseFloat(state.filters.maxPrice)
+            );
+          }
+
+          // Apply stock filter
+          if (state.filters.stockFilter && state.filters.stockFilter !== 'all') {
+            if (state.filters.stockFilter === 'in-stock') {
+              filtered = filtered.filter(product => product.quantity > 0);
+            } else if (state.filters.stockFilter === 'out-of-stock') {
+              filtered = filtered.filter(product => product.quantity === 0);
+            } else if (state.filters.stockFilter === 'low-stock') {
+              filtered = filtered.filter(product => product.quantity > 0 && product.quantity <= 10);
+            }
+          }
+
+          // Apply band filter
+          if (state.filters.bandFilter && state.filters.bandFilter !== 'all') {
+            if (state.filters.bandFilter === 'yes') {
+              filtered = filtered.filter(product => product.isBand === true);
+            } else if (state.filters.bandFilter === 'no') {
+              filtered = filtered.filter(product => product.isBand !== true);
+            }
+          }
+
+          // Apply sorting
+          if (state.filters.sortBy) {
+            switch (state.filters.sortBy) {
+              case 'newest':
+                filtered.sort((a, b) => new Date(b.createdAt || b.updatedAt) - new Date(a.createdAt || a.updatedAt));
+                break;
+              case 'oldest':
+                filtered.sort((a, b) => new Date(a.createdAt || a.updatedAt) - new Date(b.createdAt || b.updatedAt));
+                break;
+              case 'price-asc':
+                filtered.sort((a, b) => a.price - b.price);
+                break;
+              case 'price-desc':
+                filtered.sort((a, b) => b.price - a.price);
+                break;
+              case 'stock-asc':
+                filtered.sort((a, b) => a.quantity - b.quantity);
+                break;
+              case 'stock-desc':
+                filtered.sort((a, b) => b.quantity - a.quantity);
+                break;
+              default:
+                break;
+            }
+          }
+
+          state.filteredItems = filtered;
+          
+          // Calculate pagination based on filtered results
+          const total = filtered.length;
+          const limit = state.pagination.limit || 10;
+          const totalPages = Math.ceil(total / limit) || 1;
+          
+          // Update pagination
+          state.pagination = {
+            ...state.pagination,
+            total,
+            totalPages
+          };
+          
+          // Apply pagination to items
+          const startIndex = (state.pagination.page - 1) * limit;
+          const endIndex = startIndex + limit;
+          state.items = filtered.slice(startIndex, endIndex);
         }
+        
         state.success = action.payload.message || 'Product updated successfully!';
       })
       .addCase(updateProduct.rejected, (state, action) => {

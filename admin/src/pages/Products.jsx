@@ -216,7 +216,7 @@ const Products = () => {
           setIsModalOpen(false);
           setSelectedProduct(null);
           setModalMode('add');
-          // Refresh products to see the updated product
+          // State is updated automatically in Redux slice, but refetch as fallback to ensure consistency
           dispatch(fetchProducts());
         }
       } catch (error) {

@@ -153,11 +153,11 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
     updateData.isBand = isBand;
   }
 
-  // Merge new images with existing images
-  if (req.files && req.files.length > 0) {
-    const newImages = req.files.map(file => file.path);
-    const existingImages = existingProduct.images || [];
-    updateData.images = [...existingImages, ...newImages];
+  // Handle images: replace all images with uploaded files (existing converted to files + new files)
+  // All images are sent as binary files - simply replace all existing images with uploaded ones
+  if (req.files) {
+    // Replace all images with uploaded files (empty array if all images were removed)
+    updateData.images = req.files.map(file => file.path);
   }
 
   const product = await Product.findByIdAndUpdate(id, updateData, { new: true }).populate(['category', 'metals', 'stoneType']);

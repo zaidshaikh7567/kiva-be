@@ -262,9 +262,45 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
     setImagePreviews(newPreviews);
   };
 
-  const handleSubmit = (e) => {
+  // Helper function to convert image URL to File object
+  const urlToFile = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      // Extract file extension from URL or use default
+      const extension = url.split('.').pop().split('?')[0] || 'jpg';
+      const file = new File([blob], filename || `image.${extension}`, { type: blob.type || 'image/jpeg' });
+      return file;
+    } catch (error) {
+      console.error('Error converting URL to File:', error);
+      return null;
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.title.trim() && formData.price && formData.quantity && formData.categoryId) {
+      let allImages = []; // Will contain all images as File objects
+
+      // In edit mode, convert existing images (that should be kept) to File objects
+      if (mode === 'edit') {
+        const existingPreviews = imagePreviews.filter(preview => preview.isExisting);
+        if (existingPreviews.length > 0) {
+          const existingImageFiles = await Promise.all(
+            existingPreviews.map(async (preview, index) => {
+              const file = await urlToFile(preview.url, `existing-image-${index}.jpg`);
+              return file;
+            })
+          );
+          // Filter out any null values (failed conversions)
+          const validExistingFiles = existingImageFiles.filter(file => file !== null);
+          allImages = [...validExistingFiles];
+        }
+      }
+
+      // Add new images to the array
+      allImages = [...allImages, ...formData.images];
+
       const submitData = {
         title: formData.title,
         description: formData.description,
@@ -274,7 +310,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         categoryId: formData.categoryId,
         metals: formData.metalOptions, // Map metalOptions to metalIds
         careInstruction: formData.careInstruction || '', // Use careInstruction directly
-        images: formData.images, // Include images array
+        images: allImages, // All images as binary files (existing converted + new, or empty array if all removed)
         shape: formData.shape || '',
         color: formData.color || '',
         clarity: formData.clarity.length > 0 ? JSON.stringify(formData.clarity) : undefined,
@@ -282,10 +318,6 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         stoneTypeId:formData.stoneTypeId,
         isBand: formData.isBand
       };
-
-      // Only add stoneTypeId if it's a valid ObjectId
-      // if (formData.stoneTypeId ) {
-      // }
 
       if (mode === 'edit' && productData) {
         // Edit mode - send ID and data
