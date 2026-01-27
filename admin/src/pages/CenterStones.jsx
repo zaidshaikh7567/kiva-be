@@ -254,7 +254,7 @@ const CenterStones = () => {
                             onClick={() => handleOpenViewModal(centerStone)}
                             className="text-sm font-montserrat-medium-500 font-bold text-black capitalize cursor-pointer hover:text-primary transition-colors truncate"
                           >
-                            {centerStone.name || 'Unnamed Center Stone'} CT
+                            {centerStone.name || 'Unnamed Center Stone'}
                           </h3>
                         </div>
                       </div>

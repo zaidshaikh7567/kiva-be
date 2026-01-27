@@ -238,10 +238,24 @@ const productsSlice = createSlice({
       // Apply search filter
       if (state.filters.search) {
         const searchTerm = state.filters.search.toLowerCase();
-        filtered = filtered.filter(product => 
-          product.title.toLowerCase().includes(searchTerm) ||
-          product?.subDescription?.toLowerCase().includes(searchTerm)
-        );
+        filtered = filtered.filter(product => {
+          // Search in title
+          const titleMatch = product.title?.toLowerCase().includes(searchTerm);
+          
+          // Search in subDescription
+          const subDescMatch = product?.subDescription?.toLowerCase().includes(searchTerm);
+          
+          // Search in ID - handle both string and ObjectId formats
+          let idMatch = false;
+          if (product._id) {
+            const productId = typeof product._id === 'string' 
+              ? product._id.toLowerCase() 
+              : product._id.toString().toLowerCase();
+            idMatch = productId.includes(searchTerm);
+          }
+          
+          return titleMatch || subDescMatch || idMatch;
+        });
       }
 
       // Apply category filter
@@ -517,10 +531,24 @@ const productsSlice = createSlice({
           // Apply search filter
           if (state.filters.search) {
             const searchTerm = state.filters.search.toLowerCase();
-            filtered = filtered.filter(product => 
-              product.title.toLowerCase().includes(searchTerm) ||
-              product?.subDescription?.toLowerCase().includes(searchTerm)
-            );
+            filtered = filtered.filter(product => {
+              // Search in title
+              const titleMatch = product.title?.toLowerCase().includes(searchTerm);
+              
+              // Search in subDescription
+              const subDescMatch = product?.subDescription?.toLowerCase().includes(searchTerm);
+              
+              // Search in ID - handle both string and ObjectId formats
+              let idMatch = false;
+              if (product._id) {
+                const productId = typeof product._id === 'string' 
+                  ? product._id.toLowerCase() 
+                  : product._id.toString().toLowerCase();
+                idMatch = productId.includes(searchTerm);
+              }
+              
+              return titleMatch || subDescMatch || idMatch;
+            });
           }
 
           // Apply category filter

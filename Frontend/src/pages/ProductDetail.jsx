@@ -28,6 +28,7 @@ import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
 import { transformMetalsToSelectorOptions } from '../constants';
 import { capitalizeFirstLetter } from '../helpers/capitalizeFirstLetter';
+import { setLoader } from '../store/slices/loader';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -101,11 +102,13 @@ const ProductDetail = () => {
 
     // Transform metals to options (same logic as MetalSelector)
     const metalOptions = transformMetalsToSelectorOptions(metals);
+    console.log('metalOptions :', metalOptions);
 
     // Find first available metal option from product's metals
     const firstAvailableMetal = metalOptions.find(metalOption => {
       return availableMetalIds.includes(metalOption.metalId);
     });
+    console.log('firstAvailableMetal :', firstAvailableMetal);
 
     // Set the first available metal as selected
     if (firstAvailableMetal) {
@@ -285,7 +288,9 @@ const ProductDetail = () => {
         }
       }
 
-     const response = await dispatch(addCartItem(cartData)).unwrap();
+    // dispatch(setLoader(true));
+    const response = await dispatch(addCartItem(cartData)).unwrap();
+    // dispatch(setLoader(false));
       if (response.success) {
         let successMessage = `${product.title || product.name} added to cart!`;
         const options = [];

@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'nav': '1334px',
+      },
       fontFamily: {
         "sorts-mill-gloudy": ["sorts-mill-gloudy"],
         "montserrat-black-900": ["montserrat-black-900"],

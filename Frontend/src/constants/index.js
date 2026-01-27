@@ -67,6 +67,13 @@ export const transformStonesToDropdownOptions = (stones) => {
 
 // Helper function to calculate cumulative price multiplier for a given karat
 // This implements cumulative percentage increases: 10K (base) -> 14K (+15%) -> 18K (+20% on 14K price)
+// 
+// Example calculation:
+// - 10K: multiplier = 1.0 (base)
+// - 14K: multiplier = 1.0 × 1.15 = 1.15 (15% increase from base)
+// - 18K: multiplier = 1.15 × 1.20 = 1.38 (20% increase from 14K price, not from base)
+// 
+// So 18K shows 1.38 because: 1.0 (10K base) × 1.15 (14K increase) × 1.20 (18K increase) = 1.38
 export const calculateCumulativePriceMultiplier = (metal, targetKarat) => {
   if (!metal || !metal.purityLevels || metal.purityLevels.length === 0) return 1.0;
   
@@ -115,8 +122,7 @@ export const transformMetalsToSelectorOptions = (metals) => {
   return metals.flatMap(metal => {
     return metal.purityLevels?.filter(purity => purity.active !== false).map(purity => {
       // Calculate cumulative multiplier for this karat
-      const cumulativeMultiplier = calculateCumulativePriceMultiplier(metal, purity.karat);
-      
+      const cumulativeMultiplier = calculateCumulativePriceMultiplier(metal, purity.karat);   
       return {
         id: `${purity.karat}-${metal.name.toLowerCase().replace(/\s+/g, '-')}`,
         carat: `${purity.karat}K`,

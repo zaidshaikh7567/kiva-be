@@ -374,7 +374,7 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
               
               {/* Add New Purity Level */}
               <div className="space-y-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <div className="flex flex-col sm:flex-row  sm:items-start gap-2">
                   <div className="flex-1 min-w-0">
                     <CustomDropdown
                       options={karatOptions}

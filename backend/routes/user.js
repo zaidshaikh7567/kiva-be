@@ -13,9 +13,40 @@ router.get('/', authenticate, authorize('super_admin'), validate(userListQuerySc
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
+  // Base filter: exclude super_admin from list
   const filter = { role: { $ne: 'super_admin' } };
-  const totalRecords = await User.countDocuments(filter);
-  const users = await User.find(filter).select('-password -otp -otpExpires').skip(skip).limit(limit);
+
+  const { search, role, active } = req.query;
+
+  // Optional role filter (if we ever want to list only users, etc.)
+  if (role) {
+    filter.role = role;
+  }
+
+  // Optional active status filter: expects 'true' or 'false' as string
+  if (active === 'true') {
+    filter.active = true;
+  } else if (active === 'false') {
+    filter.active = false;
+  }
+
+  // Optional search filter: match name or email (case-insensitive)
+  let query = User.find(filter);
+  if (search && search.trim()) {
+    const searchRegex = new RegExp(search.trim(), 'i');
+    query = query.find({
+      $or: [
+        { name: searchRegex },
+        { email: searchRegex }
+      ]
+    });
+  }
+
+  const totalRecords = await query.clone().countDocuments();
+  const users = await query
+    .select('-password -otp -otpExpires')
+    .skip(skip)
+    .limit(limit);
   const totalPages = Math.ceil(totalRecords / limit);
 
   res.json({

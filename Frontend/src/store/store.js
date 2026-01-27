@@ -11,6 +11,7 @@ import reviewsReducer from './slices/reviewsSlice';
 import socialHandlesReducer from './slices/socialHandlesSlice';
 import collectionsReducer from './slices/collectionsSlice';
 import ordersReducer from './slices/ordersSlice';
+import loaderReducer from './slices/loader';
 export const store = configureStore({
   reducer: {
     cart: cartReducer,
@@ -25,6 +26,7 @@ export const store = configureStore({
     socialHandles: socialHandlesReducer,
     collections: collectionsReducer,
     orders: ordersReducer,
+    loader: loaderReducer,
   },
 });
 

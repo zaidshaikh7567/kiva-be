@@ -9,10 +9,16 @@ const userIdSchema = zod.object({
   id: zod.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid ObjectId')
 });
 
+// Query params for listing users (admin customers page)
 const userListQuerySchema = zod.object({
   page: zod.string().regex(/^\d+$/, 'Page must be a number').optional(),
-  limit: zod.string().regex(/^\d+$/, 'Limit must be a number').optional()
-});
+  limit: zod.string().regex(/^\d+$/, 'Limit must be a number').optional(),
+  // Optional filters
+  search: zod.string().optional(),
+  role: zod.string().optional(),
+  // active expected as string 'true' | 'false' | ''
+  active: zod.string().optional()
+}).passthrough(); // Allow other query params if needed
 
 module.exports = {
   updateUserSchema,

@@ -7,6 +7,7 @@ import CustomDropdown from '../components/CustomDropdown';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
 import Pagination from '../components/Pagination';
 import { createPortal } from 'react-dom';
+import { toast } from 'react-hot-toast';
 
 const PLATFORM_OPTIONS = ['Instagram', 'Facebook'];
 
@@ -134,6 +135,7 @@ const SocialHandles = () => {
   const submit = async (data) => {
     if (mode === 'add') {
       const res = await dispatch(createSocialHandle(data));
+
       if (createSocialHandle.fulfilled.match(res)) {
         closeModal();
         // Refresh the list after create
@@ -178,7 +180,7 @@ const SocialHandles = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {socialItems?.map((item) => (
+        { socialItems && socialItems?.length > 0 ? socialItems?.map((item) => (
           <div key={item._id || item.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="w-full h-40 bg-gray-50 overflow-hidden">
               {item.image ? (
@@ -219,7 +221,17 @@ const SocialHandles = () => {
               </div>
             </div>
           </div>
-        ))}
+        )) : (
+          <div className="col-span-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-12 text-center">
+          <Share2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-sorts-mill-gloudy font-bold text-black mb-2">No Social Handles Found</h3>
+          <p className="font-montserrat-regular-400 text-black-light">
+            No social handles found
+          </p>
+        </div>
+        </div>
+        )}
       </div>
 
       {/* Pagination */}

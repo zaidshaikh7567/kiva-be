@@ -53,7 +53,7 @@ const CenterStoneViewModal = ({ isOpen, onClose, centerStone, onEdit }) => {
                 <Gem className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-sorts-mill-gloudy font-bold text-black mb-2">
-                {centerStone.name} CT
+                {centerStone.name}
               </h3>
               <div className="text-4xl font-sorts-mill-gloudy font-bold text-primary mb-2">
                 ${centerStone.price?.toFixed(2) || '0.00'}
@@ -71,7 +71,7 @@ const CenterStoneViewModal = ({ isOpen, onClose, centerStone, onEdit }) => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-3 border-b border-gray-200">
                   <span className="font-montserrat-medium-500 text-black-light">Name:</span>
-                  <span className="font-montserrat-semibold-600 text-black">{centerStone.name} CT</span>
+                  <span className="font-montserrat-semibold-600 text-black">{centerStone.name}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-200">
                   <span className="font-montserrat-medium-500 text-black-light">Category:</span>

@@ -13,7 +13,6 @@ const Header = () => {
   const favoritesCount = useSelector(selectFavoritesCount);
   const { user, logout } = useAuth();
   const location = useLocation();
-
   // Function to check if a link is active
   const isActive = (path) => {
     return location.pathname === path;
@@ -35,7 +34,6 @@ const Header = () => {
                 }}
               />
             </div>
-              {/* <div div className="text-xl font-serif text-primary">Aurora</div> */}
           </Link>
         </div>
         {/* <
@@ -45,8 +43,6 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden xl:flex items-center space-x-6 text-[#1e2b38] font-medium">
           {/* Category Dropdown */}
-     
-           {/* <CategoryDropdown /> */}
           <Link
             to="/shop"
             className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
@@ -111,13 +107,13 @@ const Header = () => {
             )}
           </Link>
           <Link
-            to="/about"
-            className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
-              isActive('/about') ? 'text-primary' : 'text-black-light'
-            }`}
-          >
-            About
-          </Link>
+  to="/about"
+  className={`${user !== null ? "" : "hidden"}  nav:inline-block hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${
+    isActive('/about') ? 'text-primary' : 'text-black-light'
+  }`}
+>
+  About
+</Link>
           <Link
             to="/contact"
             className={`hover:text-black font-montserrat-medium-500 text-[16px] transition-colors duration-200 ${

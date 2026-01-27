@@ -273,14 +273,14 @@ const Cart = () => {
                 }}
                 className="w-full bg-white text-primary border-2 border-primary font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 flex items-center justify-center space-x-2 mb-3"
               >
-                <Eye className="w-5 h-5" />
-                <span className="md:text-lg text-sm">View Cart</span>
+                {/* <Eye className="w-5 h-5" /> */}
+                <span className="md:text-[16px] text-sm">View Cart</span>
               </button>
 
               {/* Checkout Button */}
               <div className='relative w-full'>
                 <IconButton 
-                  className="w-full text-center justify-center flex text-lg" 
+                  className="w-full text-center justify-center flex md:text-[16px] text-sm font-montserrat-medium-500" 
                   onClick={handleCheckout}
                   rightIcon={ShoppingBag}
                 >
@@ -298,7 +298,7 @@ const Cart = () => {
               {/* Continue Shopping */}
               <button
                 onClick={() => dispatch(closeCart())}
-                className="w-full mt-3 md:text-lg text-sm text-primary border border-primary font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300"
+                className="w-full mt-3 md:text-[16px] text-sm text-primary border border-primary font-montserrat-medium-500 py-2 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors duration-300"
               >
                 Continue Shopping
               </button>

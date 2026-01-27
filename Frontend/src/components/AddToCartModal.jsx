@@ -7,7 +7,7 @@ import PriceDisplay from './PriceDisplay';
 import MetalSelector from './MetalSelector';
 import CenterStoneSelector from './CenterStoneSelector';
 import RingSizeSelector from './RingSizeSelector';
-
+import { Loader2 } from 'lucide-react';
 const AddToCartModal = ({
   isOpen,
   product,
@@ -24,7 +24,7 @@ const AddToCartModal = ({
 }) => {
   const stones = useSelector(selectStones);
   const stonesLoading = useSelector(selectStonesLoading);
-
+  const cartLoading = useSelector(state => state.cart.loading);
   if (!isOpen) return null;
 
   const handleClose = () => {
@@ -137,9 +137,10 @@ const AddToCartModal = ({
           </button>
           <button
             onClick={handleConfirm}
+            disabled={cartLoading}
             className="flex-1 bg-primary text-white font-montserrat-medium-500 py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors duration-200"
           >
-            Add to Cart
+            {cartLoading ? <div className="flex items-center justify-center space-x-2"><Loader2 className="w-4 h-4 animate-spin" /> <span className="ml-2">Adding to Cart...</span></div> : 'Add to Cart'}
           </button>
         </div>
       </div>

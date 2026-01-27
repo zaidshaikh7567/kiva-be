@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/api';
 import { API_METHOD } from '../../services/apiMethod';
+import { toast } from 'react-hot-toast';
 
 export const fetchSocialHandles = createAsyncThunk(
   'socials/fetchAll',
@@ -34,9 +35,16 @@ export const createSocialHandle = createAsyncThunk(
       if (data.platform) formData.append('platform', data.platform);
       if (typeof data.isActive === 'boolean') formData.append('isActive', String(data.isActive));
       const res = await api.post(API_METHOD.socials, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      toast.success('Social Handle created successfully');
       return res.data.data || res.data;
     } catch (e) {
-      return rejectWithValue(e.response?.data?.message || e.message);
+      const errorMessage = e.response?.data?.message || e.message || 'Failed to create social handle';
+      toast.error(errorMessage);
+      return rejectWithValue({
+        message: errorMessage,
+        status: e.response?.status,
+        data: e.response?.data
+      });
     }
   }
 );
@@ -51,9 +59,16 @@ export const updateSocialHandle = createAsyncThunk(
       if (data.platform) formData.append('platform', data.platform);
       if (typeof data.isActive === 'boolean') formData.append('isActive', String(data.isActive));
       const res = await api.put(`${API_METHOD.socials}/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      toast.success('Social Handle updated successfully');
       return res.data.data || res.data;
     } catch (e) {
-      return rejectWithValue(e.response?.data?.message || e.message);
+      const errorMessage = e.response?.data?.message || e.message || 'Failed to update social handle';
+      toast.error(errorMessage);
+      return rejectWithValue({
+        message: errorMessage,
+        status: e.response?.status,
+        data: e.response?.data
+      });
     }
   }
 );
@@ -63,9 +78,16 @@ export const deleteSocialHandle = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       await api.delete(`${API_METHOD.socials}/${id}`);
+      toast.success('Social Handle deleted successfully');
       return id;
     } catch (e) {
-      return rejectWithValue(e.response?.data?.message || e.message);
+      const errorMessage = e.response?.data?.message || e.message || 'Failed to delete social handle';
+      toast.error(errorMessage);
+      return rejectWithValue({
+        message: errorMessage,
+        status: e.response?.status,
+        data: e.response?.data
+      });
     }
   }
 );

@@ -96,3 +96,35 @@
 .read-the-docs {
   color: #888;
 }
+
+@keyframes goldPulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-goldPulse {
+  animation: goldPulse 1.8s ease-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 4s linear infinite;
+}
+
+.animate-logoFloat {
+  animation: logoFloat 2.4s ease-in-out infinite;
+}

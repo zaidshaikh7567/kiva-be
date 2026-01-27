@@ -527,7 +527,7 @@ const Orders = () => {
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-montserrat-medium-500 text-black-light">Active filters:</span>
                 {searchTerm && (
-                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500">
+                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-white rounded-full text-sm font-montserrat-medium-500">
                     <Search className="w-4 h-4" />
                     <span>"{searchTerm}"</span>
                     <button
@@ -539,7 +539,7 @@ const Orders = () => {
                   </span>
                 )}
                 {statusFilter !== 'all' && (
-                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500">
+                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-white rounded-full text-sm font-montserrat-medium-500">
                     <Filter className="w-4 h-4" />
                     <span className="capitalize">{statusFilter}</span>
                     <button
@@ -577,7 +577,7 @@ const Orders = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {orders.map((order) => {
+              { orders.length > 0 ? orders.map((order) => {
                 const orderIdDisplay = formatOrderNumber(order);
                 const shippingAddress = order.shippingAddress || {};
                 const customerName =
@@ -646,7 +646,16 @@ const Orders = () => {
                     </td>
                   </tr>
                 );
-              })}
+              }) : (
+                <tr>
+                <td
+                  colSpan={6}
+                  className="px-6 py-16 text-center text-md font-montserrat-regular-400 text-black-light"
+                >
+                  No orders found
+                </td>
+              </tr>
+              )}
             </tbody>
           </table>
         </div>

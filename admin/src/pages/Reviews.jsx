@@ -235,7 +235,7 @@ const Reviews = () => {
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-montserrat-medium-500 text-black-light">Active filters:</span>
                 {searchTerm && (
-                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500">
+                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-white rounded-full text-sm font-montserrat-medium-500">
                     <Search className="w-4 h-4" />
                     <span>"{searchTerm}"</span>
                     <button
@@ -247,7 +247,7 @@ const Reviews = () => {
                   </span>
                 )}
                 {ratingFilter !== 'all' && (
-                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500">
+                  <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-white rounded-full text-sm font-montserrat-medium-500">
                     <Star className="w-4 h-4" />
                     <span>{ratingFilter} Star{ratingFilter !== '1' ? 's' : ''}</span>
                     <button

@@ -458,7 +458,7 @@ const CartProductDetail = () => {
         const options = [];
 
         if (selectedMetal) {
-          options.push(`${selectedMetal.carat}K`);
+          options.push(`${selectedMetal.carat}`);
         }
         if (isRing && selectedRingSize) {
           options.push(`Size ${selectedRingSize}`);

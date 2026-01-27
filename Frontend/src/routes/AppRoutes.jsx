@@ -41,6 +41,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import AuthRedirect from "../components/AuthRedirect";
 import CurrencyTestPage from "../pages/CurrencyTestPage";
 import OrderDetails from "../pages/OrderDetails";
+import Loader from "../components/Loader";
 
 const AppRoutes = () => {
   return (
@@ -98,6 +99,7 @@ const AppRoutes = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
           <ScrollToTop/>
+          <Loader />
           <Toaster
         position="top-right"
         toastOptions={{

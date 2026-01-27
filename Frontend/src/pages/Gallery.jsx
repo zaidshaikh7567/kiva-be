@@ -4,13 +4,14 @@ import { fetchProducts, selectProducts, selectProductsLoading } from '../store/s
 import { fetchCategories, selectCategories } from '../store/slices/categoriesSlice';
 import { ZoomIn, Loader2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductDetailsModal from '../components/ProductDetailsModal';
+import { useNavigate } from 'react-router-dom';
 
 const Gallery = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
   const productsLoading = useSelector(selectProductsLoading);
   const categories = useSelector(selectCategories);
-  
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [fullscreenImage, setFullscreenImage] = useState(null);
@@ -326,11 +327,15 @@ const Gallery = () => {
                   const current = fullscreenImage.items?.[fullscreenImage.index];
                   if (!current) return;
                   const product = products.find(p => (p._id || p.id) === current.productId);
+                  console.log('product--- :', product);
                   if (product) {
                     setSelectedProduct(product);
-                    setIsProductModalOpen(true);
+                    navigate(`/product/${product._id || product.id}`);
                     setFullscreenImage(null);
                   }
+                }}
+                onError={(e) => {
+                  console.log('error--- :', e);
                 }}
               />
 

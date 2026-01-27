@@ -164,6 +164,7 @@ const dispatch = useDispatch();
 
   // Use users directly since server-side filtering is already applied
   const paginatedUsers = users;
+  console.log('paginatedUsers :', paginatedUsers);
 
   // Calculate statistics from all users (we might need a separate endpoint for this)
   const customerStats = {
@@ -288,7 +289,7 @@ const dispatch = useDispatch();
                 <span className="text-sm font-montserrat-medium-500 text-black-light whitespace-nowrap">Active filters:</span>
                 <div className="flex flex-wrap gap-2">
                   {searchTerm && (
-                    <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500 max-w-xs">
+                    <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-white rounded-full text-sm font-montserrat-medium-500 max-w-xs">
                       <Search className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">"{searchTerm.length > 20 ? searchTerm.substring(0, 20) + '...' : searchTerm}"</span>
                       <button
@@ -301,7 +302,7 @@ const dispatch = useDispatch();
                     </span>
                   )}
                   {statusFilter !== 'all' && (
-                    <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-montserrat-medium-500">
+                    <span className="inline-flex items-center space-x-1 px-3 py-1 bg-primary-light text-white rounded-full text-sm font-montserrat-medium-500">
                       <Filter className="w-4 h-4 flex-shrink-0" />
                       <span className="capitalize">{statusFilter}</span>
                       <button
@@ -365,31 +366,32 @@ const dispatch = useDispatch();
                   </td>
                 </tr>
               ) : (
-                paginatedUsers.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50 transition-colors duration-300">
+                paginatedUsers.map((user) => {
+                  return (
+                    <tr key={user._id} className="hover:bg-gray-50 transition-colors duration-300 text-[14px]">
                     <td className="px-4 py-4">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 ">
                         <div className="w-10 h-10 min-w-10 min-h-10 bg-primary-light rounded-full flex items-center justify-center">
                           {
                             user.profileImage && user.profileImage !== null ? (
-                              <img src={user.profileImage} alt={user.name} className="w-10 h-10 rounded-full" />
+                              <img src={user?.profileImage} alt={user?.name} className="w-10 h-10 rounded-full"  referrerPolicy="no-referrer"/>
                             ) : (
-                               <span className="text-sm font-montserrat-semibold-600 text-primary">
-                            {user.name.split(' ').map(n => n[0]).join('')}
+                               <span className="text-sm font-montserrat-semibold-600 text-primary uppercase">
+                            {user?.name?.split(' ').map(n => n[0]).join('')}
                         </span> 
                             )
                           }                        
                        
                         </div>
                         <div>
-                          <p className="font-montserrat-semibold-600 text-black">{user.name}</p>
+                          <p className="font-montserrat-semibold-600 text-black capitalize">{user?.name}</p>
                           {/* <p className="text-sm font-montserrat-regular-400 text-black-light">{user._id}</p> */}
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-4">
                       <div>
-                        <p className="font-montserrat-medium-500 text-black">{user.email}</p>
+                        <p className="font-montserrat-medium-500 text-black">{user?.email}</p>
                         {/* <p className="text-sm font-montserrat-regular-400 text-black-light">{user._id}</p> */}
                       </div>
                     </td>
@@ -399,7 +401,7 @@ const dispatch = useDispatch();
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            checked={user.active}
+                            checked={user?.active}
                             onChange={() => handleToggleStatus(user._id, user.active)}
                             disabled={togglingUser === user._id}
                             className="sr-only peer"
@@ -412,13 +414,13 @@ const dispatch = useDispatch();
                             )}
                           </div>
                         </label>
-                        <span className={`text-sm font-montserrat-medium-500 ${user.active ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className={`text-sm font-montserrat-medium-500 ${user?.active ? 'text-green-600' : 'text-gray-500'}`}>
                           {user.active ? 'Active' : 'Inactive'}
                         </span>
                     </div>
                   </td>
                     <td className="px-4 py-4">
-                      <span className="font-montserrat-semibold-600 text-black capitalize">{user.role}</span>
+                      <span className="font-montserrat-semibold-600 text-black capitalize">{user?.role}</span>
                     </td>
                     {/* <td className="px-4 py-4">
                       <div className="flex items-center space-x-2">
@@ -432,7 +434,7 @@ const dispatch = useDispatch();
                     <div className="flex items-center space-x-2">
                         <Calendar className="w-4 h-4 text-black-light" />
                         <span className="font-montserrat-regular-400 text-black">
-                          {new Date(user.createdAt).toLocaleDateString()}
+                          {new Date(user?.createdAt).toLocaleDateString()}
                         </span>
                     </div>
                   </td>
@@ -440,7 +442,7 @@ const dispatch = useDispatch();
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 text-black-light" />
                       <span className="font-montserrat-regular-400 text-black">
-                          {new Date(user.updatedAt).toLocaleDateString()}
+                          {new Date(user?.updatedAt).toLocaleDateString()}
                       </span>
                     </div>
                   </td>
@@ -461,7 +463,10 @@ const dispatch = useDispatch();
                     </div>
                   </td>
                 </tr>
-                ))
+                  )
+                }
+                 
+                )
               )}
             </tbody>
           </table>
