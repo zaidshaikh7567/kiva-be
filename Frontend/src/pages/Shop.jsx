@@ -22,7 +22,6 @@ const Shop = () => {
   const categories = useSelector(selectCategories);
   
   const [searchTerm, setSearchTerm] = useState('');
-  console.log('searchTerm :', searchTerm);
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [sortBy, setSortBy] = useState('newest');

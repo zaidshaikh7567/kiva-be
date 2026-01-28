@@ -18,7 +18,6 @@ const getWelcomeEmailTemplate = (userName) => {
   // Add logo from thebackend assets 
    
   const logoUrl = `https://testing-kiva.netlify.app/public/kiva-diamond-logo.png`; // Assumes logo is in public folder
-  console.log('logoUrl :', logoUrl);
   return `
 <!DOCTYPE html>
 <html lang="en">s

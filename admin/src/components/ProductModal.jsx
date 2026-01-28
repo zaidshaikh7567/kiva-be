@@ -10,10 +10,10 @@ import {
   COLOR_OPTIONS,
   CLARITY_OPTIONS,
   CERTIFICATE_OPTIONS,
-  EMPTY_LEXICAL_STATE
+  EMPTY_LEXICAL_STATE,
+  calculateCumulativePriceMultiplier
 } from '../constants';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
-import { calculateCumulativePriceMultiplier } from '../../../Frontend/src/constants';
 import FormInput from './FormInput';
 
 function getSafeLexicalState(val) {
@@ -1119,11 +1119,11 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
             </p>
           </div>
           {/* Action Buttons */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="block sm:flex items-center justify-end  pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={handleClose}
-              className="px-6 py-3 border border-gray-200 rounded-lg font-montserrat-medium-500 text-black-light hover:bg-gray-50 transition-colors"
+              className="px-6 py-3 border sm:w-auto w-full border-gray-200 rounded-lg font-montserrat-medium-500 text-black-light hover:bg-gray-50 transition-colors"
               disabled={loading}
             >
               Cancel
@@ -1131,7 +1131,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
             <button
               type="submit"
               disabled={loading || !formData.title.trim() || !formData.price || !formData.quantity || !formData.categoryId}
-              className={`flex items-center space-x-2 px-6 py-3 bg-gradient-to-r ${iconColor} text-white rounded-lg font-montserrat-medium-500 hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`flex sm:ml-2 sm:mt-0 mt-2 justify-center  sm:w-auto w-full items-center space-x-2 px-6 py-3 bg-gradient-to-r ${iconColor} text-white rounded-lg font-montserrat-medium-500 hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading ? (
                 <>

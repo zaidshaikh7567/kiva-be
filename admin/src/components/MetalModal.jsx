@@ -3,8 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Save, AlertCircle, Edit2, Check,PaintBucket,Zap} from 'lucide-react';
 import CustomDropdown from './CustomDropdown';
 import CustomCheckbox from '../../../Frontend/src/components/CustomCheckbox';
-import { METAL_COLOR_OPTIONS, KARAT_OPTIONS } from '../constants';
-import { calculateCumulativePriceMultiplier } from '../../../Frontend/src/constants';
+import { METAL_COLOR_OPTIONS, KARAT_OPTIONS, calculateCumulativePriceMultiplier } from '../constants';
 import FormInput from './FormInput';
 
 // Use constants from constants file
@@ -80,8 +79,6 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
 
   const handleColorSelect = (e) => {
     const value = e.target.value; // ✅ FIX
-
-    console.log(value);
     
     const selectedColor = colorOptions?.find(opt => opt.value === value);
 

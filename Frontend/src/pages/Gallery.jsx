@@ -327,7 +327,6 @@ const Gallery = () => {
                   const current = fullscreenImage.items?.[fullscreenImage.index];
                   if (!current) return;
                   const product = products.find(p => (p._id || p.id) === current.productId);
-                  console.log('product--- :', product);
                   if (product) {
                     setSelectedProduct(product);
                     navigate(`/product/${product._id || product.id}`);
@@ -335,7 +334,6 @@ const Gallery = () => {
                   }
                 }}
                 onError={(e) => {
-                  console.log('error--- :', e);
                 }}
               />
 

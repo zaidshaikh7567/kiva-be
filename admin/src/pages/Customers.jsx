@@ -164,7 +164,6 @@ const dispatch = useDispatch();
 
   // Use users directly since server-side filtering is already applied
   const paginatedUsers = users;
-  console.log('paginatedUsers :', paginatedUsers);
 
   // Calculate statistics from all users (we might need a separate endpoint for this)
   const customerStats = {

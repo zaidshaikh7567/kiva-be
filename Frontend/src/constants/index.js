@@ -75,21 +75,21 @@ export const transformStonesToDropdownOptions = (stones) => {
 // 
 // So 18K shows 1.38 because: 1.0 (10K base) × 1.15 (14K increase) × 1.20 (18K increase) = 1.38
 export const calculateCumulativePriceMultiplier = (metal, targetKarat) => {
-  if (!metal || !metal.purityLevels || metal.purityLevels.length === 0) return 1.0;
+  if (!metal || !metal?.purityLevels || metal?.purityLevels?.length === 0) return 1.0;
   
   // Sort purity levels by karat (ascending)
-  const sortedLevels = [...metal.purityLevels]
-    .filter(level => level.active !== false)
-    .sort((a, b) => a.karat - b.karat);
+    const sortedLevels = [...metal?.purityLevels || []]
+    .filter(level => level?.active !== false || level?.active !== undefined)
+    .sort((a, b) => a?.karat - b?.karat);
   
-  if (sortedLevels.length === 0) return 1.0;
+  if (sortedLevels?.length === 0) return 1.0;
   
   // Find the target karat level
-  const targetLevel = sortedLevels.find(level => level.karat === targetKarat);
+  const targetLevel = sortedLevels?.find(level => level?.karat === targetKarat || level?.karat === undefined);
   if (!targetLevel) return 1.0;
   
   // Find index of target level
-  const targetIndex = sortedLevels.findIndex(level => level.karat === targetKarat);
+  const targetIndex = sortedLevels?.findIndex(level => level?.karat === targetKarat || level?.karat === undefined);
   
   // Calculate cumulative multiplier
   // First level (lowest karat) = base (1.0)
@@ -97,7 +97,7 @@ export const calculateCumulativePriceMultiplier = (metal, targetKarat) => {
   let cumulativeMultiplier = 1.0;
   
   for (let i = 0; i <= targetIndex; i++) {
-    const level = sortedLevels[i];
+    const level = sortedLevels?.[i];
     if (i === 0) {
       // First level is base
       cumulativeMultiplier = 1.0;
@@ -106,12 +106,11 @@ export const calculateCumulativePriceMultiplier = (metal, targetKarat) => {
       // priceMultiplier is stored as the multiplier (e.g., 1.15 for 15% increase)
       // For cumulative: newMultiplier = previousMultiplier * priceMultiplier
       const previousMultiplier = cumulativeMultiplier;
-      const increaseMultiplier = level.priceMultiplier || 1.0;
+      const increaseMultiplier = level?.priceMultiplier || 1.0;
       cumulativeMultiplier = previousMultiplier * increaseMultiplier;
     }
   }
-  
-  return cumulativeMultiplier;
+    return cumulativeMultiplier;
 };
 
 // Helper function to transform metals data to metal selector options
@@ -128,6 +127,7 @@ export const transformMetalsToSelectorOptions = (metals) => {
         carat: `${purity.karat}K`,
         color: metal.name,
         priceMultiplier: cumulativeMultiplier, // Use cumulative multiplier
+        purityLevel: purity.priceMultiplier,
         metalId: metal._id,
         purityLevelId: purity._id
       };

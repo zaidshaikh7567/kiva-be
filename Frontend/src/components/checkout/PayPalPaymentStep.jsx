@@ -23,7 +23,6 @@ const PayPalPaymentStep = ({
   const [cardFields, setCardFields] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-  console.log('error :', error);
   const [useRedirect, setUseRedirect] = useState(false);
   const [paypalButtonsRendered, setPaypalButtonsRendered] = useState(false);
 
@@ -45,8 +44,7 @@ const PayPalPaymentStep = ({
   function getPayPalError(err) {
     // The PayPal JSON is inside err.cause or err.data (depending on browser)
     const raw = err?.cause || err?.data || err;
-    console.log('raw :', raw);
-    console.log('raw :',typeof raw);
+
   
     let parsed = raw;
     
@@ -54,7 +52,7 @@ const PayPalPaymentStep = ({
     if (typeof raw === "string") {
       try {
         parsed = JSON.parse(raw);
-        console.log('parsed :', parsed);
+
       } catch {
         return "Payment failed. Try again.@@@";
       }

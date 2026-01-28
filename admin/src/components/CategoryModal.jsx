@@ -11,7 +11,6 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
     image: null
   });
   const [imagePreview, setImagePreview] = useState(null);
-  console.log(imagePreview,'imagePreview');
   
   const [dragActive, setDragActive] = useState(false);
 
@@ -119,7 +118,6 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, loading, error, categoryData
   };
 
   const handleRemoveImage = () => {
-    console.log('fhdfh');
     
     setFormData(prev => ({
       ...prev,

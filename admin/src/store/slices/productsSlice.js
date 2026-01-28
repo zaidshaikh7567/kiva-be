@@ -147,12 +147,12 @@ export const updateProduct = createAsyncThunk(
       if (data.color) {
         formData.append('color', data.color);
       }
-      if (data.clarity) {
+      // if (data.clarity) {
         formData.append('clarity', data.clarity);
-      }
-      if (data.certificate) {
-        formData.append('certificate',data.certificate);
-      }
+      // }
+      // if (data.certificate && data.certificate.length > 0) {
+        formData.append('certificate', data.certificate ? JSON.stringify(data.certificate) : []);
+      // }
       // Always send isBand (even if false) to ensure it's updated
       formData.append('isBand', String(data.isBand ?? false));
       const response = await api.put(`${API_METHOD.products}/${id}`, formData, {

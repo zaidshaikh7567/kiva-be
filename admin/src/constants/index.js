@@ -30,16 +30,16 @@ export const SHAPE_OPTIONS = [
 
 // Color options
 export const COLOR_OPTIONS = [
-  { value: 'D', label: 'D (Colorless)' },
-  { value: 'E', label: 'E (Colorless)' },
-  { value: 'F', label: 'F (Colorless)' },
-  { value: 'G', label: 'G (Near Colorless)' },
-  { value: 'H', label: 'H (Near Colorless)' },
-  { value: 'I', label: 'I (Near Colorless)' },
-  { value: 'J', label: 'J (Near Colorless)' },
-  { value: 'K', label: 'K (Faint Yellow)' },
-  { value: 'L', label: 'L (Faint Yellow)' },
-  { value: 'M', label: 'M (Faint Yellow)' },
+  { value: 'D-F', label: 'D-F' },
+  { value: 'D', label: 'D' },
+  { value: 'F', label: 'F' },
+  { value: 'G', label: 'G' },
+  { value: 'H', label: 'H' },
+  { value: 'I', label: 'I' },
+  { value: 'J', label: 'J' },
+  { value: 'K', label: 'K' },
+  { value: 'L', label: 'L' },
+  { value: 'M', label: 'M' },
   { value: 'White', label: 'White' },
   { value: 'Yellow Gold', label: 'Yellow Gold' },
   { value: 'Rose Gold', label: 'Rose Gold' },
@@ -56,6 +56,8 @@ export const CLARITY_OPTIONS = [
   { value: 'VVS2', label: 'VVS2' },
   { value: 'VS1', label: 'VS1' },
   { value: 'VS2', label: 'VS2' },
+  { value: 'VVS', label: 'VVS' },
+  { value: 'VS', label: 'VS' },
   // { value: 'SI1', label: 'SI1 (Slightly Included 1)' },
   // { value: 'SI2', label: 'SI2 (Slightly Included 2)' },
   // { value: 'I1', label: 'I1 (Included 1)' },
@@ -322,3 +324,41 @@ export const STORAGE_KEYS = {
   language: 'language',
 };
 
+export const calculateCumulativePriceMultiplier = (metal, targetKarat) => {
+  if (!metal || !metal?.purityLevels || metal?.purityLevels?.length === 0) return 1.0;
+  
+  // Sort purity levels by karat (ascending)
+    const sortedLevels = [...metal?.purityLevels || []]
+    .filter(level => level?.active !== false || level?.active !== undefined)
+    .sort((a, b) => a?.karat - b?.karat);
+  
+  if (sortedLevels?.length === 0) return 1.0;
+  
+  // Find the target karat level
+  const targetLevel = sortedLevels?.find(level => level?.karat === targetKarat || level?.karat === undefined);
+  if (!targetLevel) return 1.0;
+  
+  // Find index of target level
+  const targetIndex = sortedLevels?.findIndex(level => level?.karat === targetKarat || level?.karat === undefined);
+  
+  // Calculate cumulative multiplier
+  // First level (lowest karat) = base (1.0)
+  // Each subsequent level = previous multiplier * (1 + percentage increase)
+  let cumulativeMultiplier = 1.0;
+  
+  for (let i = 0; i <= targetIndex; i++) {
+    const level = sortedLevels?.[i];
+    if (i === 0) {
+      // First level is base
+      cumulativeMultiplier = 1.0;
+    } else {
+      // Each level applies its percentage increase to the previous level's price
+      // priceMultiplier is stored as the multiplier (e.g., 1.15 for 15% increase)
+      // For cumulative: newMultiplier = previousMultiplier * priceMultiplier
+      const previousMultiplier = cumulativeMultiplier;
+      const increaseMultiplier = level?.priceMultiplier || 1.0;
+      cumulativeMultiplier = previousMultiplier * increaseMultiplier;
+    }
+  }
+    return cumulativeMultiplier;
+};

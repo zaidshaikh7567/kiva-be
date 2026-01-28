@@ -6,7 +6,6 @@ import { X } from 'lucide-react';
 import { transformMetalsToSelectorOptions, getMetalColorStyles } from '../constants';
 
 const MetalSelector = ({ selectedMetal, onMetalChange, className = "", product, cartItem }) => {
-console.log('selectedMetal :', selectedMetal);
   const metals = useSelector(selectMetals);
   const loading = useSelector(selectMetalsLoading);
 const pathname = useLocation();
@@ -191,7 +190,7 @@ const isProductDetail = pathname?.pathname?.includes('/product/');
             </div>
             <div className="text-right">
               <div className="text-sm font-montserrat-medium-500 text-primary-dark">
-                +{((selectedMetal.priceMultiplier - 1) * 100).toFixed(0)}% price
+                +{((selectedMetal.purityLevel - 1) * 100).toFixed(0)}% price
               </div>
             </div>
           </div>

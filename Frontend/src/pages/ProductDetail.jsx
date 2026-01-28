@@ -102,13 +102,11 @@ const ProductDetail = () => {
 
     // Transform metals to options (same logic as MetalSelector)
     const metalOptions = transformMetalsToSelectorOptions(metals);
-    console.log('metalOptions :', metalOptions);
 
     // Find first available metal option from product's metals
     const firstAvailableMetal = metalOptions.find(metalOption => {
       return availableMetalIds.includes(metalOption.metalId);
     });
-    console.log('firstAvailableMetal :', firstAvailableMetal);
 
     // Set the first available metal as selected
     if (firstAvailableMetal) {
@@ -313,10 +311,7 @@ const ProductDetail = () => {
           duration: 3000,
           position: 'top-right',
         });
-      } else {
-        console.log('response.message :', response.message);    
- 
-      }
+      } 
     } catch (error) {
       console.error('Failed to add item to cart:', error);
       // toast.error('Failed to add item to cart. Please try again.', {
@@ -602,7 +597,7 @@ const ProductDetail = () => {
 
                 {/* Additional Info */}
                 <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
-                  <p>✓ Free shipping for every order</p>
+                  {/* <p>✓ Free shipping for every order</p> */}
                   {/* <p>✓ 30-day return policy</p> */}
                   <p>✓ Secure checkout</p>
                 </div>

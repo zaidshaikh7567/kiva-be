@@ -29,7 +29,6 @@ import { capitalizeFirstLetter } from '../helpers/capitalizeFirstLetter';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(0);
-  console.log(product,'product');
   
   const cartLoading = useSelector(selectCartLoading);
   const [quantity, setQuantity] = useState(1);
@@ -510,7 +509,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                 <ContactBox />
                 {/* Additional Info */}
                 <div className="text-xs font-montserrat-regular-400 text-black-light text-center">
-                  <p>✓ Free shipping for every order</p>
+                  {/* <p>✓ Free shipping for every order</p> */}
                   {/* <p>✓ 30-day return policy</p> */}
                   <p>✓ Secure checkout</p>
                 </div>

@@ -89,7 +89,7 @@ const ProductDetailsSection = ({
     },
     {
       label: 'Width:',
-      value: '2 carat (2.4 mm), 3 carat (2.6 mm), 4 carat (2.9 mm), 5 carat (3.1 mm), 7 carat (3.7 mm), 10 carat (4.4 mm), 12 carat (5.3 mm), 15 carat (5.8 mm), 20 carat (6.2 mm)',
+      value: '2 carat (1.80 mm), 3 carat (2.10 mm), 4 carat (2.40 mm), 5 carat (2.80 mm), 6 carat (3.00 mm), 7 carat (3.40 mm), 10 carat (4.40 mm), 12 carat (5.30 mm), 15 carat (5.80 mm), 20 carat (6.20 mm)',
       show: isBracelet,
     },
     

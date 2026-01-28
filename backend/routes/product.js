@@ -141,13 +141,13 @@ router.put('/:id', authenticate, authorize('super_admin'), upload.array('images'
     updateData.color = color;
   }
 
-  if (clarity !== undefined) {
+  // if (clarity !== undefined) {
     updateData.clarity = clarity ? (typeof clarity === 'string' ? JSON.parse(clarity) : clarity) : [];
-  }
+  // }
 
-  if (certificate !== undefined) {
+  // if (certificate !== undefined) {
     updateData.certificate = certificate ? (typeof certificate === 'string' ? JSON.parse(certificate) : certificate) : [];
-  }
+  // }
 
   if (isBand !== undefined) {
     updateData.isBand = isBand;
