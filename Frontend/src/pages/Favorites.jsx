@@ -96,7 +96,7 @@ const Favorites = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-secondary">
       {/* Hero Section */}
       <CategoryHero
         eyebrow="JEWELRY COLLECTION"
@@ -140,7 +140,7 @@ const Favorites = () => {
             {favoritesCount > 0 && (
               <button
                 onClick={handleClearAllFavorites}
-                className="px-4 py-2 text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors font-montserrat-medium-500 flex items-center gap-2"
+                className="px-4 py-2  border border-primary rounded-lg bg-primary text-white transition-colors font-montserrat-medium-500 flex items-center gap-2"
               >
                 <Trash2 className="w-4 h-4" />
                 Clear All

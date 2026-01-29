@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       screens: {
-        'nav': '1334px',
+        'nav': '1360px',
       },
       fontFamily: {
         "sorts-mill-gloudy": ["sorts-mill-gloudy"],

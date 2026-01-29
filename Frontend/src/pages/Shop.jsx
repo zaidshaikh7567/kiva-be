@@ -20,14 +20,13 @@ const Shop = () => {
   const productsLoading = useSelector(selectProductsLoading);
   const productsError = useSelector(selectProductsError);
   const categories = useSelector(selectCategories);
-  
+  const WEDDING_BAND_CATEGORY = 'wedding-band';
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
-  
   // Ref to track if category change is from user action (prevents flicker)
   const isUserActionRef = useRef(false);
   const timeoutRef = useRef(null);
@@ -48,10 +47,29 @@ const Shop = () => {
     };
   }, []);
 
+  console.log('categories :', categories);
   const parentCategories = useMemo(
     () => categories?.filter(category => !category.parent) || [],
     [categories]
   );
+  const categoryTree = useMemo(() => {
+    const parents = categories.filter(c => !c.parent);
+    const childrenMap = {};
+
+    categories.forEach(cat => {
+      if (cat.parent) {
+        const parentId =
+          typeof cat.parent === "object" ? cat.parent._id : cat.parent;
+
+        if (!childrenMap[parentId]) {
+          childrenMap[parentId] = [];
+        }
+        childrenMap[parentId].push(cat);
+      }
+    });
+
+    return { parents, childrenMap };
+  }, [categories]);
 
   const categoryHierarchy = useMemo(() => {
     const parentsByName = {};
@@ -79,6 +97,7 @@ const Shop = () => {
       childrenByParentId[parentId].add(category._id);
     });
 
+
     return { parentsByName, childrenByParentId };
   }, [categories, parentCategories]);
 
@@ -86,17 +105,25 @@ const Shop = () => {
   const filteredProducts = useMemo(() => {
     let filtered = products.filter(product => {
       // Safely extract description text for search
-      const descriptionText = typeof product.description === 'string' 
-      ? product.description.toLowerCase() 
-      : '';
+      const descriptionText = typeof product.description === 'string'
+        ? product.description.toLowerCase()
+        : '';
 
       const matchesSearch = product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           descriptionText.includes(searchTerm.toLowerCase());
+        descriptionText.includes(searchTerm.toLowerCase());
 
+      // let matchesCategory = selectedCategory === 'all';
       let matchesCategory = selectedCategory === 'all';
-      
 
-      if (!matchesCategory) {
+      // ✅ Wedding Band filter
+      if (selectedCategory === WEDDING_BAND_CATEGORY) {
+        matchesCategory = product.isBand === true;
+      }
+
+
+
+      if (!matchesCategory && selectedCategory !== WEDDING_BAND_CATEGORY) {
+
         const selectedCategoryLower = selectedCategory.toLowerCase();
         const productCategoryName = product.category?.name?.toLowerCase();
         const productParent = product.category?.parent;
@@ -130,12 +157,9 @@ const Shop = () => {
       const basePrice = typeof product.price === "number" ? product.price : 0;
       const stonePrice = typeof product.stoneType?.price === "number" ? product.stoneType.price : 0;
       const totalPrice = basePrice + stonePrice;
-      
       const matchesPrice = totalPrice >= priceRange[0] && totalPrice <= priceRange[1];
-      
       return matchesSearch && matchesCategory && matchesPrice;
     });
-    
 
     // Sort products
     switch (sortBy) {
@@ -183,12 +207,12 @@ const Shop = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     // Mark as user action to prevent useEffect from causing flicker
     isUserActionRef.current = true;
-    
+
     // Update state first
-    setSelectedCategory(value);
+    setSelectedCategory(value.toLowerCase());
 
     // Update URL
     const nextParams = new URLSearchParams(searchParams);
@@ -198,7 +222,7 @@ const Shop = () => {
       nextParams.set('category', value.toLowerCase());
     }
     setSearchParams(nextParams, { replace: true });
-    
+
     // Reset the ref after React processes the updates
     // This prevents the useEffect from triggering and causing flicker
     timeoutRef.current = setTimeout(() => {
@@ -215,31 +239,48 @@ const Shop = () => {
   };
   // Sync category from URL (only when URL changes externally, not from user action)
   useEffect(() => {
-    // Skip if this is a user-initiated change to prevent flicker
-    if (isUserActionRef.current) {
+    if (isUserActionRef.current) return;
+
+    const categoryParam = searchParams.get('category');
+    if (!categoryParam) {
+      setSelectedCategory('all');
       return;
     }
 
-    const categoryParam = searchParams.get('category');
-    const normalizedParam = categoryParam ? categoryParam.toLowerCase() : 'all';
-
-    // Determine what the category should be based on URL
-    let targetCategory = 'all';
-    if (normalizedParam !== 'all' && parentCategories.length > 0) {
-      const matchedParent = parentCategories.find(
-        (category) => category?.name?.toLowerCase() === normalizedParam
-      );
-      if (matchedParent) {
-        targetCategory = matchedParent.name;
-      }
+    const normalized = categoryParam.toLowerCase();
+    // ✅ Wedding Band from URL
+    if (normalized === WEDDING_BAND_CATEGORY) {
+      setSelectedCategory(WEDDING_BAND_CATEGORY);
+      return;
     }
 
-    // Use functional update to compare with current state without needing it in deps
-    setSelectedCategory((currentCategory) => {
-      // Only update if different to prevent unnecessary re-renders
-      return currentCategory !== targetCategory ? targetCategory : currentCategory;
-    });
-  }, [searchParams, parentCategories]);
+
+    // ✅ Check parents
+    const parentMatch = parentCategories.find(
+      p => p.name.toLowerCase() === normalized
+    );
+
+    if (parentMatch) {
+      setSelectedCategory(normalized);
+      return;
+    }
+
+    // ✅ Check children
+    const childMatch = categories.find(
+      c =>
+        c.parent &&
+        c.name.toLowerCase() === normalized
+    );
+
+    if (childMatch) {
+      setSelectedCategory(normalized);
+      return;
+    }
+
+    // ❌ If nothing matches → fallback
+    setSelectedCategory('all');
+  }, [searchParams, parentCategories, categories]);
+
 
 
   // product load show loader
@@ -247,7 +288,7 @@ const Shop = () => {
     if (!products || products.length === 0) {
       return { min: 0, max: 5000 };
     }
-  
+
     // One total price per product
     const totalPrices = products
       .map(p => {
@@ -256,25 +297,23 @@ const Shop = () => {
         return base + stone; // <-- combined total price
       })
       .filter(v => typeof v === "number" && !isNaN(v));
-  
+
     if (totalPrices.length === 0) {
       return { min: 0, max: 5000 };
     }
-  
+
     return {
       min: Math.min(...totalPrices),
       max: Math.max(...totalPrices)
     };
   }, [products]);
-  
-  
-  
-useEffect(() => {
-  if (products.length > 0) {
-    setPriceRange([priceLimits.min, priceLimits.max]);
-  }
-}, [products, priceLimits.min, priceLimits.max]);
-  
+
+  useEffect(() => {
+    if (products.length > 0) {
+      setPriceRange([priceLimits.min, priceLimits.max]);
+    }
+  }, [products, priceLimits.min, priceLimits.max]);
+
   return (
     <div className="min-h-screen bg-secondary">
       {/* Hero Section */}
@@ -312,7 +351,7 @@ useEffect(() => {
                   icon={Search}
                   placeholder="Search jewelry..."
                 />
-                
+
               </div>
 
               {/* Category Filter */}
@@ -331,25 +370,23 @@ useEffect(() => {
                         onChange={(e) => handleCategoryChange(e.target.value)}
                         className="sr-only"
                       />
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                        selectedCategory === 'all' 
-                          ? 'border-primary bg-white' 
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${selectedCategory === 'all'
+                          ? 'border-primary bg-white'
                           : 'border-gray-300 group-hover:border-primary'
-                      }`}>
+                        }`}>
                         {selectedCategory === 'all' && (
                           <div className="w-2 h-2 rounded-full bg-primary"></div>
                         )}
                       </div>
                     </div>
-                    <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
-                      selectedCategory === 'all' 
-                        ? 'text-primary font-montserrat-medium-500' 
+                    <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${selectedCategory === 'all'
+                        ? 'text-primary font-montserrat-medium-500'
                         : 'text-black-light group-hover:text-black'
-                    }`}>
+                      }`}>
                       All Products
                     </span>
                   </label>
-                  {parentCategories.map((category) => (
+                  {/* {parentCategories.map((category) => (
                     <label key={category._id} className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
                       <div className="relative">
                         <input
@@ -378,22 +415,114 @@ useEffect(() => {
                         {category.name}
                       </span>
                     </label>
+                  ))} */}
+                  {/* Wedding Band */}
+                  <label className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+                    <div className="relative">
+                      <input
+                        type="radio"
+                        name="category"
+                        value={WEDDING_BAND_CATEGORY}
+                        checked={selectedCategory === WEDDING_BAND_CATEGORY}
+                        onChange={(e) => handleCategoryChange(e.target.value)}
+                        className="sr-only"
+                      />
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+      ${selectedCategory === WEDDING_BAND_CATEGORY
+                          ? 'border-primary'
+                          : 'border-gray-300'}
+    `}>
+                        {selectedCategory === WEDDING_BAND_CATEGORY && (
+                          <div className="w-2 h-2 rounded-full bg-primary" />
+                        )}
+                      </div>
+                    </div>
+                    <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${selectedCategory === WEDDING_BAND_CATEGORY
+                        ? 'text-primary font-montserrat-medium-500'
+                        : 'text-black-light group-hover:text-black'
+                      }`}>
+                      Wedding Band
+                    </span>
+                  </label>
+
+                  {categoryTree.parents.map(parent => (
+                    <div key={parent._id} className="space-y-2">
+                      {/* Parent */}
+                      <label className="flex items-center cursor-pointer group">
+                        <div className="relative">
+                          <input
+                            type="radio"
+                            name="category"
+                            value={parent.name.toLowerCase()}
+                            checked={selectedCategory === parent.name.toLowerCase()}
+                            onChange={(e) => handleCategoryChange(e.target.value)}
+                            className="sr-only"
+                          />
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+          ${selectedCategory === parent.name.toLowerCase()
+                              ? 'border-primary'
+                              : 'border-gray-300'}
+        `}>
+                            {selectedCategory === parent.name.toLowerCase() && (
+                              <div className="w-2 h-2 rounded-full bg-primary" />
+                            )}
+                          </div>
+                        </div>
+                        <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${selectedCategory === parent.name.toLowerCase()
+                            ? 'text-primary font-montserrat-medium-500'
+                            : 'text-black-light group-hover:text-black'
+                          }`}>
+                          {parent.name}
+                        </span>
+                      </label>
+
+                      {/* Children */}
+                      {categoryTree.childrenMap[parent._id]?.map(child => (
+                        <label key={child._id} className="flex items-center cursor-pointer ml-6 group">
+                          <div className="relative">
+                            <input
+                              type="radio"
+                              name="category"
+                              value={child.name.toLowerCase()}
+                              checked={selectedCategory === child.name.toLowerCase()}
+                              onChange={(e) => handleCategoryChange(e.target.value)}
+                              className="sr-only"
+                            />
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+            ${selectedCategory === child.name.toLowerCase()
+                                ? 'border-primary'
+                                : 'border-gray-300'}
+          `}>
+                              {selectedCategory === child.name.toLowerCase() && (
+                                <div className="w-2 h-2 rounded-full bg-primary" />
+                              )}
+                            </div>
+                          </div>
+                          <span className="ml-4 text-sm text-black-light">
+                            {child.name}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   ))}
+
+
+
                 </div>
               </div>
 
               {/* Price Range */}
               <div className="mb-6">
                 <label className="block text-sm font-montserrat-medium-500 text-black-light mb-4">
-                  Price Range
+                  Price Rangess
                 </label>
                 <DualRangeSlider
-  min={priceLimits.min}
-  max={priceLimits.max}
-  value={priceRange}
-  onChange={handlePriceRangeChange}
-  step={50}
-/>
+                  min={priceLimits.min}
+                  max={priceLimits.max}
+                  value={priceRange}
+                  onChange={handlePriceRangeChange}
+                  step={50}
+                />
 
               </div>
             </div>
@@ -429,7 +558,7 @@ useEffect(() => {
                   {/* Mobile Search */}
                   <div className="mb-6">
                     <label className="block text-sm font-montserrat-medium-500 text-black-light mb-2">
-                      Search Products
+                      Clear All Filters
                     </label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-light w-4 h-4" />
@@ -448,8 +577,11 @@ useEffect(() => {
                     <label className="block text-sm font-montserrat-medium-500 text-black-light mb-4">
                       Category
                     </label>
-                    <div className="space-y-4">
-                      <label className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+
+                    <div className="space-y-3">
+
+                      {/* All Products */}
+                      <label className="flex items-center cursor-pointer group">
                         <div className="relative">
                           <input
                             type="radio"
@@ -459,56 +591,118 @@ useEffect(() => {
                             onChange={(e) => handleCategoryChange(e.target.value)}
                             className="sr-only"
                           />
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                            selectedCategory === 'all' 
-                              ? 'border-primary bg-white' 
-                              : 'border-gray-300 group-hover:border-primary'
-                          }`}>
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+          ${selectedCategory === 'all' ? 'border-primary' : 'border-gray-300'}
+        `}>
                             {selectedCategory === 'all' && (
-                              <div className="w-2 h-2 rounded-full bg-primary"></div>
+                              <div className="w-2 h-2 rounded-full bg-primary" />
                             )}
                           </div>
                         </div>
-                        <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
-                          selectedCategory === 'all' 
-                            ? 'text-primary font-montserrat-medium-500' 
+                        <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${selectedCategory === 'all'
+                            ? 'text-primary font-montserrat-medium-500'
                             : 'text-black-light group-hover:text-black'
-                        }`}>
+                          }`}>
                           All Products
                         </span>
                       </label>
-                      {parentCategories.map((category) => (
-                        <label key={category._id} className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
-                          <div className="relative">
-                            <input
-                              type="radio"
-                              name="category"
-                              value={category.name}
-                              checked={selectedCategory === category.name}
-                              onChange={(e) => handleCategoryChange(e.target.value)}
-                              className="sr-only"
-                            />
-                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                              selectedCategory === category.name 
-                                ? 'border-primary bg-white' 
-                                : 'border-gray-300 group-hover:border-primary'
-                            }`}>
-                              {selectedCategory === category.name && (
-                                <div className="w-2 h-2 rounded-full bg-primary"></div>
-                              )}
-                            </div>
+
+                      {/* Wedding Band */}
+                      <label className="flex items-center cursor-pointer group">
+                        <div className="relative">
+                          <input
+                            type="radio"
+                            name="category"
+                            value={WEDDING_BAND_CATEGORY}
+                            checked={selectedCategory === WEDDING_BAND_CATEGORY}
+                            onChange={(e) => handleCategoryChange(e.target.value)}
+                            className="sr-only"
+                          />
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+          ${selectedCategory === WEDDING_BAND_CATEGORY ? 'border-primary' : 'border-gray-300'}
+        `}>
+                            {selectedCategory === WEDDING_BAND_CATEGORY && (
+                              <div className="w-2 h-2 rounded-full bg-primary" />
+                            )}
                           </div>
-                          <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
-                            selectedCategory === category.name 
-                              ? 'text-primary font-montserrat-medium-500' 
-                              : 'text-black-light group-hover:text-black'
+                        </div>
+                        <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${selectedCategory === WEDDING_BAND_CATEGORY
+                            ? 'text-primary font-montserrat-medium-500'
+                            : 'text-black-light group-hover:text-black'
                           }`}>
-                            {category.name}
-                          </span>
-                        </label>
+                          Wedding Band
+                        </span>
+                      </label>
+
+                      {/* Parents + Children */}
+                      {categoryTree.parents.map(parent => (
+                        <div key={parent._id} className="space-y-2">
+
+                          {/* Parent */}
+                          <label className="flex items-center cursor-pointer group">
+                            <div className="relative">
+                              <input
+                                type="radio"
+                                name="category"
+                                value={parent.name.toLowerCase()}
+                                checked={selectedCategory === parent.name.toLowerCase()}
+                                onChange={(e) => handleCategoryChange(e.target.value)}
+                                className="sr-only"
+                              />
+                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+              ${selectedCategory === parent.name.toLowerCase()
+                                  ? 'border-primary'
+                                  : 'border-gray-300'}
+            `}>
+                                {selectedCategory === parent.name.toLowerCase() && (
+                                  <div className="w-2 h-2 rounded-full bg-primary" />
+                                )}
+                              </div>
+                            </div>
+                            <span className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${selectedCategory === parent.name.toLowerCase()
+                                ? 'text-primary font-montserrat-medium-500'
+                                : 'text-black-light group-hover:text-black'
+                              }`}>
+                              {parent.name}
+                            </span>
+                          </label>
+
+                          {/* Children */}
+                          {categoryTree.childrenMap[parent._id]?.map(child => (
+                            <label
+                              key={child._id}
+                              className="flex items-center cursor-pointer ml-6 group"
+                            >
+                              <div className="relative">
+                                <input
+                                  type="radio"
+                                  name="category"
+                                  value={child.name.toLowerCase()}
+                                  checked={selectedCategory === child.name.toLowerCase()}
+                                  onChange={(e) => handleCategoryChange(e.target.value)}
+                                  className="sr-only"
+                                />
+                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+                ${selectedCategory === child.name.toLowerCase()
+                                    ? 'border-primary'
+                                    : 'border-gray-300'}
+              `}>
+                                  {selectedCategory === child.name.toLowerCase() && (
+                                    <div className="w-2 h-2 rounded-full bg-primary" />
+                                  )}
+                                </div>
+                              </div>
+                              <span className="ml-4 text-sm text-black-light">
+                                {child.name}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
                       ))}
+
                     </div>
                   </div>
+
 
                   {/* Mobile Price Range */}
                   <div className="mb-6">
@@ -538,10 +732,10 @@ useEffect(() => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
               <div className="flex items-center gap-4">
                 <span className="text-black-light font-montserrat-regular-400">
-                  {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
+                  {filteredProducts?.length} product{filteredProducts?.length !== 1 ? 's' : ''} found
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 {/* Sort Dropdown */}
                 <CustomDropdown
@@ -550,7 +744,7 @@ useEffect(() => {
                   onChange={setSortBy}
                   placeholder="Sort by"
                   className="min-w-[200px]"
-                    searchable={false}
+                  searchable={false}
                 />
 
                 {/* View Mode Toggle */}
@@ -599,7 +793,7 @@ useEffect(() => {
               </div>
             ) : filteredProducts.length > 0 ? (
               <div className={
-                viewMode === 'grid' 
+                viewMode === 'grid'
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
                   : 'space-y-4 sm:space-y-6'
               }>
