@@ -29,7 +29,8 @@ import { fetchStones, selectStones, selectStonesLoading } from "../store/slices/
 import { TIMELINE_OPTIONS, transformMetalsToDropdownOptions, transformStonesToDropdownOptions } from "../constants";
 import FormInput from "../components/FormInput";
 import CategoryHero from "../components/CategoryHero";
-import customHeroBg from "../assets/images/summar.webp";
+// import customHeroBg from "../assets/images/ChatGPT Image Jan 30, 2026, 02_31_16 PM.png";
+import customHeroBg from "../assets/images/ChatGPT Image Jan 30, 2026, 02_46_01 PM.png";
 const Custom = () => {
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
@@ -415,6 +416,7 @@ const Custom = () => {
       </AnimatedSection> */}
 
       {/* Custom Order Form */}
+      
       <AnimatedSection animationType="fadeInUp" delay={200}>
         <section className="py-10 sm:py-10 bg-secondary">
           <div className="max-w-5xl mx-auto sm:px-6 px-4">

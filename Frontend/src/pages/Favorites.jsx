@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 import AnimatedSection from "../components/home/AnimatedSection";
 import { capitalizeFirstLetter } from "../helpers/capitalizeFirstLetter";
 import CategoryHero from "../components/CategoryHero";
-import favoritesHeroBg from "../assets/images/summar.webp";
+import favoritesHeroBg from "../assets/images/8dd43a6d-215e-4f4a-901f-ab6f85bc06f3.png";
 const Favorites = () => {
   const favorites = useSelector(selectFavorites);
   const favoritesCount = useSelector(selectFavoritesCount);

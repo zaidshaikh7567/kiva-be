@@ -12,7 +12,7 @@ import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
 import ProductFilterToolbar from "../components/ProductFilterToolbar";
 import CategoryHero from "../components/CategoryHero";
-import ringHeroBg from "../assets/images/ring-hero.jpeg";
+import ringHeroBg from "../assets/images/ring-hero.png";
 import NeedHelpSection from "../components/NeedHelpSection";
 const Rings = () => {
   const dispatch = useDispatch();

@@ -231,20 +231,23 @@ const CollectionModal = ({ isOpen, onClose, onSubmit, loading, error, collection
     e.preventDefault();
     const videoValue = videoInputType === 'file' && videoFile ? videoFile : formData.video;
     
-    if (formData.title.trim() && formData.category && videoValue) {
+    if (formData.category) {
       const submitData = {
         title: formData.title,
         category: formData.category,
-        video: videoValue,
         isNew: formData.isNew,
         isActive: formData.isActive,
         images: formData.images
       };
 
       // If video is a file, add it separately
+      // if i delete the video, then videoValue will be empty string
+      // if (videoValue !== '' && videoValue !== null) {
+        submitData.video = videoValue;
+      // }
+      
       if (videoInputType === 'file' && videoFile) {
         submitData.videoFile = videoFile;
-        submitData.video = null; // Clear URL if using file
       }
 
       if (mode === 'edit' && collectionData) {
@@ -338,20 +341,20 @@ const CollectionModal = ({ isOpen, onClose, onSubmit, loading, error, collection
           )}
 
           {/* Collection Title */}
-          <div className="space-y-2">
+          <div className="space-y-2">          
             <FormInput
-              label="Collection Title"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              placeholder="e.g., Youth Collection"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
-              required
-              disabled={loading}
-              inputMode="text"
-              error={error}
-              icon={Images}
-            />
+            label="Collection Title (Optional)"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+            placeholder="e.g., Youth Collection"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
+            disabled={loading}
+            inputMode="text"
+            error={error}
+            icon={Images}
+          />
+          
           </div>
 
           {/* Category */}
@@ -372,7 +375,7 @@ const CollectionModal = ({ isOpen, onClose, onSubmit, loading, error, collection
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-sm font-montserrat-medium-500 text-black">
-                Video <span className="text-red-500">*</span>
+                Video (Optional) 
               </label>
               <div className="flex items-center space-x-2">
                 <button
@@ -417,7 +420,7 @@ const CollectionModal = ({ isOpen, onClose, onSubmit, loading, error, collection
                   onChange={handleInputChange}
                   placeholder="https://example.com/video.mp4"
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 outline-none focus:ring-primary focus:border-transparent transition-all duration-200 font-montserrat-regular-400"
-                  required={!videoFile}
+                  // required={!videoFile}
                   disabled={loading}
                 />
                 <p className="text-xs text-black-light font-montserrat-regular-400 mt-1">
@@ -590,7 +593,7 @@ const CollectionModal = ({ isOpen, onClose, onSubmit, loading, error, collection
             </button>
             <button
               type="submit"
-              disabled={loading || !formData.title.trim() || !formData.category || !formData.video}
+              disabled={loading || !formData.category }
               className={`flex sm:ml-2 sm:mt-0 mt-2  sm:w-auto w-full items-center space-x-2 px-6 py-3 bg-gradient-to-r ${iconColor} text-white rounded-lg font-montserrat-medium-500 hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading ? (

@@ -31,6 +31,7 @@ export const SHAPE_OPTIONS = [
 // Color options
 export const COLOR_OPTIONS = [
   { value: 'D-F', label: 'D-F' },
+  { value: 'E', label: 'E' },
   { value: 'D', label: 'D' },
   { value: 'F', label: 'F' },
   { value: 'G', label: 'G' },

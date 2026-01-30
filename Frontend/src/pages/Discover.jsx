@@ -164,15 +164,14 @@ const Discover = () => {
     if (selectedCategory === 'all') {
       return displayCollections;
     }
-
+    
     let filtered = displayCollections.filter(c => {
       const collectionCategory = c.category?.toLowerCase() || '';
       return collectionCategory === selectedCategory.toLowerCase();
     });
-
+    
     return filtered;
   }, [displayCollections, selectedCategory]);
-
   // Filter products by subcategory (when subcategory is selected)
   const filteredProducts = useMemo(() => {
     if (!selectedSubcategory || selectedCategory === 'all') {
@@ -364,7 +363,7 @@ const Discover = () => {
       </section>
 
       {/* Video Slider Section - Only show when not filtering by subcategory */}
-      {!showProducts && displayCollections.length > 0 && (
+      {/* {!showProducts && displayCollections.length > 0 && (
         <section className="py-12 sm:py-16 bg-white">
           <div className=" mx-auto px-4">
             <div className="text-center mb-8 sm:mb-12">
@@ -375,6 +374,8 @@ const Discover = () => {
                 Watch our collections come to life
               </p>
             </div>
+{
+  filteredCollections[currentVideoIndex]?.video && 
 
             <div className="relative max-w-4xl mx-auto">
               <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-black shadow-2xl">
@@ -386,17 +387,10 @@ const Discover = () => {
                     loop
                     autoPlay
                   />
-                  {/* <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                    <button
-                      onClick={() => setIsVideoPlaying(!isVideoPlaying)}
-                      className="w-12 h-12 sm:w-16 sm:h-16 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg"
-                    >
-                      {isVideoPlaying ? <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-primary-dark" /> : <Play className="w-5 h-5 sm:w-6 sm:h-6 text-primary-dark ml-1" />}
-                    </button>
-                  </div> */}
+                 
                 </div>
 
-                {/* Video Info */}
+
                 <div className="absolute bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6">
                   <div className="bg-black/60 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4">
                     <h3 className="text-white text-lg sm:text-xl font-sorts-mill-gloudy font-medium mb-1">
@@ -408,7 +402,7 @@ const Discover = () => {
                   </div>
                 </div>
 
-                {/* Navigation */}
+
                 <button
                   onClick={prevVideo}
                   className="absolute left-2 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 backdrop-blur-sm"
@@ -423,7 +417,7 @@ const Discover = () => {
                 </button>
               </div>
 
-              {/* Video Thumbnails */}
+
               <div className="flex justify-center gap-2 sm:gap-3 mt-4 sm:mt-6">
                 {filteredCollections.map((collection, index) => (
                   <button
@@ -435,10 +429,10 @@ const Discover = () => {
                   />
                 ))}
               </div>
-            </div>
+            </div>}
           </div>
         </section>
-      )}
+      )} */}
 
       {/* Beautiful Image Gallery */}
       <section className="py-16 bg-gray-50">
@@ -628,10 +622,10 @@ const Discover = () => {
                     
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <button
-                        onClick={() => toggleVideo(collection._id || collection.id)}
+                        onClick={() => {if(collection.video){toggleVideo(collection._id || collection.id)}else{setFullscreenImage({ collection: collection.title || 'Collection', images: collection.images || [], image: collection.images?.[0] || 'https://via.placeholder.com/400x500', index: 0 })}}}
                         className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg"
                       >
-                        <Play className="w-5 h-5 text-primary-dark ml-1" />
+                        {collection.video ? <Play className="w-5 h-5 text-primary-dark ml-1" /> : <ZoomIn className="w-5 h-5 text-primary-dark ml-1" />}  
                       </button>
                     </div>
 
@@ -722,7 +716,7 @@ const Discover = () => {
                           />
                         </div>
                         <div className="flex-1 p-4 sm:p-6 lg:p-8">
-                          <h3 className="text-xl sm:text-2xl font-sorts-mill-gloudy font-medium text-gray-900 mb-2">
+                          <h3 className="text-xl sm:text-2xl font-sorts-mill-gloudy font-medium text-gray-900 mb-2 capitalize">
                             {product.title || 'Product'}
                           </h3>
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
@@ -775,19 +769,19 @@ const Discover = () => {
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                         <button
-                          onClick={() => toggleVideo(collection._id || collection.id)}
+                          onClick={() => {if(collection.video){toggleVideo(collection._id || collection.id)}else{setFullscreenImage({ collection: collection.title || 'Collection', images: collection.images || [], image: collection.images?.[0] || 'https://via.placeholder.com/400x500', index: 0 })}}}
                           className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 shadow-lg"
                         >
-                          <Play className="w-5 h-5 text-primary-dark ml-1" />
+                          {collection.video ? <Play className="w-5 h-5 text-primary-dark ml-1" /> : <ZoomIn className="w-5 h-5 text-primary-dark ml-1" />}
                         </button>
                       </div>
                     </div>
                     
                     <div className="flex-1 p-4 sm:p-6 lg:p-8">
-                      <h3 className="text-xl sm:text-2xl font-sorts-mill-gloudy font-medium text-gray-900 mb-2">
+                      <h3 className="text-xl sm:text-2xl font-sorts-mill-gloudy font-medium text-gray-900 mb-2 capitalize">
                         {collection.title || 'Collection'}
                       </h3>
-                      <p className="text-gray-600 font-montserrat-regular-400 mb-4">
+                      <p className="text-gray-600 font-montserrat-regular-400 mb-4 capitalize">
                         {collection.category || ''}
                       </p>
                       
@@ -982,39 +976,126 @@ const Discover = () => {
       </section> */}
 
       {/* Video Modal */}
-      {activeVideo && (
+      {activeVideo && displayCollections.find(c => (c._id || c.id) === activeVideo)?.video ?(
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-4xl bg-black  overflow-hidden">
+        <div className="relative w-full max-w-4xl bg-black  overflow-hidden">
+          <button
+            onClick={() => setActiveVideo(null)}
+            className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <div className="aspect-video">
+            <video
+              className="w-full h-full object-cover"
+              controls
+              muted={muted}
+              autoPlay
+            >
+              <source src={displayCollections.find(c => (c._id || c.id) === activeVideo)?.video} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+            <h3 className="text-white text-lg font-sorts-mill-gloudy font-medium capitalize">
+              {displayCollections.find(c => (c._id || c.id) === activeVideo)?.title || 'Collection'} - Collection Video
+            </h3>
             <button
-              onClick={() => setActiveVideo(null)}
-              className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300"
+              onClick={toggleMute}
+              className="flex items-center gap-2 px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition-colors text-white text-sm"
+            >
+              {muted ? 'Unmute' : 'Mute'}
+            </button>
+          </div>
+        </div>
+      </div>
+      ):(fullscreenImage && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+          <div className="relative w-full h-full max-w-6xl max-h-[90vh] bg-black overflow-hidden flex flex-col">
+            <button
+              onClick={() => setFullscreenImage(null)}
+              className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300"
             >
               <X className="w-5 h-5" />
             </button>
-            <div className="aspect-video">
-              <video
-                className="w-full h-full object-cover"
-                controls
-                muted={muted}
-                autoPlay
-              >
-                <source src={displayCollections.find(c => (c._id || c.id) === activeVideo)?.video} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-              <h3 className="text-white text-lg font-sorts-mill-gloudy font-medium">
-                {displayCollections.find(c => (c._id || c.id) === activeVideo)?.title || 'Collection'} - Collection Video
-              </h3>
+
+            {/* Main Image Container */}
+            <div className="flex-1 flex items-center justify-center p-8 relative">
+              <img
+                src={fullscreenImage.images[fullscreenImage.index]}
+                alt={`${fullscreenImage.collection} - Image ${fullscreenImage.index + 1}`}
+                className="max-w-full max-h-full object-contain shadow-2xl transition-opacity duration-300"
+              />
+
+              {/* Left Arrow - Infinite navigation */}
               <button
-                onClick={toggleMute}
-                className="flex items-center gap-2 px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition-colors text-white text-sm"
+                onClick={() => {
+                  const newIndex = fullscreenImage.index === 0 
+                    ? fullscreenImage.images.length - 1 
+                    : fullscreenImage.index - 1;
+                  setFullscreenImage({
+                    ...fullscreenImage,
+                    index: newIndex
+                  });
+                }}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 z-10 backdrop-blur-sm"
               >
-                {muted ? 'Unmute' : 'Mute'}
+                <ChevronLeft className="w-6 h-6" />
               </button>
+
+              {/* Right Arrow - Infinite navigation */}
+              <button
+                onClick={() => {
+                  const newIndex = fullscreenImage.index === fullscreenImage.images.length - 1
+                    ? 0
+                    : fullscreenImage.index + 1;
+                  setFullscreenImage({
+                    ...fullscreenImage,
+                    index: newIndex
+                  });
+                }}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 z-10 backdrop-blur-sm"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Bottom Info Bar */}
+            <div className="absolute bottom-4 left-4 right-4 z-10">
+              <div className="bg-black/60 backdrop-blur-sm rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <h3 className="text-white text-lg font-sorts-mill-gloudy font-medium">
+                    {fullscreenImage.collection}
+                  </h3>
+                  <p className="text-white/80 text-sm font-montserrat-regular-400">
+                    Image {fullscreenImage.index + 1} of {fullscreenImage.images.length}
+                  </p>
+                </div>
+                {/* Navigation Dots */}
+                <div className="flex gap-2">
+                  {fullscreenImage.images.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setFullscreenImage({
+                          ...fullscreenImage,
+                          index: idx
+                        });
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        idx === fullscreenImage.index
+                          ? 'bg-white w-6'
+                          : 'bg-white/40 hover:bg-white/60'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      )
+        
       )}
 
       {/* Fullscreen Image Modal with Slider */}

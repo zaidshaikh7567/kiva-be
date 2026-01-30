@@ -122,12 +122,12 @@ const processUploads = async (req, res, next) => {
     req.processedVideoUrl = videoUrl;
     
     // Validate that video is provided (either URL or file)
-    if (!videoUrl && !req.files?.video) {
-      return res.status(400).json({
-        success: false,
-        message: 'Video is required (either as URL or file upload)'
-      });
-    }
+    // if (!videoUrl && !req.files?.video) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'Video is required (either as URL or file upload)'
+    //   });
+    // }
     
     next();
   } catch (error) {
@@ -144,22 +144,27 @@ router.post('/', authenticate, authorize('super_admin'),
     const images = req.processedImages || [];
     const video = req.processedVideoUrl || req.body.video;
 
-    if (!video) {
-      return res.status(400).json({
-        success: false,
-        message: 'Video is required (either as URL or file upload)'
-      });
-    }
+    // if (!video) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'Video is required (either as URL or file upload)'
+    //   });
+    // }
 
-    const collection = new Collection({
+    const collectionData = {
       title,
       images,
-      video,
       category,
       isNew: isNew !== undefined ? isNew : false,
       isActive: isActive !== undefined ? isActive : true
-    });
-
+    };
+    
+    if (video) {
+      collectionData.video = video;
+    }
+    
+    const collection = new Collection(collectionData);
+    
     await collection.save();
 
     res.status(201).json({ success: true, message: 'Collection created successfully', data: collection });
@@ -187,6 +192,8 @@ router.put('/:id', authenticate, authorize('super_admin'),
     if (!existingCollection) throw new Error('Collection not found');
 
     let updateData = {};
+    let unsetData = {};
+    
     if (title !== undefined) updateData.title = title;
     if (category !== undefined) updateData.category = category;
     if (isNew !== undefined) updateData.isNew = isNew;
@@ -194,10 +201,16 @@ router.put('/:id', authenticate, authorize('super_admin'),
 
     // Handle video update (either new file or URL)
     if (req.processedVideoUrl) {
+      // New uploaded video
       updateData.video = req.processedVideoUrl;
+    } else if (req.body.video === '') {
+      // Explicitly remove video
+      unsetData.video = 1;
     } else if (req.body.video !== undefined) {
+      // Update video URL
       updateData.video = req.body.video;
     }
+    
 
     // Merge new images with existing images
     if (req.processedImages && req.processedImages.length > 0) {
@@ -205,7 +218,15 @@ router.put('/:id', authenticate, authorize('super_admin'),
       updateData.images = [...existingImages, ...req.processedImages];
     }
 
-    const collection = await Collection.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+    const collection = await Collection.findByIdAndUpdate(
+      id,
+      {
+        ...(Object.keys(updateData).length && { $set: updateData }),
+        ...(Object.keys(unsetData).length && { $unset: unsetData })
+      },
+      { new: true, runValidators: true }
+    );
+    
     if (!collection) throw new Error('Collection not found');
 
     res.json({ success: true, message: 'Collection updated successfully', data: collection });

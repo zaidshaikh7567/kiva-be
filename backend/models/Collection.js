@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const collectionSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
+    default: '',
     trim: true
   },
   images: {
@@ -12,7 +12,7 @@ const collectionSchema = new mongoose.Schema({
   },
   video: {
     type: String,
-    required: true,
+    default: null,   // 👈 optional
     trim: true
   },
   category: {
