@@ -175,7 +175,7 @@ const MetalModal = ({ isOpen, onClose, onSubmit, loading, error, metalData, mode
   const iconColor = isEditMode ? 'from-blue-500 to-blue-600' : 'from-primary to-primary-dark';
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4 overflow-y-auto" style={{ zIndex: 9999 }}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4 overflow-y-auto" style={{ zIndex: 999 }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto my-4">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">

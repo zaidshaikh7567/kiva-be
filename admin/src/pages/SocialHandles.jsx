@@ -48,7 +48,7 @@ const SocialHandleModal = ({ isOpen, onClose, onSubmit, loading, data, mode }) =
     
   if (!isOpen) return null;
   return createPortal(
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4 overflow-y-auto" style={{ zIndex: 9999 }}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4 overflow-y-auto" style={{ zIndex: 999 }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
       <div className="relative mx-auto  rounded-2xl p-6  shadow-xl">
         <h3 className="text-xl font-sorts-mill-gloudy text-black mb-4">{mode === 'edit' ? 'Edit Social Handle' : 'Add Social Handle'}</h3>
