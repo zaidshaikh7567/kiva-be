@@ -31,7 +31,7 @@ const Favorites = () => {
   // Fetch favorites from API when authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(fetchFavorites({ page: 1, limit: 100 }));
+      dispatch(fetchFavorites({ page: 1, limit: 1000 }));
     }
   }, [isAuthenticated, dispatch]);
 

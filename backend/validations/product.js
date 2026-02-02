@@ -1,5 +1,20 @@
 const zod = require('zod');
+const arrayFromUnknown = zod.preprocess((val) => {
+  if (val === undefined || val === null || val === '') return undefined;
 
+  if (Array.isArray(val)) return val;
+
+  if (typeof val === 'string') {
+    try {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      return [val];
+    }
+  }
+
+  return undefined;
+}, zod.array(zod.string()).optional());
 const createProductSchema = zod.object({
   title: zod.string().min(1, 'Title is required'),
   description: zod.string().refine((val) => {
@@ -47,26 +62,8 @@ const createProductSchema = zod.object({
   careInstruction: zod.string().optional(),
   shape: zod.string().optional(),
   color: zod.string().optional(),
-  clarity: zod.string().optional().transform((val) => {
-    if (!val) return undefined;
-    try {
-      const parsed = JSON.parse(val);
-      if (!Array.isArray(parsed)) throw new Error();
-      return parsed;
-    } catch {
-      throw new Error('clarity must be a valid JSON array');
-    }
-  }).pipe(zod.array(zod.string()).optional()),
-  certificate: zod.string().optional().transform((val) => {
-    if (!val) return undefined;
-    try {
-      const parsed = JSON.parse(val);
-      if (!Array.isArray(parsed)) throw new Error();
-      return parsed;
-    } catch {
-      throw new Error('certificate must be a valid JSON array');
-    }
-  }).pipe(zod.array(zod.string()).optional()),
+  clarity: arrayFromUnknown,
+  certificate: arrayFromUnknown,
   isBand: zod.preprocess((val) => {
     if (val === undefined || val === null || val === '') {
       return undefined;
@@ -86,6 +83,7 @@ const createProductSchema = zod.object({
     return undefined;
   }, zod.boolean().optional()),
 });
+
 
 const updateProductSchema = zod.object({
   title: zod.string().min(1, 'Title is required').optional(),
@@ -130,26 +128,8 @@ const updateProductSchema = zod.object({
   careInstruction: zod.string().optional(),
   shape: zod.string().optional(),
   color: zod.string().optional(),
-  clarity: zod.string().optional().transform((val) => {
-    if (!val) return undefined;
-    try {
-      const parsed = JSON.parse(val);
-      if (!Array.isArray(parsed)) throw new Error();
-      return parsed;
-    } catch {
-      throw new Error('clarity must be a valid JSON array');
-    }
-  }).pipe(zod.array(zod.string()).optional()),
-  certificate: zod.string().optional().transform((val) => {
-    if (!val) return undefined;
-    try {
-      const parsed = JSON.parse(val);
-      if (!Array.isArray(parsed)) throw new Error();
-      return parsed;
-    } catch {
-      throw new Error('certificate must be a valid JSON array');
-    }
-  }).pipe(zod.array(zod.string()).optional()),
+  clarity: arrayFromUnknown,
+  certificate: arrayFromUnknown,
   isBand: zod.preprocess((val) => {
     if (val === undefined || val === null || val === '') {
       return undefined;

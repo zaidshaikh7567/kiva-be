@@ -25,7 +25,7 @@ const WeddingBand = () => {
 
   // Fetch products on mount
   useEffect(() => {
-    dispatch(fetchProducts({ page: 1, limit: 90, reset: true }));
+    dispatch(fetchProducts({ page: 1, limit: 900, reset: true }));
   }, [dispatch]);
 
   // Handle load more

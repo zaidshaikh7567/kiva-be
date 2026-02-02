@@ -12,7 +12,7 @@ const FavoritesInitializer = ({ children }) => {
       // Sync localStorage favorites to API when user logs in
       dispatch(syncFavoritesToAPI()).then(() => {
         // After sync, fetch favorites from API
-        dispatch(fetchFavorites({ page: 1, limit: 100 }));
+        dispatch(fetchFavorites({ page: 1, limit: 1000 }));
       });
     }
   }, [isAuthenticated, dispatch]);

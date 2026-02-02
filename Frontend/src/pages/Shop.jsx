@@ -34,7 +34,7 @@ const Shop = () => {
   // Fetch products and categories on mount
   useEffect(() => {
     // Ensure loading state is set before fetching
-    dispatch(fetchProducts({ page: 1, limit: 100, reset: true }));
+    dispatch(fetchProducts({ page: 1, limit: 1000, reset: true }));
     dispatch(fetchCategories());
   }, [dispatch]);
 

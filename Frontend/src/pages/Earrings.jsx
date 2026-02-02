@@ -27,14 +27,14 @@ const Earrings = () => {
 
   // Fetch products and categories on mount
   useEffect(() => {
-    dispatch(fetchProducts({ page: 1, limit: 9, reset: true }));
+    dispatch(fetchProducts({ page: 1, limit: 1000, reset: true }));
     dispatch(fetchCategories());
   }, [dispatch]);
 
   // Handle load more
   const handleLoadMore = () => {
     const nextPage = pagination.currentPage + 1;
-    dispatch(fetchProducts({ page: nextPage, limit: 9, reset: false }));
+    dispatch(fetchProducts({ page: nextPage, limit: 100, reset: false }));
   };
 
   // Find earring category (main category without parent)

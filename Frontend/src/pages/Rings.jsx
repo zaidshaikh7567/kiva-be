@@ -22,6 +22,7 @@ const Rings = () => {
   const productsLoadingMore = useSelector(selectProductsLoadingMore);
   const productsError = useSelector(selectProductsError);
   const pagination = useSelector(selectPagination);
+  console.log('pagination :', pagination);
   const categories = useSelector(selectCategories);
   
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -32,7 +33,7 @@ const Rings = () => {
 
   // Fetch products and categories on mount
   useEffect(() => {
-    dispatch(fetchProducts({ page: 1, limit: 90, reset: true }));
+    dispatch(fetchProducts({ page: 1, limit: 900, reset: true }));
     dispatch(fetchCategories());
   }, [dispatch]);
 
@@ -194,13 +195,14 @@ const Rings = () => {
         return [...rings].sort((a, b) => a.price - b.price);
         case "price-high":
           return [...rings].sort((a, b) => b.price - a.price);
-      case "rating":
-        return [...rings].sort((a, b) => b.rating - a.rating);
-      case "featured":
-      default:
-        return [...rings].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-      }
-    }, [filteredRings, sortBy]);
+          case "rating":
+            return [...rings].sort((a, b) => b.rating - a.rating);
+            case "featured":
+              default:
+                return [...rings].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+              }
+            }, [filteredRings, sortBy]);
+            console.log('sortedRings :', sortedRings);
     
   return (
     <div className="bg-secondary min-h-screen">

@@ -34,10 +34,10 @@ const CategoryHero = ({
   };
 
   return (
-    <AnimatedSection
-    animationType={animation?.type || 'fadeInUp'}
-    delay={animation?.delay || 0}
-  >
+  //   <AnimatedSection
+  //   animationType={animation?.type || 'fadeInUp'}
+  //   delay={animation?.delay || 0}
+  // >
     <section
       className={`relative py-8 md:py-16 lg:py-20 ${className}`}
       style={
@@ -80,7 +80,7 @@ const CategoryHero = ({
         {cta}
       </div>
     </section>
-  </AnimatedSection>
+  // </AnimatedSection>
     // make dynamic
     // <AnimatedSection animationType="fadeInUp" delay={100}>
     //   <section className="py-8 md:py-16 lg:py-20 bg-secondary">

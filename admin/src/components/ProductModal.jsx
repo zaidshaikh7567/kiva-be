@@ -107,8 +107,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         metalOptions: productData.metals?.map(m => m._id) || [],
         shape: productData.shape || '',
         color: productData.color || '',
-        clarity: Array.isArray(productData.clarity) ? productData.clarity : [],
-        certificate: Array.isArray(productData.certificate) ? productData.certificate : [],
+        clarity: productData.clarity ? productData.clarity : [],
+        certificate: productData.certificate ? productData.certificate : [],
         isBand: productData.isBand !== undefined ? Boolean(productData.isBand) : false
       });
 
@@ -350,8 +350,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
         images: allImages, // All images as binary files (existing converted + new, or empty array if all removed)
         shape: formData.shape || '',
         color: formData.color || '',
-        clarity: formData.clarity.length > 0 ? JSON.stringify(formData.clarity) : undefined,
-        certificate: formData.certificate.length > 0 ? JSON.stringify(formData.certificate) : undefined,
+        clarity: formData.clarity.length > 0 ? formData.clarity : [],
+        certificate: formData.certificate.length > 0 ? formData.certificate : [],
         stoneTypeId:formData.stoneTypeId,
         isBand: formData.isBand
       };
@@ -988,14 +988,26 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                   <h4 className="text-sm font-montserrat-medium-500 text-black">
                     Available Metal Options
                   </h4>
+                  {/* i wnat to add check box if tick so all metals are selected */}
                   {metals.filter(metal => metal.active).length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <div className="text-lg font-medium mb-2">No Active Metals Available</div>
                       <div className="text-sm">Please add or activate metal options in the Metals section</div>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {metals.filter(metal => metal.active).map((metal) => (
+                    <>
+                  <div className="flex items-center space-x-2 mb-4">
+                    <CustomCheckbox
+                      checked={formData.metalOptions.length === metals.filter(metal => metal.active).length}
+                      onChange={(e) => setFormData(prev => ({ ...prev, metalOptions: e.target.checked ? metals.filter(metal => metal.active).map(metal => metal._id) : [] }))}
+                      label="Select All Metals"
+                      name="selectAllMetals"
+                      id="selectAllMetals"  
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {metals.filter(metal => metal.active).map((metal) => (
                       <div
                         key={metal._id}
                         className={`relative p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:shadow-lg group
@@ -1050,6 +1062,8 @@ const ProductModal = ({ isOpen, onClose, onSubmit, loading, error, productData, 
                       </div>
                     ))}
                     </div>
+
+                    </>
                   )}
                 </div>
 

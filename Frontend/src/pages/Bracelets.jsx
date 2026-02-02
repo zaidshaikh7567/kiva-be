@@ -27,7 +27,7 @@ const Bracelets = () => {
 
   // Fetch products and categories on mount
   useEffect(() => {
-    dispatch(fetchProducts({ page: 1, limit: 90, reset: true }));
+    dispatch(fetchProducts({ page: 1, limit: 900, reset: true }));
     dispatch(fetchCategories());
   }, [dispatch]);
 

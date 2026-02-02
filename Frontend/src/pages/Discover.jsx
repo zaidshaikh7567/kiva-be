@@ -70,13 +70,13 @@ const Discover = () => {
 
   useEffect(() => {
     // Fetch active social handles
-    dispatch(fetchActiveSocialHandles({ page: 1, limit: 100 }));
+    dispatch(fetchActiveSocialHandles({ page: 1, limit: 1000 }));
     // Fetch active collections
-    dispatch(fetchActiveCollections({ page: 1, limit: 100 }));
+    dispatch(fetchActiveCollections({ page: 1, limit: 1000 }));
     // Fetch categories
     dispatch(fetchCategories());
     // Fetch products (needed for subcategory filtering)
-    dispatch(fetchProducts({ page: 1, limit: 1000, reset: true }));
+    dispatch(fetchProducts({ page: 1, limit: 1000,  reset: true }));
   }, [dispatch]);
 
   // Use API collections data only

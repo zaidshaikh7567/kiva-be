@@ -148,7 +148,7 @@ export const updateProduct = createAsyncThunk(
         formData.append('color', data.color);
       }
       // if (data.clarity) {
-        formData.append('clarity', data.clarity);
+        formData.append('clarity', JSON.stringify(data.clarity));
       // }
       // if (data.certificate && data.certificate.length > 0) {
         formData.append('certificate', data.certificate ? JSON.stringify(data.certificate) : []);

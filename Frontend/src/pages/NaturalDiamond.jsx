@@ -16,7 +16,7 @@ const NaturalDiamond = () => {
 
   // Fetch products on mount
   useEffect(() => {
-    dispatch(fetchProducts({ page: 1, limit: 100, reset: true }));
+    dispatch(fetchProducts({ page: 1, limit: 1000, reset: true }));
   }, [dispatch]);
 
   // Filter products for natural diamonds
