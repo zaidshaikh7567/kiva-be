@@ -28,7 +28,6 @@ import { parseLexicalDescription } from '../helpers/lexicalToHTML';
 import toast from 'react-hot-toast';
 import { transformMetalsToSelectorOptions } from '../constants';
 import { capitalizeFirstLetter } from '../helpers/capitalizeFirstLetter';
-import { setLoader } from '../store/slices/loader';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -58,7 +57,11 @@ const ProductDetail = () => {
   const metals = useSelector(selectMetals);
   const isFavorite = useSelector(state => product ? selectIsFavorite(state, product._id || product.id) : false);
   const isAuthenticated = useSelector(selectIsAuthenticated);
-
+  const isBracelet = product?.category?.name?.toLowerCase().includes('bracelet') || 
+   product?.category?.name?.toLowerCase().includes('bracelets') ||
+   product?.category?.parent?.name?.toLowerCase().includes('bracelet') ||
+   product?.category?.parent?.name?.toLowerCase().includes('bracelets')|| 
+   false;
   // Fetch product when component mounts or id changes
   useEffect(() => {
     if (id) {
@@ -534,9 +537,8 @@ const ProductDetail = () => {
                     product={product}
                   />
                 </div>
-
                 {/* Center Stone Selection */}
-                { !product.isBand && (
+                { !product.isBand && !isBracelet && (
                   <CenterStoneSelector
                     className="mb-6"
                     stones={stones}
