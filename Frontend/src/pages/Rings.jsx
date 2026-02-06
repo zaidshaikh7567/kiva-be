@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useMemo, useTransition, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useSearchParams } from "react-router-dom";
-import { Grid, List } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
-import CustomDropdown from "../components/CustomDropdown";
 import { fetchProducts } from "../store/slices/productsSlice";
 import { selectProducts, selectProductsLoading, selectProductsLoadingMore, selectProductsError, selectPagination } from "../store/slices/productsSlice";
 import { selectCategories } from "../store/slices/categoriesSlice";
 import { fetchCategories } from "../store/slices/categoriesSlice";
-import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
 import ProductFilterToolbar from "../components/ProductFilterToolbar";
 import CategoryHero from "../components/CategoryHero";
@@ -22,7 +19,6 @@ const Rings = () => {
   const productsLoadingMore = useSelector(selectProductsLoadingMore);
   const productsError = useSelector(selectProductsError);
   const pagination = useSelector(selectPagination);
-  console.log('pagination :', pagination);
   const categories = useSelector(selectCategories);
   
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -202,7 +198,6 @@ const Rings = () => {
                 return [...rings].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
               }
             }, [filteredRings, sortBy]);
-            console.log('sortedRings :', sortedRings);
     
   return (
     <div className="bg-secondary min-h-screen">
