@@ -514,9 +514,9 @@ const Contact = () => {
                     discuss custom designs, appraisals, or find the perfect
                     piece.
                   </p>
-                  <button className="w-full bg-primary text-white font-montserrat-medium-500 py-3 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300">
+                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="w-full bg-primary text-white font-montserrat-medium-500 py-3 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300">
                     Schedule Consultation
-                  </button>
+                  </a>
                 </div>
 
                 {/* Social Media */}
