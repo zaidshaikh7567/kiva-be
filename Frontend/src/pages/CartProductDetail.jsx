@@ -52,7 +52,11 @@ const CartProductDetail = () => {
   const metals = useSelector(selectMetals);
   const isFavorite = useSelector(state => product ? selectIsFavorite(state, product._id || product.id) : false);
   const isAuthenticated = useSelector(selectIsAuthenticated);
-
+  const isBracelet = product?.category?.name?.toLowerCase().includes('bracelet') || 
+   product?.category?.name?.toLowerCase().includes('bracelets') ||
+   product?.category?.parent?.name?.toLowerCase().includes('bracelet') ||
+   product?.category?.parent?.name?.toLowerCase().includes('bracelets')|| 
+   false;
   // Fetch required data when component mounts
   useEffect(() => {
     if (cartItemId) {
@@ -646,7 +650,7 @@ const CartProductDetail = () => {
                 </div>
 
                 {/* Center Stone Selection */}
-                {/* {isRing && ( */}
+                {!product.isBand &&!isBracelet &&(
                   <CenterStoneSelector
                     className="mb-6"
                     stones={stones}
@@ -657,7 +661,7 @@ const CartProductDetail = () => {
                     isRing={isRing}
                     product={product}
                   />
-                {/* )} */}
+                )} 
 
                 {/* Ring Size Selection */}
                 {isRing && (

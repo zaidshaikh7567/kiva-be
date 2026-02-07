@@ -60,7 +60,11 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   // Favorite status from Redux
   const isFavorite = useSelector(state => selectIsFavorite(state, product?._id || product?.id));
   const isAuthenticated = useSelector(selectIsAuthenticated);
-
+  const isBracelet = product?.category?.name?.toLowerCase().includes('bracelet') || 
+   product?.category?.name?.toLowerCase().includes('bracelets') ||
+   product?.category?.parent?.name?.toLowerCase().includes('bracelet') ||
+   product?.category?.parent?.name?.toLowerCase().includes('bracelets')|| 
+   false;
   // Fetch stones and metals when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -451,7 +455,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                 </div>
 
                 {/* Center Stone Selection */}
-                {/* {isRing && ( */}
+                {!product.isBand && !isBracelet && (
                   <CenterStoneSelector
                     className="mb-6"
                     stones={stones}
@@ -462,7 +466,7 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                     isRing={isRing}
                     product={product}
                   />
-                {/* )} */}
+                 )}
 
                 {/* Ring Size Selection */}
                 {isRing && (
