@@ -23,6 +23,12 @@ const AddToCartModal = ({
   getFinalPrice,
   isRing
 }) => {
+    const isBracelet = product?.category?.name?.toLowerCase().includes('bracelet') || 
+   product?.category?.name?.toLowerCase().includes('bracelets') ||
+   product?.category?.parent?.name?.toLowerCase().includes('bracelet') ||
+   product?.category?.parent?.name?.toLowerCase().includes('bracelets')|| 
+   false;
+   
   const stones = useSelector(selectStones);
   const stonesLoading = useSelector(selectStonesLoading);
   const cartLoading = useSelector(state => state.cart.loading);
@@ -106,7 +112,7 @@ const AddToCartModal = ({
         </div>
 
         {/* Center Stone Selection (if ring) */}
-        {/* {isRing && ( */}
+        {!product.isBand && !isBracelet && (
           <CenterStoneSelector
             className="mb-6"
             stones={stones}
@@ -117,7 +123,7 @@ const AddToCartModal = ({
             isRing={isRing}
             product={product}
           />
-        {/* )} */}
+         )} 
 
         {/* Ring Size Selection (if ring) */}
         {isRing && (
