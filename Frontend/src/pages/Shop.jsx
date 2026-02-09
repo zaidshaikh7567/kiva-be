@@ -46,8 +46,6 @@ const Shop = () => {
       }
     };
   }, []);
-
-  console.log('categories :', categories);
   const parentCategories = useMemo(
     () => categories?.filter(category => !category.parent) || [],
     [categories]
