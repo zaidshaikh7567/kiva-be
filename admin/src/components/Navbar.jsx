@@ -3,22 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
 import { 
   Menu, 
-  Search, 
-  Bell, 
   User, 
   Settings,
-  Moon,
-  Sun,
   ChevronDown,
   Lock
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
+import { toast } from 'react-hot-toast';
 
 const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const user = useSelector(selectUser);
   const profileMenuRef = useRef(null);
 
@@ -26,7 +22,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
     { label: 'Profile', icon: User, path: '/profile' },
     { label: 'Change Password', icon: Lock, path: '/change-password' },
     { label: 'Settings', icon: Settings, path: '/settings' },
-  ];
+  ];  
   
   const handleMenuItemClick = (path) => {
     navigate(path);
@@ -34,20 +30,13 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
   };
 
   const handleLogout = () => {
+    toast.success('Logged out successfully!');
     localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(TOKEN_KEYS.USER);
     localStorage.removeItem(TOKEN_KEYS.AUTHENTICATED);
     window.location.reload();
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // Navigate to appropriate page based on search query
-      // You can customize this logic based on your needs
-      // For now, we'll just log it. You can add actual search functionality later
-    }
+    
   };
 
   // Close profile menu when clicking outside

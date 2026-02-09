@@ -701,6 +701,15 @@ const CartProductDetail = () => {
                   {/* <ShoppingBag className="w-5 h-5" />
                   <span>Update Cart</span> */}
                 </button>
+                <button
+                  onClick={() => {
+                    navigate('/custom');
+                  }}
+                  className="w-full border border-primary text-primary font-montserrat-medium-500 py-2 px-6 rounded-lg  transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
+                >
+                 
+                 Connect with us to customize further          
+                </button>
                 <ContactBox />
                 {/* Info Note */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

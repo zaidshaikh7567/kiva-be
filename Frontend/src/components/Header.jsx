@@ -2,16 +2,18 @@ import React, { useState } from "react";
 import { ShoppingBag, Menu, X, Heart } from "lucide-react"; // lucide-react icons
 import { useSelector } from "react-redux";
 import { selectFavoritesCount } from "../store/slices/favoritesSlice";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import CurrencyDropdown from "./CurrencyDropdown";
 import UserProfile from "./UserProfile";
 import { useAuth } from "../contexts/AuthContext";
 import Logo from "../assets/images/kiva-diamond-logo.png";
+import toast from "react-hot-toast";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const favoritesCount = useSelector(selectFavoritesCount);
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   // Function to check if a link is active
   const isActive = (path) => {
     return location.pathname === path;
@@ -361,8 +363,10 @@ const Header = () => {
                   </Link> */}
                     <button
                       onClick={() => {
+                        toast.success('Logged out successfully!');
                         logout();
                         setIsOpen(false);
+                        navigate('/sign-in');
                       }}
                       className="flex items-center w-full px-4 py-3 rounded-lg font-montserrat-medium-500 text-base text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
                     >

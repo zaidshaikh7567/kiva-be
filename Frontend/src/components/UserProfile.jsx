@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Settings, LogOut, Package, ChevronDown } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const UserProfile = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,6 +23,7 @@ const UserProfile = ({ user, onLogout }) => {
   }, []);
 
   const handleLogout = () => {
+    toast.success('Logged out successfully!');
     onLogout();
     setIsOpen(false);
     navigate('/');

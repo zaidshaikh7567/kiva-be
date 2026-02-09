@@ -593,7 +593,15 @@ const ProductDetail = () => {
                   {cartLoading ? <span className="flex items-center space-x-2w-full justify-center "><Loader2 className="w-5 h-5 animate-spin  mr-2 " /> Adding to Cart...</span> : <><ShoppingBag className="w-5 h-5" /> <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span></>}
                   {/* <span>{cartLoading ? 'Adding to Cart...' : `Add to Cart - ${formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}`}</span> */}
                 </button>
-
+                <button
+                  onClick={() => {
+                    navigate('/custom');
+                  }}
+                  className="w-full border border-primary text-primary font-montserrat-medium-500 py-2 px-6 rounded-lg  transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
+                >
+                 
+                 Connect with us to customize further          
+                </button>
                 {/* Contact Box */}
                 <ContactBox />
 

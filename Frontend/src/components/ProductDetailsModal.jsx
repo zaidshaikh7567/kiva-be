@@ -26,10 +26,11 @@ import toast from 'react-hot-toast';
 import ContactBox from './ContactBox';
 import { transformMetalsToSelectorOptions } from '../constants';
 import { capitalizeFirstLetter } from '../helpers/capitalizeFirstLetter';
+import { useNavigate } from 'react-router-dom';
 
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(0);
-  
+  const navigate = useNavigate();
   const cartLoading = useSelector(selectCartLoading);
   const [quantity, setQuantity] = useState(1);
   const [selectedMetal, setSelectedMetal] = useState(null);
@@ -505,6 +506,15 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
                   {cartLoading ? <span className="flex items-center space-x-2w-full justify-center "><Loader2 className="w-5 h-5 animate-spin  mr-2 " /> Adding to Cart...</span> : <><ShoppingBag className="w-5 h-5" /> <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span></>}
                   {/* <ShoppingBag className="w-5 h-5" />
                   <span>Add to Cart - {formatPrice(convertPrice(getFinalPrice() * quantity, 'USD', currentCurrency, { [currentCurrency]: exchangeRate }), currentCurrency, currencySymbol)}</span> */}
+                </button>
+                <button
+                  onClick={() => {
+                    navigate('/custom');
+                  }}
+                  className="w-full border border-primary text-primary font-montserrat-medium-500 py-2 px-6 rounded-lg  transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
+                >
+                 
+                 Connect with us to customize further          
                 </button>
                 <ContactBox />
                 {/* Additional Info */}

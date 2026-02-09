@@ -354,7 +354,8 @@ const ViewCart = () => {
                 {/* Security Badge */}
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <p className="text-xs text-black-light font-montserrat-regular-400 text-center">
-                    🔒 Secure checkout • Free shipping for every order
+                    🔒 Secure checkout 
+                    {/* • Free shipping for every order */}
                   </p>
                 </div>
               </div>

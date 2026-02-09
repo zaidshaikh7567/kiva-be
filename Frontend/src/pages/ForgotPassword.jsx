@@ -12,6 +12,7 @@ import {
   selectIsAuthenticated,
 } from '../store/slices/authSlice';
 import FormInput from '../components/FormInput';
+import { toast } from 'react-hot-toast';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -69,8 +70,8 @@ const ForgotPassword = () => {
     if (!validate()) return; // Stop if validation fails
 
     const result = await dispatch(forgotPassword(email));
-    if(result){
-
+    if(result.payload.success){
+      toast.success(result.payload.message || 'Password reset email sent successfully!');
       navigate("/reset-password", {
         state: {
           email: email
@@ -78,10 +79,8 @@ const ForgotPassword = () => {
       });
     }
 
-    if (forgotPassword.rejected.match(result)) {
-      setErrors({
-        email: result.payload?.message || 'Failed to send reset email. Please try again.'
-      });
+    if (!result.payload.success) {
+      toast.error(result.payload?.message || 'Failed to send reset email. Please try again.');
       setEmailSent(false);
     }
   };
