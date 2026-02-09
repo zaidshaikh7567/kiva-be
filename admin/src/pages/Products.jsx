@@ -255,7 +255,8 @@ const Products = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-center justify-end gap-4 w-full">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+        <h3 className="text-lg font-montserrat-semibold-600 text-black">Total Results: {productsPagination?.total || 0}</h3>
   {/* Button container */}
   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
     {/* Refresh Button */}
@@ -301,7 +302,7 @@ const Products = () => {
       {showFilters && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-montserrat-semibold-600 text-black">Filters</h3>
+            <h3 className="text-lg font-montserrat-semibold-600 text-black">Filters ({productsPagination?.total || 0})</h3>
             <div className="flex items-center space-x-2">
               {hasActiveFilters && (
                 <button

@@ -173,16 +173,38 @@ router.post('/forgot-password', validate(forgotPasswordSchema), asyncHandler(asy
   if (!user) {
     // Return generic message for security (don't reveal if email exists)
     console.log('User not found for email:', normalizedEmail, 'with role:', role);
-    return res.json({ success: true, message: 'If the email exists, an OTP has been sent' });
+    return res.json({ success: false, message: 'Email not found' });
   }
 
-  const otp = crypto.randomInt(100000, 999999).toString();
+  // Generate OTP with fallback for older Node.js versions
+  let otp;
+  try {
+    // crypto.randomInt is available in Node.js 14.17.0+
+    if (typeof crypto.randomInt === 'function') {
+      otp = crypto.randomInt(100000, 999999).toString();
+    } else {
+      // Fallback for older Node.js versions
+      otp = Math.floor(100000 + Math.random() * 900000).toString();
+    }
+  } catch (error) {
+    console.error('Error generating OTP:', error);
+    // Fallback to Math.random if crypto.randomInt fails
+    otp = Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
   user.otp = otp;
   user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
   await user.save();
   console.log('OTP generated and saved for user:', user.email, 'OTP:', otp);
 
-  const emailHtml = getOtpEmailTemplate(otp, user.name || user.email);
+  // Generate email template with error handling
+  let emailHtml;
+  try {
+    emailHtml = getOtpEmailTemplate(otp, user.name || user.email);
+  } catch (error) {
+    console.error('Error generating email template:', error);
+    throw new Error('Failed to generate email template');
+  }
 
   const emailResult = await sendEmail(
     normalizedEmail,
@@ -193,7 +215,7 @@ router.post('/forgot-password', validate(forgotPasswordSchema), asyncHandler(asy
 
   if (!emailResult.success) {
     console.error('Failed to send email:', emailResult.error);
-    return res.status(500).json({ success: false, message: 'Failed to send email' });
+    return res.status(500).json({ success: false, message: 'Failed to send email', error: emailResult.error });
   }
 
   res.json({ success: true, message: 'OTP sent to your email' });

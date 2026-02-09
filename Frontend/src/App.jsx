@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { fetchStones } from './store/slices/stonesSlice'
 import { fetchMetals } from './store/slices/metalsSlice'
+import { fetchCartItems } from './store/slices/cartSlice'
 
 // PORT=5000
 // NODE_ENV=production
@@ -30,9 +31,7 @@ import { fetchMetals } from './store/slices/metalsSlice'
 // PAYPAL_CLIENT_SECRET=EMT6PIhbLL4g71P5G87RoeWAsUu5EBumh0Bw1PF-t-9ALx9DwR3l1lkFENcUzJL90eBODin0ROLTxmEL
 
 // FRONTEND_URL= http://localhost:5174
-// avaiyasmit11111@gmail.com
-// smitavaiya
-// Smit@7793
+
 
 
 function App() {
@@ -40,6 +39,7 @@ function App() {
   useEffect(() => {
     dispatch(fetchStones({ page: 1, limit: 100 }));
     dispatch(fetchMetals());
+    dispatch(fetchCartItems());
   }, [dispatch]);
   return (
     <AuthProvider>

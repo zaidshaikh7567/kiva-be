@@ -8,6 +8,7 @@ import MetalSelector from './MetalSelector';
 import CenterStoneSelector from './CenterStoneSelector';
 import RingSizeSelector from './RingSizeSelector';
 import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 const AddToCartModal = ({
   isOpen,
   product,
@@ -25,6 +26,7 @@ const AddToCartModal = ({
   const stones = useSelector(selectStones);
   const stonesLoading = useSelector(selectStonesLoading);
   const cartLoading = useSelector(state => state.cart.loading);
+  const navigate = useNavigate();
   if (!isOpen) return null;
 
   const handleClose = () => {
@@ -143,6 +145,17 @@ const AddToCartModal = ({
             {cartLoading ? <div className="flex items-center justify-center space-x-2"><Loader2 className="w-4 h-4 animate-spin" /> <span className="ml-2">Adding to Cart...</span></div> : 'Add to Cart'}
           </button>
         </div>
+        <div className="flex space-x-3 mt-2">
+        <button
+                  onClick={() => {
+                    navigate('/custom');
+                  }}
+                  className="w-full border border-primary text-primary font-montserrat-medium-500 py-2 px-6 rounded-lg  transition-colors duration-300 flex items-center justify-center space-x-2 text-lg"
+                >
+                   
+                   Connect with us to customize further          
+                  </button>
+                </div>
       </div>
     </div>,
     document.body

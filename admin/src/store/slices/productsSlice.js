@@ -393,8 +393,8 @@ const productsSlice = createSlice({
         if (state.filters.search) {
           const searchTerm = state.filters.search.toLowerCase();
           filtered = filtered.filter(product => 
-            product.title.toLowerCase().includes(searchTerm) ||
-            product.description.toLowerCase().includes(searchTerm)
+            product?.title?.toLowerCase().includes(searchTerm) ||
+            product?.subDescription?.toLowerCase().includes(searchTerm)
           );
         }
 

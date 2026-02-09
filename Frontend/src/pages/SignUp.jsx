@@ -161,6 +161,7 @@ const SignUp = () => {
 
     if (registerUser.fulfilled.match(result)) {
       // Show success message and redirect
+      toast.success('Account created successfully! Please sign in.');
       navigate('/sign-in', { 
         state: { message: 'Account created successfully! Please sign in.' } 
       });

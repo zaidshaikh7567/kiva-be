@@ -9,6 +9,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { handleGoogleLogin } from '../services/googleAuth';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
 import FormInput from '../components/FormInput';
+import { fetchCartItems } from '../store/slices/cartSlice';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -143,6 +144,7 @@ const SignIn = () => {
     }));
 
     if (loginUser.fulfilled.match(result)) {
+    console.log('result :', result);
       // ✅ Save credentials if "Remember Me" is checked
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', formData.email);
@@ -155,12 +157,10 @@ const SignIn = () => {
       }
 
       navigate('/dashboard');
+      dispatch(fetchCartItems());
+      toast.success('Login successful');
     } else if (loginUser.rejected.match(result)) {
       toast.error(result.payload?.message || 'Invalid email or password');
-      // setErrors({
-      //   email: result.payload?.message || 'Invalid email or password',
-      //   password: result.payload?.message || 'Invalid email or password'
-      // });
     }
   };
 

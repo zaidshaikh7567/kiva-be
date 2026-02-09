@@ -532,13 +532,14 @@ const dispatch = useDispatch();
                     <div className="flex items-center space-x-3">
                       <Calendar className="w-5 h-5 text-black-light" />
                       <span className="font-montserrat-regular-400 text-black">
-                        Created: {new Date(selectedCustomer.createdAt).toLocaleDateString()}
+                        Created: {new Date(selectedCustomer?.createdAt).toLocaleDateString()} - {new Date(selectedCustomer?.createdAt).toLocaleTimeString()}
                       </span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Calendar className="w-5 h-5 text-black-light" />
                       <span className="font-montserrat-regular-400 text-black">
-                        Updated: {new Date(selectedCustomer.updatedAt).toLocaleDateString()}
+                        {/* add time  */}
+                        Updated: {new Date(selectedCustomer?.updatedAt).toLocaleDateString()} - {new Date(selectedCustomer?.updatedAt).toLocaleTimeString()}
                       </span>
                     </div>
                     <div className="flex items-center space-x-3">
