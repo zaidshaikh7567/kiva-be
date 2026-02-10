@@ -13,6 +13,7 @@ export const API_METHOD = {
   socials: '/api/social-handles',
   collections: '/api/collections',
   contacts: '/api/contacts',
+  mediaAssets: '/api/media-assets',
   auth: {
     login: '/api/auth/login',
     google: '/api/auth/google',

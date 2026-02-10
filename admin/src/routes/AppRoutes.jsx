@@ -17,6 +17,7 @@ import Contacts from '../pages/Contacts';
 import Profile from '../pages/Profile';
 import ChangePassword from '../pages/ChangePassword';
 import NotFound from '../pages/NotFound';
+import MediaAssets from '../pages/MediaAssets';
 
 const AppRoutes = () => {
   return (
@@ -39,6 +40,7 @@ const AppRoutes = () => {
       <Route path="/contacts" element={<Contacts />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/social-handles" element={<SocialHandles />} />
+      <Route path="/media-assets" element={<MediaAssets />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/change-password" element={<ChangePassword />} />
       

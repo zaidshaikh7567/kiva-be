@@ -1,10 +1,12 @@
 import React from "react";
-import aboutImg1 from "../assets/images/about-img.png";
 import aboutImg2 from "../assets/images/about-img2.jpg";
 import { Star, Users, Award, Heart, CheckCircle, Shield, Gem, Clock, MapPin, Phone, Mail, Globe, Sparkles } from "lucide-react";
 import AnimatedSection from "../components/home/AnimatedSection";
+import { selectMedia } from '../store/slices/mediaSlice';
+import { useSelector } from "react-redux";
 
 const About = () => {
+  const media = useSelector(selectMedia) || [];
   const features = [
     {
       icon: <Star className="w-8 h-8 text-white" />,
@@ -50,7 +52,7 @@ const About = () => {
         <section className="relative h-[70vh] overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={aboutImg1}
+            src={media.find(item => item.page === 'about' && item.section === 'about-page' && item.type === 'image')?.url}
             alt="About Kiva Jewellery"
             className="w-full h-full object-cover"
           />
@@ -139,7 +141,7 @@ At Kiva, tradition meets modern luxury — beautifully and effortlessly.
             <div className="relative">
               <div className="absolute inset-0 bg-primary-light rounded-3xl transform rotate-6"></div>
               <img
-                src={aboutImg2}
+                src={media.find(item => item.page === 'about' && item.section === 'about-heritage' && item.type === 'image')?.url}
                 alt="Our Heritage"
                 className="relative z-10 rounded-3xl shadow-2xl"
               />

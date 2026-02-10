@@ -11,6 +11,7 @@ import collectionsReducer from './slices/collectionsSlice';
 import contactsReducer from './slices/contactsSlice';
 import favoritesReducer from './slices/favoritesSlice';
 import ordersReducer from './slices/ordersSlice';
+import mediaAssetsReducer from './slices/mediaAssetsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     contacts: contactsReducer,
     favorites: favoritesReducer,
     orders: ordersReducer,
+    mediaAssets: mediaAssetsReducer,
     // Add other reducers here as needed
     // orders: ordersReducer,
     // etc.

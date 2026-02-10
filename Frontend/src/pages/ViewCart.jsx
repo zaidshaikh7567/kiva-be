@@ -24,12 +24,14 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import toast from 'react-hot-toast';
 import QuantitySelector from '../components/QuantitySelector';
 import PaymentTooltip from '../components/PaymentTooltip';
+import { fetchCategories, selectCategories } from '../store/slices/categoriesSlice';
 
 const ViewCart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalQuantity, totalPrice, loading } = useSelector(state => state.cart);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const categories = useSelector(selectCategories);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [showClearCartModal, setShowClearCartModal] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -67,6 +69,7 @@ const ViewCart = () => {
   const handleRemoveItem = (id) => {
     dispatch(deleteCartItem(id));
     dispatch(removeFromCart(id));
+    dispatch(fetchCategories());
   };
 
   const handleClearCart = () => {
@@ -178,15 +181,18 @@ const ViewCart = () => {
 
               {/* Cart Items */}
               <div className="space-y-4">
-                {items.map((item) => (
-                  <div 
+                {items.map((item) => {
+                  const isBracelet = categories.find(category => category._id === item.product.category) ? true : false;
+                  return (
+                  
+                    <div 
                     key={item.id} 
                     className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 p-4 sm:p-6"
                   >
                     <div className="flex flex-col sm:flex-row gap-4">
                       {/* Product Image - Clickable */}
                       <div 
-                        className="w-full sm:w-32 h-44 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity duration-300"
+                        className="w-full sm:w-52 h-auto rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity duration-300"
                         onClick={() => handleViewProduct(item)}
                       >
                         <img
@@ -206,27 +212,64 @@ const ViewCart = () => {
                             <h3 className="text-lg font-montserrat-semibold-600 text-black hover:text-primary transition-colors duration-300 mb-2">
                               {item.product.title}
                             </h3>
+                            <p className="text-sm text-black-light font-montserrat-regular-400 mb-2">{item.product.subDescription}</p>
                             
                             {/* Show selected metal if available */}
                             {item.purityLevel && (
                               <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
-                                {item.purityLevel.karat}K
+                               <strong className="font-montserrat-semibold-600 text-black">Material :</strong> {item.purityLevel.karat}K {item.metal.name}
                               </div>
                             )}
                             
                             {/* Show selected stone if available */}
                             {item.stoneType && (
                               <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
-                                Stone: {item.stoneType.name}
+                                <strong className="font-montserrat-semibold-600 text-black">Stone :</strong> {item.stoneType.name}
                               </div>
                             )}
-                            
+                            {item.product.color && (
+                              <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
+                                <strong className="font-montserrat-semibold-600 text-black">Color :</strong> {item.product.color}
+                              </div>
+                            )}
+                            {item.product.shape && (
+                              <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
+                                <strong className="font-montserrat-semibold-600 text-black">Shape :</strong> {item.product.shape}
+                              </div>
+                            )}
+                            {item.product.clarity && (
+                              <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
+                                <strong className="font-montserrat-semibold-600 text-black">Clarity :</strong> {item.product.clarity}
+                              </div>
+                            )}
+                            {item.product.certificate.length > 0 && (
+                              <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
+                                <strong className="font-montserrat-semibold-600 text-black">Certificate :</strong> {item.product.certificate.join(', ')}
+                              </div>
+                            )}
+                            {item.product.careInstruction && (
+                              <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
+                                <strong className="font-montserrat-semibold-600 text-black">Care Instruction :</strong> {item.product.careInstruction}
+                              </div>
+                            )}
+                            {isBracelet  && (
+                              <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
+                                <strong className="font-montserrat-semibold-600 text-black">Length :</strong> 7 inches
+                              </div>
+                            )}
+                            {item.product.width && (
+                              <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
+                                <strong className="font-montserrat-semibold-600 text-black">Width :</strong> {item.product.width}
+                              </div>
+                            )}
+                                                      
                             {/* Show ring size if available */}
                             {item.ringSize && (
                               <div className="text-sm text-black-light font-montserrat-regular-400 mb-2">
-                                Size: {item.ringSize}
+                                <strong className="font-montserrat-semibold-600 text-black">Size :</strong> {item.ringSize}
                               </div>
                             )}
+
 
                             <PriceDisplay 
                               price={item.calculatedPrice || item.product.price}
@@ -241,7 +284,7 @@ const ViewCart = () => {
                               e.stopPropagation();
                               handleRemoveItem(item._id);
                             }}
-                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors duration-300 ml-4 flex-shrink-0"
+                            className="p-2 text-red-500 bg-primary-light hover:text-red-700 hover:bg-red-50 rounded-full transition-colors duration-300 ml-4 flex-shrink-0"
                             title="Remove Item"
                           >
                             <Trash2 className="w-5 h-5" />
@@ -249,7 +292,7 @@ const ViewCart = () => {
                         </div>
 
                         {/* Quantity Controls and View Button */}
-                        <div className="flex items-center justify-between mt-4">
+                        <div className="flex items-center justify-between mt-4 border-t border-gray-200 pt-4">
                           <QuantitySelector
                             label={null}
                             value={item.quantity}
@@ -278,7 +321,8 @@ const ViewCart = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -341,8 +385,6 @@ const ViewCart = () => {
                   className="sm:-translate-x-[60%]"
                 />
 </div>
-
-
                 {/* Continue Shopping */}
                 <Link
                   to="/shop"
@@ -352,7 +394,7 @@ const ViewCart = () => {
                 </Link>
 
                 {/* Security Badge */}
-                <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="mt-6 sm:pt-6  pt-4 border-t border-gray-200">
                   <p className="text-xs text-black-light font-montserrat-regular-400 text-center">
                     🔒 Secure checkout 
                     {/* • Free shipping for every order */}

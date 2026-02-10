@@ -13,6 +13,7 @@ import ProductFilterToolbar from "../components/ProductFilterToolbar";
 import braceletHeroBg from "../assets/images/braclelate-banner.jpg";
 import CategoryHero from "../components/CategoryHero";
 import NeedHelpSection from "../components/NeedHelpSection";
+import { selectMedia } from "../store/slices/mediaSlice";
 const Bracelets = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
@@ -21,7 +22,7 @@ const Bracelets = () => {
   const productsError = useSelector(selectProductsError);
   const pagination = useSelector(selectPagination);
   const categories = useSelector(selectCategories);
-  
+  const media = useSelector(selectMedia) || [];
   const [sortBy, setSortBy] = useState("price-low");
   const [viewMode, setViewMode] = useState("grid");
 
@@ -97,7 +98,7 @@ const Bracelets = () => {
         title="Bracelet Collection"
         highlightedWord="."
         body="Discover our exquisite collection of bracelets, from delicate chains to statement cuffs"
-        backgroundImage={braceletHeroBg}
+        backgroundImage={media.find(item => item.page === 'bracelet' && item.section === 'bracelet-banner' && item.type === 'image')?.url}
         backgroundOverlay="rgba(0,0,0,0.22)"
       />
 

@@ -2,8 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Gem, ArrowLeft, Home } from "lucide-react";
 import CategoryHero from "../components/CategoryHero";
-import necklaceHeroBg from "../assets/images/summar.webp";
 import NeedHelpSection from "../components/NeedHelpSection";
+import { selectMedia } from "../store/slices/mediaSlice";
+import { useSelector } from "react-redux";
 
 // COMMENTED OUT - Original Necklaces page code
 // import React, { useState, useEffect, useMemo } from "react";
@@ -193,6 +194,7 @@ import NeedHelpSection from "../components/NeedHelpSection";
 // };
 
 const Necklaces = () => {
+  const media = useSelector(selectMedia) || [];
   return (
     <div className="bg-secondary min-h-screen">
       {/* Hero Section */}
@@ -201,7 +203,7 @@ const Necklaces = () => {
         title="Necklace Collection"
         highlightedWord="."
         body="Discover our stunning collection of necklaces, from delicate chains to statement pieces"
-        backgroundImage={necklaceHeroBg}
+        backgroundImage={media.find(item => item.page === 'necklace' && item.section === 'necklace-banner' && item.type === 'image')?.url}
         backgroundOverlay="rgba(0,0,0,0.22)"
       />
 

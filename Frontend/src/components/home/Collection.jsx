@@ -1,12 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import collection from "../../assets/images/collection-img.avif";
 import PriceDisplay from "../PriceDisplay";
-import IconButton from "../IconButton";
-
+import IconButton from "../IconButton"; 
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { selectMedia } from "../../store/slices/mediaSlice";
 const Collection = () => {
   const navigate = useNavigate();
-  
+  const media = useSelector(selectMedia) || [];  
+  const collectionUrl = media.find(item => item.page === 'home' && item.section === 'collection-banner' && item.type === 'image')?.url;
   return (
     <div className="md:pl-8 lg:pl-16 py-[100px] overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-center">
@@ -45,7 +47,7 @@ const Collection = () => {
 
           {/* Image in front */}
           <img
-            src={collection}
+            src={collectionUrl}
             alt="collection"
             className="relative z-10 max-w-[80%] h-[600px] sm:max-w-[70%] md:max-w-[500px] lg:max-w-[600px] object-contain"
           />

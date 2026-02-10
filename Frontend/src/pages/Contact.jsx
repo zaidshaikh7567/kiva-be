@@ -21,6 +21,8 @@ import api from "../services/api";
 import { API_METHOD } from "../services/apiMethod";
   import { SERVICE_OPTIONS } from "../constants";
 import FormInput from "../components/FormInput";
+import { selectMedia } from "../store/slices/mediaSlice";
+import { useSelector } from "react-redux";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -30,6 +32,7 @@ const Contact = () => {
     message: "",
     service: "general",
   });
+  const media = useSelector(selectMedia) || [];
   const FACEBOOK_URL = import.meta.env.VITE_FACEBOOK_URL;
   const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL;
   const WHATSAPP_URL = import.meta.env.VITE_WHATSAPP_URL;
@@ -240,7 +243,7 @@ const Contact = () => {
         <section className="relative h-[70vh] overflow-hidden">
           <div className="absolute inset-0">
             <img
-              src={contactBg}
+              src={media.find(item => item.page === 'contact' && item.section === 'contact-page' && item.type === 'image')?.url}
               alt="Contact Kiva Jewellery"
               className="w-full h-full object-cover"
             />

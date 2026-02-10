@@ -26,4 +26,5 @@ export const API_METHOD = {
   cart: '/api/cart',
   socialHandles: '/api/social-handles',
   collections: '/api/collections',
+  mediaAssets: '/api/media-assets',
 };

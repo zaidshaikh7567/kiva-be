@@ -10,9 +10,9 @@ import { fetchCategories } from "../store/slices/categoriesSlice";
 import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
 import ProductFilterToolbar from "../components/ProductFilterToolbar";
-import earringHeroBg from "../assets/images/earrings-banner-1.jpg";
 import CategoryHero from "../components/CategoryHero";
 import NeedHelpSection from "../components/NeedHelpSection";
+import { selectMedia } from "../store/slices/mediaSlice";
 const Earrings = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
@@ -21,7 +21,7 @@ const Earrings = () => {
   const productsError = useSelector(selectProductsError);
   const pagination = useSelector(selectPagination);
   const categories = useSelector(selectCategories);
-  
+  const media = useSelector(selectMedia) || [];
   const [sortBy, setSortBy] = useState("price-low");
   const [viewMode, setViewMode] = useState("grid");
 
@@ -97,7 +97,7 @@ const Earrings = () => {
         title="Earring Collection"
         highlightedWord="."
         body="Discover our stunning collection of earrings, from delicate studs to statement pieces"
-        backgroundImage={earringHeroBg}
+        backgroundImage={media.find(item => item.page === 'earring' && item.section === 'earrings-banner' && item.type === 'image')?.url}
         backgroundOverlay="rgba(0,0,0,0.22)"
       />
 
