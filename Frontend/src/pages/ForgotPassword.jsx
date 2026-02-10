@@ -146,7 +146,7 @@ const ForgotPassword = () => {
             Forgot Password?
           </h2>
           <p className="mt-2 text-sm font-montserrat-regular-400 text-black-light">
-            No worries! Enter your email and we'll send you a reset link.
+            No worries! Enter your email and we'll send you a OTP.
           </p>
         </div>
 

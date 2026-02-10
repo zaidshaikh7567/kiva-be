@@ -101,10 +101,10 @@ const ReviewsSlider = () => {
           // Calculate responsive offset based on screen size
           const isMobile = window.innerWidth < 640;
           const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
-          const yOffset = isMobile ? -60 : isTablet ? -80 : 400;
+          const yOffset = isMobile ? -50: isTablet ? -80 : -50;
+          console.log('yOffset :', yOffset);
           const y =
             element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-
           window.scrollTo({
             top: y,
             behavior: "smooth",
@@ -113,9 +113,9 @@ const ReviewsSlider = () => {
           // Reset scrolling flag after scroll completes
           setTimeout(() => {
             isScrollingRef.current = false;
-          }, 1200);
+          }, 5000);
         }
-      }, 500);
+      }, 2000);
     }
   }, []);
 
