@@ -30,7 +30,7 @@ const MainLayout = () => {
       <Footer />
       <Cart />
       <StickyCartButton />
-      <HelpSupportButton />
+      {/* <HelpSupportButton /> */}
     </div>
   );
 };
