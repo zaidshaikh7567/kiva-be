@@ -30,14 +30,14 @@ import { TIMELINE_OPTIONS, transformMetalsToDropdownOptions, transformStonesToDr
 import FormInput from "../components/FormInput";
 import CategoryHero from "../components/CategoryHero";
 // import customHeroBg from "../assets/images/ChatGPT Image Jan 30, 2026, 02_31_16 PM.png";
-import customHeroBg from "../assets/images/ChatGPT Image Jan 30, 2026, 02_46_01 PM.png";
+import { selectMedia } from "../store/slices/mediaSlice";
 const Custom = () => {
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
   const metalsLoading = useSelector(selectMetalsLoading);
   const stones = useSelector(selectStones);
   const stonesLoading = useSelector(selectStonesLoading);
-
+  const media = useSelector(selectMedia) || [];
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -392,7 +392,7 @@ const Custom = () => {
         title="Custom Design"
         highlightedWord="."
         body="Create your dream piece of jewelry with our expert craftsmen. Share your vision and we'll bring it to life."
-        backgroundImage={customHeroBg}
+        backgroundImage={media.find(item => item.page === 'custom' && item.section === 'custom-banner' && item.type === 'image')?.url}
         backgroundOverlay="rgba(0,0,0,0.22)"
         icon={<Sparkles className="w-10 h-10 text-white" />}
       />

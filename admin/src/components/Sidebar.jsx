@@ -19,7 +19,8 @@ import {
   Diamond,
   Share2,
   FolderOpen,
-  Mail
+  Mail,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
@@ -101,6 +102,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       label: 'Social Handles',
       icon: Share2,
       path: '/social-handles'
+    },
+    {
+      id: 'media-assets',
+      label: 'Media Library',
+      icon: ImageIcon,
+      path: '/media-assets'
     },
     // {
     //   id: 'favorites',

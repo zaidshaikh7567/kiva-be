@@ -2403,6 +2403,264 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Media Assets",
+      "item": [
+        {
+          "name": "Get All Media Assets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Retrieve all media assets with optional filtering (Public - no authentication required).\n\n**Query Parameters:**\n- page (optional): Filter by page type (home, contact, about, favorites, custom, ring, bracelet, earring, necklace, other)\n- section (optional): Filter by section identifier (e.g., 'hero', 'contact-banner')\n- type (optional): Filter by media type (image, video)\n- isActive (optional): Filter by active status (true, false, 'true', 'false', '1', '0')\n\n**Response:** Returns array of media assets sorted by sortOrder (ascending) then createdAt (descending).",
+            "url": {
+              "raw": "{{baseUrl}}/api/media-assets?page=home&type=image&isActive=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media-assets"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "home",
+                  "description": "Filter by page type (home, contact, about, favorites, custom, ring, bracelet, earring, necklace, other)",
+                  "disabled": true
+                },
+                {
+                  "key": "section",
+                  "value": "",
+                  "description": "Filter by section identifier",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "image",
+                  "description": "Filter by media type (image, video)",
+                  "disabled": true
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "description": "Filter by active status",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Media Asset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "description": "Create a new media asset (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Request Body (Form Data):**\n- file (required): Media file (jpg, png, jpeg, webp, mp4, mov, avi, webm, mkv, max 20MB)\n- type (required): Media type ('image' or 'video')\n- page (optional): Page type (home, contact, about, favorites, custom, ring, bracelet, earring, necklace, other)\n- section (optional): Section identifier (e.g., 'hero', 'contact-banner')\n- key (optional): Specific slot key (e.g., 'mainHeroImage')\n- title (optional): Media title/label\n- description (optional): Media description\n- isActive (optional): Whether media is active (default: true)\n- sortOrder (optional): Sort order number (default: 0)\n\n**Response:** Returns the created media asset object with Cloudinary URL.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Media file (jpg, png, jpeg, webp, mp4, mov, avi, webm, mkv, max 20MB)"
+                },
+                {
+                  "key": "type",
+                  "value": "image",
+                  "type": "text",
+                  "description": "Media type (image or video)"
+                },
+                {
+                  "key": "page",
+                  "value": "home",
+                  "type": "text",
+                  "description": "Page type (home, contact, about, favorites, custom, ring, bracelet, earring, necklace, other)"
+                },
+                {
+                  "key": "section",
+                  "value": "hero",
+                  "type": "text",
+                  "description": "Section identifier (e.g., hero, contact-banner)"
+                },
+                {
+                  "key": "key",
+                  "value": "mainHeroImage",
+                  "type": "text",
+                  "description": "Specific slot key (optional)"
+                },
+                {
+                  "key": "title",
+                  "value": "Home Hero Image",
+                  "type": "text",
+                  "description": "Media title/label (optional)"
+                },
+                {
+                  "key": "description",
+                  "value": "Main hero image for home page",
+                  "type": "text",
+                  "description": "Media description (optional)"
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "type": "text",
+                  "description": "Whether media is active (default: true)"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "0",
+                  "type": "text",
+                  "description": "Sort order number (default: 0)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/media-assets",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media-assets"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Media Asset",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Retrieve a single media asset by its ID (Public - no authentication required).\n\n**Path Parameters:**\n- mediaAssetId (required): The unique identifier of the media asset\n\n**Response:** Returns the media asset object.",
+            "url": {
+              "raw": "{{baseUrl}}/api/media-assets/:mediaAssetId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media-assets", ":mediaAssetId"],
+              "variable": [
+                {
+                  "key": "mediaAssetId",
+                  "value": "68f373145f144c3aa2c9c9bd",
+                  "description": "Unique identifier of the media asset"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Media Asset",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "description": "Update an existing media asset by its ID (Super Admin only). Supports partial updates - only include fields you want to update.\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- mediaAssetId (required): The unique identifier of the media asset to update\n\n**Request Body (Form Data - all fields optional):**\n- file (optional): New media file to replace existing one (jpg, png, jpeg, webp, mp4, mov, avi, webm, mkv, max 20MB)\n- type (optional): Updated media type ('image' or 'video')\n- page (optional): Updated page type\n- section (optional): Updated section identifier\n- key (optional): Updated slot key\n- title (optional): Updated media title\n- description (optional): Updated media description\n- isActive (optional): Updated active status\n- sortOrder (optional): Updated sort order number\n\n**Note:** If file is not provided, the existing media URL will be preserved.\n\n**Response:** Returns the updated media asset object.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "New media file (optional - if not provided, existing file is preserved)"
+                },
+                {
+                  "key": "type",
+                  "value": "image",
+                  "type": "text",
+                  "description": "Updated media type (optional)"
+                },
+                {
+                  "key": "page",
+                  "value": "home",
+                  "type": "text",
+                  "description": "Updated page type (optional)"
+                },
+                {
+                  "key": "section",
+                  "value": "hero",
+                  "type": "text",
+                  "description": "Updated section identifier (optional)"
+                },
+                {
+                  "key": "key",
+                  "value": "mainHeroImage",
+                  "type": "text",
+                  "description": "Updated slot key (optional)"
+                },
+                {
+                  "key": "title",
+                  "value": "Updated Home Hero Image",
+                  "type": "text",
+                  "description": "Updated media title (optional)"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated description",
+                  "type": "text",
+                  "description": "Updated media description (optional)"
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "type": "text",
+                  "description": "Updated active status (optional)"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "1",
+                  "type": "text",
+                  "description": "Updated sort order (optional)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/media-assets/:mediaAssetId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media-assets", ":mediaAssetId"],
+              "variable": [
+                {
+                  "key": "mediaAssetId",
+                  "value": "68f373145f144c3aa2c9c9bd",
+                  "description": "Unique identifier of the media asset to update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Media Asset",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "description": "Delete a media asset by its ID (Super Admin only).\n\n**Headers:**\n- Authorization: Bearer {{accessToken}} (Super Admin)\n\n**Path Parameters:**\n- mediaAssetId (required): The unique identifier of the media asset to delete\n\n**Response:** Returns success message upon deletion.\n\n**Note:** Currently only deletes the database record. Cloudinary file deletion can be implemented later using the publicId field.",
+            "url": {
+              "raw": "{{baseUrl}}/api/media-assets/:mediaAssetId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media-assets", ":mediaAssetId"],
+              "variable": [
+                {
+                  "key": "mediaAssetId",
+                  "value": "68f373145f144c3aa2c9c9bd",
+                  "description": "Unique identifier of the media asset to delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [

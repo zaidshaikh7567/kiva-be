@@ -363,3 +363,28 @@ export const calculateCumulativePriceMultiplier = (metal, targetKarat) => {
   }
     return cumulativeMultiplier;
 };
+
+export const PAGE_OPTIONS = [
+  { value: 'home', label: 'Home' },
+  { value: 'ring', label: 'Ring' },
+  { value: 'bracelet', label: 'Bracelet' },
+  { value: 'earring', label: 'Earrings' },
+  { value: 'necklace', label: 'Necklace' },
+  { value: 'contact', label: 'Contact' },
+  { value: 'about', label: 'About' },
+  { value: 'favorites', label: 'Favorites' },
+  { value: 'custom', label: 'Custom' },
+  { value: 'other', label: 'Other' },
+];
+
+export const TYPE_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Types' },
+  { value: 'image', label: 'Images' },
+  { value: 'video', label: 'Videos' },
+];
+
+export const STATUS_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Status' },
+  { value: 'true', label: 'Active' },
+  { value: 'false', label: 'Inactive' },
+];

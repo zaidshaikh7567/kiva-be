@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import heroImage from "../../assets/images/hero.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import IconButton from "../IconButton";
 import { ShoppingBag } from "lucide-react";
+import { selectMedia } from "../../store/slices/mediaSlice";
+import { useSelector } from "react-redux";
 const HeroSection = () => {
+  const media = useSelector(selectMedia) || [];
   const [isVisible, setIsVisible] = useState(false);
 const navigate = useNavigate();
   useEffect(() => {
@@ -15,7 +17,7 @@ const navigate = useNavigate();
       {/* Background Image on Mobile */}
       <div className="absolute inset-0 lg:hidden">
         <img
-          src={heroImage}
+          src={media.find(item => item.page === 'home' && item.section === 'home-banner' && item.type === 'image')?.url}
           alt="Kiva Diamond"
           className="w-full h-full object-cover object-center"
         />
@@ -190,7 +192,7 @@ const navigate = useNavigate();
              style={{ transitionDelay: '600ms' }}
            >
              <img
-               src={heroImage}
+               src={media.find(item => item.page === 'home' && item.section === 'home-banner' && item.type === 'image')?.url}
                alt="Kiva Diamond Detail"
                className="object-cover w-full h-full rounded-full"
              />
@@ -204,7 +206,7 @@ const navigate = useNavigate();
              style={{ transitionDelay: '400ms' }}
            >
              <img
-               src={heroImage}
+               src={media.find(item => item.page === 'home' && item.section === 'home-banner' && item.type === 'image')?.url}
                alt="Kiva Diamond"
                className="object-cover w-full h-full"
              />

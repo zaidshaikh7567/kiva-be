@@ -10,8 +10,8 @@ import AnimatedSection from "../components/home/AnimatedSection";
 import { SORT_OPTIONS } from "../constants";
 import { Link } from "react-router-dom";
 import CategoryHero from "../components/CategoryHero";
-import weddingBandHeroBg from "../assets/images/wedding-banner.jpg";
 import NeedHelpSection from "../components/NeedHelpSection";
+import { selectMedia } from "../store/slices/mediaSlice";
 const WeddingBand = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
@@ -19,7 +19,7 @@ const WeddingBand = () => {
   const productsLoadingMore = useSelector(selectProductsLoadingMore);
   const productsError = useSelector(selectProductsError);
   const pagination = useSelector(selectPagination);
-  
+  const media = useSelector(selectMedia) || [];
   const [sortBy, setSortBy] = useState("price-low");
   const [viewMode, setViewMode] = useState("grid");
 
@@ -79,7 +79,7 @@ const WeddingBand = () => {
         title="Wedding Band Collection"
         highlightedWord="."
         body="Discover our exquisite collection of wedding bands, symbolizing eternal love and commitment"
-        backgroundImage={weddingBandHeroBg}
+        backgroundImage={media.find(item => item.page === 'ring' && item.section === 'wedding-banner' && item.type === 'image')?.url}
         backgroundOverlay="rgba(0,0,0,0.22)"
       />
       {/* <AnimatedSection animationType="fadeInUp" delay={100}>

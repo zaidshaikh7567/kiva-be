@@ -10,6 +10,7 @@ import { useEffect } from 'react'
 import { fetchStones } from './store/slices/stonesSlice'
 import { fetchMetals } from './store/slices/metalsSlice'
 import { fetchCartItems } from './store/slices/cartSlice'
+import { fetchMedia } from './store/slices/mediaSlice'
 
 // PORT=5000
 // NODE_ENV=production
@@ -40,6 +41,8 @@ function App() {
     dispatch(fetchStones({ page: 1, limit: 100 }));
     dispatch(fetchMetals());
     dispatch(fetchCartItems());
+    // Fetch all active media assets (page is a string enum like 'home', 'contact', etc., not a number)
+    dispatch(fetchMedia({ isActive: true }));
   }, [dispatch]);
   return (
     <AuthProvider>

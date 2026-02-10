@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 import AnimatedSection from "../components/home/AnimatedSection";
 import { capitalizeFirstLetter } from "../helpers/capitalizeFirstLetter";
 import CategoryHero from "../components/CategoryHero";
-import favoritesHeroBg from "../assets/images/8dd43a6d-215e-4f4a-901f-ab6f85bc06f3.png";
+import { selectMedia } from "../store/slices/mediaSlice";
 const Favorites = () => {
   const favorites = useSelector(selectFavorites);
   const favoritesCount = useSelector(selectFavoritesCount);
@@ -27,7 +27,7 @@ const Favorites = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-
+  const media = useSelector(selectMedia) || [];
   // Fetch favorites from API when authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -103,7 +103,7 @@ const Favorites = () => {
         title="Favorites"
         highlightedWord="."
         body="Discover and manage your favorite jewelry pieces, saved for easy access and future purchases."
-        backgroundImage={favoritesHeroBg}
+        backgroundImage={media.find(item => item.page === 'favorites' && item.section === 'favorites-banner' && item.type === 'image')?.url}
         backgroundOverlay="rgba(0,0,0,0.22)"
       />
       {/* <AnimatedSection animationType="fadeInUp" delay={100}>

@@ -8,8 +8,10 @@ import { fetchCategories } from "../../store/slices/categoriesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { MoveRight } from "lucide-react";
 import IconButton from "../IconButton";
-const FavoriteSection = () => {
+import { selectMedia } from "../../store/slices/mediaSlice";
+  const FavoriteSection = () => {
   const navigate = useNavigate();
+  const media = useSelector(selectMedia) || [];
   const { categories, loading, error } = useSelector(
     (state) => state.categories
   );
@@ -193,7 +195,7 @@ const FavoriteSection = () => {
               {/* Background Image */}
               <div
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${Earrings})` }}
+                style={{ backgroundImage: `url(${media.find(item => item.page === 'home' && item.section === 'home-shop' && item.type === 'image')?.url})` }}
               ></div>
 
               {/* Curved Top Text */}

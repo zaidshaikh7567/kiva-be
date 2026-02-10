@@ -11,8 +11,10 @@ import ProductFilterToolbar from "../components/ProductFilterToolbar";
 import CategoryHero from "../components/CategoryHero";
 import ringHeroBg from "../assets/images/ring-hero.png";
 import NeedHelpSection from "../components/NeedHelpSection";
+import { selectMedia } from "../store/slices/mediaSlice";
 const Rings = () => {
   const dispatch = useDispatch();
+  const media = useSelector(selectMedia) || [];
   const [searchParams, setSearchParams] = useSearchParams();
   const products = useSelector(selectProducts);
   const productsLoading = useSelector(selectProductsLoading);
@@ -207,7 +209,7 @@ const Rings = () => {
         title="Ring Collection"
         highlightedWord="."
         body="Discover our exquisite collection of rings, from engagement rings to fashion statements"
-        backgroundImage={ringHeroBg}
+        backgroundImage={media.find(item => item.page === 'ring' && item.section === 'ring-banner' && item.type === 'image')?.url}
         backgroundOverlay="rgba(0,0,0,0.22)"
       />
       {/* <AnimatedSection animationType="fadeInUp" delay={100}>

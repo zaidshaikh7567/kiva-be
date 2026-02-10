@@ -6,33 +6,36 @@ import  Img4 from "../../assets/images/bracelate-home.jpeg";
 import { useNavigate } from 'react-router-dom';
 import { MoveRight } from "lucide-react";
 import IconButton from "../IconButton";
+import { selectMedia } from "../../store/slices/mediaSlice";
+import { useSelector } from "react-redux";
 const TrendingSection = () => {
   const navigate = useNavigate();
+  const media = useSelector(selectMedia) || [];
   const products = [
     {
       id: 1,
-      image: Img1,
+      image: media.find(item => item.page === 'home' && item.section === 'home-ring' && item.type === 'image')?.url,
       name: "Diamond Ring",
       price: "1200",
       path: "/rings",
     },
     {
       id: 2,
-      image: Img4,
+      image: media.find(item => item.page === 'home' && item.section === 'home-bracelate' && item.type === 'image')?.url,
       name: "Sapphire Bracelet",
       price: "670",
       path: "/bracelets",
     },
      {
       id: 3,
-      image: Img3,
+      image: media.find(item => item.page === 'home' && item.section === 'home-earring' && item.type === 'image')?.url,
       name: "Emerald Earrings",
       price: "450",
       path: "/earrings",
     },
     {
       id: 4,
-      image: Img2,
+      image: media.find(item => item.page === 'home' && item.section === 'home-necklace' && item.type === 'image')?.url,
       name: "Necklace",
       price: "980",
       path: "/necklaces",
