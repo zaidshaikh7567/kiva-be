@@ -12,7 +12,6 @@ const validateSmtpConfig = () => {
   if (!SMTP_PASSWORD) missing.push('SMTP_PASSWORD');
   if (!SMTP_FROM) missing.push('SMTP_FROM');
   
-  console.log('missing--- :', missing);
   if (missing.length > 0) {
     const errorMsg = `Missing SMTP configuration: ${missing.join(', ')}`;
     logger.error(errorMsg);

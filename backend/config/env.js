@@ -28,4 +28,9 @@ module.exports = {
   PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
 
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5174',
+
+  // Firebase Admin Configuration
+  FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
+  FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL,
+  FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY,
 };

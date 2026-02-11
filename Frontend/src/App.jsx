@@ -11,6 +11,7 @@ import { fetchStones } from './store/slices/stonesSlice'
 import { fetchMetals } from './store/slices/metalsSlice'
 import { fetchCartItems } from './store/slices/cartSlice'
 import { fetchMedia } from './store/slices/mediaSlice'
+import NotificationInitializer from './components/NotificationInitializer'
 
 // PORT=5000
 // NODE_ENV=production
@@ -37,6 +38,7 @@ import { fetchMedia } from './store/slices/mediaSlice'
 
 function App() {
   const dispatch = useDispatch();
+  
   useEffect(() => {
     dispatch(fetchStones({ page: 1, limit: 100 }));
     dispatch(fetchMetals());
@@ -49,6 +51,7 @@ function App() {
       <AuthInitializer>
         <CartInitializer>
           <FavoritesInitializer>
+            <NotificationInitializer />
             <AppRoutes />
           </FavoritesInitializer>
         </CartInitializer>

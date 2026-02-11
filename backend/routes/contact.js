@@ -7,6 +7,7 @@ const asyncHandler = require('../middleware/asyncErrorHandler');
 const { authenticate, authorize } = require('../middleware/auth');
 const { createContactSchema, contactIdSchema } = require('../validations/contact');
 const validate = require('../middleware/validate');
+const notificationService = require('../utils/notificationService');
 
 // Memory storage for handling files before uploading to Cloudinary
 const memoryStorage = multer.memoryStorage();
@@ -191,6 +192,30 @@ router.post('/', upload, processMediaUploads, validate(createContactSchema), asy
   });
 
   await contact.save();
+
+  // Send notification to admins if this is a custom request
+  if (service === 'custom') {
+    try {
+      console.log('Sending notification to admins for custom request from:', name);
+      const result = await notificationService.sendToAllUsers(
+        {
+          title: 'New Custom Request',
+          body: `${name} has submitted a custom jewelry request. Check the admin panel for details.`,
+        },
+        {
+          type: 'custom_request',
+          contactId: contact._id.toString(),
+          userName: name,
+          userEmail: email,
+        },
+        { role: 'super_admin' }
+      );
+      console.log('Notification result:', result);
+    } catch (notificationError) {
+      // Log error but don't fail the request
+      console.error('Error sending notification to admins:', notificationError);
+    }
+  }
 
   res.status(201).json({ success: true, message: 'Contact form submitted successfully', data: contact });
 }));

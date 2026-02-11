@@ -10,6 +10,8 @@ import LoginPage from './components/LoginPage';
 import ForgotPasswordPage from './components/ForgotPasswordPage';
 import ResetPasswordPage from './components/ResetPasswordPage';
 import Layout from './components/Layout';
+import NotificationInitializer from './components/NotificationInitializer';
+import { fetchNotifications } from './store/slices/notificationsSlice';
 
 function LoginWrapper() {
   const navigate = useNavigate();
@@ -84,6 +86,7 @@ function App() {
         } else {
           // Access token is still valid, fetch user profile
           dispatch(getUserProfile());
+          dispatch(fetchNotifications());
         }
       }
       
@@ -117,7 +120,10 @@ function App() {
           <Route path="*" element={<LoginWrapper />} />
         </Routes>
       ) : (
-        <Layout />
+        <>
+          <NotificationInitializer />
+          <Layout />
+        </>
       )}
       <Toaster
         position="top-right"

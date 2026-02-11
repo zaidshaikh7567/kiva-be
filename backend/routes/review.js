@@ -7,7 +7,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 const { createReviewSchema, updateReviewSchema, reviewIdSchema } = require('../validations/review');
 const validate = require('../middleware/validate');
 const cloudinary = require('../config/cloudinary');
-
+const notificationService = require('../utils/notificationService');
 const router = express.Router();
 
 const imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg', 'tiff', 'ico'];
@@ -155,6 +155,29 @@ router.post('/', uploadReviewMedia, processReviewMedia, validate(createReviewSch
   });
 
   await review.save();
+  // Send notification to admins if this is a new review
+  if (review) {
+    try {
+      console.log('Sending notification to admins for new review from:', name);
+      const result = await notificationService.sendToAllUsers(
+        {
+          title: 'New Review',
+          body: `${name} has submitted a new review. Check the admin panel for details.`,
+        },  
+        {
+          type: 'new_review',
+          reviewId: review._id.toString(),
+          userName: name,
+          userEmail: email,
+        },
+        { role: 'super_admin' }
+      );
+      console.log('Notification result:', result);
+    } catch (notificationError) {
+      // Log error but don't fail the request
+      console.error('Error sending notification to admins:', notificationError);
+    }
+  }
 
   res.status(201).json({ success: true, message: 'Review created successfully', data: review });
 }));

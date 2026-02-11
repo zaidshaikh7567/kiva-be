@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Lock
 } from 'lucide-react';
+import NotificationDropdown from './NotificationDropdown';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
 import { toast } from 'react-hot-toast';
@@ -109,15 +110,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
           </button> */}
 
           {/* Notifications */}
-          {/* <div className="relative">
-            <button className="p-2 rounded-md hover:bg-gray-100 transition-colors relative">
-              <Bell className="w-5 h-5 text-black-light" />
-             
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-montserrat-medium-500">
-                3
-              </span>
-            </button>
-          </div> */}
+          <NotificationDropdown />
 
           {/* Profile Menu */}
           <div className="relative" ref={profileMenuRef}>

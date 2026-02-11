@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
   otpExpires: {
     type: Date,
     default: null
+  },
+  fcmTokens: {
+    type: [String],
+    default: []
   }
 }, {
   timestamps: true
