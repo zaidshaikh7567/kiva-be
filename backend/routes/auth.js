@@ -12,7 +12,7 @@ const { loginSchema, registerSchema, changePasswordSchema, forgotPasswordSchema,
 const validate = require('../middleware/validate');
 const createMulter = require('../utils/uploadUtil');
 const { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URL } = require('../config/env');
-
+const notificationService = require('../utils/notificationService');
 // Multer configuration for profile image upload
 const upload = createMulter({ 
   storage: 'cloudinary', 
@@ -42,7 +42,26 @@ router.post('/login', validate(loginSchema), asyncHandler(async (req, res) => {
   if (!user || !(await user.comparePassword(password))) {
     return res.status(401).json({ success: false, message: 'Invalid credentials or role' });
   }
-
+  // notify user if login is successful
+  // wany useraname capitalize
+  const userName = user.name.charAt(0).toUpperCase() + user.name.slice(1);
+  // if (user) {
+  // console.log('user :', user);
+  //   try {
+  //     await notificationService.sendToUser(user._id, {
+  //       title: 'Welcome to Kiva Jewelry! ',
+  //       body: `Welcome to Kiva Jewelry! ${userName}`,
+  //     }, {
+  //       type: 'login',
+  //       userId: user._id.toString(),
+  //       userName: userName,
+  //       userEmail: user.email,
+  //     });
+  //   } catch (notificationError) {
+  //     // Log error but don't fail the request
+  //     console.error('Error sending notification to user for login:', notificationError);
+  //   }
+  // }
   const { accessToken, refreshToken } = generateTokens(user);
 
   res.json({
@@ -102,6 +121,30 @@ router.post('/register', validate(registerSchema), asyncHandler(async (req, res)
 
   const user = new User({ name, email, password, role: normalizedRole });
   await user.save();
+
+  // Send notification to admins if this is a new user
+  if (user) {
+    try {
+      console.log('Sending notification to admins for new user:', user.name);
+      const result = await notificationService.sendToAllUsers(
+        {
+          title: 'New User Registration',
+          body: `${user.name} has registered a new account. Check the admin panel for details.`,
+        },
+        {
+          type: 'new_user',
+          userId: user._id.toString(),
+          userName: user.name,
+          userEmail: user.email,
+        },
+        { role: 'super_admin' }
+      );
+      console.log('Notification result:', result);
+    } catch (notificationError) {
+      // Log error but don't fail the request
+      console.error('Error sending notification to admins:', notificationError);
+    }
+  }
 
   const { accessToken, refreshToken } = generateTokens(user);
 

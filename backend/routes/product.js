@@ -91,6 +91,7 @@ router.post('/', authenticate, authorize('super_admin'), upload.array('images', 
   });
 
   await product.save();
+  // send notification to all users
   await product.populate(['category', 'metals', 'stoneType']);
 
   res.status(201).json({ success: true, message: 'Product created successfully', data: product });

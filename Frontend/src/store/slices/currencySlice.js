@@ -109,7 +109,8 @@ export const fetchExchangeRates = createAsyncThunk(
   'currency/fetchExchangeRates',
   async (baseCurrency = 'USD', { rejectWithValue }) => {
     try {
-      const response = await fetch(`${EXCHANGE_RATE_BASE_URL}/${EXCHANGE_RATE_API_KEY}/latest/${baseCurrency}`);
+      // const response = await fetch(`${EXCHANGE_RATE_BASE_URL}/${EXCHANGE_RATE_API_KEY}/latest/${baseCurrency}`);
+      const response = await fetch(`${EXCHANGE_RATE_BASE_URL}/latest/${baseCurrency}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

@@ -187,7 +187,7 @@ const Header = () => {
             {/* Header Section */}
             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
               {/* Logo */}
-              <div className="text-2xl font-serif text-primary font-bold">Aurora</div>
+              <div className="text-2xl font-serif text-primary font-bold">Kiva</div>
 
               {/* Close Button */}
               <button

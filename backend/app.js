@@ -15,6 +15,7 @@ const contactRoutes = require('./routes/contact');
 const reviewRoutes = require('./routes/review');
 const favoriteRoutes = require('./routes/favorite');
 const collectionRoutes = require('./routes/collection');
+const notificationRoutes = require('./routes/notification');
 const errorHandler = require('./middleware/errorHandler');
 const { CORS_ORIGIN } = require('./config/env');
 
@@ -42,6 +43,7 @@ app.use('/api/contacts', contactRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/collections', collectionRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.use(errorHandler);
 

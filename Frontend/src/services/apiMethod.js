@@ -27,4 +27,13 @@ export const API_METHOD = {
   socialHandles: '/api/social-handles',
   collections: '/api/collections',
   mediaAssets: '/api/media-assets',
+  notifications: {
+    token: '/api/notifications/token',
+    tokens: '/api/notifications/tokens',
+    send: '/api/notifications/send',
+    sendToUser: '/api/notifications/send-to-user',
+    sendToAdmin: '/api/notifications/send-to-admin',
+    sendToAll: '/api/notifications/send-to-all',
+    sendToDevice: '/api/notifications/send-to-device',
+  },
 };

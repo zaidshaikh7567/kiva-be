@@ -123,7 +123,7 @@ This document outlines the complete Google OAuth 2.0 authentication implementati
     "firstName": "First",
     "lastName": "Last",
     "image": "https://profile-image-url.jpg",
-    "role": "admin"
+    "role": "super_admin"
   }
 }
 ```
