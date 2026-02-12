@@ -5,19 +5,23 @@ const logger = require('../utils/logger');
 // Initialize Firebase Admin
 let messaging = null;
 
+console.log('FIREBASE_PRIVATE_KEY :', FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'));
 try {
   // Check if Firebase Admin is already initialized
   if (!admin.apps.length) {
     // Option 1: Use service account from environment variables
     if (FIREBASE_PRIVATE_KEY && FIREBASE_CLIENT_EMAIL && FIREBASE_PROJECT_ID) {
-        admin.initializeApp({
-            credential: admin.credential.cert(
-              JSON.parse(process.env.FIREBASE_PRIVATE_KEY)
-            ),
-          });
-          
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: FIREBASE_PROJECT_ID,
+          clientEmail: FIREBASE_CLIENT_EMAIL,
+          privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        }),
+      });
+    
       logger.info('Firebase Admin initialized with environment variables');
-    } 
+    }
+    
     // Option 2: Use service account JSON file (if FIREBASE_SERVICE_ACCOUNT_PATH is set)
     else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
       const serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);

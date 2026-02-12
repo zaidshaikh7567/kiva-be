@@ -83,6 +83,28 @@ router.delete(
 );
 
 /**
+ * @route   DELETE /api/notifications/delete-all-tokens
+ * @desc    Delete all FCM tokens for authenticated user
+ * @access  Private
+ */
+router.delete(
+  '/delete-all-tokens',
+  authenticate,
+  authorize('super_admin'),
+  asyncHandler(async (req, res) => {
+
+    await User.updateMany(
+      { fcmTokens: { $exists: true, $ne: [] } },
+      { $set: { fcmTokens: [] } }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'All FCM tokens deleted successfully',
+    });
+  })
+);  
+/**
  * @route   POST /api/notifications/send
  * @desc    Send notification to authenticated user
  * @access  Private

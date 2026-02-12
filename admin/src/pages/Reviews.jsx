@@ -28,6 +28,8 @@ import {
 } from '../store/slices/reviewsSlice';
 import FormInput from '../components/FormInput';
 import { formatDate } from '../utils/formateDate';
+import { deleteAllFCMTokens, removeFCMToken } from '../services/notificationService';
+import { useNotifications } from '../hooks/useNotifications';
 
 const Reviews = () => {
   const dispatch = useDispatch();
@@ -133,6 +135,32 @@ const Reviews = () => {
     setShowDeleteModal(true);
   };
 
+  // Delete all FCM tokens
+  const handleDeleteAllFCMTokens = async () => {
+    try {
+      const response = await deleteAllFCMTokens();
+      console.log('response :', response);
+      toast.success('All FCM tokens deleted successfully');
+    } catch (err) {
+      console.error('Error deleting all FCM tokens:', err);
+    }
+  };
+  const removeFCMTokenData = async (token) => {
+    try {
+      const response = await removeFCMToken(token);
+      console.log('response :', response);
+      toast.success('FCM token deleted successfully');
+    } catch (err) {
+      console.error('Error deleting FCM token:', err);
+    }
+  };
+  
+  const { removeToken, token } = useNotifications(false);
+  console.log('token :', token);
+  // useEffect(() => {
+  //   // handleDeleteAllFCMTokens();
+  //   removeFCMTokenData("fL_jQgsRNwbFNvZvBD2ED3:APA91bGlcybY8nX90THpDWWtwn2PkCM8E6I_MCCP6Rh_1LBFk7j6GliGf_ahMEfUWPqwNxmlnaa80Z9wZEsKULUxm4Aeg6V97akWBE2MmJOqECgiQsKCHFs");
+  // }, [token]);
   const handleConfirmDelete = async () => {
     if (!reviewToDelete) return;
 

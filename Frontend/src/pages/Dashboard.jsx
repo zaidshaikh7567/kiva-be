@@ -17,7 +17,8 @@ const Dashboard = () => {
     if (location.state?.tab === 'orders' || new URLSearchParams(location.search).get('tab') === 'orders') {
       setActiveTab('orders');
     }
-  }, [location]);
+  }, [location])
+
 
   return (
     <div className="min-h-screen bg-secondary py-8">
