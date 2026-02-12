@@ -12,6 +12,9 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path.replace(/^\/api/, '/api')
       }
-    }
+    },
+    optimizeDeps: {
+      include: ['react-phone-input-2']
+    },  
   }
 })

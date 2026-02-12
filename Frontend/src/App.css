@@ -128,3 +128,20 @@
 .animate-logoFloat {
   animation: logoFloat 2.4s ease-in-out infinite;
 }
+
+
+.react-tel-input .selected-flag {
+border-radius: 8px 0 0 8px !important;
+}
+.react-tel-input .flag-dropdown {
+border-radius: 8px 0 0 8px !important;
+}
+.react-tel-input .country-list{
+  width: 300px;
+}
+
+@media (max-width: 480px) {
+  .react-tel-input .country-list{
+    width: 270px !important;
+  }
+}

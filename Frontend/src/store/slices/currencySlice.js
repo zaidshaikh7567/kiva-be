@@ -34,7 +34,7 @@ export const detectUserLocation = createAsyncThunk(
       }
       
       const locationData = await response.json();
-      const countryCode = locationData.countryCode;
+      const countryCode = locationData.countryCode || null;
       
       // Map country codes to currencies
       const countryToCurrency = {
@@ -62,7 +62,8 @@ export const detectUserLocation = createAsyncThunk(
       return {
         countryCode,
         currency: detectedCurrency,
-        countryName: locationData.countryName
+        countryName: locationData?.countryName || 'Unknown',
+        method: 'geolocation'
       };
     } catch (error) {
       console.log('Geolocation detection failed, using fallback:', error.message);
@@ -109,8 +110,7 @@ export const fetchExchangeRates = createAsyncThunk(
   'currency/fetchExchangeRates',
   async (baseCurrency = 'USD', { rejectWithValue }) => {
     try {
-      // const response = await fetch(`${EXCHANGE_RATE_BASE_URL}/${EXCHANGE_RATE_API_KEY}/latest/${baseCurrency}`);
-      const response = await fetch(`${EXCHANGE_RATE_BASE_URL}/latest/${baseCurrency}`);
+      const response = await fetch(`${EXCHANGE_RATE_BASE_URL}/${EXCHANGE_RATE_API_KEY}/latest/${baseCurrency}`);      
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -185,6 +185,7 @@ const initialState = {
   error: null,
   lastUpdated: null,
   detectedCountry: null,
+  detectedCountryCode: null,
   locationDetectionMethod: null
 };
 
@@ -213,6 +214,7 @@ const currencySlice = createSlice({
         state.loading = false;
         state.currentCurrency = action.payload.currency;
         state.detectedCountry = action.payload.countryName;
+        state.detectedCountryCode = action.payload.countryCode;
         state.locationDetectionMethod = action.payload.method || 'geolocation';
       })
       .addCase(detectUserLocation.rejected, (state, action) => {
@@ -238,6 +240,7 @@ const currencySlice = createSlice({
 });
 
 export const { setCurrency, updateExchangeRates, clearError } = currencySlice.actions;
+export const selectDetectedCountryCode = (state) => state.currency.detectedCountryCode;
 
 // Selectors
 export const selectCurrentCurrency = (state) => state.currency.currentCurrency;

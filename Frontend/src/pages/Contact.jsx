@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import contactBg from "../assets/images/contact-bg.jpg";
 import {
   MapPin,
@@ -22,13 +22,19 @@ import { API_METHOD } from "../services/apiMethod";
   import { SERVICE_OPTIONS } from "../constants";
 import FormInput from "../components/FormInput";
 import { selectMedia } from "../store/slices/mediaSlice";
-import { useSelector } from "react-redux";
-
+import { useDispatch, useSelector } from "react-redux";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { selectDetectedCountryCode } from "../store/slices/currencySlice";
+import { detectUserLocation } from "../store/slices/currencySlice";
 const Contact = () => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
+    countryCode: "",
+    countryName: "",
     message: "",
     service: "general",
   });
@@ -87,6 +93,13 @@ const Contact = () => {
       ),
     },
   ];
+  const countryCode = useSelector(selectDetectedCountryCode);
+
+  useEffect(() => {
+    if (!countryCode) {
+      dispatch(detectUserLocation());
+    }
+  }, [dispatch, countryCode]);
   // Validation functions
   const validateField = (name, value) => {
     let error = "";
@@ -113,14 +126,13 @@ const Contact = () => {
       case "phone":
         if (!value.trim()) {
           error = "Phone number is required";
-        } else if (value.trim().length < 7) {
-          error = "Phone number must be at least 7 digits";
-        } else if (value.trim().length > 15) {
-          error = "Phone number must be less than 15 digits"; 
-        } else if (!/^[0-9]+$/.test(value.trim())) {
-          error = "Please enter a valid phone number";
-        }
-        break;
+        } else {
+    const numericPhone = value.replace(/[^\d]/g, ""); // remove all non-digits
+      if (numericPhone.length < 6 || numericPhone.length > 15) {
+      error = "Please enter a valid phone number";
+    }
+  }
+  break;
 
       case "message":
         if (!value.trim()) {
@@ -205,9 +217,9 @@ const Contact = () => {
       const contactData = {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        phone: formData.phone.trim(),
+        phone: `${formData.countryName.trim()}, ${formData.countryCode}, +${formData.phone.trim()}`,
         message: formData.message.trim(),
-        service: formData.service || "general",
+        service: formData.service.trim()  || "general",
       };
 
       // Submit contact form
@@ -219,6 +231,8 @@ const Contact = () => {
         name: "",
         email: "",
         phone: "",
+        countryCode: "",
+        countryName: "",
         message: "",
         service: "general",
       });
@@ -397,17 +411,46 @@ const Contact = () => {
                     </div>
 
                     <div>
-                      <FormInput
-                        label="Phone Number *"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        error={errors.phone}
-                        icon={Phone}
-                        placeholder="Your phone number"
-                        inputMode="numeric"
-                      />
-                      
+                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                        Phone Number *
+                      </label>
+                      <div>
+                        <PhoneInput
+                            country={countryCode ? countryCode.toLowerCase() : "us"}   // default country
+                          value={formData.phone}
+                          onChange={(value, data) => {
+                            setFormData({
+                              ...formData,
+                              phone: value,
+                              countryCode: data.dialCode,
+                              countryName: data.name,
+                            });
+                            const error = validateField("phone", value);
+                            setErrors((prev) => ({
+                              ...prev,
+                              phone: error,
+                            }));
+                          }}
+                          inputStyle={{
+                            width: "100%",
+                            height: "48px",
+                            fontSize: "14px",
+                            borderRadius: "8px",
+                            // outline: errors.phone ? "0.8px solid #ef4444" : "none",
+                            border: `1px solid ${errors.phone ? "#ef4444" :"#E0C0B0"}`,
+                          }}  
+                            buttonStyle={{
+                              border: `1px solid ${errors.phone ? "#ef4444" :"#E0C0B0"}`,
+                            }}
+                            containerStyle={{
+                              width: "100%",
+                            }}
+                            enableSearch={true}
+                          />
+                          {errors.phone && (
+                            <p className="mt-1 text-red-500 text-xs sm:text-sm  sm:mt-1.5 font-montserrat-regular-400">{errors.phone}</p>
+                          )}
+                        </div>
                     </div>
                   </div>
 
@@ -482,12 +525,12 @@ const Contact = () => {
               {/* Additional Information */}
               <div className="space-y-8">
                 {/* Quick Response */}
-                <div className="bg-gradient-to-br from-primary to-primary-light rounded-2xl p-8">
+                <div className="bg-gradient-to-br from-primary to-primary-light rounded-2xl p-4 sm:p-8">
                   <div className="flex items-center mb-6">
                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-4">
                       <MessageCircle className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="text-2xl font-montserrat-bold-700 text-black">
+                    <h3 className="sm:text-2xl text-xl font-montserrat-bold-700 text-black">
                       Quick Response
                     </h3>
                   </div>
@@ -503,12 +546,12 @@ const Contact = () => {
                 </div>
 
                 {/* Consultation Booking */}
-                <div className="bg-gradient-to-br from-black to-black-light rounded-2xl p-8 text-white">
+                <div className="bg-gradient-to-br from-black to-black-light rounded-2xl p-4 sm:p-8 text-white">
                   <div className="flex items-center mb-6">
                     <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mr-4">
                       <Calendar className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-2xl font-montserrat-bold-700">
+                    <h3 className="sm:text-2xl text-xl font-montserrat-bold-700">
                       Book a Consultation
                     </h3>
                   </div>
@@ -517,18 +560,18 @@ const Contact = () => {
                     discuss custom designs, appraisals, or find the perfect
                     piece.
                   </p>
-                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="w-full bg-primary text-white font-montserrat-medium-500 py-3 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300">
+                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="w-full bg-primary text-white font-montserrat-medium-500 py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-primary-dark transition-colors duration-300">
                     Schedule Consultation
                   </a>
                 </div>
 
                 {/* Social Media */}
-                <div className="bg-secondary rounded-2xl p-8">
+                <div className="bg-secondary rounded-2xl p-4 sm:p-8">
                   <div className="flex items-center mb-6">
                     <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mr-4">
                       <Globe className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-2xl font-montserrat-bold-700 text-black">
+                    <h3 className="sm:text-2xl text-xl font-montserrat-bold-700 text-black">
                       Follow Us
                     </h3>
                   </div>
