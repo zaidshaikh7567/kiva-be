@@ -24,13 +24,17 @@ import CustomDropdown from "../components/CustomDropdown";
 import api from "../services/api";
 import { API_METHOD } from "../services/apiMethod";
 import toast from "react-hot-toast";
-import { fetchMetals, selectMetals, selectMetalsLoading } from "../store/slices/metalsSlice";
-import { fetchStones, selectStones, selectStonesLoading } from "../store/slices/stonesSlice";
+import { selectMetals, selectMetalsLoading } from "../store/slices/metalsSlice";
+import { selectStones, selectStonesLoading } from "../store/slices/stonesSlice";
 import { TIMELINE_OPTIONS, transformMetalsToDropdownOptions, transformStonesToDropdownOptions } from "../constants";
 import FormInput from "../components/FormInput";
 import CategoryHero from "../components/CategoryHero";
 // import customHeroBg from "../assets/images/ChatGPT Image Jan 30, 2026, 02_31_16 PM.png";
 import { selectMedia } from "../store/slices/mediaSlice";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { detectUserLocation, selectDetectedCountryCode } from "../store/slices/currencySlice";
+
 const Custom = () => {
   const dispatch = useDispatch();
   const metals = useSelector(selectMetals);
@@ -42,6 +46,8 @@ const Custom = () => {
     name: "",
     email: "",
     phone: "",
+    countryCode: "",
+    countryName: "",
     message: "",
     designDescription: "",
     preferredMetal: "",
@@ -50,7 +56,8 @@ const Custom = () => {
     timeline: "",
     size: "",
   });
-  
+
+  const countryCode = useSelector(selectDetectedCountryCode);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
@@ -63,8 +70,11 @@ const Custom = () => {
   // Fetch metals and stones when component mounts
   useEffect(() => {
     // dispatch(fetchMetals());
+    if (!countryCode) {
+      dispatch(detectUserLocation());
+    }
     // dispatch(fetchStones({ page: 1, limit: 100 })); // Fetch more stones for dropdown
-  }, [dispatch]);
+  }, [dispatch, countryCode]);
   const stepsData = [
     {
       id: 1,
@@ -85,7 +95,7 @@ const Custom = () => {
         "Once approved, our master craftsmen will create your unique piece",
     },
   ];
-  
+
   // Transform metals to dropdown options (only active metals and purity levels)
   // Each purity level becomes a separate option with format "18K Gold", "22K Gold", etc.
   const metalOptions = transformMetalsToDropdownOptions(metals);
@@ -116,10 +126,14 @@ const Custom = () => {
       case "phone":
         if (!value.trim()) {
           error = "Phone number is required";
-        } else if (!/^[+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-()]/g, ""))) {
-          error = "Please enter a valid phone number";
+        } else {
+          const numericPhone = value.replace(/[^\d]/g, ""); // remove all non-digits
+          if (numericPhone.length < 6 || numericPhone.length > 15) {
+            error = "Please enter a valid phone number";
+          }
         }
         break;
+
 
       case "message":
         if (!value.trim()) {
@@ -240,7 +254,7 @@ const Custom = () => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX;
     const y = e.clientY;
-    
+
     if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
       setIsDragging(false);
     }
@@ -311,15 +325,13 @@ const Custom = () => {
     }
 
     setIsSubmitting(true);
-
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name.trim());
       formDataToSend.append('email', formData.email.trim());
-      formDataToSend.append('phone', formData.phone.trim());
+      formDataToSend.append('phone', `${formData.countryName.trim()}, ${formData.countryCode}, +${formData.phone.trim()}`);
       formDataToSend.append('message', formData.message.trim());
       formDataToSend.append('service', 'custom');
-      
       // Add optional custom order fields
       if (formData.designDescription) {
         formDataToSend.append('designDescription', formData.designDescription.trim());
@@ -416,7 +428,7 @@ const Custom = () => {
       </AnimatedSection> */}
 
       {/* Custom Order Form */}
-      
+
       <AnimatedSection animationType="fadeInUp" delay={200}>
         <section className="py-10 sm:py-10 bg-secondary">
           <div className="max-w-5xl mx-auto sm:px-6 px-4">
@@ -431,7 +443,7 @@ const Custom = () => {
                         Request Submitted Successfully!
                       </h3>
                       <p className="text-green-700 font-montserrat-regular-400">
-                        Thank you for your custom order request. Our team will review your submission 
+                        Thank you for your custom order request. Our team will review your submission
                         and get back to you within 24-48 hours. We're excited to work with you!
                       </p>
                     </div>
@@ -472,20 +484,52 @@ const Custom = () => {
                         error={errors.name}
                         icon={User}
                         placeholder="Enter your full name"
-                      />                      
+                      />
                     </div>
 
-                    <div>
-                      <FormInput
-                        label="Phone Number *"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        error={errors.phone}
-                        icon={Phone}
-                        placeholder="Enter your phone number"
-                      />
 
+                    <div>
+                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                        Phone Number *
+                      </label>
+                      <div>
+                        <PhoneInput
+                          country={countryCode ? countryCode.toLowerCase() : "us"}   // default country
+                          value={formData.phone}
+                          onChange={(value, data) => {
+                            setFormData({
+                              ...formData,
+                              phone: value,
+                              countryCode: data.dialCode,
+                              countryName: data.name,
+                            });
+
+                            // Validate phone immediately
+                            const error = validateField("phone", value);
+                            setErrors((prev) => ({
+                              ...prev,
+                              phone: error,
+                            }));
+                          }}
+                          inputStyle={{
+                            width: "100%",
+                            height: "48px",
+                            fontSize: "14px",
+                            borderRadius: "8px",
+                            border: `1px solid ${errors.phone ? "red" : "#E0C0B0"}`,
+                          }}
+                          buttonStyle={{
+                            border: `1px solid ${errors.phone ? "red" : "#E0C0B0"}`,
+                          }}
+                          containerStyle={{
+                            width: "100%",
+                          }}
+                          enableSearch={true}
+                        />
+                        {errors.phone && (
+                          <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="md:col-span-2">
@@ -515,7 +559,7 @@ const Custom = () => {
                         name="message"
                         value={formData.message}
                         onChange={handleInputChange}
-                          error={errors.message}
+                        error={errors.message}
                         icon={PenTool}
                         textarea={true}
                         rows={5}
@@ -597,7 +641,7 @@ const Custom = () => {
                       </div>
 
                       <div>
-                      <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                        <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
                           Timeline
                         </label>
                         <CustomDropdown
@@ -613,8 +657,8 @@ const Custom = () => {
                           searchable={true}
                           disabled={false}
 
-                        />  
-                        
+                        />
+
                       </div>
 
                       <div className="md:col-span-2">
@@ -627,7 +671,7 @@ const Custom = () => {
                           icon={Ruler}
                           placeholder="e.g., Ring size 7, Necklace length 18 inches"
                         />
-                        
+
                       </div>
                     </div>
                   </div>
@@ -650,7 +694,7 @@ const Custom = () => {
                     rows={6}
                     placeholder="Tell us more about your custom order request..."
                   />
-                  
+
                 </div>
 
                 {/* Media Upload Section */}
@@ -659,16 +703,15 @@ const Custom = () => {
                     <Gem className="w-6 h-6 mr-2 text-primary" />
                     Reference Images/Videos
                   </h2>
-                  
+
                   <div className="flex gap-2 mb-4">
                     <button
                       type="button"
                       onClick={() => setShowUrlInput(false)}
-                      className={`flex-1 py-2 px-4 rounded-lg font-montserrat-medium-500 transition-colors sm:text-lg text-sm ${
-                        !showUrlInput
+                      className={`flex-1 py-2 px-4 rounded-lg font-montserrat-medium-500 transition-colors sm:text-lg text-sm ${!showUrlInput
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-black hover:bg-gray-300'
-                      }`}
+                        }`}
                     >
                       <Upload className="w-4 h-4 inline mr-2" />
                       Upload Files
@@ -676,11 +719,10 @@ const Custom = () => {
                     <button
                       type="button"
                       onClick={() => setShowUrlInput(true)}
-                      className={`flex-1 py-2 px-4 rounded-lg font-montserrat-medium-500 transition-colors sm:text-lg text-sm ${
-                        showUrlInput
+                      className={`flex-1 py-2 px-4 rounded-lg font-montserrat-medium-500 transition-colors sm:text-lg text-sm ${showUrlInput
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-black hover:bg-gray-300'
-                      }`}
+                        }`}
                     >
                       <LinkIcon className="w-4 h-4 inline mr-2" />
                       Add URLs
@@ -692,11 +734,10 @@ const Custom = () => {
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
-                      className={`border-2 border-dashed rounded-lg p-8 transition-all duration-200 ${
-                        isDragging
+                      className={`border-2 border-dashed rounded-lg p-8 transition-all duration-200 ${isDragging
                           ? 'border-primary bg-primary/5 scale-[1.02]'
                           : 'border-gray-300 hover:border-primary'
-                      }`}
+                        }`}
                     >
                       <input
                         type="file"
@@ -711,12 +752,10 @@ const Custom = () => {
                         htmlFor="media"
                         className="cursor-pointer flex flex-col items-center justify-center"
                       >
-                        <Upload className={`w-12 h-12 mb-4 transition-colors ${
-                          isDragging ? 'text-primary' : 'text-gray-400'
-                        }`} />
-                        <p className={`text-sm font-montserrat-medium-500 mb-2 transition-colors ${
-                          isDragging ? 'text-primary' : 'text-black'
-                        }`}>
+                        <Upload className={`w-12 h-12 mb-4 transition-colors ${isDragging ? 'text-primary' : 'text-gray-400'
+                          }`} />
+                        <p className={`text-sm font-montserrat-medium-500 mb-2 transition-colors ${isDragging ? 'text-primary' : 'text-black'
+                          }`}>
                           {isDragging ? 'Drop files here' : 'Click to upload or drag and drop'}
                         </p>
                         <p className="text-xs font-montserrat-regular-400 text-black-light text-center">
@@ -726,32 +765,32 @@ const Custom = () => {
                     </div>
                   )}
 
-{showUrlInput && (
-  <div className="space-y-3 px-0 sm:px-0">
-    <div className="flex flex-col sm:flex-row gap-2">
-      <input
-        type="url"
-        value={urlInput}
-        onChange={(e) => setUrlInput(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            addUrl();
-          }
-        }}
-        placeholder="Paste image or video URL here..."
-        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none font-montserrat-regular-400 w-full"
-      />
-      <button
-        type="button"
-        onClick={addUrl}
-        className="w-full sm:w-auto px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-montserrat-medium-500"
-      >
-        Add URL
-      </button>
-    </div>
-  </div>
-)}
+                  {showUrlInput && (
+                    <div className="space-y-3 px-0 sm:px-0">
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="url"
+                          value={urlInput}
+                          onChange={(e) => setUrlInput(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              addUrl();
+                            }
+                          }}
+                          placeholder="Paste image or video URL here..."
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none font-montserrat-regular-400 w-full"
+                        />
+                        <button
+                          type="button"
+                          onClick={addUrl}
+                          className="w-full sm:w-auto px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-montserrat-medium-500"
+                        >
+                          Add URL
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
 
                   {selectedFiles.length > 0 && (
@@ -838,11 +877,10 @@ const Custom = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full outline-none font-montserrat-semibold-600 py-3 px-8 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 sm:text-lg text-sm ${
-                    isSubmitting
+                  className={`w-full outline-none font-montserrat-semibold-600 py-3 px-8 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 sm:text-lg text-sm ${isSubmitting
                       ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                       : "bg-primary text-white hover:bg-primary-dark shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                  }`}
+                    }`}
                 >
                   {isSubmitting ? (
                     <>
@@ -864,36 +902,36 @@ const Custom = () => {
 
       {/* Info Section */}
       <AnimatedSection animationType="fadeInUp" delay={300}>
-      <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto sm:px-6 px-4">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-sorts-mill-gloudy text-black mb-6">
-            How It Works
-          </h2>
-          <p className="text-lg font-montserrat-regular-400 text-black-light max-w-2xl mx-auto">
-            Our custom design process is simple and collaborative
-          </p>
-        </div>
-
-        {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-8 gap-4">
-          {stepsData.map((step) => (
-            <div key={step.id} className="text-center sm:p-6 p-0">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary">{step.id}</span>
-              </div>
-              <h3 className="text-xl font-montserrat-semibold-600 text-black mb-3">
-                {step.title}
-              </h3>
-              <p className="text-black-light font-montserrat-regular-400">
-                {step.description}
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto sm:px-6 px-4">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-sorts-mill-gloudy text-black mb-6">
+                How It Works
+              </h2>
+              <p className="text-lg font-montserrat-regular-400 text-black-light max-w-2xl mx-auto">
+                Our custom design process is simple and collaborative
               </p>
             </div>
-          ))}
-        </div>
-      </div>
-    </section>
+
+            {/* Steps */}
+            <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-8 gap-4">
+              {stepsData.map((step) => (
+                <div key={step.id} className="text-center sm:p-6 p-0">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-primary">{step.id}</span>
+                  </div>
+                  <h3 className="text-xl font-montserrat-semibold-600 text-black mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-black-light font-montserrat-regular-400">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </AnimatedSection>
     </div>
   );

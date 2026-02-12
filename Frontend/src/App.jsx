@@ -11,6 +11,7 @@ import { fetchStones } from './store/slices/stonesSlice'
 import { fetchMetals } from './store/slices/metalsSlice'
 import { fetchCartItems } from './store/slices/cartSlice'
 import { fetchMedia } from './store/slices/mediaSlice'
+import "react-phone-input-2/lib/style.css";
 
 // PORT=5000
 // NODE_ENV=production

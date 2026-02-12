@@ -55,7 +55,6 @@ async function testCredentials() {
     });
 
     const response = await client.execute(request);
-    console.log('response :', response);
     console.log('✅ SUCCESS! Credentials are valid!');
     console.log('Order ID:', response.result.id);
     console.log('\nYour PayPal credentials are working correctly.\n');

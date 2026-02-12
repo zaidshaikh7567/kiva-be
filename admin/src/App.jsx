@@ -126,7 +126,7 @@ function App() {
           style: {
             background: '#363636',
             color: '#fff',
-            zIndex: '99999 !important',
+            zIndex: '999999 !important',
             fontFamily: 'Montserrat, sans-serif',
           },
           success: {

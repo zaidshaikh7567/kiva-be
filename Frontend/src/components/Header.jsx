@@ -187,7 +187,18 @@ const Header = () => {
             {/* Header Section */}
             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
               {/* Logo */}
-              <div className="text-2xl font-serif text-primary font-bold">Aurora</div>
+              <Link to="/" className="flex-shrink-0 " onClick={() => setIsOpen(false)}>
+            <div className="inline-block bg-primary-dark rounded-lg p-1 shadow-2xl">
+              <img
+                src={Logo}
+                alt="KIVA Diamond Logo"
+                className="h-[45px] w-auto"
+                style={{
+                  filter: "brightness(1.1) contrast(1.1)",
+                }}
+              />
+            </div>
+          </Link>
 
               {/* Close Button */}
               <button
