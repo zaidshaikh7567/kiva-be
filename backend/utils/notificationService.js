@@ -23,14 +23,19 @@ const sendToDevice = async (token, notification, data = {}) => {
         body: notification.body,
         ...(notification.image && { image: notification.image }),
       },
-      data: {
-        ...data,
-        // Convert all data values to strings (FCM requirement)
-        ...Object.keys(data).reduce((acc, key) => {
-          acc[key] = String(data[key]);
-          return acc;
-        }, {}),
-      },
+      // data: {
+      //   ...data,
+      //   // Convert all data values to strings (FCM requirement)
+      //   ...Object.keys(data).reduce((acc, key) => {
+      //     acc[key] = String(data[key]);
+      //     return acc;
+      //   }, {}),
+      // },
+      data: Object.keys(data || {}).reduce((acc, key) => {
+        acc[key] = String(data[key]);
+        return acc;
+      }, {}),
+      
       token: token,
     };
 
@@ -76,48 +81,89 @@ const sendToMultipleDevices = async (tokens, notification, data = {}) => {
         body: notification.body,
         ...(notification.image && { image: notification.image }),
       },
-      data: {
-        ...data,
-        // Convert all data values to strings (FCM requirement)
-        ...Object.keys(data).reduce((acc, key) => {
-          acc[key] = String(data[key]);
-          return acc;
-        }, {}),
-      },
+      // data: {
+      //   ...data,
+      //   // Convert all data values to strings (FCM requirement)
+      //   ...Object.keys(data).reduce((acc, key) => {
+      //     acc[key] = String(data[key]);
+      //     return acc;
+      //   }, {}),
+      // },
+      data: Object.keys(data || {}).reduce((acc, key) => {
+        acc[key] = String(data[key]);
+        return acc;
+      }, {}),
+      
     };
 
-    const response = await messaging.sendEachForMulticast({
-      tokens: tokens,
-      ...message,
-    });
-
-    // Remove invalid tokens
-    if (response.failureCount > 0) {
-      const invalidTokens = [];
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          const errorCode = resp.error?.code;
-          if (errorCode === 'messaging/invalid-registration-token' || 
-              errorCode === 'messaging/registration-token-not-registered') {
-            invalidTokens.push(tokens[idx]);
-          }
-        }
+    const chunkSize = 500;
+    let successCount = 0;
+    let failureCount = 0;
+    
+    for (let i = 0; i < tokens.length; i += chunkSize) {
+      const chunk = tokens.slice(i, i + chunkSize);
+    
+      const response = await messaging.sendEachForMulticast({
+        tokens: chunk,
+        ...message,
       });
-
-      if (invalidTokens.length > 0) {
-        await removeInvalidTokens(invalidTokens);
+      console.log('response------------------------------> :', response);
+    
+      successCount += response.successCount;
+      failureCount += response.failureCount;
+    
+      // Remove invalid tokens
+      if (response.failureCount > 0) {
+        const invalidTokens = [];
+    
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            const errorCode = resp.error?.code;
+            if (
+              errorCode === 'messaging/invalid-registration-token' ||
+              errorCode === 'messaging/registration-token-not-registered'
+            ) {
+              invalidTokens.push(chunk[idx]);
+            }
+          }
+        });
+    
+        if (invalidTokens.length > 0) {
+          await removeInvalidTokens(invalidTokens);
+        }
       }
     }
+    
+    return { success: true, successCount, failureCount };
+    
+    
+    // Remove invalid tokens
+    // if (response.failureCount > 0) {
+    //   const invalidTokens = [];
+    //   response.responses.forEach((resp, idx) => {
+    //     if (!resp.success) {
+    //       const errorCode = resp.error?.code;
+    //       if (errorCode === 'messaging/invalid-registration-token' || 
+    //           errorCode === 'messaging/registration-token-not-registered') {
+    //         invalidTokens.push(tokens[idx]);
+    //       }
+    //     }
+    //   });
 
-    logger.info(
-      `Notification sent: ${response.successCount} successful, ${response.failureCount} failed`
-    );
+    //   if (invalidTokens.length > 0) {
+    //     await removeInvalidTokens(invalidTokens);
+    //   }
+    // }
 
-    return {
-      success: true,
-      successCount: response.successCount,
-      failureCount: response.failureCount,
-    };
+    // logger.info(
+    //   `Notification sent: ${response.successCount} successful, ${response.failureCount} failed`
+    // );
+
+    // return {
+    //   success: true,
+    //   successCount: response.successCount,
+    //   failureCount: response.failureCount,
+    // };
   } catch (error) {
     logger.error('Error sending notification to multiple devices:', error);
     return { success: false, error: error.message };
@@ -141,8 +187,11 @@ const sendToUser = async (userId, notification, data = {}) => {
     if (!user.fcmTokens || user.fcmTokens.length === 0) {
       return { success: false, error: 'User has no FCM tokens' };
     }
-
-    return await sendToMultipleDevices(user.fcmTokens, notification, data);
+    const latestToken = user.fcmTokens.slice(-1);
+    console.log('latestToken---- :', latestToken);
+    return await sendToMultipleDevices(latestToken, notification, data);
+    
+    // return await sendToMultipleDevices(user.fcmTokens, notification, data);
   } catch (error) {
     logger.error('Error sending notification to user:', error);
     return { success: false, error: error.message };
@@ -179,7 +228,11 @@ const sendToAllUsers = async (notification, data = {}, filters = {}) => {
     }
 
     // Collect all tokens
-    const allTokens = users.flatMap(user => user.fcmTokens || []);
+    // const allTokens = users.flatMap(user => user.fcmTokens || []);
+    const allTokens = [
+      ...new Set(users.flatMap(user => user.fcmTokens || []))
+    ];
+    
     logger.info(`Collected ${allTokens.length} FCM tokens to send notifications to`);
 
     if (allTokens.length === 0) {
@@ -188,7 +241,8 @@ const sendToAllUsers = async (notification, data = {}, filters = {}) => {
     }
 
     // Send FCM notifications
-    const result = await sendToMultipleDevices(allTokens, notification, data);
+    const latestTokens = allTokens.slice(-1);
+    const result = await sendToMultipleDevices(latestTokens, notification, data);
     logger.info(`Notification send result: ${JSON.stringify(result)}`);
 
     // Save notifications to database for all users

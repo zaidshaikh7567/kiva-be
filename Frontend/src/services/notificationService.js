@@ -11,6 +11,8 @@ import api from './api';
 export const saveFCMToken = async (token) => {
   try {
     const response = await api.post('/api/notifications/token', { token });
+    // how to sue save token in local storage
+    localStorage.setItem('fcmToken-user', token);
     return response.data;
   } catch (error) {
     console.error('Error saving FCM token:', error);
@@ -26,6 +28,7 @@ export const saveFCMToken = async (token) => {
 export const removeFCMToken = async (token) => {
   try {
     const response = await api.delete('/api/notifications/token', { data: { token } });
+    localStorage.removeItem('fcmToken-user');
     return response.data;
   } catch (error) {
     console.error('Error removing FCM token:', error);

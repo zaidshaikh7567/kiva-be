@@ -25,6 +25,7 @@ import {
 import { useSelector } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
 import Logo from '../assets/kiva-diamond-logo.png';
+import { removeFCMToken } from '../services/notificationService';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -123,7 +124,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     // }
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const fcmToken = localStorage.getItem('fcmToken-admin');
+    if (fcmToken) {
+      await removeFCMToken(fcmToken);
+    }
+    localStorage.removeItem('fcmToken-admin');
     localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(TOKEN_KEYS.USER);

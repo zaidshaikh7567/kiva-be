@@ -8,6 +8,7 @@ import UserProfile from "./UserProfile";
 import { useAuth } from "../contexts/AuthContext";
 import Logo from "../assets/images/kiva-diamond-logo.png";
 import toast from "react-hot-toast";
+import { removeFCMToken } from "../services/notificationService";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const favoritesCount = useSelector(selectFavoritesCount);
@@ -18,7 +19,6 @@ const Header = () => {
   const isActive = (path) => {
     return location.pathname === path;
   };
-
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
@@ -187,7 +187,18 @@ const Header = () => {
             {/* Header Section */}
             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
               {/* Logo */}
-              <div className="text-2xl font-serif text-primary font-bold">Kiva</div>
+              <Link to="/" className="flex-shrink-0 " onClick={() => setIsOpen(false)}>
+            <div className="inline-block bg-primary-dark rounded-lg p-1 shadow-2xl">
+              <img
+                src={Logo}
+                alt="KIVA Diamond Logo"
+                className="h-[45px] w-auto"
+                style={{
+                  filter: "brightness(1.1) contrast(1.1)",
+                }}
+              />
+            </div>
+          </Link>
 
               {/* Close Button */}
               <button
@@ -362,9 +373,14 @@ const Header = () => {
                     Change Password
                   </Link> */}
                     <button
-                      onClick={() => {
+                      onClick={async () => {
+                        const fcmToken = localStorage.getItem('fcmToken-user');
+                        if (fcmToken) {
+                          await removeFCMToken(fcmToken);
+                        }
+                        localStorage.removeItem('fcmToken-user');
                         toast.success('Logged out successfully!');
-                        logout();
+                        await logout();
                         setIsOpen(false);
                         navigate('/sign-in');
                       }}

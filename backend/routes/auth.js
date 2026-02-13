@@ -45,23 +45,24 @@ router.post('/login', validate(loginSchema), asyncHandler(async (req, res) => {
   // notify user if login is successful
   // wany useraname capitalize
   const userName = user.name.charAt(0).toUpperCase() + user.name.slice(1);
-  // if (user) {
-  // console.log('user :', user);
-  //   try {
-  //     await notificationService.sendToUser(user._id, {
-  //       title: 'Welcome to Kiva Jewelry! ',
-  //       body: `Welcome to Kiva Jewelry! ${userName}`,
-  //     }, {
-  //       type: 'login',
-  //       userId: user._id.toString(),
-  //       userName: userName,
-  //       userEmail: user.email,
-  //     });
-  //   } catch (notificationError) {
-  //     // Log error but don't fail the request
-  //     console.error('Error sending notification to user for login:', notificationError);
-  //   }
-  // }
+  if (user) {
+  console.log('user :', user);
+    try {
+      await notificationService.sendToUser(user._id, {
+        title: 'Welcome to Kiva Jewelry! ',
+        body: `Welcome to Kiva Jewelry! ${userName}`,
+      }, {
+        type: 'login',
+        userId: user._id.toString(),
+        userName: userName,
+        userEmail: user.email,
+      },
+      { role: 'user' });
+    } catch (notificationError) {
+      // Log error but don't fail the request
+      console.error('Error sending notification to user for login:', notificationError);
+    }
+  }
   const { accessToken, refreshToken } = generateTokens(user);
 
   res.json({

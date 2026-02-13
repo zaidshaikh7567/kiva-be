@@ -16,6 +16,7 @@ import {
   X,
   Download,
   Copy,
+  Globe,
 } from "lucide-react";
 import {
   fetchContacts,
@@ -444,7 +445,8 @@ const Contacts = () => {
                                 className="text-xs text-black-light hover:underline flex items-center space-x-1"
                               >
                                 <Phone className="w-3 h-3" />
-                                <span>{contact.phone}</span>
+                                {/* DISPLAY NUMBET ONLT SO LAST , AFTER THAT DISPLAY NAME AND COUNTRY CODE */}
+                                <span>{contact.phone.split(",").slice(-1).join(" ")}</span>
                               </a>
                             )}
                           </div>
@@ -510,7 +512,7 @@ const Contacts = () => {
       {showContactModal &&
         selectedContact &&
         createPortal(
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[999] p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <div className="flex items-center space-x-3">
@@ -582,10 +584,10 @@ const Contacts = () => {
                             Phone
                           </label>
                           <div className="flex items-center space-x-2">
-                            <Phone className="w-4 h-4" />
-                            <span>{contactDetails?.phone}</span>
+                            <Phone className="w-4 h-4" />                          
+                            <span>{contactDetails?.phone.split(",").slice(-1).join(" ").replace("+", "").replace(contactDetails?.phone.split(",").slice(1, 2).join(" "), "")}</span>
                             <button onClick={() => {
-                              navigator.clipboard.writeText(contactDetails?.phone);
+                              navigator.clipboard.writeText(contactDetails?.phone.split(",").slice(-1).join(" ").replace("+", "").replace(contactDetails?.phone.split(",").slice(1, 2).join(" "), ""));
                               toast.success("Number copied to clipboard");
                             }}>
                               <Copy className="w-4 h-4" />
@@ -594,6 +596,18 @@ const Contacts = () => {
                         </div>
                       ) : null}
 
+                       {contactDetails?.phone ? (
+                        <div>
+                          <label className="block text-sm font-montserrat-medium-500 text-black-light mb-1">
+                            Country Code and Name
+                          </label>
+                          <div className="flex items-center space-x-2">
+                            <Globe className="w-4 h-4" />
+                            <span>+{contactDetails?.phone.split(",").slice(1, 2).join(" ")}</span>
+                            <span>{contactDetails?.phone.split(",").slice(0, 1).join(" ")}</span>
+                          </div>
+                        </div>
+                      ) : null}
                       <div>
                         <label className="block text-sm font-montserrat-medium-500 text-black-light mb-1">
                           Service

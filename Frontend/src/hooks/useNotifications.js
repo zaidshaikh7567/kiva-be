@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   initializeFCM,
-  saveFCMToken,
   removeFCMToken,
   getFCMTokens,
   isNotificationSupported,

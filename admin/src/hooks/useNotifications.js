@@ -5,6 +5,7 @@ import {
   getFCMTokens,
   isNotificationSupported,
   getNotificationPermission,
+  deleteAllFCMTokens,
 } from '../services/notificationService';
 
 /**
@@ -89,6 +90,18 @@ export const useNotifications = (autoInitialize = true) => {
     }
   }, [token]);
 
+  // Delete all tokens
+  const deleteAllFCMTokens = useCallback(async () => {
+    try {
+      const response = await deleteAllFCMTokens();
+      setTokens([]);
+      setToken(null);
+      return response.data;
+    } catch (err) {
+      console.error('Error deleting all tokens:', err);
+    }
+  }, []);
+  
   return {
     // State
     token,

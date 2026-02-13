@@ -10,6 +10,7 @@ import { onMessage } from 'firebase/messaging';
 export const saveFCMToken = async (token) => {
   try {
     const response = await api.post('/api/notifications/token', { token });
+    localStorage.setItem('fcmToken-admin', token);
     return response.data;
   } catch (error) {
     console.error('Error saving FCM token:', error);
@@ -25,13 +26,23 @@ export const saveFCMToken = async (token) => {
 export const removeFCMToken = async (token) => {
   try {
     const response = await api.delete('/api/notifications/token', { data: { token } });
+    localStorage.removeItem('fcmToken-admin');
     return response.data;
   } catch (error) {
     console.error('Error removing FCM token:', error);
     throw error;
   }
 };
-
+// delete all tokens
+export const deleteAllFCMTokens = async () => {
+  try {
+    const response = await api.delete('/api/notifications/delete-all-tokens');
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting all FCM tokens:', error);
+    throw error;
+  }
+};
 /**
  * Get user's FCM tokens
  * @returns {Promise<Object>}

@@ -17,14 +17,15 @@ const Dashboard = () => {
     if (location.state?.tab === 'orders' || new URLSearchParams(location.search).get('tab') === 'orders') {
       setActiveTab('orders');
     }
-  }, [location]);
+  }, [location])
+
 
   return (
     <div className="min-h-screen bg-secondary py-8">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-sorts-mill-gloudy text-black mb-2">
+          <h1 className="text-3xl font-sorts-mill-gloudy text-black mb-2 capitalize">
             Welcome, {user?.name}!
           </h1>
           <p className="text-black-light font-montserrat-regular-400">
