@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // ExchangeRate API configuration
-const EXCHANGE_RATE_API_KEY = 'f73290b9410a18b89a73f95d';
+const EXCHANGE_RATE_API_KEY = '28af7e9b4d52b9b947649814';
 const EXCHANGE_RATE_BASE_URL = 'https://v6.exchangerate-api.com/v6';
 
 // Detect user's location and set appropriate currency
