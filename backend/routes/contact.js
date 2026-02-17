@@ -170,6 +170,7 @@ router.post('/', upload, processMediaUploads, validate(createContactSchema), asy
     designDescription,
     preferredMetal,
     preferredStone,
+    preferredContact,
     budget,
     timeline,
     size
@@ -184,6 +185,7 @@ router.post('/', upload, processMediaUploads, validate(createContactSchema), asy
     designDescription: designDescription || undefined,
     preferredMetal: preferredMetal || undefined,
     preferredStone: preferredStone || undefined,
+    preferredContact: preferredContact || 'whatsapp',
     budget: budget || undefined,
     timeline: timeline || undefined,
     size: size || undefined,
