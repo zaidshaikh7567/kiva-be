@@ -618,7 +618,14 @@ const Contacts = () => {
                           )}
                         </span>
                       </div>
-
+                      <div>
+                        <label className="block text-sm font-montserrat-medium-500 text-black-light mb-1">
+                         Preferred Contact Method
+                        </label>
+                        <span className="inline-flex px-3 py-1 bg-blue-100 text-blue-800 text-xs font-montserrat-medium-500 rounded-full capitalize">
+                          {contactDetails?.preferredContact || "N/A"}
+                        </span>
+                      </div>
                       <div className="md:col-span-2">
                         <label className="block text-sm font-montserrat-medium-500 text-black-light mb-1">
                           Date

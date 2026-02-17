@@ -132,7 +132,7 @@ function App() {
           style: {
             background: '#363636',
             color: '#fff',
-            zIndex: '999999 !important',
+            zIndex: '99999 !important',
             fontFamily: 'Montserrat, sans-serif',
           },
           success: {
