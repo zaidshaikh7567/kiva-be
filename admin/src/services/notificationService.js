@@ -26,7 +26,7 @@ export const saveFCMToken = async (token) => {
 export const removeFCMToken = async (token) => {
   try {
     const response = await api.delete('/api/notifications/token', { data: { token } });
-    localStorage.removeItem('fcmToken-admin');
+    localStorage.removeItem('fcmToken-user');
     return response.data;
   } catch (error) {
     console.error('Error removing FCM token:', error);

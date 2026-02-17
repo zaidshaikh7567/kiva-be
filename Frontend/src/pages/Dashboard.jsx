@@ -6,6 +6,9 @@ import { selectAuthUser } from '../store/slices/authSlice';
 import ChangePasswordForm from '../components/account/ChangePasswordForm';
 import ProfileForm from '../components/account/ProfileForm';
 import OrdersList from '../components/account/OrdersList';
+import { removeFCMToken } from '../../../admin/src/services/notificationService';
+import toast from 'react-hot-toast';
+import api from '../services/api';
 
 const Dashboard = () => {
   const location = useLocation();
@@ -20,12 +23,39 @@ const Dashboard = () => {
   }, [location])
 
 
+//   [
+//     "fLqvgo4tYH9ZwOfqagLluS:APA91bHtbgeermVt5PdUyzFYYkbp9NbeZuic6ExrEn6313lTCcc4bNwEewFq1tYlpVdipGnyyxpRKEa6V3n5_NdTAQUYlCmhOwg7F2dZsZDcepimVpNVyV8",
+//     "dykwt_vKkjAruNW1jb7VdX:APA91bHnnB-P2zeoHqzI72ijkYAmhoq4oEePVpFUE3BKx6tzduzS5pITxRzZLRgrE0_cSoLc2poxVGUBo86REvhfxyrIdgG6gS5AxZjq6NS1ph4b3vH83iQ"
+// ]
+//  const removeFCMToken = async (token) => {
+//   try {
+//     const response = await api.delete('/api/notifications/token', { data: { token } });
+//     localStorage.removeItem('fcmToken-user');
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error removing FCM token:', error);
+//     throw error;
+//   }
+// };
+//   const removeFCMTokenData = async (token) => {
+//     try {
+//       const response = await removeFCMToken(token);
+//       console.log('response :', response);
+//       toast.success('FCM token deleted successfully');
+//     } catch (err) {
+//       console.error('Error deleting FCM token:', err);
+//     }
+//   };
+//   useEffect(() => {
+//     // handleDeleteAllFCMTokens();
+//     removeFCMTokenData("dykwt_vKkjAruNW1jb7VdX:APA91bHnnB-P2zeoHqzI72ijkYAmhoq4oEePVpFUE3BKx6tzduzS5pITxRzZLRgrE0_cSoLc2poxVGUBo86REvhfxyrIdgG6gS5AxZjq6NS1ph4b3vH83iQ");
+//   }, []);
   return (
     <div className="min-h-screen bg-secondary py-8">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-sorts-mill-gloudy text-black mb-2">
+          <h1 className="text-3xl font-sorts-mill-gloudy text-black mb-2 capitalize">
             Welcome, {user?.name}!
           </h1>
           <p className="text-black-light font-montserrat-regular-400">
