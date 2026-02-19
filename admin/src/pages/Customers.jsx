@@ -124,6 +124,12 @@ const dispatch = useDispatch();
         await dispatch(deleteUser(userToDelete._id));
         setShowDeleteModal(false);
         setUserToDelete(null);
+        dispatch(fetchUsers({ 
+          page: currentPage, 
+          limit: itemsPerPage,
+          search: debouncedSearchTerm,
+          active: statusFilter === 'all' ? '' : statusFilter === 'active' ? 'true' : 'false'
+        }));
       } catch (error) {
         console.error('Error deleting user:', error);
       } finally {
@@ -163,7 +169,9 @@ const dispatch = useDispatch();
   ];
 
   // Use users directly since server-side filtering is already applied
-  const paginatedUsers = users;
+  // how to reverse the pagination
+  const paginatedUsers = users?.length > 0 ? users.slice().reverse() : [];
+
 
   // Calculate statistics from all users (we might need a separate endpoint for this)
   const customerStats = {
@@ -561,12 +569,12 @@ const dispatch = useDispatch();
                     </span>
                   </div> */}
                   <div className="block sm:flex  sm:space-x-2">
-                    <button className="px-4 sm:w-auto w-full py-2 bg-primary text-white rounded-lg hover:bg-primary-dark font-montserrat-medium-500 transition-colors duration-300">
+                    <button onClick={() => window.location.href = `mailto:${selectedCustomer.email}`} className="px-4 sm:w-auto w-full py-2 bg-primary text-white rounded-lg hover:bg-primary-dark font-montserrat-medium-500 transition-colors duration-300">
                       Send Email
                     </button>
-                    <button className="px-4 sm:mt-0 mt-2 sm:w-auto w-full py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white font-montserrat-medium-500 transition-colors duration-300">
+                    {/* <button className="px-4 sm:mt-0 mt-2 sm:w-auto w-full py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white font-montserrat-medium-500 transition-colors duration-300">
                       View Orders
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>

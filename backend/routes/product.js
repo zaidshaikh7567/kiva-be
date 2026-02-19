@@ -6,6 +6,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 const { createProductSchema, updateProductSchema, productIdSchema } = require('../validations/product');
 const validate = require('../middleware/validate');
 const createMulter = require('../utils/uploadUtil');
+const notificationService = require('../utils/notificationService');
 
 const upload = createMulter({ storage: 'cloudinary', allowedFormats: ['jpg', 'png', 'jpeg', 'webp'], maxSize: 2 * 1024 * 1024, folder: 'products' });
 
@@ -91,8 +92,38 @@ router.post('/', authenticate, authorize('super_admin'), upload.array('images', 
   });
 
   await product.save();
-  // send notification to all users
+  
+  // Populate product details for response
   await product.populate(['category', 'metals', 'stoneType']);
+
+  // Send notification to all users about the new product
+  try {
+    console.log('Sending notification to users for new product:', product.title);
+    
+    // Get first image URL for notification
+    const productImage = product.images && product.images.length > 0 ? product.images[0] : null;
+    // Product uploaded notification start
+    // const result = await notificationService.sendToAllUsers(
+    //   {
+    //     title: 'New Product Available! 🎉',
+    //     body: `Check out our new ${product.title}! Explore the latest addition to our collection.`,
+    //     image: productImage, // Include product image in notification
+    //   },
+    //   {
+    //     type: 'new_product',
+    //     productId: product._id.toString(),
+    //     productTitle: product.title,
+    //     productPrice: product.price?.toString() || '',
+    //     productImage: productImage,
+    //   },
+    //   { role: 'user' } // Send only to regular users, not admins
+    // );
+    // Product uploaded notification end
+    console.log('Product notification result:', result);
+  } catch (notificationError) {
+    // Log error but don't fail the product creation
+    console.error('Error sending notification to users for new product:', notificationError);
+  }
 
   res.status(201).json({ success: true, message: 'Product created successfully', data: product });
 }));

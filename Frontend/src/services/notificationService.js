@@ -1,4 +1,3 @@
-
 import { requestNotificationPermission, getMessagingInstance } from '../firebase';
 import { onMessage } from 'firebase/messaging';
 import api from './api';

@@ -66,35 +66,41 @@ const sendToDevice = async (token, notification, data = {}) => {
  */
 const sendToMultipleDevices = async (tokens, notification, data = {}) => {
   if (!messaging) {
+    console.error('❌ Firebase messaging not initialized');
     logger.warn('Firebase messaging not initialized. Cannot send notification.');
     return { success: false, error: 'Firebase messaging not initialized' };
   }
 
   try {
     if (!tokens || tokens.length === 0) {
+      console.error('❌ No tokens provided to sendToMultipleDevices');
       return { success: false, error: 'No tokens provided' };
     }
 
+    console.log('📤 sendToMultipleDevices called');
+    console.log('   Token count:', tokens.length);
+    console.log('   Notification title:', notification.title);
+    console.log('   Notification body:', notification.body);
+
+    // Generate unique messageId for deduplication
+    const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
     const message = {
       notification: {
         title: notification.title,
         body: notification.body,
         ...(notification.image && { image: notification.image }),
       },
-      // data: {
-      //   ...data,
-      //   // Convert all data values to strings (FCM requirement)
-      //   ...Object.keys(data).reduce((acc, key) => {
-      //     acc[key] = String(data[key]);
-      //     return acc;
-      //   }, {}),
-      // },
-      data: Object.keys(data || {}).reduce((acc, key) => {
-        acc[key] = String(data[key]);
-        return acc;
-      }, {}),
-      
+      data: {
+        ...Object.keys(data || {}).reduce((acc, key) => {
+          acc[key] = String(data[key]);
+          return acc;
+        }, {}),
+        messageId: messageId, // Add messageId for client-side deduplication
+      },
     };
+
+    console.log('   Message payload prepared, sending to FCM...');
 
     const chunkSize = 500;
     let successCount = 0;
@@ -102,12 +108,21 @@ const sendToMultipleDevices = async (tokens, notification, data = {}) => {
     
     for (let i = 0; i < tokens.length; i += chunkSize) {
       const chunk = tokens.slice(i, i + chunkSize);
+      console.log(`   Sending chunk ${i / chunkSize + 1} (${chunk.length} tokens)...`);
     
       const response = await messaging.sendEachForMulticast({
         tokens: chunk,
         ...message,
       });
-      console.log('response------------------------------> :', response);
+      
+      console.log('   FCM Response:', {
+        successCount: response.successCount,
+        failureCount: response.failureCount,
+        responses: response.responses.map(r => ({
+          success: r.success,
+          error: r.error?.code || r.error?.message || null
+        }))
+      });
     
       successCount += response.successCount;
       failureCount += response.failureCount;
@@ -119,6 +134,7 @@ const sendToMultipleDevices = async (tokens, notification, data = {}) => {
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             const errorCode = resp.error?.code;
+            console.error(`   ❌ Token ${idx} failed:`, errorCode, resp.error?.message);
             if (
               errorCode === 'messaging/invalid-registration-token' ||
               errorCode === 'messaging/registration-token-not-registered'
@@ -129,12 +145,14 @@ const sendToMultipleDevices = async (tokens, notification, data = {}) => {
         });
     
         if (invalidTokens.length > 0) {
+          console.log(`   🗑️ Removing ${invalidTokens.length} invalid tokens...`);
           await removeInvalidTokens(invalidTokens);
         }
       }
     }
     
-    return { success: true, successCount, failureCount };
+    console.log(`✅ sendToMultipleDevices completed: ${successCount} success, ${failureCount} failed`);
+    return { success: true, successCount, failureCount, messageId };
     
     
     // Remove invalid tokens
@@ -179,20 +197,137 @@ const sendToMultipleDevices = async (tokens, notification, data = {}) => {
  */
 const sendToUser = async (userId, notification, data = {}) => {
   try {
+    
+    // Check Firebase messaging status first
+    if (!messaging) {
+      console.error('   ❌ Firebase messaging is NULL - check Firebase initialization');
+    }
+    
+    // Fetch user with fcmTokens field explicitly
     const user = await User.findById(userId);
+    console.log('   User found:', user ? 'Yes' : 'No');
+    
     if (!user) {
+      console.error('❌ User not found:', userId);
       return { success: false, error: 'User not found' };
     }
 
-    if (!user.fcmTokens || user.fcmTokens.length === 0) {
-      return { success: false, error: 'User has no FCM tokens' };
+    console.log('   User email:', user.email);
+    console.log('   User fcmTokens:', user.fcmTokens);
+    console.log('   Token count:', user.fcmTokens?.length || 0);
+    console.log('   Tokens array:', JSON.stringify(user.fcmTokens));
+
+    // Save notification to database first (even if user has no tokens or is not logged in)
+    // This ensures notifications are stored for later viewing
+    try {
+      const notificationDoc = new Notification({
+        user: userId,
+        title: notification.title,
+        body: notification.body,
+        image: notification.image || null,
+        type: data.type || 'general',
+        data: data,
+        read: false,
+      });
+
+      await notificationDoc.save();
+      console.log('✅ Notification saved to database');
+      logger.info(`Saved notification to database for user ${userId}`);
+    } catch (dbError) {
+      console.error('❌ Error saving notification to database:', dbError);
+      logger.error('Error saving notification to database:', dbError);
+      // Continue with FCM send even if DB save fails
     }
-    const latestToken = user.fcmTokens.slice(-1);
-    console.log('latestToken---- :', latestToken);
-    return await sendToMultipleDevices(latestToken, notification, data);
+
+    // Check if Firebase messaging is initialized
+    if (!messaging) {
+      console.error('❌ Firebase messaging not initialized - cannot send FCM notification');
+      logger.error('Firebase messaging not initialized - cannot send FCM notification');
+      return {
+        success: false,
+        error: 'Firebase messaging not initialized',
+        saved: true,
+        message: 'Notification saved to database but FCM not available'
+      };
+    }
+
+    // Send FCM notification if user has tokens
+    if (!user.fcmTokens || user.fcmTokens.length === 0) {
+      console.warn('⚠️ User has no FCM tokens');
+      console.warn('   This means the user has not visited the frontend and allowed notifications yet');
+      logger.warn(`User ${userId} has no FCM tokens, notification saved to database only`);
+      return { 
+        success: true, 
+        message: 'Notification saved to database (no FCM tokens available)',
+        saved: true,
+        reason: 'User has not initialized FCM or granted notification permission'
+      };
+    }
+
+    // Get the latest token (same pattern as sendToAllUsers)
+    const latestTokens = user.fcmTokens.slice(-1);
+    console.log('📱 Preparing to send FCM notification...');
+    console.log('   Token count:', latestTokens.length);
+    console.log('   Token (first 30 chars):', latestTokens[0]?.substring(0, 30) + '...');
+    console.log('   Full token:', latestTokens[0]);
     
-    // return await sendToMultipleDevices(user.fcmTokens, notification, data);
+    // Use sendToMultipleDevices (same as sendToAllUsers)
+    let fcmResult;
+    try {
+      fcmResult = await sendToMultipleDevices(latestTokens, notification, data);
+      console.log('📊 FCM send result:', JSON.stringify(fcmResult, null, 2));
+    } catch (fcmError) {
+      console.error('❌ Exception in sendToMultipleDevices:', fcmError);
+      console.error('   Error message:', fcmError.message);
+      console.error('   Error stack:', fcmError.stack);
+      logger.error('Exception sending FCM notification:', fcmError);
+      return {
+        success: false,
+        error: fcmError.message,
+        saved: true,
+        message: 'Notification saved to database but FCM send failed'
+      };
+    }
+    
+    // Check if actually successful (sendToMultipleDevices returns success: true even if successCount is 0)
+    if (!fcmResult.success) {
+      console.error('❌ FCM send returned success: false');
+      console.error('   Error:', fcmResult.error);
+      logger.error(`FCM notification failed for user ${userId}:`, fcmResult.error);
+      return {
+        ...fcmResult,
+        saved: true,
+        message: 'Notification saved to database but FCM send failed'
+      };
+    }
+    
+    if (fcmResult.successCount === 0 && fcmResult.failureCount > 0) {
+      console.error('❌ FCM send failed - all tokens failed');
+      console.error('   Success count:', fcmResult.successCount);
+      console.error('   Failure count:', fcmResult.failureCount);
+      logger.error(`FCM notification failed for user ${userId} - all tokens failed`);
+      return {
+        ...fcmResult,
+        saved: true,
+        message: 'Notification saved to database but all FCM tokens failed'
+      };
+    } else if (fcmResult.successCount > 0) {
+      console.log('✅ FCM notification sent successfully!');
+      console.log('   Success count:', fcmResult.successCount);
+      console.log('   Failure count:', fcmResult.failureCount);
+      logger.info(`FCM notification sent successfully to user ${userId}`);
+    } else {
+      console.warn('⚠️ FCM send completed but successCount is 0 and failureCount is 0');
+      console.warn('   This is unusual - check FCM response');
+    }
+    
+    // Return result with saved flag
+    return {
+      ...fcmResult,
+      saved: true
+    };
   } catch (error) {
+    console.error('❌ Error in sendToUser:', error);
     logger.error('Error sending notification to user:', error);
     return { success: false, error: error.message };
   }
@@ -209,45 +344,20 @@ const sendToAllUsers = async (notification, data = {}, filters = {}) => {
   try {
     logger.info(`Sending notification to all users with filters: ${JSON.stringify(filters)}`);
     
-    const users = await User.find({ 
-      ...filters,
-      fcmTokens: { $exists: true, $ne: [] }
-    });
+    // Find ALL users matching filters (not just those with tokens)
+    // This ensures notifications are saved even if users don't have FCM tokens or aren't logged in
+    const allUsers = await User.find(filters);
+    logger.info(`Found ${allUsers.length} users matching criteria`);
 
-    logger.info(`Found ${users.length} users matching criteria`);
-
-    if (users.length === 0) {
-      logger.warn('No users with FCM tokens found matching filters:', filters);
-      // Also check total admin users
-      const allAdmins = await User.find({ role: 'super_admin' });
-      logger.info(`Total admin users: ${allAdmins.length}`);
-      allAdmins.forEach(admin => {
-        logger.info(`Admin ${admin.email} has ${admin.fcmTokens?.length || 0} FCM tokens`);
-      });
-      return { success: false, error: 'No users with FCM tokens found' };
+    if (allUsers.length === 0) {
+      logger.warn('No users found matching filters:', filters);
+      return { success: false, error: 'No users found matching criteria' };
     }
 
-    // Collect all tokens
-    // const allTokens = users.flatMap(user => user.fcmTokens || []);
-    const allTokens = [
-      ...new Set(users.flatMap(user => user.fcmTokens || []))
-    ];
-    
-    logger.info(`Collected ${allTokens.length} FCM tokens to send notifications to`);
-
-    if (allTokens.length === 0) {
-      logger.warn('No FCM tokens found in user records');
-      return { success: false, error: 'No FCM tokens found' };
-    }
-
-    // Send FCM notifications
-    const latestTokens = allTokens.slice(-1);
-    const result = await sendToMultipleDevices(latestTokens, notification, data);
-    logger.info(`Notification send result: ${JSON.stringify(result)}`);
-
-    // Save notifications to database for all users
+    // Save notifications to database for ALL users FIRST (even if they don't have tokens)
+    // This ensures notifications are stored for later viewing when admin logs in
     try {
-      const notificationDocs = users.map(user => ({
+      const notificationDocs = allUsers.map(user => ({
         user: user._id,
         title: notification.title,
         body: notification.body,
@@ -258,13 +368,56 @@ const sendToAllUsers = async (notification, data = {}, filters = {}) => {
       }));
 
       await Notification.insertMany(notificationDocs);
-      logger.info(`Saved ${notificationDocs.length} notifications to database`);
+      logger.info(`Saved ${notificationDocs.length} notifications to database for all matching users`);
     } catch (dbError) {
       logger.error('Error saving notifications to database:', dbError);
-      // Don't fail the whole operation if DB save fails
+      // Continue with FCM send even if DB save fails
     }
 
-    return result;
+    // Filter users who have FCM tokens for sending push notifications
+    const usersWithTokens = allUsers.filter(user => 
+      user.fcmTokens && user.fcmTokens.length > 0
+    );
+
+    if (usersWithTokens.length === 0) {
+      logger.warn('No users with FCM tokens found, but notifications saved to database');
+      return { 
+        success: true, 
+        message: 'Notifications saved to database (no FCM tokens available)',
+        saved: true,
+        savedCount: allUsers.length
+      };
+    }
+
+    // Collect all tokens from users who have them
+    const allTokens = [
+      ...new Set(usersWithTokens.flatMap(user => user.fcmTokens || []))
+    ];
+    
+    logger.info(`Collected ${allTokens.length} FCM tokens to send notifications to`);
+
+    if (allTokens.length === 0) {
+      logger.warn('No FCM tokens found in user records');
+      return { 
+        success: true, 
+        message: 'Notifications saved to database (no FCM tokens available)',
+        saved: true,
+        savedCount: allUsers.length
+      };
+    }
+
+    // Send FCM notifications
+    const latestTokens = allTokens.slice(-1);
+    const result = await sendToMultipleDevices(latestTokens, notification, data);
+    logger.info(`Notification send result: ${JSON.stringify(result)}`);
+
+    // Return result with saved count
+    return {
+      ...result,
+      saved: true,
+      savedCount: allUsers.length,
+      sentCount: usersWithTokens.length
+    };
   } catch (error) {
     logger.error('Error sending notification to all users:', error);
     return { success: false, error: error.message };

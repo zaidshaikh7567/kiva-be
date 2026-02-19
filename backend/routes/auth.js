@@ -37,31 +37,16 @@ const generateTokens = (user) => {
 router.post('/login', validate(loginSchema), asyncHandler(async (req, res) => {
   const { email, password, role } = req.body;
   const normalizedRole = resolveRole(role);
+  console.log('normalizedRole :', normalizedRole);
 
   const user = await User.findOne({ email, active: true, role: normalizedRole });
   if (!user || !(await user.comparePassword(password))) {
     return res.status(401).json({ success: false, message: 'Invalid credentials or role' });
   }
-  // notify user if login is successful
-  // wany useraname capitalize
-  // const userName = user.name.charAt(0).toUpperCase() + user.name.slice(1);
-  // if (user) {
-  //   try {
-  //     await notificationService.sendToUser(user._id, {
-  //       title: 'Welcome to Kiva Jewelry! ',
-  //       body: `Welcome to Kiva Jewelry! ${userName}`,
-  //     }, {
-  //       type: 'login',
-  //       userId: user._id.toString(),
-  //       userName: userName,
-  //       userEmail: user.email,
-  //     },
-  //     { role: 'user' });
-  //   } catch (notificationError) {
-  //     // Log error but don't fail the request
-  //     console.error('Error sending notification to user for login:', notificationError);
-  //   }
-  // }
+  console.log('user-------------@@@@@@@@@ :', user);
+  // Note: Login notification will be sent when user saves their FCM token
+  // This is because the token is only available after frontend initializes FCM
+  // The notification will be sent automatically in the /api/notifications/token endpoint
   const { accessToken, refreshToken } = generateTokens(user);
 
   res.json({
@@ -115,11 +100,13 @@ router.post('/register', validate(registerSchema), asyncHandler(async (req, res)
   }
 
   const existingUser = await User.findOne({ email });
+  console.log('existingUser :', existingUser);
   if (existingUser) {
     return res.status(400).json({ success: false, message: 'User already exists' });
   }
 
   const user = new User({ name, email, password, role: normalizedRole });
+  console.log('user-----------000000 :', user);
   await user.save();
 
   // Send notification to admins if this is a new user

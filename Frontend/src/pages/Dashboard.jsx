@@ -23,10 +23,6 @@ const Dashboard = () => {
   }, [location])
 
 
-//   [
-//     "fLqvgo4tYH9ZwOfqagLluS:APA91bHtbgeermVt5PdUyzFYYkbp9NbeZuic6ExrEn6313lTCcc4bNwEewFq1tYlpVdipGnyyxpRKEa6V3n5_NdTAQUYlCmhOwg7F2dZsZDcepimVpNVyV8",
-//     "dykwt_vKkjAruNW1jb7VdX:APA91bHnnB-P2zeoHqzI72ijkYAmhoq4oEePVpFUE3BKx6tzduzS5pITxRzZLRgrE0_cSoLc2poxVGUBo86REvhfxyrIdgG6gS5AxZjq6NS1ph4b3vH83iQ"
-// ]
 //  const removeFCMToken = async (token) => {
 //   try {
 //     const response = await api.delete('/api/notifications/token', { data: { token } });
@@ -48,7 +44,7 @@ const Dashboard = () => {
 //   };
 //   useEffect(() => {
 //     // handleDeleteAllFCMTokens();
-//     removeFCMTokenData("dykwt_vKkjAruNW1jb7VdX:APA91bHnnB-P2zeoHqzI72ijkYAmhoq4oEePVpFUE3BKx6tzduzS5pITxRzZLRgrE0_cSoLc2poxVGUBo86REvhfxyrIdgG6gS5AxZjq6NS1ph4b3vH83iQ");
+//     removeFCMTokenData("ddvrQhWjVXzLJyut_Vnaelv:APA91bGfDTdEC0u9OVE7hvIOOH0D9y2qr9Z-_Ah5tHuBHmOKQDFTuncKwKReFZ5qNJTNCvIlr_NvdU_Cd3Mq5zfa5XuByakJVN8LkYCUixsmvc7H66DoZ8Y");
 //   }, []);
   return (
     <div className="min-h-screen bg-secondary py-8">
