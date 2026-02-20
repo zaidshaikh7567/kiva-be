@@ -171,6 +171,7 @@ router.post('/', upload, processMediaUploads, validate(createContactSchema), asy
     designDescription,
     preferredMetal,
     preferredStone,
+    preferredContact,
     budget,
     timeline,
     size
@@ -185,6 +186,7 @@ router.post('/', upload, processMediaUploads, validate(createContactSchema), asy
     designDescription: designDescription || undefined,
     preferredMetal: preferredMetal || undefined,
     preferredStone: preferredStone || undefined,
+    preferredContact: preferredContact || 'whatsapp',
     budget: budget || undefined,
     timeline: timeline || undefined,
     size: size || undefined,
@@ -194,7 +196,7 @@ router.post('/', upload, processMediaUploads, validate(createContactSchema), asy
   await contact.save();
 
   // Send notification to admins if this is a custom request
-  if (service === 'custom') {
+  if (service === 'custom' || service === 'general') {
     try {
       console.log('Sending notification to admins for custom request from:', name);
       const result = await notificationService.sendToAllUsers(

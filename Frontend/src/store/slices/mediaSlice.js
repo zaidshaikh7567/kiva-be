@@ -42,7 +42,6 @@ const mediaSlice = createSlice({
       state.loading = true;
       state.error = null;
     }).addCase(fetchMedia.fulfilled, (state, action) => {
-    console.log('action.payload :', action.payload);
       state.loading = false;
       state.media = action.payload.data;
     }).addCase(fetchMedia.rejected, (state, action) => {

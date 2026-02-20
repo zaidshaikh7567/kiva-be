@@ -23,6 +23,11 @@ router.post(
     const { token } = schema.parse(req.body);
     const userId = req.user.id;
 
+
+    // Check if user had tokens before (to detect first token)
+    const userBefore = await User.findById(userId).select('fcmTokens');
+    const isFirstToken = !userBefore?.fcmTokens || userBefore.fcmTokens.length === 0;
+
     // Add token to user's tokens array (avoid duplicates)
     const user = await User.findByIdAndUpdate(
       userId,
@@ -31,16 +36,49 @@ router.post(
     );
 
     if (!user) {
+      console.error('❌ User not found:', userId);
       return res.status(404).json({
         success: false,
         message: 'User not found',
       });
     }
 
+
+    // Send welcome/login notification if this is the first token (user just initialized FCM)
+    if (isFirstToken) {
+      try {
+        const userName = user.name.charAt(0).toUpperCase() + user.name.slice(1);
+        console.log('🎉 First token saved! Sending welcome notification...');
+        
+        const notificationResult = await notificationService.sendToUser(user._id, {
+          title: 'Welcome to Kiva Jewelry!',
+          body: `Welcome ${userName}!`,
+        }, {
+          type: 'login',
+          userId: user._id.toString(),
+          userName: userName,
+          userEmail: user.email,
+        });
+        
+        console.log('📊 Welcome notification result:', notificationResult);
+        
+        if (notificationResult.success && notificationResult.successCount > 0) {
+          console.log('✅ Welcome notification sent successfully via FCM!');
+        } else if (notificationResult.saved) {
+          console.log('⚠️ Welcome notification saved to database');
+        }
+      } catch (notificationError) {
+        // Log error but don't fail the token save
+        console.error('❌ Error sending welcome notification:', notificationError);
+      }
+    }
+
     res.status(200).json({
       success: true,
       message: 'FCM token saved successfully',
       tokens: user.fcmTokens,
+      tokenCount: user.fcmTokens.length,
+      isFirstToken: isFirstToken,
     });
   })
 );
@@ -455,6 +493,7 @@ router.delete(
     });
   })
 );
+
 
 module.exports = router;
 

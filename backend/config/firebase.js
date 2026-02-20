@@ -4,8 +4,6 @@ const logger = require('../utils/logger');
 
 // Initialize Firebase Admin
 let messaging = null;
-
-console.log('FIREBASE_PRIVATE_KEY :', FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'));
 try {
   // Check if Firebase Admin is already initialized
   if (!admin.apps.length) {

@@ -9,16 +9,17 @@ import {
   Lock
 } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { selectUser } from '../store/slices/authSlice';
-import { toast } from 'react-hot-toast';
+import { removeFCMToken } from '../services/notificationService';
+import { fetchNotifications } from '../store/slices/notificationsSlice';
 
 const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const user = useSelector(selectUser);
   const profileMenuRef = useRef(null);
-
+  const dispatch = useDispatch();
   const profileMenuItems = [
     { label: 'Profile', icon: User, path: '/profile' },
     { label: 'Change Password', icon: Lock, path: '/change-password' },
@@ -30,8 +31,12 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
     setShowProfileMenu(false);
   };
 
-  const handleLogout = () => {
-    toast.success('Logged out successfully!');
+  const handleLogout = async () => {
+  const fcmToken = localStorage.getItem('fcmToken-admin');
+    if (fcmToken) {
+      await removeFCMToken(fcmToken);
+    }
+    localStorage.removeItem('fcmToken-admin');
     localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(TOKEN_KEYS.USER);
@@ -56,9 +61,37 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showProfileMenu]);
+
+
+  useEffect(() => {
+    const handleTabFocus = () => {
+      console.log("Tab is active - Fetch notifications");
+  
+      // Call your notification API here
+      dispatch(fetchNotifications());
+    };
+  
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        console.log("Tab became visible - Fetch notifications");
+  
+        // Call your notification API here
+        dispatch(fetchNotifications());
+      }
+    };
+  
+    window.addEventListener("focus", handleTabFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  
+    return () => {
+      window.removeEventListener("focus", handleTabFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [dispatch]);
+  
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
-      <div className="flex items-center justify-between px-4 py-3 lg:px-6 h-20">
+    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30 overflow-visible">
+      <div className="flex items-center justify-between px-4 py-3 lg:px-6 h-20 relative">
         {/* Left Section */}
         <div className="flex items-center space-x-4">
           {/* Mobile Menu Button */}
@@ -96,18 +129,6 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen, pageTitle }) => {
 
         {/* Right Section */}
         <div className="flex items-center space-x-3">
-          {/* Dark Mode Toggle */}
-          {/* <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-            title="Toggle dark mode"
-          >
-            {isDarkMode ? (
-              <Sun className="w-5 h-5 text-black-light" />
-            ) : (
-              <Moon className="w-5 h-5 text-black-light" />
-            )}
-          </button> */}
 
           {/* Notifications */}
           <NotificationDropdown />

@@ -37,6 +37,7 @@ const Contact = () => {
     countryName: "",
     message: "",
     service: "general",
+    preferredContact: "whatsapp",
   });
   const media = useSelector(selectMedia) || [];
   const FACEBOOK_URL = import.meta.env.VITE_FACEBOOK_URL;
@@ -220,6 +221,7 @@ const Contact = () => {
         phone: `${formData.countryName.trim()}, ${formData.countryCode}, +${formData.phone.trim()}`,
         message: formData.message.trim(),
         service: formData.service.trim()  || "general",
+        preferredContact: formData.preferredContact.trim() || "whatsapp",
       };
 
       // Submit contact form
@@ -235,7 +237,8 @@ const Contact = () => {
         countryName: "",
         message: "",
         service: "general",
-      });
+        preferredContact: "whatsapp",
+          });
       setErrors({});
     } catch (error) {
       console.error("Error submitting contact form:", error);
@@ -412,7 +415,7 @@ const Contact = () => {
 
                     <div>
                       <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                        Phone Number *
+                        WhatsApp Number *
                       </label>
                       <div>
                         <PhoneInput
@@ -451,6 +454,7 @@ const Contact = () => {
                             <p className="mt-1 text-red-500 text-xs sm:text-sm  sm:mt-1.5 font-montserrat-regular-400">{errors.phone}</p>
                           )}
                         </div>
+                        
                     </div>
                   </div>
 
@@ -466,7 +470,88 @@ const Contact = () => {
                     />  
                     
                   </div>
+                  <div>
+                        <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                          Preferred Contact Method
+                        </label>
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+                            <div className="relative">
+                              <input
+                                type="radio"
+                                name="preferredContact"
+                                value="whatsapp"
+                                checked={formData.preferredContact === 'whatsapp'}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    preferredContact: e.target.value,
+                                  }))
+                                }
+                                className="sr-only"
+                              />
+                              <div
+                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                                  formData.preferredContact === 'whatsapp'
+                                    ? 'border-primary bg-white'
+                                    : 'border-gray-300 group-hover:border-primary'
+                                }`}
+                              >
+                                {formData.preferredContact === 'whatsapp' && (
+                                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                )}
+                              </div>
+                            </div>
+                            <span
+                              className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
+                                formData.preferredContact === 'whatsapp'
+                                  ? 'text-primary font-montserrat-medium-500'
+                                  : 'text-black-light group-hover:text-black'
+                              }`}
+                            >
+                              WhatsApp
+                            </span>
+                          </label>
 
+                          <label className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+                            <div className="relative">
+                              <input
+                                type="radio"
+                                name="preferredContact"
+                                value="email"
+                                checked={formData.preferredContact === 'email'}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    preferredContact: e.target.value,
+                                  }))
+                                }
+                                className="sr-only"
+                              />
+                              <div
+                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                                  formData.preferredContact === 'email'
+                                    ? 'border-primary bg-white'
+                                    : 'border-gray-300 group-hover:border-primary'
+                                }`}
+                              >
+                                {formData.preferredContact === 'email' && (
+                                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                )}
+                              </div>
+                            </div>
+                            <span
+                              className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
+                                formData.preferredContact === 'email'
+                                  ? 'text-primary font-montserrat-medium-500'
+                                  : 'text-black-light group-hover:text-black'
+                              }`}
+                            >
+                              Email
+                            </span>
+                          </label>
+                        </div>
+                      </div>
                   <div>
                     <label
                       htmlFor="service"

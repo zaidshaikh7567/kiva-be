@@ -9,6 +9,7 @@ const createContactSchema = zod.object({
   designDescription: zod.string().optional(),
   preferredMetal: zod.string().optional(),
   preferredStone: zod.string().optional(),
+  preferredContact: zod.enum(['whatsapp', 'email']).optional(),
   budget: zod.string().optional(),
   timeline: zod.string().optional(),
   size: zod.string().optional(),

@@ -7,53 +7,61 @@ const contactsData = [
     email: 'john.smith@example.com',
     phone: '+1-555-0101',
     message: 'I am interested in purchasing a custom engagement ring. Could you please provide more information about your customization options?',
-    service: 'general'
+    service: 'general',
+    preferredContact: 'whatsapp'
   },
   {
     name: 'Sarah Johnson',
     email: 'sarah.johnson@example.com',
     phone: '+1-555-0102',
     message: 'I would like to know about your return policy and warranty information for diamond jewelry.',
-    service: 'general'
+    service: 'general',
+    preferredContact: 'whatsapp'
   },
   {
     name: 'Michael Brown',
     email: 'michael.brown@example.com',
     message: 'Do you offer jewelry repair services? I have a vintage ring that needs restoration.',
-    service: 'general'
+    service: 'general',
+    preferredContact: 'whatsapp'
   },
   {
     name: 'Emily Davis',
     email: 'emily.davis@example.com',
     phone: '+1-555-0104',
     message: 'I am looking for a specific type of gemstone. Can you help me find what I am looking for?',
-    service: 'general'
+    service: 'general',
+    preferredContact: 'whatsapp'
   },
   {
     name: 'David Wilson',
     email: 'david.wilson@example.com',
     phone: '+1-555-0105',
     message: 'I would like to schedule an appointment to view your jewelry collection in person.',
-    service: 'general'
+    service: 'general',
+    preferredContact: 'whatsapp'
   },
   {
     name: 'Lisa Anderson',
     email: 'lisa.anderson@example.com',
     message: 'What is your shipping policy for international orders? I am located outside the US.',
-    service: 'general'
+    service: 'general',
+    preferredContact: 'whatsapp'
   },
   {
     name: 'Robert Taylor',
     email: 'robert.taylor@example.com',
     phone: '+1-555-0107',
     message: 'I am interested in your wholesale program for jewelers. Please contact me with more details.',
-    service: 'general'
+    service: 'general',
+    preferredContact: 'whatsapp'
   },
   {
     name: 'Jennifer Martinez',
     email: 'jennifer.martinez@example.com',
     message: 'Can you provide information about your diamond certification process and grading standards?',
-    service: 'general'
+    service: 'general',
+    preferredContact: 'whatsapp'
   }
 ];
 

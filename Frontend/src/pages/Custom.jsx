@@ -52,6 +52,7 @@ const Custom = () => {
     designDescription: "",
     preferredMetal: "",
     preferredStone: "",
+    preferredContact: "whatsapp",
     budget: "",
     timeline: "",
     size: "",
@@ -332,6 +333,7 @@ const Custom = () => {
       formDataToSend.append('phone', `${formData.countryName.trim()}, ${formData.countryCode}, +${formData.phone.trim()}`);
       formDataToSend.append('message', formData.message.trim());
       formDataToSend.append('service', 'custom');
+      formDataToSend.append('preferredContact', formData.preferredContact || 'whatsapp');
       // Add optional custom order fields
       if (formData.designDescription) {
         formDataToSend.append('designDescription', formData.designDescription.trim());
@@ -373,6 +375,7 @@ const Custom = () => {
         designDescription: "",
         preferredMetal: "",
         preferredStone: "",
+        preferredContact: "whatsapp",
         budget: "",
         timeline: "",
         size: "",
@@ -490,7 +493,7 @@ const Custom = () => {
 
                     <div>
                       <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
-                        Phone Number *
+                        WhatsApp Number *
                       </label>
                       <div>
                         <PhoneInput
@@ -543,6 +546,88 @@ const Custom = () => {
                         placeholder="Enter your email address"
                       />
                     </div>
+                    <div>
+                        <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
+                          Preferred Contact Method
+                        </label>
+                        <div className=" flex items-center gap-4">
+                          <label className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+                            <div className="relative">
+                              <input
+                                type="radio"
+                                name="preferredContact"
+                                value="whatsapp"
+                                checked={formData.preferredContact === 'whatsapp'}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    preferredContact: e.target.value,
+                                  }))
+                                }
+                                className="sr-only"
+                              />
+                              <div
+                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                                  formData.preferredContact === 'whatsapp'
+                                    ? 'border-primary bg-white'
+                                    : 'border-gray-300 group-hover:border-primary'
+                                }`}
+                              >
+                                {formData.preferredContact === 'whatsapp' && (
+                                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                )}
+                              </div>
+                            </div>
+                            <span
+                              className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
+                                formData.preferredContact === 'whatsapp'
+                                  ? 'text-primary font-montserrat-medium-500'
+                                  : 'text-black-light group-hover:text-black'
+                              }`}
+                            >
+                              WhatsApp
+                            </span>
+                          </label>
+
+                          <label className="flex items-center cursor-pointer group hover:bg-primary-light/5 rounded-lg pb-[4px] transition-colors duration-200">
+                            <div className="relative">
+                              <input
+                                type="radio"
+                                name="preferredContact"
+                                value="email"
+                                checked={formData.preferredContact === 'email'}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    preferredContact: e.target.value,
+                                  }))
+                                }
+                                className="sr-only"
+                              />
+                              <div
+                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                                  formData.preferredContact === 'email'
+                                    ? 'border-primary bg-white'
+                                    : 'border-gray-300 group-hover:border-primary'
+                                }`}
+                              >
+                                {formData.preferredContact === 'email' && (
+                                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                )}
+                              </div>
+                            </div>
+                            <span
+                              className={`ml-4 text-sm font-montserrat-regular-400 transition-colors duration-200 ${
+                                formData.preferredContact === 'email'
+                                  ? 'text-primary font-montserrat-medium-500'
+                                  : 'text-black-light group-hover:text-black'
+                              }`}
+                            >
+                              Email
+                            </span>
+                          </label>
+                        </div>
+                      </div>
                   </div>
                 </div>
 
@@ -568,6 +653,8 @@ const Custom = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+
                       <div>
                         <label className="block text-sm font-montserrat-medium-500 text-black mb-2">
                           Preferred Metal
