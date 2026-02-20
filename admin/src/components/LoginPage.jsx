@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { TOKEN_KEYS } from '../constants/tokenKeys';
 import FormInput from './FormInput';
 import { useNavigate } from 'react-router-dom';
+import { fetchNotifications } from '../store/slices/notificationsSlice';
 
 const LoginPage = ({ onLogin, onForgotPassword }) => {
   const dispatch = useDispatch();
@@ -120,6 +121,7 @@ const LoginPage = ({ onLogin, onForgotPassword }) => {
       if (login.fulfilled.match(result)) {
         toast.success('Login successful!');
         onLogin();
+        dispatch(fetchNotifications());
       } else {
         toast.error(result.payload || 'Login failed');
       }

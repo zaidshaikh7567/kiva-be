@@ -38,6 +38,12 @@ const contactSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  preferredContact: {
+    type: String,
+    enum: ['whatsapp', 'email'],
+    default: 'whatsapp',
+    trim: true
+  },
   budget: {
     type: String,
     trim: true

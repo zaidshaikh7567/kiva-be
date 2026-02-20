@@ -3,11 +3,11 @@ importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"
 importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js");
 
 firebase.initializeApp({
-  apiKey: "AIzaSyDo8CSm72wDwJPTWXneJ0-g3FdGw4w7O-s",
-  authDomain: "kiva-diamond-f2c8a.firebaseapp.com",
-  projectId: "kiva-diamond-f2c8a",
-  messagingSenderId: "168324678431",
-  appId: "1:168324678431:web:fcc96378cdfbf2c3bf262a",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 });
 
 const messaging = firebase.messaging();

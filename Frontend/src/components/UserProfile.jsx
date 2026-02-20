@@ -32,7 +32,7 @@ const UserProfile = ({ user, onLogout }) => {
     toast.success('Logged out successfully!');
     onLogout();
     setIsOpen(false);
-    navigate('/');
+    navigate('/sign-in');
   };
 
   const handleProfileClick = () => {
